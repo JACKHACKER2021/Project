@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VOXEL-CRAFT 2.0</title>
+    <style>
+        :root {
+            --glass: rgba(255, 255, 255, 0.1);
+            --glass-thick: rgba(255, 255, 255, 0.2);
+            --accent: #00d2ff;
+            --text: #ffffff;
+        }
+
+        body { 
+            margin: 0; overflow: hidden; touch-action: none; 
+            font-family: 'Segoe UI', sans-serif; background: #000; color: var(--text); user-select: none;
+        }
+
+        .glass {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-thick);
+            border-radius: 20px;
+        }
+
+        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+        #ui-layer * { pointer-events: auto; }
+
+        .overlay {
+            position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+            flex-direction: column; z-index: 100; background: radial-gradient(circle, rgba(0,0,0,0.6) 0%, rgba(0,0,0,1) 100%);
+        }
+
+        .card { padding: 40px; width: 80%; max-width: 350px; text-align: center; }
+        h1 { font-size: 2.2rem; margin: 0 0 20px; background: linear-gradient(45deg, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .btn { width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        .btn-primary { background: #fff; color: #000; }
+
+        #stats { position: absolute; top: 20px; left: 20px; padding: 10px 15px; font-size: 12px; }
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; transform: translate(-50%, -50%); border: 2px solid white; border-radius: 50%; pointer-events: none; }
+
+        #joystick-wrapper { position: absolute; bottom: 40px; left: 40px; width: 100px; height: 100px; }
+        #joy-base { width: 100%; height: 100%; border-radius: 50%; background: var(--glass); border: 1px solid var(--glass-thick); position: relative; }
+        #joy-stick { position: absolute; width: 40px; height: 40px; background: #fff; border-radius: 50%; top: 30px; left: 30px; }
+
+        .controls-right { position: absolute; bottom: 40px; right: 40px; display: flex; flex-direction: column; gap: 15px; }
+        .circle-btn { width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; }
+
+        #inventory { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; padding: 8px; }
+        .slot { width: 35px; height: 35px; border-radius: 8px; border: 2px solid transparent; }
+        .slot.active { border-color: var(--accent); transform: translateY(-5px); }
+
+        #loading-screen { z-index: 1000; }
+        .progress-container { width: 200px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top: 20px; overflow: hidden; }
+        .progress-bar { width: 0%; height: 100%; background: var(--accent); transition: width 0.3s; }
+    </style>
+</head>
+<body>
+
+    <div id="ui-layer">
+        <div id="stats" class="glass">FPS: --</div>
+        <div id="crosshair"></div>
+        <div id="joystick-wrapper">
+            <div id="joy-base"><div id="joy-stick"></div></div>
+        </div>
+        <div class="controls-right">
+            <div id="jump-btn" class="circle-btn glass">⤴️</div>
+            <div id="break-btn" class="circle-btn glass">⛏️</div>
+            <div id="place-btn" class="circle-btn glass" style="background: rgba(0,210,255,0.3)">🧱</div>
+        </div>
+        <div id="inventory" class="glass"></div>
+    </div>
+
+    <div id="menu" class="overlay">
+        <div class="card glass">
+            <h1>Voxel Craft 2.0</h1>
+            <p>Biomy & Stromy</p>
+            <button id="start-btn" class="btn btn-primary">HRÁT</button>
+        </div>
+    </div>
+
+    <div id="loading-screen" class="overlay" style="display:none;">
+        <div id="loading-text">GENEROVÁNÍ SVĚTA...</div>
+        <div class="progress-container"><div id="progress-bar" class="progress-bar"></div></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/jwagner/simplex-noise.js/simplex-noise.min.js"></script>
+
+    <script>
+        // --- CONFIG ---
+        const CONFIG = {
+            chunkSize: 16,
+            renderDistance: 1, // 1 chunk kolem dokola (celkem 3x3 chunky)
+            gravity: 0.008,
+            moveSpeed: 0.12,
+            jumpPower: 0.18,
+            playerHeight: 1.8
+        };
+
+        const BLOCKS = [
+            { name: "Grass", color: 0x55aa55 },
+            { name: "Dirt", color: 0x8b4513 },
+            { name: "Stone", color: 0x777777 },
+            { name: "Sand", color: 0xe2c591 },
+            { name: "Wood", color: 0x6d4c41 },
+            { name: "Leaf", color: 0x2e7d32 }
+        ];
+
+        // --- STATE ---
+        let scene, camera, renderer, clock, simplex;
+        let blocks = [], materials = [];
+        let isPaused = true, selectionBox;
+        let moveInput = { x: 0, y: 0 }, velocityY = 0, onGround = false;
+        let selectedIdx = 0;
+
+        // --- INIT ---
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87CEEB);
+            scene.fog = new THREE.Fog(0x87CEEB, 15, 50);
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.body.appendChild(renderer.domElement);
+
+            simplex = new SimplexNoise();
+
+            scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+            const sun = new THREE.DirectionalLight(0xffffff, 0.6);
+            sun.position.set(10, 50, 10);
+            scene.add(sun);
+
+            materials = BLOCKS.map(b => new THREE.MeshStandardMaterial({ color: b.color }));
+
+            // Selection box
+            selectionBox = new THREE.Mesh(
+                new THREE.BoxGeometry(1.02, 1.02, 1.02),
+                new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.5 })
+            );
+            scene.add(selectionBox);
+
+            buildInventoryUI();
+            setupControls();
+            generateWorld();
+            
+            clock = new THREE.Clock();
+            window.addEventListener('resize', onResize);
+        }
+
+        function buildInventoryUI() {
+            const inv = document.getElementById("inventory");
+            BLOCKS.forEach((b, i) => {
+                const slot = document.createElement("div");
+                slot.className = "slot" + (i === 0 ? " active" : "");
+                slot.style.background = `#${b.color.toString(16).padStart(6, '0')}`;
+                slot.onclick = () => {
+                    selectedIdx = i;
+                    document.querySelectorAll(".slot").forEach(s => s.classList.remove("active"));
+                    slot.classList.add("active");
+                };
+                inv.appendChild(slot);
+            });
+        }
+
+        async function generateWorld() {
+            document.getElementById("loading-screen").style.display = "flex";
+            const bar = document.getElementById("progress-bar");
+            
+            const dist = CONFIG.renderDistance;
+            let total = ((dist * 2) + 1) ** 2;
+            let count = 0;
+
+            for(let cx = -dist; cx <= dist; cx++) {
+                for(let cz = -dist; cz <= dist; cz++) {
+                    createChunk(cx, cz);
+                    count++;
+                    bar.style.width = (count / total * 100) + "%";
+                    await new Promise(r => setTimeout(r, 10)); 
+                }
+            }
+
+            camera.position.set(0, 25, 0);
+            document.getElementById("loading-screen").style.display = "none";
+            isPaused = false;
+            animate();
+        }
+
+        function createChunk(cx, cz) {
+            const s = CONFIG.chunkSize;
+            for(let x = 0; x < s; x++) {
+                for(let z = 0; z < s; z++) {
+                    const wx = cx * s + x;
+                    const wz = cz * s + z;
+                    
+                    // Noise pro biomy a výšku
+                    const biome = simplex.noise2D(wx * 0.02, wz * 0.02);
+                    let h, topBlock;
+
+                    if(biome < -0.2) { // POUŠŤ
+                        h = Math.floor(simplex.noise2D(wx * 0.05, wz * 0.05) * 2 + 5);
+                        topBlock = 3; // Sand
+                    } else if(biome > 0.5) { // HORY
+                        h = Math.floor(Math.abs(simplex.noise2D(wx * 0.03, wz * 0.03)) * 12 + 8);
+                        topBlock = 2; // Stone
+                    } else { // PLÁNĚ
+                        h = Math.floor(simplex.noise2D(wx * 0.04, wz * 0.04) * 4 + 7);
+                        topBlock = 0; // Grass
+                    }
+
+                    // Sloupec bloků
+                    for(let y = 0; y < h; y++) {
+                        let type = 2; // Stone hluboko
+                        if(y === h - 1) type = topBlock;
+                        else if(y > h - 3) type = (topBlock === 0) ? 1 : topBlock;
+                        addBlock(wx, y, wz, type);
+                    }
+
+                    // Stromy
+                    if(topBlock === 0 && Math.random() < 0.015) {
+                        spawnTree(wx, h, wz);
+                    }
+                }
+            }
+        }
+
+        function spawnTree(x, y, z) {
+            const h = 4 + Math.floor(Math.random() * 2);
+            for(let i = 0; i < h; i++) addBlock(x, y + i, z, 4); // Wood
+            for(let lx = -2; lx <= 2; lx++) {
+                for(let lz = -2; lz <= 2; lz++) {
+                    for(let ly = 0; ly < 3; ly++) {
+                        if(Math.abs(lx) + Math.abs(lz) + Math.abs(ly) > 3) continue;
+                        addBlock(x + lx, y + h + ly - 1, z + lz, 5); // Leaf
+                    }
+                }
+            }
+        }
+
+        function addBlock(x, y, z, type) {
+            const mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), materials[type]);
+            mesh.position.set(x, y, z);
+            scene.add(mesh);
+            blocks.push(mesh);
+        }
+
+        // --- GAME LOOP ---
+        function update() {
+            if(isPaused) return;
+
+            // Gravity
+            velocityY -= CONFIG.gravity;
+            camera.position.y += velocityY;
+            onGround = false;
+
+            // Collisions (Podlaha)
+            for(let b of blocks) {
+                if(Math.abs(camera.position.x - b.position.x) < 0.6 && Math.abs(camera.position.z - b.position.z) < 0.6) {
+                    const feet = camera.position.y - CONFIG.playerHeight;
+                    if(feet < b.position.y + 0.5 && camera.position.y > b.position.y) {
+                        if(velocityY < 0) {
+                            camera.position.y = b.position.y + 0.5 + CONFIG.playerHeight;
+                            velocityY = 0;
+                            onGround = true;
+                        }
+                    }
+                }
+            }
+
+            // Movement
+            const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+            const side = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+            dir.y = 0; side.y = 0;
+            dir.normalize(); side.normalize();
+
+            camera.position.addScaledVector(dir, -moveInput.y * CONFIG.moveSpeed);
+            camera.position.addScaledVector(side, moveInput.x * CONFIG.moveSpeed);
+
+            // Raycast highlight
+            updateSelection();
+        }
+
+        function updateSelection() {
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+            const hits = raycaster.intersectObjects(blocks);
+            const hit = hits.find(h => h.distance < 5);
+
+            if(hit) {
+                selectionBox.visible = true;
+                selectionBox.position.copy(hit.object.position);
+            } else {
+                selectionBox.visible = false;
+            }
+        }
+
+        function interact(type) {
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+            const hits = raycaster.intersectObjects(blocks);
+            const hit = hits.find(h => h.distance < 5);
+
+            if(!hit) return;
+
+            if(type === 'break') {
+                scene.remove(hit.object);
+                blocks.splice(blocks.indexOf(hit.object), 1);
+            } else {
+                const pos = hit.object.position.clone().add(hit.face.normal);
+                addBlock(pos.x, pos.y, pos.z, selectedIdx);
+            }
+        }
+
+        function animate() {
+            if(isPaused) return;
+            requestAnimationFrame(animate);
+            update();
+            renderer.render(scene, camera);
+            
+            const fps = Math.round(1 / clock.getDelta());
+            if(fps < 200) document.getElementById("stats").innerText = `FPS: ${fps}`;
+        }
+
+        // --- CONTROLS ---
+        function setupControls() {
+            const joyBase = document.getElementById("joy-base");
+            const joyStick = document.getElementById("joy-stick");
+
+            // Joystick
+            const handleJoy = (e) => {
+                e.preventDefault();
+                const t = e.touches[0];
+                const r = joyBase.getBoundingClientRect();
+                const cx = r.left + r.width/2;
+                const cy = r.top + r.height/2;
+                let dx = t.clientX - cx, dy = t.clientY - cy;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if(dist > 40) { dx *= 40/dist; dy *= 40/dist; }
+                joyStick.style.transform = `translate(${dx}px, ${dy}px)`;
+                moveInput = { x: dx/40, y: dy/40 };
+            };
+
+            joyBase.addEventListener("touchmove", handleJoy);
+            joyBase.addEventListener("touchend", () => {
+                joyStick.style.transform = "translate(0,0)";
+                moveInput = { x: 0, y: 0 };
+            });
+
+            // Look
+            let lx, ly;
+            document.addEventListener("touchmove", (e) => {
+                if(e.target.closest('#joy-base') || e.target.closest('.circle-btn') || e.target.closest('#inventory')) return;
+                const t = e.touches[0];
+                if(lx !== undefined) {
+                    camera.rotation.y -= (t.clientX - lx) * 0.007;
+                    camera.rotation.x = Math.max(-1.5, Math.min(1.5, camera.rotation.x - (t.clientY - ly) * 0.007));
+                }
+                lx = t.clientX; ly = t.clientY;
+            });
+            document.addEventListener("touchend", () => { lx = undefined; ly = undefined; });
+
+            // Buttons
+            document.getElementById("jump-btn").onclick = () => { if(onGround) velocityY = CONFIG.jumpPower; };
+            document.getElementById("break-btn").onclick = () => interact('break');
+            document.getElementById("place-btn").onclick = () => interact('place');
+            document.getElementById("start-btn").onclick = () => {
+                document.getElementById("menu").style.display = "none";
+                if(!scene) init();
+            };
+        }
+
+        function onResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+    </script>
+</body>
+</html>
