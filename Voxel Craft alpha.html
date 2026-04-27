@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VOXEL CRAFT: CHUNK ENGINE</title>
+    <style>
+        :root { --accent: #00d2ff; }
+        body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; color: white; user-select: none; }
+        
+        /* UI GLASS */
+        .glass { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); border-radius: 15px; }
+        #ui { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
+        #ui * { pointer-events: auto; }
+        
+        #menu { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle, #111, #000); z-index: 100; flex-direction: column; }
+        .card { padding: 40px; text-align: center; width: 300px; }
+        
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; background: rgba(0,0,0,0.5); color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: var(--accent); border: none; color: white; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        
+        #stats { position: absolute; top: 20px; left: 20px; padding: 10px; font-size: 12px; }
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; transform: translate(-50%, -50%); border: 2px solid rgba(255,255,255,0.5); border-radius: 50%; pointer-events: none; }
+        
+        /* CONTROLS */
+        #joy-wrapper { position: absolute; bottom: 40px; left: 40px; width: 100px; height: 100px; }
+        #joy-base { width: 100%; height: 100%; border-radius: 50%; background: rgba(255,255,255,0.1); position: relative; }
+        #joy-stick { position: absolute; width: 40px; height: 40px; background: #fff; border-radius: 50%; top: 30px; left: 30px; }
+        
+        .btns-right { position: absolute; bottom: 40px; right: 40px; display: flex; flex-direction: column; gap: 10px; }
+        .btn-circle { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div id="ui">
+    <div id="stats" class="glass">FPS: -- | Chunk: -- | Biome: --</div>
+    <div id="crosshair"></div>
+    <div id="joy-wrapper">
+        <div id="joy-base"><div id="joy-stick"></div></div>
+    </div>
+    <div class="btns-right">
+        <div id="jump-btn" class="btn-circle glass">⤴️</div>
+        <div id="action-btn" class="btn-circle glass">⛏️</div>
+    </div>
+</div>
+
+<div id="menu" class="overlay">
+    <div class="card glass">
+        <h1 style="color:var(--accent); letter-spacing: 2px;">VOXEL CRAFT</h1>
+        <p>CHUNKS & PERLIN NOISE</p>
+        <input type="text" id="seed-input" placeholder="Zadej Seed (např. 'Hory')">
+        <button onclick="startGame()">GENEROVAT SVĚT</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+
+<script>
+/** 
+ * --- NOISE ENGINE (Perlin Simplex Logic) --- 
+ */
+class Noise {
+    constructor(seed) {
+        this.p = new Uint8Array(256);
+        this.seed = seed;
+        for(let i=0; i<256; i++) this.p[i] = i;
+        // Zamíchání pomocí seedu
+        for(let i=255; i>0; i--) {
+            const j = Math.floor(this.seededRandom(i) * (i + 1));
+            [this.p[i], this.p[j]] = [this.p[j], this.p[i]];
+        }
+        this.perm = new Uint8Array(512);
+        for(let i=0; i<512; i++) this.perm[i] = this.p[i & 255];
+    }
+    seededRandom(x) {
+        const s = Math.sin(this.seed + x) * 10000;
+        return s - Math.floor(s);
+    }
+    fade(t) { return t * t * t * (t * (t * 6 - 15) + 10); }
+    lerp(t, a, b) { return a + t * (b - a); }
+    grad(hash, x, y) {
+        const h = hash & 15;
+        const u = h < 8 ? x : y;
+        const v = h < 4 ? y : h === 12 || h === 14 ? x : 0;
+        return ((h & 1) === 0 ? u : -u) + ((h & 2) === 0 ? v : -v);
+    }
+    get(x, y) {
+        const X = Math.floor(x) & 255;
+        const Y = Math.floor(y) & 255;
+        x -= Math.floor(x); y -= Math.floor(y);
+        const u = this.fade(x); const v = this.fade(y);
+        const a = this.perm[X] + Y, aa = this.perm[a], ab = this.perm[a + 1];
+        const b = this.perm[X + 1] + Y, ba = this.perm[b], bb = this.perm[b + 1];
+        return this.lerp(v, this.lerp(u, this.grad(this.perm[aa], x, y), this.grad(this.perm[ba], x - 1, y)),
+                            this.lerp(u, this.grad(this.perm[ab], x, y - 1), this.grad(this.perm[bb], x - 1, y - 1)));
+    }
+}
+
+/** 
+ * --- GAME ENGINE --- 
+ */
+let scene, camera, renderer, clock, noiseGen;
+let chunks = new Map();
+const CHUNK_SIZE = 16;
+const RENDER_DIST = 2; // Počet chunků kolem hráče
+let moveInput = { x: 0, y: 0 }, velocityY = 0, onGround = false;
+
+const MATERIALS = {
+    grass: new THREE.MeshStandardMaterial({ color: 0x55aa55 }),
+    dirt: new THREE.MeshStandardMaterial({ color: 0x8b4513 }),
+    stone: new THREE.MeshStandardMaterial({ color: 0x777777 }),
+    sand: new THREE.MeshStandardMaterial({ color: 0xe2c591 }),
+    snow: new THREE.MeshStandardMaterial({ color: 0xffffff })
+};
+
+function startGame() {
+    document.getElementById("menu").style.display = "none";
+    const seedVal = document.getElementById("seed-input").value || Math.random();
+    noiseGen = new Noise(typeof seedVal === 'string' ? seedVal.split('').reduce((a,b)=>a+b.charCodeAt(0),0) : seedVal);
+    
+    init();
+}
+
+function init() {
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x87CEEB);
+    scene.fog = new THREE.Fog(0x87CEEB, 20, CHUNK_SIZE * RENDER_DIST * 2);
+
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    camera.position.set(8, 20, 8);
+
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    document.body.appendChild(renderer.domElement);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+    const sun = new THREE.DirectionalLight(0xffffff, 0.8);
+    sun.position.set(50, 100, 50);
+    scene.add(sun);
+
+    setupControls();
+    clock = new THREE.Clock();
+    animate();
+}
+
+function getBiome(x, z) {
+    const bNoise = noiseGen.get(x * 0.01, z * 0.01); // Velmi pomalý šum pro biomy
+    if (bNoise < -0.2) return "DESERT";
+    if (bNoise < 0.2) return "FOREST";
+    if (bNoise < 0.5) return "MOUNTAINS";
+    return "SNOW";
+}
+
+function createChunk(cx, cz) {
+    const key = `${cx},${cz}`;
+    if (chunks.has(key)) return;
+
+    const group = new THREE.Group();
+    // Použijeme InstancedMesh pro každý typ bloku v chunku pro max výkon
+    const instancedMeshes = {};
+    
+    for (let x = 0; x < CHUNK_SIZE; x++) {
+        for (let z = 0; z < CHUNK_SIZE; z++) {
+            const wx = cx * CHUNK_SIZE + x;
+            const wz = cz * CHUNK_SIZE + z;
+            
+            const biome = getBiome(wx, wz);
+            
+            // FBM (Fractal Brownian Motion) - vrstvení šumu
+            let h = noiseGen.get(wx * 0.05, wz * 0.05) * 5;
+            h += noiseGen.get(wx * 0.1, wz * 0.1) * 2;
+            
+            let height = 0;
+            let topBlock = 'grass';
+
+            if (biome === "DESERT") {
+                height = Math.floor(h * 0.5) + 3;
+                topBlock = 'sand';
+            } else if (biome === "FOREST") {
+                height = Math.floor(h) + 6;
+                topBlock = 'grass';
+            } else if (biome === "MOUNTAINS") {
+                height = Math.floor(h * 3) + 12;
+                topBlock = 'stone';
+            } else {
+                height = Math.floor(h * 2) + 10;
+                topBlock = 'snow';
+            }
+
+            for (let y = 0; y < height; y++) {
+                let type = 'stone';
+                if (y === height - 1) type = topBlock;
+                else if (y > height - 3) type = 'dirt';
+
+                const box = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), MATERIALS[type]);
+                box.position.set(wx, y, wz);
+                group.add(box);
+            }
+        }
+    }
+
+    scene.add(group);
+    chunks.set(key, { group, biome: getBiome(cx*CHUNK_SIZE, cz*CHUNK_SIZE) });
+}
+
+function updateChunks() {
+    const pX = Math.floor(camera.position.x / CHUNK_SIZE);
+    const pZ = Math.floor(camera.position.z / CHUNK_SIZE);
+
+    for(let x = -RENDER_DIST; x <= RENDER_DIST; x++) {
+        for(let z = -RENDER_DIST; z <= RENDER_DIST; z++) {
+            createChunk(pX + x, pZ + z);
+        }
+    }
+}
+
+function setupControls() {
+    const joyBase = document.getElementById("joy-base");
+    const joyStick = document.getElementById("joy-stick");
+
+    joyBase.addEventListener("touchmove", (e) => {
+        e.preventDefault();
+        const t = e.touches[0];
+        const rect = joyBase.getBoundingClientRect();
+        const cx = rect.left + 50, cy = rect.top + 50;
+        let dx = t.clientX - cx, dy = t.clientY - cy;
+        const dist = Math.min(Math.sqrt(dx*dx + dy*dy), 40);
+        const angle = Math.atan2(dy, dx);
+        joyStick.style.transform = `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px)`;
+        moveInput.x = (Math.cos(angle)*dist)/40;
+        moveInput.y = (Math.sin(angle)*dist)/40;
+    });
+
+    joyBase.addEventListener("touchend", () => {
+        joyStick.style.transform = "translate(0,0)";
+        moveInput = { x: 0, y: 0 };
+    });
+
+    // Pohled myší / dotykem
+    let lx, ly;
+    window.addEventListener("touchmove", (e) => {
+        if(e.target.id !== "ui") return;
+        const t = e.touches[0];
+        if(lx) {
+            camera.rotation.y -= (t.clientX - lx) * 0.005;
+            camera.rotation.x -= (t.clientY - ly) * 0.005;
+            camera.rotation.x = Math.max(-1.5, Math.min(1.5, camera.rotation.x));
+        }
+        lx = t.clientX; ly = t.clientY;
+    });
+    window.addEventListener("touchend", () => { lx = null; ly = null; });
+
+    document.getElementById("jump-btn").onclick = () => { if(onGround) velocityY = 0.15; };
+}
+
+function animate() {
+    requestAnimationFrame(animate);
+    const delta = clock.getDelta();
+
+    // Gravitace
+    velocityY -= 0.008;
+    camera.position.y += velocityY;
+
+    // Detekce země (velmi zjednodušená pro demo)
+    const wx = Math.round(camera.position.x);
+    const wz = Math.round(camera.position.z);
+    const biome = getBiome(wx, wz);
+    
+    // Odhad výšky terénu pro kolizi
+    let hNoise = noiseGen.get(wx * 0.05, wz * 0.05) * 5 + noiseGen.get(wx * 0.1, wz * 0.1) * 2;
+    let groundY = 0;
+    if(biome === "DESERT") groundY = hNoise * 0.5 + 3;
+    else if(biome === "FOREST") groundY = hNoise + 6;
+    else if(biome === "MOUNTAINS") groundY = hNoise * 3 + 12;
+    else groundY = hNoise * 2 + 10;
+
+    if (camera.position.y < groundY + 1.8) {
+        camera.position.y = groundY + 1.8;
+        velocityY = 0;
+        onGround = true;
+    }
+
+    // Pohyb
+    const dir = new THREE.Vector3(0,0,-1).applyQuaternion(camera.quaternion);
+    const side = new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion);
+    dir.y = 0; side.y = 0;
+    camera.position.addScaledVector(dir.normalize(), -moveInput.y * 0.15);
+    camera.position.addScaledVector(side.normalize(), moveInput.x * 0.15);
+
+    updateChunks();
+    renderer.render(scene, camera);
+
+    // Stats
+    const cx = Math.floor(camera.position.x / CHUNK_SIZE);
+    const cz = Math.floor(camera.position.z / CHUNK_SIZE);
+    document.getElementById("stats").innerText = `FPS: ${Math.round(1/delta)} | Chunk: ${cx},${cz} | Biome: ${biome}`;
+}
+
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+</body>
+</html>
