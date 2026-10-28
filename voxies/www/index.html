@@ -220,6 +220,19 @@ const ovenMouth = oven.children[1]; ovenMouth.material = ovenMouth.material.clon
 const terminal = box(.5, .35, .1, glow('#5dff8a'), -16, 1.3, -21.0);
 const pizzaMesh = new THREE.Mesh(new THREE.CylinderGeometry(.22, .22, .04, 16), mat('#e8b04a')); pizzaMesh.visible = false; scene.add(pizzaMesh);
 
+// sekera (noc 7) a server kamer (noci 5–6)
+const axeMesh = new THREE.Group();
+box(.07, 1.1, .07, mat('#7a4a22'), 0, .55, 0, axeMesh); box(.4, .25, .05, mat('#c0c4cc'), .15, 1.0, 0, axeMesh); box(.1, .25, .06, mat('#b00000'), -.02, 1.0, 0, axeMesh);
+axeMesh.position.set(21.2, 0, -6.5); axeMesh.rotation.z = .25; axeMesh.visible = false; scene.add(axeMesh);
+const rack = new THREE.Group(); box(.8, 2, .7, mat('#1a1a22'), 0, 1, 0, rack);
+const rackLeds = []; for (let i = 0; i < 8; i++) { const l = box(.06, .06, .02, glow('#3aff6a'), -.25 + (i % 4) * .17, 1.5 - Math.floor(i / 4) * .3, .36, rack); l.material = l.material.clone(); rackLeds.push(l); }
+place(textPlane('SERVER\nKAMER', .7, .4, '#7ff4ff', { neon: true, size: 50 }), 0, 2.3, .36, 0, rack);
+place(rack, -21.3, 0, 4.6, Math.PI / 2);
+// sekera v ruce (první osoba)
+const heldAxe = new THREE.Group();
+box(.05, .7, .05, mat('#7a4a22'), 0, 0, 0, heldAxe); box(.28, .18, .04, mat('#c0c4cc'), .1, .32, 0, heldAxe);
+heldAxe.position.set(.38, -.42, -.7); heldAxe.rotation.set(.3, 0, -.25); heldAxe.visible = false;
+
 // ---------- modely místností (vybavení z GLB; zdi a podlahy jsou naše, aby seděly průchody) ----------
 // bounds = vnitřek místnosti v modelu (co je mimo, jsou zbytky a vyhodí se), room = kam ji posadit
 const ROOM_MODELS = [
@@ -305,7 +318,7 @@ function drawCRT() {
   office.crtTex.needsUpdate = true;
 }
 const PAPER = [
-  'VOXIE\'S ZNOVU\nOTEVÍRÁ!', 'HERNA ZAVŘENA\nROKU 1997', 'NEHODA NA OSLAVĚ:\nSPIS UZAVŘEN', 'KDE JE PROTOTYP\n„GLITCH"?', 'SVĚDEK: MASKOT\nSE POHNUL SÁM',
+  'VOXIE\'S ZNOVU\nOTEVÍRÁ!', 'HERNA ZAVŘENA\nROKU 1997', 'NEHODA NA OSLAVĚ:\nSPIS UZAVŘEN', 'KDE JE PROTOTYP\n„GLITCH"?', 'SVĚDEK: MASKOT\nSE POHNUL SÁM', 'NOVÝ HLÍDAČ\nSE NEVRÁTIL?', 'POSLEDNÍ NOC\nVE FACTORY',
 ];
 let paperMesh = null;
 function setPaper(n) {
@@ -354,7 +367,7 @@ const NEXT = {
 function makeChar(name) { const root = new THREE.Group(); scene.add(root); return { root, model: null, rig: {}, rest: new Map(), name, side: { R: -1, L: 1 }, C: { look: 0, lookAt: null, waveAt: 4 + Math.random() * 5, lit: 0, twitch: [0, 0, 0], twitchNext: 0, nice: false } }; }
 const VOX = makeChar('Voxie'), COC = makeChar('Cocoa'); COC.root.visible = false;
 // aktuálně pózovaná postava (pózovací funkce pracují s těmito proměnnými)
-let charRoot, charModel, rig, rest, side, C, eyeMats = [];
+let charRoot, charModel, rig, rest, side, C, voxEyes = [];
 function use(ch) { charRoot = ch.root; charModel = ch.model; rig = ch.rig; rest = ch.rest; side = ch.side; C = ch.C; }
 use(VOX);
 function buildVoxie() {
@@ -387,8 +400,8 @@ function buildVoxie() {
     rig[s < 0 ? 'earR1' : 'earL1'] = e;
     box(.18, .16, .03, mat('#f2f2ea'), s * .19, .44, .355, head);
   }
-  eyeMats = [];
-  for (const s of [-1, 1]) { const m = new THREE.MeshBasicMaterial({ color: 0x111111 }); eyeMats.push(m); box(.08, .08, .03, m, s * .19, .44, .37, head); }
+  voxEyes = [];
+  for (const s of [-1, 1]) { const m = new THREE.MeshBasicMaterial({ color: 0x111111 }); voxEyes.push(m); box(.08, .08, .03, m, s * .19, .44, .37, head); }
   g.traverse(o => { if (o.isMesh) o.frustumCulled = false; });
   return g;
 }
@@ -467,6 +480,11 @@ function poseCharacter(t, mode) {
     rotW(rig.head, (-.35 + rand(-.12, .12) * j) * k, rand(-.15, .15) * j, rand(-.25, .25) * j * k);
     if (rig.head) rig.head.scale.setScalar(1 + .18 * k);
     rotW(rig.earR1, rand(-.3, .3) * j, 0, 0); rotW(rig.earL1, rand(-.3, .3) * j, 0, 0);
+    return;
+  }
+  if (mode === 'broken') {
+    armsDown(t, 0); const tw = Math.sin(t * 17) > .93 ? rand(-.3, .3) : 0;
+    rotW(rig.chest, .35, 0, 0); rotW(rig.head, .75 + tw, tw, .5);
     return;
   }
   if (mode === 'walk') {
@@ -656,7 +674,8 @@ const CALLS = [
     'Pan Vojtěch se po té oslavě ztratil. Policie našla jen jeho auto na parkovišti. A obleku Voxieho od té doby někdo vyměnil kostru za kovovou.',
     'Cocoa byla v devadesát sedmém nová. Měla dělat společnost dětem. Té noci prý jedno dítě schovala v trubkách, aby ho našli rodiče.',
     'Hlavně vydrž do šesti.'],
-  ['Haló... haló? Kamery dneska zlobí. Slyšíš mě?',
+  ['Haló... haló? Mám zlou zprávu. Cocoa je rozbitá. Někdo ji v noci poškodil a ona teď sedí ve skladu a nehýbe se.',
+    'Oprav ji. Odejdi od stolu, dojdi do skladu a drž se u ní, dokud se nespraví. Ale hlídej Voxieho! Nesmí ti vejít do kanceláře.',
     'Ve skladu je prototyp, říkali mu Glitch. První verze Voxieho. Když ho zapnuli, prý řekl jméno pana Vojtěcha. Vypnuli ho a zakryli plachtou.',
     'Voxie je dneska rychlý. Hodně rychlý. Jako by věděl, že se blíží výročí.',
     'Za Kapitánem Ticketem je zamčená místnost. Kancelář pana Vojtěcha. Klíč... ten jsem si tehdy nechal. Promiň.'],
@@ -664,7 +683,16 @@ const CALLS = [
     'Dneska je to přesně výročí. Voxie bude zuřit. Cocoa bude smutná. Vždycky je smutná, když se blíží půlnoc.',
     'Já ti dlužím pravdu. Té noci jsem byl hlídač já. Slyšel jsem, jak pan Vojtěch v kostýmu volá o pomoc. Zámky se zasekly. A já... utekl.',
     'Kapitán Ticket počítá lístky, protože pan Vojtěch slíbil dětem: kdo nasbírá pět lístků, dostane klíč od pokladu. Najdi je, jestli chceš vědět víc.',
+    'A ještě něco: systém kamer padá. Server je ve vchodu, vedle pokladny. Když kamery zhasnou, dojdi tam a restartuj ho.',
     'Vydrž do šesti. A pak už se nevracej. Nebo se vrať. Asi už je to jedno.'],
+  ['Haló? Ty jsi tu pořád? Přežil jsi výročí. Ale Voxie… něco se v něm zlomilo.',
+    'Je poškozený. Nereaguje na světlo jako dřív a je pořád v pohybu.',
+    'A nedívej se na něj dlouho. Ani přes kameru. Když ho sleduješ, rozběhne se po tobě.',
+    'Server zase padá. Cocoa ti pomůže, jestli jsi ji opravil. Hodně štěstí.'],
+  ['Poslední zpráva. Tohle je naposled, co volám.',
+    'Ve skladu je hasičská sekera. Pan Vojtěch ji tam dal po té noci… asi věděl proč.',
+    'Můžeš vydržet do šesti, jako vždycky. Nebo ho můžeš pustit ven. Tři rány do obleku. Sám se z něj nikdy nedostane.',
+    'Vyber si. A děkuju. Za všechno.'],
 ];
 const LINES_V = {
   start: ['Show začíná o půlnoci!', 'Hahaha... nový hlídač!', 'Kdo chce dort?'],
@@ -676,6 +704,7 @@ const LINES_V = {
   camera: ['Vidím tě taky.', 'Ahoj, kamero. Já tě instaloval.'],
   dark: ['Tma... jako tenkrát.', 'Teď si zahrajeme po mém.'],
   win: ['Zítra si zase pohrajeme.'],
+  glitch: ['Vi-vi-vidím tě.', 'Ven… pusť… mě… VEN.', 'O-o-oslava NESKONČILA.', 'Po-pomoc… pomoc… POMOC.'],
   scare: ['MÁM TĚ!'],
 };
 const LINES_C = {
@@ -689,12 +718,14 @@ const LINES_C = {
   help: ['Pozor! Voxie jde k tvým levým dveřím!', 'Psst... Voxie je na chodbě!', 'Rychle, světlo vlevo!'],
   lore: ['Tenkrát jsem schovala holčičku v trubkách. Našli ji. Ale pana Vojtěcha ne.', 'Voxie není zlý. Jen se nemůže dostat ven.', 'Pět lístků. Kapitán Ticket ví, kde jsou.'],
   win: ['Dobré ráno! Přijdeš zítra?'],
+  broken: ['P-p-pomoc…', 'Ne-nevidím…', 'Bo-bolí to…'],
+  fixed: ['Já… já zase vidím! Děkuju, kamaráde!', 'Opravil jsi mě. Teď tě budu hlídat já.'],
   scare: ['Promiň... musela jsem!'],
 };
-const TIPS = ['Voxie: posviť 1–3 sekundy a zhasni. Dlouhé zírání ho rozzuří.', 'Cocoa: stačí na ni posvítit. Když ťuká, nesmíš ji ignorovat.', 'Kroky zleva = Voxie, zprava = Cocoa.', 'Cocoa tě varuje přes reproduktory, když jde Voxie.', 'Zavřené dveře zastaví oba, ale proud mizí rychleji.', 'Když je někdo u dveří a ty koukáš do kamer, zaútočí, jakmile tablet sklopíš.'];
-const VOX_LEVELS = [[2, 2, 3, 4, 5, 5], [5, 6, 6, 7, 8, 9], [7, 8, 9, 10, 11, 12], [10, 11, 12, 13, 14, 15], [13, 14, 15, 17, 18, 20]];
-const COC_LEVELS = [[1, 1, 2, 2, 3, 3], [3, 3, 4, 5, 5, 6], [5, 6, 6, 7, 8, 8], [7, 8, 9, 10, 10, 11], [10, 11, 12, 13, 14, 15]];
-const DRAIN = [.095, .1, .105, .11, .115];
+const TIPS = ['Noc 4: Cocou oprav ve skladu, ale vracej se zavírat dveře před Voxiem.', 'Noci 5–6: když kamery zhasnou, restartuj server ve vchodu.', 'Noci 6–7: poškozený Voxie se po tobě rozběhne, když se na něj díváš.', 'Noc 7: sekera je ve skladu. Tři rány = tajný konec.', 'Voxie: posviť 1–3 sekundy a zhasni. Dlouhé zírání ho rozzuří.', 'Cocoa: stačí na ni posvítit. Když ťuká, nesmíš ji ignorovat.', 'Kroky zleva = Voxie, zprava = Cocoa.', 'Cocoa tě varuje přes reproduktory, když jde Voxie.', 'Zavřené dveře zastaví oba, ale proud mizí rychleji.', 'Když je někdo u dveří a ty koukáš do kamer, zaútočí, jakmile tablet sklopíš.'];
+const VOX_LEVELS = [[2, 2, 3, 4, 5, 5], [5, 6, 6, 7, 8, 9], [7, 8, 9, 10, 11, 12], [10, 11, 12, 13, 14, 15], [13, 14, 15, 17, 18, 20], [16, 17, 18, 19, 20, 20], [18, 19, 20, 20, 20, 20]];
+const COC_LEVELS = [[1, 1, 2, 2, 3, 3], [3, 3, 4, 5, 5, 6], [5, 6, 6, 7, 8, 8], [7, 8, 9, 10, 10, 11], [10, 11, 12, 13, 14, 15], [4, 5, 6, 6, 7, 8], [5, 6, 7, 8, 9, 10]];
+const DRAIN = [.095, .1, .105, .11, .115, .115, .12];
 const PAPER_LORE = PAPER;
 
 // ====================================================================
@@ -720,7 +751,7 @@ function sayA(a, kind, o = {}) {
   const dur = voice(text, { pitch: d.pitch, vol, pan, radio, creep: !d.nice && (G.night >= 3 || o.creep), formant: d.formant });
   speech = { who: d.ch.name + (o.speaker ? ' (reproduktor)' : ''), text, t: 0, dur: Math.max(dur, 1.6), col: d.nice ? '#ffc9a0' : '#ff8bea', heard: vol > .2 || !!o.speaker };
 }
-function mkAI(id) { const d = AI[id]; return { walkT: 0, path: null, id, pos: d.start, timer: 0, lit: 0, seen: false, warned: false, knocked: false, attack: false, attackT: 0, retreatT: 0, watchT: 0, spokeCam: false, off: !d.ch.model }; }
+function mkAI(id) { const d = AI[id]; return { walkT: 0, path: null, speed: 1.7, rush: false, rushT: 0, chase: false, seeT: 0, stun: 0, broken: false, id, pos: d.start, timer: 0, lit: 0, seen: false, warned: false, knocked: false, attack: false, attackT: 0, retreatT: 0, watchT: 0, spokeCam: false, off: !d.ch.model }; }
 function newGame(n) {
   stopMenuSong();
   const cocOff = !COC.model;
@@ -732,6 +763,10 @@ function newGame(n) {
     look: 0, lookV: 0, flick: 0, ambT: rand(12, 25), chatT: rand(25, 45), tip: null,
   };
   G.task = n === 3 ? { step: 0, bake: 0 } : null; roamReset(); pizzaMesh.visible = false;
+  G.damaged = n >= 6; G.work = null; G.hits = 0; G.axe = false; G.swingT = 0;
+  G.sys = (n === 5 || n === 6) ? { broken: false, next: rand(50, 75) } : null;
+  if (n === 4 && !cocOff) { G.coc.broken = true; G.coc.pos = 'c4'; }
+  axeMesh.visible = n === 7;
   speech = null; scareT = -1; killer = null;
   for (const ch of [VOX, COC]) { ch.C.look = 0; ch.C.lit = 0; }
   setSpot(VOX, G.vox.pos); setSpot(COC, G.coc.pos); COC.root.visible = !cocOff;
@@ -752,8 +787,8 @@ function setLight(s) {
   setBuzz(!!G.light, G.light === 'L' ? -.8 : .8);
   for (const a of AIs()) { const d = AI[a.id]; if (!a.off && G.light === d.side && a.pos === d.door && !doorOf(d.side) && !a.seen) { a.seen = true; if (!d.nice) SFX.sting(); } }
 }
-function checkFlash(a) { const d = AI[a.id]; if (!d.nice && a.pos === d.door && !a.attack && a.lit >= 1 && !doorOf(d.side)) a.retreatT = .5; }
-function toggleCams() { if (scene_ !== 'play' || G.out || roam.on) return; if (!G.cams && G.light) setLight(null); G.cams = !G.cams; SFX.tablet(); if (G.cams) G.camStatic = .25; }
+function checkFlash(a) { const d = AI[a.id]; if (!d.nice && a.pos === d.door && !a.attack && a.lit >= 1 && !doorOf(d.side)) { if (G.damaged && Math.random() < .5) { sayA(a, 'glitch', { force: true, creep: true }); a.lit = 0; } else a.retreatT = .5; } }
+function toggleCams() { if (scene_ !== 'play' || G.out || roam.on) return; if (!G.cams && G.sys && G.sys.broken) { SFX.cam(); G.sysMsg = 2.5; return; } if (!G.cams && G.light) setLight(null); G.cams = !G.cams; SFX.tablet(); if (G.cams) G.camStatic = .25; }
 function selectCam(id) { if (G.cam !== id) { G.cam = id; G.camStatic = .3; SFX.cam(); for (const a of AIs()) a.watchT = 0; } }
 function hangUp() { if (G && G.call.on) { G.call.on = false; if (speech && speech.who === 'phone') speech = null; SFX.click(); } }
 function moveTo(a, np) {
@@ -783,6 +818,10 @@ function aiUpdate(a, dt) {
   if (a.off) return;
   const d = AI[a.id];
   if (G.dialog && a === G.coc) return;
+  if (a.broken) { a.timer += dt; if (a.timer > 25) { a.timer = 0; if (roam.on && COC.root.position.distanceTo(roamCam.position) < 8) sayA(a, 'broken', { vol: .5 }); } return; }
+  if (a.stun > 0) a.stun -= dt;
+  // poškozený Voxie: když se na něj díváš kamerou, rozběhne se k tvým dveřím
+  if (a.rush) { a.rushT -= dt; if (a.pos === d.door) { a.rush = false; a.speed = 1.7; } else if (a.rushT <= 0) { a.rushT = 1.3; a.speed = 4.5; moveTo(a, pick(NEXT[a.id][a.pos])); } }
   if (a.attack) { a.attackT += dt; if (!G.cams || a.attackT > 3) { G.cams = false; jumpscare(a); } return; }
   if (a.retreatT > 0) { a.retreatT -= dt; if (a.retreatT <= 0) retreat(a, false); return; }
   if (a.pos === d.door && G.light === d.side && !doorOf(d.side)) {
@@ -796,6 +835,7 @@ function aiUpdate(a, dt) {
   const sp = SPOTS[a.pos];
   if (G.cams && sp && sp.cam === G.cam && G.camA >= 1) {
     a.watchT += dt;
+    if (G.damaged && a.id === 'V' && a.watchT > 1.5 && !a.rush && a.pos !== d.door && a.stun <= 0) { a.rush = true; a.rushT = 0; G.camStatic = 1.2; sayA(a, 'glitch', { force: true, creep: true, vol: .7 }); SFX.sting(); }
     if (a.watchT > 3 && !a.spokeCam) { a.spokeCam = true; if (d.nice && !G.met) { G.met = true; sayA(a, 'meet', { force: true }); } else sayA(a, 'camera'); }
   } else a.watchT = Math.max(0, a.watchT - dt * 2);
   if (G.t < (d.nice ? 35 : 20)) return;
@@ -833,8 +873,8 @@ function win() {
   scene_ = 'win'; sceneT = 0; setBuzz(false); stopMusicBox(); stopAmbient(); SFX.chime();
   setTimeout(() => voice(pick(LINES_V.win), { pitch: 190, vol: .3, radio: true, creep: true, formant: .88 }), 3500);
   if (G && !G.coc.off) setTimeout(() => voice(pick(LINES_C.win), { pitch: 340, vol: .35, radio: true, formant: 1.12 }), 5200);
-  if (G.night < 5) { progress = Math.max(progress, G.night + 1); save('voxies_night', progress); }
-  else { beaten = true; save('voxies_beaten', true); progress = Math.max(progress, 5); save('voxies_night', progress); }
+  progress = Math.min(7, Math.max(progress, G.night + 1)); save('voxies_night', progress);
+  if (G.night >= 5) { beaten = true; save('voxies_beaten', true); }
 }
 function update(dt) {
   sceneT += dt;
@@ -854,6 +894,8 @@ function update(dt) {
   G.power -= usage() * DRAIN[G.night - 1] * dt;
   if (G.power <= 0) { powerOut(); return; }
   for (const a of AIs()) aiUpdate(a, dt);
+  if (G.sys && !G.sys.broken) { G.sys.next -= dt; if (G.sys.next <= 0) { G.sys.broken = true; if (G.cams) { G.cams = false; } SFX.powerDown(); G.sysMsg = 4; } }
+  if (G.sysMsg > 0) G.sysMsg -= dt;
   roamUpdate(dt);
   const c = G.call;
   if (c.on) {
@@ -981,6 +1023,7 @@ function drawHUD(t) {
   }
   if (!G.cams && !G.out) bigBtn(24, 590, 250, 44, '🚶 ODEJÍT OD STOLU', 'roam', toggleRoam, true, 18);
   drawTask(); drawDialog();
+  if (G.sysMsg > 0) { rr(HW / 2 - 230, 600, 460, 46, 10); ctx.fillStyle = 'rgba(120,0,0,.8)'; ctx.fill(); txt('⚠ SIGNÁL KAMER ZTRACEN', HW / 2, 631, 22, '#fff', 'center'); }
   if (G.call.on) { bigBtn(24, 60, 170, 40, 'ZAVĚSIT ✆', 'hang', hangUp, true, 20); if (G.call.ring > 0) txt('☎ Volá: Bývalý hlídač...', 210, 88, 20, '#ffe46b'); }
   drawSpeech();
 }
@@ -1007,9 +1050,11 @@ function drawMenu(t) {
   bigBtn(60, 228, 420, 50, 'NOVÁ HRA', 'new', () => startNight(1));
   bigBtn(60, 288, 420, 50, 'POKRAČOVAT · NOC ' + progress, 'cont', () => startNight(progress), progress > 1);
   txt('Výběr noci:', 64, 364, 17, '#aaa');
-  for (let n = 1; n <= 7; n++) bigBtn(60 + (n - 1) * 60, 372, 52, 44, n <= 5 ? String(n) : '🔒', 'n' + n, () => startNight(n), n <= 5 && n <= progress);
+  for (let n = 1; n <= 7; n++) bigBtn(60 + (n - 1) * 60, 372, 52, 44, n <= progress ? String(n) : '🔒', 'n' + n, () => startNight(n), n <= progress);
   txt('Animatronici: Voxie' + (COC.model ? ' + Cocoa' : ''), 64, 448, 18, '#ffb3f0');
-  if (beaten) txt('★ Přežil jsi všech 5 nocí', 64, 560, 18, '#ffe46b');
+  if (beaten) txt('★ Přežil jsi 5 nocí' + (progress >= 7 ? ' · noci 6–7 odemčeny' : ''), 64, 560, 18, '#ffe46b');
+  if (load('voxies_secret', false)) txt('🪓 Tajný konec: Osvobození', 64, 584, 18, '#ff6b6b');
+  txt('v1.5.0', HW - 20, 700, 14, '#666', 'right');
   if (loadMsg) txt(loadMsg, 64, 590, 16, '#7ff4ff');
   txt('Táhni prstem = rozhlížení · Joystick = chůze mimo stůl · Q/E světla, A/D dveře, mezerník kamery, F baterka', 64, 700, 13, '#777');
 }
@@ -1030,17 +1075,29 @@ function drawWin() {
   txt('5:00', HW / 2, 310 - roll * 140, 100, '#fff', 'center'); txt('6:00', HW / 2, 450 - roll * 140, 100, '#fff', 'center'); ctx.restore();
   if (sceneT > 2) {
     txt('Noc ' + G.night + ' přežita!', HW / 2, 400, 34, '#ffe46b', 'center');
-    if (G.night >= 5) bigBtn(HW / 2 - 200, 460, 400, 56, 'POKRAČOVAT', 'end', () => { scene_ = 'ending'; sceneT = 0; });
+    if (G.night === 5 || G.night === 7) bigBtn(HW / 2 - 200, 460, 400, 56, 'POKRAČOVAT', 'end', () => { scene_ = 'ending'; sceneT = 0; });
     else bigBtn(HW / 2 - 200, 460, 400, 56, 'DALŠÍ NOC', 'next', () => startNight(G.night + 1));
     bigBtn(HW / 2 - 200, 532, 400, 56, 'MENU', 'menu', toMenu);
   }
+}
+function secretEnd() {
+  if (scene_ !== 'play') return;
+  scene_ = 'secret'; sceneT = 0; save('voxies_secret', true); setBuzz(false); stopAmbient(); stopMusicBox();
+  SFX.powerDown(); setTimeout(() => voice('Dě-ku-ju.', { pitch: 150, vol: .6, slow: 1.6, formant: .85 }), 3500);
+}
+const SECRET = ['Třetí úder. Oblek Voxieho se rozevřel. Jiskry. Ticho.', 'Na podlahu vypadla stará zrezivělá jmenovka: VOJTĚCH – MAJITEL.', 'Hlas z obleku zašeptal: „Děkuju…“ A pak už nic.', 'Cocoa si sedla vedle tebe: „Je konečně volný. Ty jsi ho osvobodil.“', 'TAJNÝ KONEC: OSVOBOZENÍ'];
+function drawSecret() {
+  rect(0, 0, HW, HH, '#050206'); noise(.06);
+  SECRET.forEach((l, i) => { if (sceneT > 1 + i * 3) { const last = i === SECRET.length - 1; wrap(l, 900, last ? 40 : 24).forEach((w, k) => last ? neon(w, HW / 2, 230 + i * 80 + k * 30, 40, '#ff2bd6', 20) : txt(w, HW / 2, 190 + i * 80 + k * 30, 24, '#fff', 'center')); } });
+  if (Math.random() < .03) rect(0, 0, HW, HH, 'rgba(255,200,120,.06)');
+  if (sceneT > 1 + SECRET.length * 3) bigBtn(HW / 2 - 200, 600, 400, 56, 'MENU', 'menu', toMenu);
 }
 function drawEnding() {
   rect(0, 0, HW, HH, '#0a0612'); const cx = HW / 2;
   rect(cx - 250, 90, 500, 380, '#e8e2cc');
   txt('VOXIE\'S FUN FACTORY', cx, 140, 26, '#3b1d6e', 'center'); txt('Výplatní páska – noční hlídač', cx, 172, 18, '#333', 'center'); rect(cx - 220, 190, 440, 2, '#999');
-  [['Odpracováno', '5 nocí'], ['Hodinová mzda', '4,00 $'], ['Příplatek za noc', '0,10 $'], ['Celkem', '120,50 $']].forEach(([a, b], i) => { txt(a, cx - 210, 230 + i * 36, 20, '#222'); txt(b, cx + 210, 230 + i * 36, 20, '#222', 'right'); });
-  if (sceneT > 2) txt(`Normální konec. Ale kdo je vlastně uvnitř kostýmu?`, cx, 520, 22, '#ff8bea', 'center');
+  [['Odpracováno', (G.night === 7 ? 7 : 5) + ' nocí'], ['Hodinová mzda', '4,00 $'], ['Příplatek za noc', '0,10 $'], ['Celkem', '120,50 $']].forEach(([a, b], i) => { txt(a, cx - 210, 230 + i * 36, 20, '#222'); txt(b, cx + 210, 230 + i * 36, 20, '#222', 'right'); });
+  if (sceneT > 2) txt(G.night === 7 ? 'Normální konec. Voxie zůstal uvnitř. Zkus to příště se sekerou…' : 'Normální konec. Ale kdo je vlastně uvnitř kostýmu? (Odemčena noc 6)', cx, 520, 22, '#ff8bea', 'center');
   if (sceneT > 3) bigBtn(cx - 200, 570, 400, 56, 'MENU', 'menu', toMenu);
 }
 function toMenu() { setTimeout(startMenuSong, 400); setBuzz(false); stopMusicBox(); stopAmbient(); stopChip(); scene_ = 'menu'; sceneT = 0; G = null; speech = null; scareT = -1; killer = null; menuSpots(); }
@@ -1050,7 +1107,7 @@ function menuSpots() { setSpot(VOX, '1A'); setSpot(COC, 'm1A'); COC.root.visible
 // ====================================================================
 //  CHOZENÍ PO BUDOVĚ (joystick, baterka) + ÚKOL S PIZZOU
 // ====================================================================
-const roamCam = new THREE.PerspectiveCamera(72, 16 / 9, .05, 60);
+const roamCam = new THREE.PerspectiveCamera(72, 16 / 9, .05, 60); roamCam.add(heldAxe); scene.add(roamCam);
 const flash = new THREE.SpotLight(0xfff3d0, 0, 16, .42, .55, 1.2); scene.add(flash, flash.target);
 const roam = { on: false, pos: new THREE.Vector3(), yaw: 0, pitch: 0, flash: false, joy: null, look: null, keys: {}, bob: 0, msg: '', msgT: 0 };
 const DESK_SPOT = new THREE.Vector3(0, 0, 2.2);
@@ -1086,10 +1143,16 @@ const INTER = [
   { id: 'oven', x: -20, z: -17, label: '🍕 VLOŽIT PIZZU DO PECE', ok: () => G.task && G.task.step === 1 },
   { id: 'take', x: -20, z: -17, label: '🍕 VZÍT HOTOVOU PIZZU', ok: () => G.task && G.task.step === 3 },
   { id: 'deliver', x: 0, z: 1.8, r: 2, label: '🍽 POLOŽIT PIZZU NA STŮL', ok: () => G.task && G.task.step === 4 },
+  { id: 'repair', x: 14.2, z: -5, r: 2, label: '🔧 OPRAVOVAT COCOU', ok: () => G.coc.broken && !G.work },
+  { id: 'server', x: -20.6, z: 4.6, r: 2, label: '🖥 RESTARTOVAT SERVER', ok: () => G.sys && G.sys.broken && !G.work },
+  { id: 'axe', x: 21, z: -6.5, r: 2, label: '🪓 VZÍT SEKERU', ok: () => G.night === 7 && !G.axe },
 ];
+const WORK = { repair: { need: 22, x: 14.2, z: -5, label: 'Oprava Cocoy' }, server: { need: 8, x: -20.6, z: 4.6, label: 'Restart serveru' } };
 function nearInter() { if (!roam.on) return null; return INTER.find(i => i.ok() && Math.hypot(roam.pos.x - i.x, roam.pos.z - i.z) < (i.r || 1.8)) || null; }
 function interact() {
   const i = nearInter(); if (!i) return; const T = G.task; SFX.click();
+  if (i.id === 'repair' || i.id === 'server') { G.work = { id: i.id, prog: 0 }; hint(i.id === 'repair' ? 'Zůstaň u ní, dokud se oprava nedokončí. Hlídej čas!' : 'Restartuji… zůstaň u serveru.'); return; }
+  if (i.id === 'axe') { G.axe = true; axeMesh.visible = false; SFX.clank(0); hint('Máš sekeru. Až bude Voxie blízko, klepni na ÚDER. Tři rány…'); return; }
   if (i.id === 'order') { T.step = 1; hint('Objednávka č. 1997: „Voxie speciál“ – sýr, salám, srdíčko z kečupu.'); tone(880, 'square', .1, .05); tone(1320, 'square', .1, .05, 0, .12); }
   else if (i.id === 'oven') { T.step = 2; T.bake = 0; hint('Peče se… (20 s). Zatím si hlídej dveře!'); }
   else if (i.id === 'take') { T.step = 4; hint('Pizza je hotová. Odnes ji ke stolu.'); }
@@ -1099,7 +1162,35 @@ function interact() {
     if (!G.coc.off) setTimeout(() => sayA(G.coc, 'meet', { speaker: true, force: true }), 1500);
   }
 }
+function workDone(id) {
+  tone(1319, 'square', .1, .06); tone(1760, 'square', .15, .06, 0, .12);
+  if (id === 'repair') { G.coc.broken = false; G.friend = true; G.coc.timer = -10; hint('Cocoa je opravená! Teď tě bude hlídat.'); sayA(G.coc, 'fixed', { force: true, vol: .7 }); }
+  if (id === 'server') { G.sys.broken = false; G.sys.next = G.night === 6 ? rand(45, 70) : rand(70, 100); hint('Server běží. Kamery jsou zpět.'); }
+}
+function hitVoxie() {
+  const a = G.vox; if (!G.axe || G.swingT > 0) return;
+  G.swingT = .4; G.hits++; SFX.clank(0); SFX.clank(.3); noiseHit(.4, .4, 2500, 'bandpass', 0, 0, 2); tone(90, 'sawtooth', .5, .2, 0, 0, 40);
+  sayA(a, 'glitch', { force: true, creep: true, vol: .8 });
+  if (G.hits >= 3) { setTimeout(secretEnd, 700); a.stun = 99; a.chase = false; a.path = null; return; }
+  a.chase = false; a.rush = false; a.stun = 9; a.seeT = 0; a.attack = false;
+  const from = VOX.root.position.clone(); a.pos = '1B'; setSpot(VOX, '1B'); startWalk(a, from); a.speed = 2.6;
+  hint('Zásah ' + G.hits + '/3! Voxie ustoupil.');
+}
+const canHit = () => G.axe && roam.on && !G.vox.off && VOX.root.position.distanceTo(roamCam.position) < 3.2;
 function roamUpdate(dt) {
+  if (G.work) { const w = WORK[G.work.id]; if (Math.hypot(roam.pos.x - w.x, roam.pos.z - w.z) < 2.4 && roam.on) { G.work.prog += dt; if (Math.random() < dt * 3) SFX.click(); } if (G.work.prog >= w.need) { const id = G.work.id; G.work = null; workDone(id); } }
+  if (G.swingT > 0) G.swingT -= dt;
+  heldAxe.visible = roam.on && G.axe; heldAxe.rotation.x = .3 - (G.swingT > 0 ? Math.sin((.4 - G.swingT) / .4 * Math.PI) * 1.4 : 0);
+  rackLeds.forEach((l, i) => l.material.color.set(G.sys && G.sys.broken ? (Math.sin(G.t * 8 + i) > 0 ? '#ff2020' : '#300') : (Math.sin(G.t * 3 + i * 1.7) > -.3 ? '#3aff6a' : '#0a3010')));
+  // poškozený Voxie: když ho sleduješ, rozběhne se po tobě
+  const v = G.vox;
+  if (roam.on && G.damaged && !v.off && v.stun <= 0) {
+    const to = VOX.root.position.clone().sub(roamCam.position), dist = to.length(); to.normalize();
+    const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(roamCam.quaternion);
+    if (dist < 14 && fwd.dot(to) > .9) v.seeT += dt; else v.seeT = Math.max(0, v.seeT - dt);
+    if (v.seeT > 1.1 && !v.chase) { v.chase = true; v.chaseT = 0; sayA(v, 'glitch', { force: true, creep: true, vol: .9 }); SFX.scare(); }
+  }
+  if (v.chase) { v.chaseT -= dt; if (v.chaseT <= 0 || !v.path) { v.chaseT = .4; const target = new THREE.Vector3(roam.pos.x, 0, roam.pos.z); v.path = navPath(VOX.root.position.clone(), target); v.seg = 1; v.speed = 4.2; v.endYaw = VOX.root.rotation.y; } if (!roam.on) { v.chase = false; setSpot(VOX, v.pos); } }
   if (G.task && G.task.step === 2) { G.task.bake += dt; if (G.task.bake >= 20) { G.task.step = 3; tone(1568, 'sine', .4, .12, -.4); tone(2093, 'sine', .4, .1, -.4, .25); if (roam.on) hint('Ding! Pizza je upečená.'); } }
   ovenMouth.material.color.set(G.task && G.task.step === 2 ? (Math.sin(G.t * 6) > 0 ? '#ff8a2a' : '#ff5a10') : '#3a1a08');
   terminal.material.color.set(G.task && G.task.step === 0 && Math.sin(G.t * 5) > 0 ? '#5dff8a' : '#1a3a20');
@@ -1143,6 +1234,7 @@ function drawRoamHUD(t) {
   ctx.beginPath(); ctx.arc(kx, ky, 38, 0, 7); ctx.fillStyle = 'rgba(127,244,255,.35)'; ctx.fill();
   bigBtn(HW - 230, 520, 200, 50, roam.flash ? '🔦 BATERKA: ZAP' : '🔦 BATERKA: VYP', 'flash', () => { if (!G.out) { roam.flash = !roam.flash; SFX.click(); } }, !G.out, 18);
   if (nearDesk()) bigBtn(HW - 230, 590, 200, 50, '🪑 KE STOLU', 'desk', toggleRoam, true, 18);
+  if (canHit()) bigBtn(HW / 2 - 210, 500, 420, 64, '🪓 ÚDER (' + G.hits + '/3)', 'hit', hitVoxie, true, 24);
   const it = nearInter(); if (it) bigBtn(HW / 2 - 210, 580, 420, 56, it.label, 'inter', interact, true, 19);
   else if (canTalk()) bigBtn(HW / 2 - 210, 580, 420, 56, '💬 MLUVIT S COCOU', 'talk', openDialog, true, 19);
   txt('Noc ' + G.night, 24, 42, 26, '#fff'); const h = hourOf(); txt((h === 0 ? '0' : h) + ':00', HW - 24, 54, 46, '#fff', 'right');
@@ -1152,9 +1244,15 @@ function drawRoamHUD(t) {
   if (roam.msgT > 0) { ctx.save(); ctx.globalAlpha = Math.min(1, roam.msgT); const ls = wrap(roam.msg, 640, 20); rr(HW / 2 - 340, 480 - ls.length * 26, 680, ls.length * 26 + 20, 10); ctx.fillStyle = 'rgba(0,0,0,.7)'; ctx.fill(); ls.forEach((l, i) => txt(l, HW / 2, 503 - ls.length * 26 + i * 26, 20, '#ffe46b', 'center')); ctx.restore(); }
 }
 function drawTask() {
+  let y = 52;
+  const bar = (label, k, col) => { rr(HW / 2 - 260, y, 520, 34, 8); ctx.fillStyle = 'rgba(40,10,30,.78)'; ctx.fill(); if (k != null) { rect(HW / 2 - 256, y + 28, 512 * clamp(k, 0, 1), 4, col); } txt(label, HW / 2, y + 23, 17, col, 'center'); y += 40; };
+  if (G.coc.broken) bar(G.work && G.work.id === 'repair' ? '🔧 Oprava Cocoy: ' + Math.floor(G.work.prog / WORK.repair.need * 100) + ' % (zůstaň u ní)' : '🔧 Úkol: oprav Cocou ve skladu (CAM 4) – Voxie nesmí do kanceláře!', G.work && G.work.id === 'repair' ? G.work.prog / WORK.repair.need : null, '#9fe8ff');
+  if (G.sys && G.sys.broken) bar(G.work && G.work.id === 'server' ? '🖥 Restart serveru: ' + Math.floor(G.work.prog / WORK.server.need * 100) + ' %' : '⚠ KAMERY OFFLINE – restartuj server ve vchodu (CAM 7)', G.work && G.work.id === 'server' ? G.work.prog / WORK.server.need : null, '#ff6b6b');
+  if (G.night === 7 && !G.axe) bar('🪓 Ve skladu (CAM 4) je sekera… nebo jen vydrž do 6:00', null, '#ffb0b0');
+  if (G.axe) bar('🪓 Sekera: ' + G.hits + '/3 zásahů', G.hits / 3, '#ff6b6b');
   const T = G.task; if (!T || T.step >= 5) return;
   const msg = ['Úkol: jdi do Pizzerie (CAM 2) a přijmi objednávku', 'Úkol: vlož pizzu do pece v Pizzerii', 'Peče se: ' + Math.ceil(20 - T.bake) + ' s', 'Úkol: vezmi hotovou pizzu z pece', 'Úkol: odnes pizzu ke stolu v kanceláři'][T.step];
-  rr(HW / 2 - 260, 52, 520, 34, 8); ctx.fillStyle = 'rgba(40,10,30,.75)'; ctx.fill(); txt('🍕 ' + msg, HW / 2, 75, 17, '#ffd28a', 'center');
+  bar('🍕 ' + msg, null, '#ffd28a');
 }
 
 // ====================================================================
@@ -1294,7 +1392,7 @@ function startWalk(a, from) {
   ch.root.position.copy(from);
 }
 function walkStep(a, ch, dt) {
-  const P = a.path; let step = 1.7 * dt;
+  const P = a.path; let step = (a.speed || 1.7) * dt;
   while (step > 0 && a.seg < P.length) {
     const tgt = P[a.seg], cur = ch.root.position, dx = tgt.x - cur.x, dz = tgt.z - cur.z, dy = tgt.y - cur.y, d = Math.hypot(dx, dz);
     if (d <= step) { cur.copy(tgt); step -= d; a.seg++; continue; }
@@ -1380,7 +1478,7 @@ addEventListener('keydown', e => {
   if (scene_ === 'mini' && M) { M.keys[k] = true; return; }
   if (scene_ !== 'play') return;
   if (G.dialog) { const n = DIALOG[G.dialog]; const o = n.o[+k - 1]; if (o) choose(o[1]); return; }
-  if (roam.on) { roam.keys[k] = true; if (k === 'f') roam.flash = !roam.flash && !G.out; if (k === 'e') interact(); if (k === 'r' || k === 'enter') toggleRoam(); return; }
+  if (roam.on) { roam.keys[k] = true; if (k === 'f') roam.flash = !roam.flash && !G.out; if (k === ' ' && canHit()) hitVoxie(); if (k === 'e') interact(); if (k === 'r' || k === 'enter') toggleRoam(); return; }
   if (k === 'r') { toggleRoam(); return; }
   if (k === 'a') toggleDoor('L'); else if (k === 'd') toggleDoor('R');
   else if (k === 'q' && !G.cams) setLight('L'); else if (k === 'e' && !G.cams) setLight('R');
@@ -1438,7 +1536,7 @@ function render(t) {
       ch.root.rotation.set(0, Math.atan2(-fwd.x, -fwd.z), 0);
       redLight.intensity = 6 * k * (Math.random() < .15 ? .3 : 1); redLight.position.copy(ch.root.position).addScaledVector(fwd, -.9).setY(eye.position.y - .6);
     } else if (a) {
-      if (a.pos === AI[a.id].door) mode = 'door';
+      if (a.broken) mode = 'broken'; else if (a.pos === AI[a.id].door) mode = 'door';
       if (a.pos === '1A' || a.pos === 'c3') mode = 'stage';
       if (a.path) mode = 'walk';
     }
@@ -1451,7 +1549,10 @@ function render(t) {
     C.look += (tgt - C.look) * .06; if (at) C.lookAt = at; else if (C.look < .02) C.lookAt = null;
     C.lit = a ? a.lit : 0;
     if (scene_ === 'menu') { C.look = .6; C.lookAt = CAMS['1A'].cam.position; }
+    if (G && G.damaged && ch === VOX && mode !== 'walk' && mode !== 'scare') { C.lit = 3; }
+    if (a && a.broken) mode = 'broken';
     poseCharacter(t, mode);
+    if (ch === VOX) { const red = G && G.damaged; voxEyes.forEach(m => m.color.set(red ? (Math.random() < .85 ? '#ff1010' : '#300') : '#111111')); }
   }
   // kamera
   if (scene_ === 'menu') { cam = CAMS['1A'].cam; roomLight.position.set(...CAMS['1A'].light); roomLight.intensity = 14; }
@@ -1468,7 +1569,7 @@ function render(t) {
     if (lookTarget != null && G) { G.look += (lookTarget - G.look) * .12; if (Math.abs(lookTarget - G.look) < .01) lookTarget = null; }
     officeCam.rotation.set(-.05, G ? G.look : 0, 0, 'YXZ');
   }
-  if (scene_ === 'intro' || scene_ === 'dead' || scene_ === 'win' || scene_ === 'ending' || scene_ === 'mini') renderer.clear();
+  if (scene_ === 'intro' || scene_ === 'dead' || scene_ === 'win' || scene_ === 'ending' || scene_ === 'mini' || scene_ === 'secret') renderer.clear();
   else renderer.render(scene, cam);
   // tablet vyjíždí
   buttons = [];
@@ -1480,7 +1581,7 @@ function render(t) {
     if (roam.on) drawRoamHUD(t); else drawHUD(t);
   } else if (scene_ === 'mini') drawMini(t);
   else if (scene_ === 'scare') { if (scareT < .05) rect(0, 0, HW, HH, '#fff'); noise(.12 + Math.random() * .15); }
-  else if (scene_ === 'dead') drawDead(); else if (scene_ === 'win') drawWin(); else if (scene_ === 'ending') drawEnding();
+  else if (scene_ === 'secret') drawSecret(); else if (scene_ === 'dead') drawDead(); else if (scene_ === 'win') drawWin(); else if (scene_ === 'ending') drawEnding();
   hud.style.cursor = hoverBtn ? 'pointer' : 'default';
 }
 function frame() {
@@ -1492,7 +1593,7 @@ function frame() {
 setCharacter(VOX, buildVoxie(), 'Voxie'); menuSpots();
 fetch('models/cocoa.glb').then(r => r.ok ? r.arrayBuffer() : null).catch(() => null).then(buf => buf ? { buf } : idbGet('model')).then(async m => { if (m && m.buf) { try { const r = await loadGLB(m.buf, 'Cocoa'); setCharacter(COC, r.obj, 'Cocoa'); if (G) { G.coc.off = false; setSpot(COC, G.coc.pos); COC.root.visible = true; } else menuSpots(); } catch (e) {} } });
 requestAnimationFrame(frame);
-window.__voxies = { THREE, scene3: scene, renderer, CAMS, get G() { return G; }, get scene() { return scene_; }, VOX, COC, AI, newGame, startNight, toggleDoor, setLight, toggleCams, selectCam, sayA, setSpot, loadGLB, setCharacter, setLook: v => { G.look = v; }, voice, jumpscare, roam, toggleRoam, get M() { return M; }, icon(size) { const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d'); const g = x.createRadialGradient(size / 2, size / 2, size * .1, size / 2, size / 2, size * .7); g.addColorStop(0, '#3b1d6e'); g.addColorStop(1, '#07030f'); x.fillStyle = g; x.fillRect(0, 0, size, size); drawLogo(x, size * .1, size * .1, size * .8); return c.toDataURL('image/png'); } };
+window.__voxies = { hitVoxie, interact, workDone, THREE, scene3: scene, renderer, CAMS, get G() { return G; }, get scene() { return scene_; }, VOX, COC, AI, newGame, startNight, toggleDoor, setLight, toggleCams, selectCam, sayA, setSpot, loadGLB, setCharacter, setLook: v => { G.look = v; }, voice, jumpscare, roam, toggleRoam, get M() { return M; }, icon(size) { const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d'); const g = x.createRadialGradient(size / 2, size / 2, size * .1, size / 2, size / 2, size * .7); g.addColorStop(0, '#3b1d6e'); g.addColorStop(1, '#07030f'); x.fillStyle = g; x.fillRect(0, 0, size, size); drawLogo(x, size * .1, size * .1, size * .8); return c.toDataURL('image/png'); } };
 </script>
 </body>
 </html>

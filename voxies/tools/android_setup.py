@@ -54,6 +54,12 @@ public class MainActivity extends BridgeActivity {
 }
 """)
 
+# verze aplikace
+gradle = os.path.join(root, 'android', 'app', 'build.gradle')
+g = open(gradle).read()
+g = re.sub(r'versionCode \d+', 'versionCode 15', g); g = re.sub(r'versionName "[^"]*"', 'versionName "1.5.0"', g)
+open(gradle, 'w').write(g)
+
 # ikona
 icon = Image.open(os.path.join(root, 'icon.png')).convert('RGBA')
 res = os.path.join(app, 'res')
