@@ -1115,7 +1115,7 @@ function drawMenu(t) {
   txt('Animatronici: Voxie' + (COC.model ? ' + Cocoa' : ''), 64, 448, 18, '#ffb3f0');
   if (beaten) txt('★ Přežil jsi 5 nocí' + (progress >= 7 ? ' · noci 6–7 odemčeny' : ''), 64, 560, 18, '#ffe46b');
   if (load('voxies_secret', false)) txt('🪓 Tajný konec: Osvobození', 64, 584, 18, '#ff6b6b');
-  txt('v1.6.6', HW - 20, 700, 14, '#666', 'right');
+  txt('v1.6.7', HW - 20, 700, 14, '#666', 'right');
   if (loadMsg) txt(loadMsg, 64, 590, 16, '#7ff4ff');
   txt('Táhni prstem = rozhlížení · Joystick = chůze mimo stůl · Q/E světla, A/D dveře, mezerník kamery, F baterka', 64, 700, 13, '#777');
 }
@@ -1151,7 +1151,45 @@ function drawSecret() {
   rect(0, 0, HW, HH, '#050206'); noise(.06);
   SECRET.forEach((l, i) => { if (sceneT > 1 + i * 3) { const last = i === SECRET.length - 1; wrap(l, 900, last ? 40 : 24).forEach((w, k) => last ? neon(w, HW / 2, 230 + i * 80 + k * 30, 40, '#ff2bd6', 20) : txt(w, HW / 2, 190 + i * 80 + k * 30, 24, '#fff', 'center')); } });
   if (Math.random() < .03) rect(0, 0, HW, HH, 'rgba(255,200,120,.06)');
-  if (sceneT > 1 + SECRET.length * 3) bigBtn(HW / 2 - 200, 600, 400, 56, 'MENU', 'menu', toMenu);
+  if (sceneT > 1 + SECRET.length * 3) bigBtn(HW / 2 - 200, 600, 400, 56, 'POKRAČOVAT', 'news', () => goNews(true));
+}
+// noviny po 7. noci: herna shořela krátce po odchodu hlídače
+let newsSecret = false;
+function goNews(secret) { newsSecret = secret; scene_ = 'news'; sceneT = 0; SFX.powerDown(); save('voxies_fire', true); }
+const NEWS_R = (s => () => { s = (s * 16807) % 2147483647; return s / 2147483647; })(614);
+const NEWS_WIN = Array.from({ length: 14 }, () => NEWS_R());
+function drawNews(t) {
+  rect(0, 0, HW, HH, '#0a0608');
+  const k = ease(clamp(sceneT / 1.6, 0, 1)), cx = HW / 2;
+  ctx.save(); ctx.translate(cx, HH / 2); ctx.rotate((1 - k) * -.25 - .02); ctx.scale(.6 + .4 * k, .6 + .4 * k); ctx.translate(-cx, -HH / 2);
+  const x0 = cx - 430, y0 = 30, w = 860, h = 660;
+  rect(x0 + 8, y0 + 10, w, h, 'rgba(0,0,0,.5)'); rect(x0, y0, w, h, '#e6dfcb');
+  txt('VEČERNÍ ZPRAVODAJ', cx, y0 + 58, 46, '#111', 'center');
+  rect(x0 + 20, y0 + 72, w - 40, 3, '#111'); txt('Sobota 15. července 2023 · Cena 25 Kč', cx, y0 + 94, 15, '#333', 'center'); rect(x0 + 20, y0 + 102, w - 40, 1, '#111');
+  txt('HERNA VOXIE\'S LEHLA POPELEM', cx, y0 + 152, 40, '#111', 'center');
+  txt('Požár vypukl jen pár minut poté, co noční hlídač v 6:00 odešel z práce', cx, y0 + 182, 17, '#333', 'center');
+  // pixelový obrázek hořící budovy
+  const ix = x0 + 30, iy = y0 + 200, iw = 400, ih = 270, P = 10;
+  rect(ix, iy, iw, ih, '#1a0e12');
+  rect(ix + 40, iy + 110, 320, 160, '#2a2026'); rect(ix + 40, iy + 100, 320, 12, '#3a2a30');
+  NEWS_WIN.forEach((v, i) => { const wx = ix + 60 + (i % 7) * 42, wy = iy + 130 + Math.floor(i / 7) * 60; rect(wx, wy, 26, 34, Math.sin(t * 9 + i * 1.7) > .2 ? '#ffb030' : '#ff6a1a'); });
+  ctx.save(); ctx.globalAlpha = .9; ctx.shadowColor = '#ff2bd6'; ctx.shadowBlur = 8; txt('VOXIE\'S', ix + 200, iy + 96, 26, '#ff8bea', 'center'); ctx.restore();
+  for (let c = 0; c < iw / P; c++) { const hgt = 6 + Math.floor((Math.sin(t * 6 + c * .9) + Math.sin(t * 3.3 + c * 2.1) + 2) * 3.5); for (let r = 0; r < hgt; r++) { const yy = iy + 100 - r * P; if (yy < iy) continue; const f = r / hgt; rect(ix + c * P, yy, P, P, f < .35 ? '#ffe46b' : f < .7 ? '#ff8a1a' : '#c0200a'); } }
+  for (let i = 0; i < 18; i++) { const sx = ix + ((i * 53 + t * 20) % iw), sy = iy + ((i * 37 - t * 40) % 120 + 120) % 120; rect(sx, sy, 6, 6, 'rgba(90,80,90,.6)'); }
+  ctx.strokeStyle = '#111'; ctx.lineWidth = 2; ctx.strokeRect(ix, iy, iw, ih);
+  txt('Foto: hasiči na místě v 6:12', ix, iy + ih + 20, 13, '#444');
+  // článek
+  const col = newsSecret
+    ? 'Hasiči v troskách našli rozbitý oblek maskota Voxieho. Podle nich byl prázdný. Vedle něj seděla nepoškozená figurína králíka. U obleku ležela zrezivělá jmenovka s nápisem „Vojtěch – majitel“. Případ z roku 1997 bude znovu otevřen. Noční hlídač je nezvěstný.'
+    : 'Hasiči v troskách našli obleky dvou maskotů. Jeden z nich byl podle svědků ještě teplý. Pracovníci tvrdí, že slyšeli z trosek hrací skříňku. Policie hledá nočního hlídače, který podle záznamů opustil budovu v 6:00. Majitel herny je nezvěstný od roku 1997.';
+  wrap(col, w - iw - 90, 16).forEach((l, i) => txt(l, ix + iw + 30, iy + 14 + i * 22, 16, '#222'));
+  rect(x0 + 20, y0 + h - 70, w - 40, 1, '#111');
+  txt('ZE ŽIVOTA · 6   ·   SPORT · 12   ·   POČASÍ: jasno, 28 °C', cx, y0 + h - 44, 14, '#444', 'center');
+  ctx.restore();
+  // stará papírová textura a CRT
+  noise(.05); vignette(.75);
+  if (sceneT > 4) { ctx.save(); ctx.globalAlpha = clamp((sceneT - 4) / 1.5, 0, 1); neon('KONEC…?', cx, HH - 40, 34, '#ff2bd6', 18); ctx.restore(); }
+  if (sceneT > 6) bigBtn(HW - 230, HH - 76, 200, 50, 'MENU', 'menu', toMenu, true, 18);
 }
 function drawEnding() {
   rect(0, 0, HW, HH, '#0a0612'); const cx = HW / 2;
@@ -1159,7 +1197,7 @@ function drawEnding() {
   txt('VOXIE\'S FUN FACTORY', cx, 140, 26, '#3b1d6e', 'center'); txt('Výplatní páska – noční hlídač', cx, 172, 18, '#333', 'center'); rect(cx - 220, 190, 440, 2, '#999');
   [['Odpracováno', (G.night === 7 ? 7 : 5) + ' nocí'], ['Hodinová mzda', '4,00 $'], ['Příplatek za noc', '0,10 $'], ['Celkem', '120,50 $']].forEach(([a, b], i) => { txt(a, cx - 210, 230 + i * 36, 20, '#222'); txt(b, cx + 210, 230 + i * 36, 20, '#222', 'right'); });
   if (sceneT > 2) txt(G.night === 7 ? 'Normální konec. Voxie zůstal uvnitř. Zkus to příště se sekerou…' : 'Normální konec. Ale kdo je vlastně uvnitř kostýmu? (Odemčena noc 6)', cx, 520, 22, '#ff8bea', 'center');
-  if (sceneT > 3) bigBtn(cx - 200, 570, 400, 56, 'MENU', 'menu', toMenu);
+  if (sceneT > 3) bigBtn(cx - 200, 570, 400, 56, G.night === 7 ? 'POKRAČOVAT' : 'MENU', 'menu', () => G.night === 7 ? goNews(false) : toMenu());
 }
 function toMenu() { setTimeout(startMenuSong, 400); setBuzz(false); stopMusicBox(); stopAmbient(); stopChip(); scene_ = 'menu'; sceneT = 0; G = null; speech = null; scareT = -1; killer = null; menuSpots(); }
 function menuSpots() { setSpot(VOX, '1A'); setSpot(COC, 'm1A'); COC.root.visible = !!COC.model; }
@@ -1645,7 +1683,7 @@ function render(t) {
     if (lookTarget != null && G) { G.look += (lookTarget - G.look) * .12; if (Math.abs(lookTarget - G.look) < .01) lookTarget = null; }
     officeCam.rotation.set(-.05, G ? G.look : 0, 0, 'YXZ');
   }
-  if (scene_ === 'loading' || scene_ === 'intro' || scene_ === 'dead' || scene_ === 'win' || scene_ === 'ending' || scene_ === 'mini' || scene_ === 'secret') renderer.clear();
+  if (scene_ === 'loading' || scene_ === 'intro' || scene_ === 'dead' || scene_ === 'win' || scene_ === 'ending' || scene_ === 'mini' || scene_ === 'secret' || scene_ === 'news') renderer.clear();
   else renderer.render(scene, cam);
   // tablet vyjíždí
   buttons = [];
@@ -1658,7 +1696,7 @@ function render(t) {
     if (roam.on) drawRoamHUD(t); else drawHUD(t);
   } else if (scene_ === 'mini') drawMini(t);
   else if (scene_ === 'scare') { if (scareT < .05) rect(0, 0, HW, HH, '#fff'); noise(.12 + Math.random() * .15); }
-  else if (scene_ === 'secret') drawSecret(); else if (scene_ === 'dead') drawDead(); else if (scene_ === 'win') drawWin(); else if (scene_ === 'ending') drawEnding();
+  else if (scene_ === 'news') drawNews(t); else if (scene_ === 'secret') drawSecret(); else if (scene_ === 'dead') drawDead(); else if (scene_ === 'win') drawWin(); else if (scene_ === 'ending') drawEnding();
   hud.style.cursor = hoverBtn ? 'pointer' : 'default';
 }
 // ruční krokování (natáčení traileru snímek po snímku)
