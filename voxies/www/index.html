@@ -30,6 +30,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const HOUR = 70, MOVE_INT = 5;
+const LOADS = []; // čekáme na modely před zobrazením menu
 const SPEED = +new URLSearchParams(location.search).get('speed') || 1;
 const FONT = "'Courier New', 'Lucida Console', monospace";
 const rand = (a, b) => a + Math.random() * (b - a);
@@ -237,11 +238,11 @@ const heldAxe = new THREE.Group();
 box(.05, .7, .05, mat('#7a4a22'), 0, 0, 0, heldAxe); box(.28, .18, .04, mat('#c0c4cc'), .1, .32, 0, heldAxe);
 heldAxe.position.set(.38, -.42, -.7); heldAxe.rotation.set(.3, 0, -.25); heldAxe.visible = false;
 // model sekery z axe.glb nahradí kostičkovou
-new GLTFLoader().load('models/axe.glb', g => {
+LOADS.push(new GLTFLoader().loadAsync('models/axe.glb').then(g => {
   const make = (len, parent) => { const m = g.scene.clone(true), b = new THREE.Box3().setFromObject(m), sz = b.getSize(new THREE.Vector3()); const k = len / sz.y; m.scale.setScalar(k); m.position.set(-(b.min.x + b.max.x) / 2 * k, -b.min.y * k, -(b.min.z + b.max.z) / 2 * k); parent.clear(); parent.add(m); };
   make(1.0, axeMesh);
   const hold = new THREE.Group(); make(.75, hold); hold.position.y = -.3; heldAxe.clear(); heldAxe.add(hold);
-});
+}).catch(() => {}));
 
 // ---------- modely místností (vybavení z GLB; zdi a podlahy jsou naše, aby seděly průchody) ----------
 // bounds = vnitřek místnosti v modelu (co je mimo, jsou zbytky a vyhodí se), room = kam ji posadit
@@ -254,7 +255,7 @@ const ROOM_MODELS = [
 ];
 function loadRoomModels() {
   const loader = new GLTFLoader(), bb = new THREE.Box3(), c = new THREE.Vector3(), sz = new THREE.Vector3();
-  for (const rm of ROOM_MODELS) loader.load('models/rooms/' + rm.file + '.glb', g => {
+  for (const rm of ROOM_MODELS) LOADS.push(loader.loadAsync('models/rooms/' + rm.file + '.glb').then(g => {
     const root = g.scene, [bx0, bz0, bx1, bz1] = rm.bounds, junk = [];
     root.updateMatrixWorld(true);
     root.traverse(o => {
@@ -287,7 +288,15 @@ function loadRoomModels() {
       if (dx || dz) moves.push([o, dx, dz]);
     });
     for (const [o, dx, dz] of moves) { const w = o.getWorldPosition(new THREE.Vector3()); w.x += dx; w.z += dz; o.parent.worldToLocal(w); o.position.copy(w); }
-  });
+    // automaty v modelu jsou jen přední stěna – doplnit jim tělo
+    if (rm.file === 'arcade') {
+      root.updateMatrixWorld(true); const body = mat('#1d1a26'), tops = [];
+      root.traverse(o => { if (!o.isMesh || !o.material.color) return; bb.setFromObject(o); bb.getSize(sz); bb.getCenter(c);
+        const col = o.material.color; if (col.r > .9 && col.g > .9 && col.b > .9 && sz.y < .5 && Math.max(sz.x, sz.z) > .35 && Math.max(sz.x, sz.z) < 1.2 && c.y > 1.0) tops.push([c.clone(), sz.clone()]); });
+      for (const [c0, s0] of tops) { const wx = Math.max(s0.x, s0.z) * .95, along = s0.x >= s0.z; const toWall = along ? Math.sign(c0.z - (r.z0 + r.z1) / 2) : Math.sign(c0.x - (r.x0 + r.x1) / 2);
+        const off = .48; along ? box(wx, c0.y, .5, body, c0.x, c0.y / 2, c0.z + toWall * off) : box(.5, c0.y, wx, body, c0.x + toWall * off, c0.y / 2, c0.z); }
+    }
+  }).catch(() => {}));
 }
 loadRoomModels();
 
@@ -755,7 +764,7 @@ const PAPER_LORE = PAPER;
 // ====================================================================
 //  STAV HRY
 // ====================================================================
-let scene_ = 'menu', sceneT = 0, G = null, scareT = -1, killer = null;
+let scene_ = 'loading', sceneT = 0, G = null, scareT = -1, killer = null;
 let progress = load('voxies_night', 1), beaten = load('voxies_beaten', false);
 let speech = null; // {who, text, t, dur, col}
 const AI = {
@@ -902,6 +911,7 @@ function win() {
 }
 function update(dt) {
   sceneT += dt;
+  if (scene_ === 'loading') { if (loadsDone || sceneT > 20) { scene_ = 'menu'; sceneT = 0; menuSpots(); startMenuSong(); } return; }
   if (speech) speech.t += dt;
   if (scene_ === 'mini') { miniUpdate(dt); return; }
   if (scene_ === 'intro' && sceneT > 3) { scene_ = 'play'; sceneT = 0; startAmbient(); }
@@ -1608,12 +1618,13 @@ function render(t) {
     if (lookTarget != null && G) { G.look += (lookTarget - G.look) * .12; if (Math.abs(lookTarget - G.look) < .01) lookTarget = null; }
     officeCam.rotation.set(-.05, G ? G.look : 0, 0, 'YXZ');
   }
-  if (scene_ === 'intro' || scene_ === 'dead' || scene_ === 'win' || scene_ === 'ending' || scene_ === 'mini' || scene_ === 'secret') renderer.clear();
+  if (scene_ === 'loading' || scene_ === 'intro' || scene_ === 'dead' || scene_ === 'win' || scene_ === 'ending' || scene_ === 'mini' || scene_ === 'secret') renderer.clear();
   else renderer.render(scene, cam);
   // tablet vyjíždí
   buttons = [];
   hx.setTransform(HK, 0, 0, HK, 0, 0); hx.clearRect(0, 0, HW, HH);
-  if (scene_ === 'menu') drawMenu(t);
+  if (scene_ === 'loading') { rect(0, 0, HW, HH, '#000'); drawLogo(ctx, HW / 2 - 90, 180, 180); txt('Načítám herna Voxie\'s…', HW / 2, 430, 22, '#ff8bea', 'center'); const k = loadsCount / Math.max(1, LOADS.length); rr(HW / 2 - 200, 460, 400, 14, 7); ctx.fillStyle = '#222'; ctx.fill(); rect(HW / 2 - 198, 462, 396 * k, 10, '#ff2bd6'); }
+  else if (scene_ === 'menu') drawMenu(t);
   else if (scene_ === 'intro') drawIntro();
   else if (scene_ === 'play') {
     if (G.camA > 0 && G.camA < 1) { const y = HH * (1 - G.camA); rr(60, y + 20, HW - 120, HH, 24); ctx.fillStyle = '#1b1b1f'; ctx.fill(); rect(90, y + 50, HW - 180, HH, '#000'); txt('VOXIE-CAM', HW / 2, y + 90, 22, '#5dff8a', 'center'); }
@@ -1630,9 +1641,12 @@ function frame() {
   requestAnimationFrame(frame);
 }
 setCharacter(VOX, buildVoxie(), 'Voxie'); menuSpots();
-fetch('models/cocoa.glb').then(r => r.ok ? r.arrayBuffer() : null).catch(() => null).then(buf => buf ? { buf } : idbGet('model')).then(async m => { if (m && m.buf) { try { const r = await loadGLB(m.buf, 'Cocoa'); setCharacter(COC, r.obj, 'Cocoa'); if (G) { G.coc.off = false; setSpot(COC, G.coc.pos); COC.root.visible = true; } else menuSpots(); } catch (e) {} } });
+LOADS.push(fetch('models/cocoa.glb').then(r => r.ok ? r.arrayBuffer() : null).catch(() => null).then(buf => buf ? { buf } : idbGet('model')).then(async m => { if (m && m.buf) { try { const r = await loadGLB(m.buf, 'Cocoa'); setCharacter(COC, r.obj, 'Cocoa'); if (G) { G.coc.off = false; setSpot(COC, G.coc.pos); COC.root.visible = true; } else menuSpots(); } catch (e) {} } }).catch(() => {}));
+let loadsDone = false, loadsCount = 0;
+LOADS.forEach(p => p.then(() => loadsCount++));
+Promise.all(LOADS).then(() => { loadsDone = true; });
 // hudba v menu hned po startu; pokud prohlížeč zvuk blokuje, rozjede se prvním dotykem
-try { initAudio(); startMenuSong(); } catch (e) {}
+try { initAudio(); } catch (e) {}
 const unlock = () => { initAudio(); if (AC && AC.state !== 'running') AC.resume(); if (scene_ === 'menu') startMenuSong(); };
 ['pointerdown', 'touchstart', 'keydown', 'click'].forEach(ev => addEventListener(ev, unlock, { capture: true, passive: true }));
 requestAnimationFrame(frame);
