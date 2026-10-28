@@ -236,6 +236,12 @@ place(rack, -21.3, 0, 4.6, Math.PI / 2);
 const heldAxe = new THREE.Group();
 box(.05, .7, .05, mat('#7a4a22'), 0, 0, 0, heldAxe); box(.28, .18, .04, mat('#c0c4cc'), .1, .32, 0, heldAxe);
 heldAxe.position.set(.38, -.42, -.7); heldAxe.rotation.set(.3, 0, -.25); heldAxe.visible = false;
+// model sekery z axe.glb nahradí kostičkovou
+new GLTFLoader().load('models/axe.glb', g => {
+  const make = (len, parent) => { const m = g.scene.clone(true), b = new THREE.Box3().setFromObject(m), sz = b.getSize(new THREE.Vector3()); const k = len / sz.y; m.scale.setScalar(k); m.position.set(-(b.min.x + b.max.x) / 2 * k, -b.min.y * k, -(b.min.z + b.max.z) / 2 * k); parent.clear(); parent.add(m); };
+  make(1.0, axeMesh);
+  const hold = new THREE.Group(); make(.75, hold); hold.position.y = -.3; heldAxe.clear(); heldAxe.add(hold);
+});
 
 // ---------- modely místností (vybavení z GLB; zdi a podlahy jsou naše, aby seděly průchody) ----------
 // bounds = vnitřek místnosti v modelu (co je mimo, jsou zbytky a vyhodí se), room = kam ji posadit
@@ -1060,7 +1066,7 @@ function drawMenu(t) {
   txt('Animatronici: Voxie' + (COC.model ? ' + Cocoa' : ''), 64, 448, 18, '#ffb3f0');
   if (beaten) txt('★ Přežil jsi 5 nocí' + (progress >= 7 ? ' · noci 6–7 odemčeny' : ''), 64, 560, 18, '#ffe46b');
   if (load('voxies_secret', false)) txt('🪓 Tajný konec: Osvobození', 64, 584, 18, '#ff6b6b');
-  txt('v1.5.0', HW - 20, 700, 14, '#666', 'right');
+  txt('v1.6.0', HW - 20, 700, 14, '#666', 'right');
   if (loadMsg) txt(loadMsg, 64, 590, 16, '#7ff4ff');
   txt('Táhni prstem = rozhlížení · Joystick = chůze mimo stůl · Q/E světla, A/D dveře, mezerník kamery, F baterka', 64, 700, 13, '#777');
 }
@@ -1115,9 +1121,9 @@ function menuSpots() { setSpot(VOX, '1A'); setSpot(COC, 'm1A'); COC.root.visible
 // ====================================================================
 const roamCam = new THREE.PerspectiveCamera(72, 16 / 9, .05, 60); roamCam.add(heldAxe); scene.add(roamCam);
 const flash = new THREE.SpotLight(0xfff3d0, 0, 16, .42, .55, 1.2); scene.add(flash, flash.target);
-const roam = { on: false, pos: new THREE.Vector3(), yaw: 0, pitch: 0, flash: false, joy: null, look: null, keys: {}, bob: 0, msg: '', msgT: 0 };
+const roam = { stamina: 1, sprint: false, tired: false, y: 0, vy: 0, on: false, pos: new THREE.Vector3(), yaw: 0, pitch: 0, flash: false, joy: null, look: null, keys: {}, bob: 0, msg: '', msgT: 0 };
 const DESK_SPOT = new THREE.Vector3(0, 0, 2.2);
-function roamReset() { roam.on = false; roam.flash = false; roam.joy = roam.look = null; roam.keys = {}; flash.intensity = 0; }
+function roamReset() { roam.stamina = 1; roam.y = 0; roam.vy = 0; roam.sprint = false; roam.tired = false; roam.on = false; roam.flash = false; roam.joy = roam.look = null; roam.keys = {}; flash.intensity = 0; }
 // průchozí plochy: vnitřky místností + průchody dveřmi
 const WALK = [], GAPS = [];
 for (const id in ROOMS) {
@@ -1142,6 +1148,7 @@ function toggleRoam() {
     SFX.steps(0, 2, .15); hint('Joystick vlevo = chůze, táhni vpravo = rozhlížení');
   } else if (roam.pos.distanceTo(new THREE.Vector3(0, 1.6, 2.2)) < 1.8) { roam.on = false; roam.flash = false; G.look = clamp(roam.yaw, -1.15, 1.15); }
 }
+function roamJump() { if (roam.on && roam.y === 0 && roam.stamina > .08) { roam.vy = 5; roam.stamina = Math.max(0, roam.stamina - .08); SFX.step(0, .08); } }
 function hint(m) { roam.msg = m; roam.msgT = 3.5; }
 const nearDesk = () => roam.pos.distanceTo(new THREE.Vector3(0, 1.6, 2.2)) < 1.8;
 const INTER = [
@@ -1206,7 +1213,14 @@ function roamUpdate(dt) {
   if (roam.joy) { mx = roam.joy.dx; mz = roam.joy.dy; }
   const k = roam.keys; if (k.w || k.arrowup) mz -= 1; if (k.s || k.arrowdown) mz += 1; if (k.a || k.arrowleft) mx -= 1; if (k.d || k.arrowright) mx += 1;
   const len = Math.hypot(mx, mz); if (len > 1) { mx /= len; mz /= len; }
-  const sp = 2.8 * dt, cy = Math.cos(roam.yaw), sy = Math.sin(roam.yaw);
+  // stamina: sprint ji bere, odpočinek vrací; po vyčerpání chvíli nejde běžet
+  const running = (roam.sprint || k.shift) && len > .1 && !roam.tired;
+  roam.stamina = clamp(roam.stamina + (running ? -dt / 4 : dt / (len > .1 ? 7 : 4)), 0, 1);
+  if (roam.stamina <= 0 && !roam.tired) { roam.tired = true; SFX.step(0, .2); }
+  if (roam.tired && roam.stamina > .35) roam.tired = false;
+  // skok
+  roam.vy -= 14 * dt; roam.y = Math.max(0, roam.y + roam.vy * dt); if (roam.y === 0 && roam.vy < 0) { if (roam.vy < -3) SFX.step(0, .12); roam.vy = 0; }
+  const sp = (running ? 5.2 : 2.8) * dt, cy = Math.cos(roam.yaw), sy = Math.sin(roam.yaw);
   const dx = (mx * cy + mz * sy) * sp, dz = (-mx * sy + mz * cy) * sp;
   if (walkable(roam.pos.x + dx, roam.pos.z)) roam.pos.x += dx;
   if (walkable(roam.pos.x, roam.pos.z + dz)) roam.pos.z += dz;
@@ -1222,7 +1236,7 @@ function roamUpdate(dt) {
 }
 function updateRoamCam(t) {
   const bobY = Math.sin(roam.bob) * .04;
-  roamCam.position.set(roam.pos.x, 1.6 + bobY, roam.pos.z);
+  roamCam.position.set(roam.pos.x, 1.6 + bobY * (roam.y > 0 ? 0 : 1) + roam.y, roam.pos.z);
   roamCam.rotation.set(roam.pitch, roam.yaw, 0, 'YXZ');
   const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(roamCam.quaternion);
   flash.position.copy(roamCam.position).addScaledVector(fwd, .2).y -= .15;
@@ -1238,6 +1252,12 @@ function drawRoamHUD(t) {
   ctx.beginPath(); ctx.arc(jx, jy, 90, 0, 7); ctx.fillStyle = 'rgba(255,255,255,.08)'; ctx.fill(); ctx.strokeStyle = 'rgba(127,244,255,.5)'; ctx.lineWidth = 3; ctx.stroke();
   const kx = jx + (roam.joy ? roam.joy.dx * 70 : 0), ky = jy + (roam.joy ? roam.joy.dy * 70 : 0);
   ctx.beginPath(); ctx.arc(kx, ky, 38, 0, 7); ctx.fillStyle = 'rgba(127,244,255,.35)'; ctx.fill();
+  // stamina + sprint + skok
+  rr(24, 96, 220, 14, 6); ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fill(); rect(26, 98, 216 * roam.stamina, 10, roam.tired ? '#ff5050' : roam.stamina < .3 ? '#ffb030' : '#5dff8a'); txt(roam.tired ? 'Zadýchaný…' : 'Stamina', 250, 108, 14, '#ccc');
+  const sprintOn = roam.sprint && !roam.tired;
+  rr(HW - 230, 380, 95, 70, 12); ctx.fillStyle = sprintOn ? '#ff2bd6' : 'rgba(255,43,214,.2)'; ctx.fill(); ctx.strokeStyle = '#ff2bd6'; ctx.lineWidth = 2; ctx.stroke(); txt('🏃', HW - 182, 425, 30, '#fff', 'center');
+  addBtn(HW - 230, 380, 95, 70, 'sprint', () => {});
+  bigBtn(HW - 125, 380, 95, 70, '⤒', 'jump', roamJump, true, 34);
   bigBtn(HW - 230, 520, 200, 50, roam.flash ? '🔦 BATERKA: ZAP' : '🔦 BATERKA: VYP', 'flash', () => { if (!G.out) { roam.flash = !roam.flash; SFX.click(); } }, !G.out, 18);
   if (nearDesk()) bigBtn(HW - 230, 590, 200, 50, '🪑 KE STOLU', 'desk', toggleRoam, true, 18);
   if (canHit()) bigBtn(HW / 2 - 210, 500, 420, 64, '🪓 ÚDER (' + G.hits + '/3)', 'hit', hitVoxie, true, 24);
@@ -1455,6 +1475,7 @@ hud.addEventListener('pointerdown', e => {
   if (scene_ === 'menu') startMenuSong();
   const p = toL(e), b = hit(p);
   try { if (!document.fullscreenElement && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {}); } catch (err) {}
+  if (b && b.id === 'sprint') { roam.sprint = true; roam.sprintId = e.pointerId; return; }
   if (b) { b.cb(); return; }
   if (scene_ === 'intro') { scene_ = 'play'; sceneT = 0; startAmbient(); return; }
   if (scene_ === 'mini' && M) { M.hold = { id: e.pointerId, dir: p.x < HW / 2 ? -1 : 1 }; return; }
@@ -1475,7 +1496,7 @@ hud.addEventListener('pointermove', e => {
     const edge = HW * .12; G.lookV = p.x < edge ? 1.6 * (1 - p.x / edge) : p.x > HW - edge ? -1.6 * (1 - (HW - p.x) / edge) : 0;
   }
 });
-const endDrag = e => { if (drag && drag.id === e.pointerId) drag = null; if (roam.joy && roam.joy.id === e.pointerId) roam.joy = null; if (roam.look && roam.look.id === e.pointerId) roam.look = null; if (M && M.hold && M.hold.id === e.pointerId) M.hold = null; };
+const endDrag = e => { if (roam.sprintId === e.pointerId) { roam.sprint = false; roam.sprintId = null; } if (drag && drag.id === e.pointerId) drag = null; if (roam.joy && roam.joy.id === e.pointerId) roam.joy = null; if (roam.look && roam.look.id === e.pointerId) roam.look = null; if (M && M.hold && M.hold.id === e.pointerId) M.hold = null; };
 hud.addEventListener('pointerup', endDrag); hud.addEventListener('pointercancel', endDrag);
 hud.addEventListener('pointerleave', () => { if (G) G.lookV = 0; });
 addEventListener('keydown', e => {
@@ -1484,7 +1505,7 @@ addEventListener('keydown', e => {
   if (scene_ === 'mini' && M) { M.keys[k] = true; return; }
   if (scene_ !== 'play') return;
   if (G.dialog) { const n = DIALOG[G.dialog]; const o = n.o[+k - 1]; if (o) choose(o[1]); return; }
-  if (roam.on) { roam.keys[k] = true; if (k === 'f') roam.flash = !roam.flash && !G.out; if (k === ' ' && canHit()) hitVoxie(); if (k === 'e') interact(); if (k === 'r' || k === 'enter') toggleRoam(); return; }
+  if (roam.on) { roam.keys[k] = true; if (k === 'f') roam.flash = !roam.flash && !G.out; if (k === ' ') { if (canHit()) hitVoxie(); else roamJump(); } if (k === 'e') interact(); if (k === 'r' || k === 'enter') toggleRoam(); return; }
   if (k === 'r') { toggleRoam(); return; }
   if (k === 'a') toggleDoor('L'); else if (k === 'd') toggleDoor('R');
   else if (k === 'q' && !G.cams) setLight('L'); else if (k === 'e' && !G.cams) setLight('R');
