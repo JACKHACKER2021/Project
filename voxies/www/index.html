@@ -639,8 +639,20 @@ function stopMusicBox() { clearInterval(musicBoxTimer); musicBoxTimer = null; }
 // písnička do menu – stejná jako v traileru: temný dron + hrací skříňka + občasné hluboké údery
 let menuSong = null;
 const SONG_MEL = [12, 7, 9, 7, 4, 7, 2, 4, 5, 9, 12, 14, 12, 9, 7, -1];
+// vlastní skladba do menu (audio/menu.mp3); když se nenačte, hraje syntetizovaná
+let menuBuf = null, menuBufLoading = false;
+function loadMenuBuf() {
+  if (menuBuf || menuBufLoading || !AC) return; menuBufLoading = true;
+  fetch('audio/menu.mp3').then(r => r.arrayBuffer()).then(b => AC.decodeAudioData(b)).then(buf => { menuBuf = buf; if (menuSong && menuSong.synth && scene_ === 'menu') { stopMenuSong(); setTimeout(startMenuSong, 700); } }).catch(() => {});
+}
 function startMenuSong() {
   if (!AC || menuSong) return;
+  loadMenuBuf();
+  if (menuBuf) {
+    const g = AC.createGain(); g.gain.value = .0001; g.gain.exponentialRampToValueAtTime(.8, AC.currentTime + 1.5); g.connect(master);
+    const src = AC.createBufferSource(); src.buffer = menuBuf; src.loop = true; src.connect(g); src.start();
+    menuSong = { g, timer: null, nodes: [src] }; return;
+  }
   const g = AC.createGain(); g.gain.value = .0001; g.gain.exponentialRampToValueAtTime(1, AC.currentTime + 2); g.connect(master);
   const nodes = [];
   // dron: 55 Hz s pomalým kolísáním + 82 Hz + šum za dolní propustí
@@ -656,7 +668,7 @@ function startMenuSong() {
   const boom = () => { const t = AC.currentTime, o = AC.createOscillator(), e = AC.createGain(); o.frequency.setValueAtTime(60, t); o.frequency.exponentialRampToValueAtTime(20, t + 2); e.gain.setValueAtTime(.0001, t); e.gain.exponentialRampToValueAtTime(.35, t + .02); e.gain.exponentialRampToValueAtTime(.0001, t + 2); o.connect(e); e.connect(g); o.start(t); o.stop(t + 2.1);
     const s2 = AC.createBufferSource(); s2.buffer = noiseBuf; const se = AC.createGain(); se.gain.setValueAtTime(.12, t); se.gain.exponentialRampToValueAtTime(.0001, t + .5); s2.connect(se); se.connect(g); s2.start(t, Math.random()); s2.stop(t + .6); };
   const timer = setInterval(() => { if (AC.state !== 'running') return; const m = SONG_MEL[k % SONG_MEL.length]; if (m >= 0) box(m, 0); if (k % 48 === 0) boom(); k++; }, 320);
-  menuSong = { g, timer, nodes };
+  menuSong = { g, timer, nodes, synth: true };
 }
 function stopMenuSong() {
   if (!menuSong) return; const s = menuSong; menuSong = null; clearInterval(s.timer);
@@ -1649,10 +1661,11 @@ function render(t) {
   else if (scene_ === 'secret') drawSecret(); else if (scene_ === 'dead') drawDead(); else if (scene_ === 'win') drawWin(); else if (scene_ === 'ending') drawEnding();
   hud.style.cursor = hoverBtn ? 'pointer' : 'default';
 }
+// ruční krokování (natáčení traileru snímek po snímku)
+let manualT = null;
 function frame() {
   const dt = Math.min(.1, clock.getDelta());
-  if (!document.hidden) update(dt * SPEED);
-  render(clock.elapsedTime);
+  if (manualT === null) { if (!document.hidden) update(dt * SPEED); render(clock.elapsedTime); }
   requestAnimationFrame(frame);
 }
 setCharacter(VOX, buildVoxie(), 'Voxie'); menuSpots();
@@ -1665,7 +1678,7 @@ try { initAudio(); } catch (e) {}
 const unlock = () => { initAudio(); if (AC && AC.state !== 'running') AC.resume(); if (scene_ === 'menu') startMenuSong(); };
 ['pointerdown', 'touchstart', 'keydown', 'click'].forEach(ev => addEventListener(ev, unlock, { capture: true, passive: true }));
 requestAnimationFrame(frame);
-window.__voxies = { skipIntro() { if (scene_ === 'intro') { scene_ = 'play'; sceneT = 0; startAmbient(); } }, get menuSong() { return !!menuSong; }, get acState() { return AC && AC.state; }, hitVoxie, interact, workDone, THREE, scene3: scene, renderer, CAMS, get G() { return G; }, get scene() { return scene_; }, VOX, COC, AI, newGame, startNight, toggleDoor, setLight, toggleCams, selectCam, sayA, setSpot, loadGLB, setCharacter, setLook: v => { G.look = v; }, voice, jumpscare, roam, toggleRoam, get M() { return M; }, icon(size) { const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d'); const g = x.createRadialGradient(size / 2, size / 2, size * .1, size / 2, size / 2, size * .7); g.addColorStop(0, '#3b1d6e'); g.addColorStop(1, '#07030f'); x.fillStyle = g; x.fillRect(0, 0, size, size); drawLogo(x, size * .1, size * .1, size * .8); return c.toDataURL('image/png'); } };
+window.__voxies = { get menuSongKind() { return menuSong && (menuSong.synth ? 'synth' : 'file'); }, manual(on) { manualT = on ? 0 : null; }, step(dt) { manualT += dt; update(dt); render(manualT); }, skipIntro() { if (scene_ === 'intro') { scene_ = 'play'; sceneT = 0; startAmbient(); } }, get menuSong() { return !!menuSong; }, get acState() { return AC && AC.state; }, hitVoxie, interact, workDone, THREE, scene3: scene, renderer, CAMS, get G() { return G; }, get scene() { return scene_; }, VOX, COC, AI, newGame, startNight, toggleDoor, setLight, toggleCams, selectCam, sayA, setSpot, loadGLB, setCharacter, setLook: v => { G.look = v; }, voice, jumpscare, roam, toggleRoam, get M() { return M; }, icon(size) { const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d'); const g = x.createRadialGradient(size / 2, size / 2, size * .1, size / 2, size / 2, size * .7); g.addColorStop(0, '#3b1d6e'); g.addColorStop(1, '#07030f'); x.fillStyle = g; x.fillRect(0, 0, size, size); drawLogo(x, size * .1, size * .1, size * .8); return c.toDataURL('image/png'); } };
 </script>
 </body>
 </html>
