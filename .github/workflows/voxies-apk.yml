@@ -26,10 +26,9 @@ jobs:
         run: npm install
       - name: Vytvoření Android projektu
         run: |
+          pip install pillow
           npx cap add android
-          # hra běží na šířku a přes celou obrazovku
-          sed -i 's/<activity/<activity android:screenOrientation="sensorLandscape"/' android/app/src/main/AndroidManifest.xml
-          sed -i 's/@style\/AppTheme.NoActionBarLaunch/@style\/Theme.AppCompat.NoActionBar/' android/app/src/main/AndroidManifest.xml || true
+          python3 tools/android_setup.py
           npx cap sync android
       - name: Sestavení APK
         working-directory: voxies/android
