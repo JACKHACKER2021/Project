@@ -59,8 +59,15 @@ public class MainActivity extends BridgeActivity {
 # verze aplikace
 gradle = os.path.join(root, 'android', 'app', 'build.gradle')
 g = open(gradle).read()
-g = re.sub(r'versionCode \d+', 'versionCode 165', g); g = re.sub(r'versionName "[^"]*"', 'versionName "1.6.5"', g)
+g = re.sub(r'versionCode \d+', 'versionCode 166', g); g = re.sub(r'versionName "[^"]*"', 'versionName "1.6.6"', g)
 open(gradle, 'w').write(g)
+
+# stejný podpisový klíč pro všechny verze (aby šla aktualizace bez odinstalace a postup zůstal)
+ks = os.path.join(root, 'keystore', 'voxies.keystore')
+if os.path.exists(ks):
+    home_ks = os.path.expanduser('~/.android/debug.keystore')
+    os.makedirs(os.path.dirname(home_ks), exist_ok=True)
+    shutil.copyfile(ks, home_ks)
 
 # ikona
 icon = Image.open(os.path.join(root, 'icon.png')).convert('RGBA')
