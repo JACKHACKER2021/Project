@@ -608,7 +608,7 @@ const CALLS = [
     'Ten archivní automat v herně ti možná něco ukázal. Hraje to samo, každou noc. Hra se jmenuje Oslava devadesát sedm.',
     'Čtrnáctého června devadesát sedm tu byla narozeninová oslava. Voxie rozdával dorty. Pak zhasla světla. Když se rozsvítila, všichni utekli ven.',
     'Jenže Voxie zůstal na pódiu. A z kostýmu bylo slyšet dýchání. Tehdy ještě Voxie nebyl robot. Byl to člověk v obleku. Pan Vojtěch, majitel.',
-    'Cocoa tě prý varuje, když jde Voxie. Věř jí. Dobrou noc.'],
+    'Cocoa tě prý varuje, když jde Voxie. A dneska s tebou chce mluvit. Posviť na ni u pravých dveří, nebo za ní zajdi. Věř jí. Dobrou noc.'],
   ['Haló? Třetí noc. To už jsi tu skoro inventář. A dneska máš úkol navíc: majitel chce, abys v pizzerii přijal objednávku a upekl pizzu. Neptej se proč. Odejdi od stolu, vezmi baterku a pospěš si.',
     'Všiml sis, že se dívají přímo do kamer? Ví, kde jsou. Voxie je kdysi sám instaloval.',
     'Pan Vojtěch se po té oslavě ztratil. Policie našla jen jeho auto na parkovišti. A obleku Voxieho od té doby někdo vyměnil kostru za kovovou.',
@@ -678,7 +678,7 @@ function sayA(a, kind, o = {}) {
   const dur = voice(text, { pitch: d.pitch, vol, pan, radio, creep: !d.nice && (G.night >= 3 || o.creep), formant: d.formant });
   speech = { who: d.ch.name + (o.speaker ? ' (reproduktor)' : ''), text, t: 0, dur: Math.max(dur, 1.6), col: d.nice ? '#ffc9a0' : '#ff8bea', heard: vol > .2 || !!o.speaker };
 }
-function mkAI(id) { const d = AI[id]; return { walkT: 0, walkDur: 1, id, pos: d.start, timer: 0, lit: 0, seen: false, warned: false, knocked: false, attack: false, attackT: 0, retreatT: 0, watchT: 0, spokeCam: false, off: !d.ch.model }; }
+function mkAI(id) { const d = AI[id]; return { walkT: 0, path: null, id, pos: d.start, timer: 0, lit: 0, seen: false, warned: false, knocked: false, attack: false, attackT: 0, retreatT: 0, watchT: 0, spokeCam: false, off: !d.ch.model }; }
 function newGame(n) {
   const cocOff = !COC.model;
   G = {
@@ -715,7 +715,7 @@ function selectCam(id) { if (G.cam !== id) { G.cam = id; G.camStatic = .45; SFX.
 function hangUp() { if (G && G.call.on) { G.call.on = false; if (speech && speech.who === 'phone') speech = null; SFX.click(); } }
 function moveTo(a, np) {
   const d = AI[a.id], old = a.pos; const from = d.ch.root.position.clone(); a.pos = np; setSpot(d.ch, np); a.watchT = 0; a.spokeCam = false;
-  if (roam.on && from.distanceTo(d.ch.root.position) < 14) { a.walkFrom = from; a.walkTo = d.ch.root.position.clone(); a.walkT = a.walkDur = from.distanceTo(a.walkTo) / 1.4; }
+  startWalk(a, from);
   if (G.cams && ((SPOTS[old] && SPOTS[old].cam === G.cam) || SPOTS[np].cam === G.cam)) G.camStatic = 1.1;
   const pan = d.side === 'L' ? -1 : 1, coc = G.coc;
   if (np === d.hall) {
@@ -725,24 +725,26 @@ function moveTo(a, np) {
   if (np === d.door) {
     SFX.steps(pan * .9, 4, d.nice ? .25 : .42, .42); a.lit = 0; a.seen = false; a.warned = false; a.knocked = false;
     setTimeout(() => G && a.pos === d.door && !doorOf(d.side) && sayA(a, 'door'), 2200);
-    if (!d.nice && !coc.off && coc.pos !== 'cDOOR' && Math.random() < .6) setTimeout(() => G && sayA(coc, 'help', { speaker: true, force: true }), 800);
+    if (!d.nice && !coc.off && coc.pos !== 'cDOOR' && (G.friend || Math.random() < .6)) setTimeout(() => G && sayA(coc, 'help', { speaker: true, force: true }), 800);
   }
 }
 function retreat(a, knock) {
   const d = AI[a.id], pan = d.side === 'L' ? -1 : 1;
   if (knock) { SFX.knock(pan * .9); setTimeout(() => sayA(a, 'closed', { vol: .5 }), 700); } else sayA(a, 'flash', { force: true });
   setTimeout(() => SFX.steps(pan * .8, 4, .3, .45, .06), knock ? 1600 : 900);
+  const from = d.ch.root.position.clone();
   a.pos = pick(d.back); a.lit = 0; a.timer = -2; a.retreatT = 0; a.seen = false; d.ch.C.lit = 0;
-  setSpot(d.ch, a.pos);
+  setSpot(d.ch, a.pos); startWalk(a, from);
 }
 function aiUpdate(a, dt) {
   if (a.off) return;
   const d = AI[a.id];
+  if (G.dialog && a === G.coc) return;
   if (a.attack) { a.attackT += dt; if (!G.cams || a.attackT > 3) { G.cams = false; jumpscare(a); } return; }
   if (a.retreatT > 0) { a.retreatT -= dt; if (a.retreatT <= 0) retreat(a, false); return; }
   if (a.pos === d.door && G.light === d.side && !doorOf(d.side)) {
     a.lit += dt;
-    if (d.nice) { if (a.lit > 1) a.retreatT = 1.2; }
+    if (d.nice) { if (a.lit > 1) { if (G.night === 2 && !G.talked) openDialog(); else a.retreatT = 1.2; } }
     else {
       if (a.lit > 2.3 && !a.warned) { a.warned = true; sayA(a, 'stare', { force: true, creep: true }); }
       if (a.lit > 3.5) { a.attack = true; a.attackT = 0; setLight(null); return; }
@@ -935,7 +937,7 @@ function drawHUD(t) {
     addBtn(bx, 656, 480, 64, 'cams', toggleCams);
   }
   if (!G.cams && !G.out) bigBtn(24, 590, 250, 44, '🚶 ODEJÍT OD STOLU', 'roam', toggleRoam, true, 18);
-  drawTask();
+  drawTask(); drawDialog();
   if (G.call.on) { bigBtn(24, 60, 170, 40, 'ZAVĚSIT ✆', 'hang', hangUp, true, 20); if (G.call.ring > 0) txt('☎ Volá: Bývalý hlídač...', 210, 88, 20, '#ffe46b'); }
   drawSpeech();
 }
@@ -1073,7 +1075,7 @@ function roamUpdate(dt) {
   for (const a of AIs()) {
     if (a.off) continue; const ch = AI[a.id].ch;
     const d = Math.hypot(ch.root.position.x - roam.pos.x, ch.root.position.z - roam.pos.z);
-    if (d < 1.3) { jumpscare(a); return; }
+    if (d < 1.3 && !(G.dialog && a === G.coc) && !(AI[a.id].nice && G.friend)) { jumpscare(a); return; }
     if (d < 4 && !a.nearSaid) { a.nearSaid = true; sayA(a, AI[a.id].nice ? 'hall' : 'stare', { force: true, vol: .7 }); }
     if (d > 6) a.nearSaid = false;
   }
@@ -1099,10 +1101,11 @@ function drawRoamHUD(t) {
   bigBtn(HW - 230, 520, 200, 50, roam.flash ? '🔦 BATERKA: ZAP' : '🔦 BATERKA: VYP', 'flash', () => { if (!G.out) { roam.flash = !roam.flash; SFX.click(); } }, !G.out, 18);
   if (nearDesk()) bigBtn(HW - 230, 590, 200, 50, '🪑 KE STOLU', 'desk', toggleRoam, true, 18);
   const it = nearInter(); if (it) bigBtn(HW / 2 - 210, 580, 420, 56, it.label, 'inter', interact, true, 19);
+  else if (canTalk()) bigBtn(HW / 2 - 210, 580, 420, 56, '💬 MLUVIT S COCOU', 'talk', openDialog, true, 19);
   txt('Noc ' + G.night, 24, 42, 26, '#fff'); const h = hourOf(); txt((h === 0 ? '0' : h) + ':00', HW - 24, 54, 46, '#fff', 'right');
   if (!G.out) txt('Proud: ' + Math.max(0, Math.ceil(G.power)) + ' %', 24, 80, 22, G.power < 20 ? '#ff6b6b' : '#fff');
   const rid = roomAt(roam.pos.x, roam.pos.z); txt(rid === 'OFF' ? 'Kancelář' : rid && CAMS[rid] ? CAMS[rid].name : '', HW / 2, 40, 22, '#cfe', 'center');
-  drawTask(); drawSpeech();
+  drawTask(); drawSpeech(); drawDialog();
   if (roam.msgT > 0) { ctx.save(); ctx.globalAlpha = Math.min(1, roam.msgT); const ls = wrap(roam.msg, 640, 20); rr(HW / 2 - 340, 480 - ls.length * 26, 680, ls.length * 26 + 20, 10); ctx.fillStyle = 'rgba(0,0,0,.7)'; ctx.fill(); ls.forEach((l, i) => txt(l, HW / 2, 503 - ls.length * 26 + i * 26, 20, '#ffe46b', 'center')); ctx.restore(); }
 }
 function drawTask() {
@@ -1192,6 +1195,82 @@ function drawMini(t) {
   }
 }
 
+
+// ====================================================================
+//  CHŮZE ANIMATRONIKŮ: vždy dojdou dveřmi a chodbami z místa na místo
+// ====================================================================
+const ADJ = {};
+for (const g of GAPS) {
+  if (g.door) continue;
+  const cx = (g[0] + g[2]) / 2, cz = (g[1] + g[3]) / 2, rs = new Set();
+  for (const [ox, oz] of [[0, .9], [0, -.9], [.9, 0], [-.9, 0]]) { const r = roomAt(cx + ox, cz + oz); if (r) rs.add(r); }
+  const [a, b] = [...rs]; if (!a || !b) continue;
+  (ADJ[a] = ADJ[a] || []).push({ to: b, p: [cx, cz] }); (ADJ[b] = ADJ[b] || []).push({ to: a, p: [cx, cz] });
+}
+function navPath(from, to) {
+  const ra = roomAt(from.x, from.z), rb = roomAt(to.x, to.z), pts = [from.clone()];
+  if (ra && rb && ra !== rb) {
+    const prev = { [ra]: null }, q = [ra];
+    while (q.length) { const r = q.shift(); if (r === rb) break; for (const e of ADJ[r] || []) if (!(e.to in prev)) { prev[e.to] = { r, p: e.p }; q.push(e.to); } }
+    const mids = []; let r = rb; while (prev[r]) { mids.unshift(prev[r].p); r = prev[r].r; }
+    for (const [x, z] of mids) pts.push(new THREE.Vector3(x, 0, z));
+  }
+  pts.push(to.clone());
+  return pts;
+}
+function startWalk(a, from) {
+  const ch = AI[a.id].ch, to = ch.root.position.clone();
+  if (from.distanceTo(to) < .2) return;
+  a.endYaw = ch.root.rotation.y; a.path = navPath(from, to); a.seg = 1;
+  ch.root.position.copy(from);
+}
+function walkStep(a, ch, dt) {
+  const P = a.path; let step = 1.7 * dt;
+  while (step > 0 && a.seg < P.length) {
+    const tgt = P[a.seg], cur = ch.root.position, dx = tgt.x - cur.x, dz = tgt.z - cur.z, dy = tgt.y - cur.y, d = Math.hypot(dx, dz);
+    if (d <= step) { cur.copy(tgt); step -= d; a.seg++; continue; }
+    cur.x += dx / d * step; cur.z += dz / d * step; cur.y += dy * Math.min(1, step / d);
+    const want = Math.atan2(dx, dz); let df = want - ch.root.rotation.y; df = Math.atan2(Math.sin(df), Math.cos(df)); ch.root.rotation.y += df * Math.min(1, dt * 8);
+    step = 0;
+  }
+  if (a.seg >= P.length) { a.path = null; ch.root.rotation.y = a.endYaw; }
+}
+
+// ====================================================================
+//  DIALOG S COCOU (noc 2)
+// ====================================================================
+const DIALOG = {
+  start: { t: 'Ahoj! Ty jsi ten, co mě zná z reklam? Opravdu jsi sem přišel kvůli mně?', o: [['Jo! Jsem tvůj největší fanoušek.', 'fan'], ['Kdo jsi doopravdy?', 'who'], ['Musím hlídat dveře, promiň.', 'bye']] },
+  fan: { t: 'Hihi! To mi nikdo dlouho neřekl. V devadesát sedmém jsem měla teprve první vystoupení. A hned poslední.', o: [['Co se tehdy stalo?', 'what'], ['Budeme kamarádi?', 'friend']] },
+  who: { t: 'Jsem Cocoa. Robot. Ale myslím, že něco cítím. Třeba strach. O pana Vojtěcha.', o: [['Kdo je pan Vojtěch?', 'what'], ['Budeme kamarádi?', 'friend']] },
+  what: { t: 'Zhasla světla. Schovala jsem holčičku v trubkách. A pak jsem slyšela pana Vojtěcha. Byl v obleku Voxieho a volal o pomoc. Zámky se zasekly…', o: [['Dá se mu ještě pomoct?', 'help'], ['To je hrozné…', 'friend']] },
+  help: { t: 'Možná. Kapitán Ticket hlídá pět lístků. Kdo je nasbírá, otevře kancelář. Tam je vypínač obleku. Pomůžeš mi?', o: [['Pomůžu ti. Slibuju.', 'promise'], ['Nevím… bojím se.', 'bye']] },
+  friend: { t: 'Kamarádi! Tak já tě budu hlídat. Kdykoli půjde Voxie, zavolám tě. A tobě nikdy neublížím.', o: [['Díky, Cocoo.', 'bye']], fx: 'friend' },
+  promise: { t: 'Děkuju… Zítra ti ukážu, kde hledat první lístek. A budu tě hlídat, kamaráde.', o: [['Tak zítra.', 'bye']], fx: 'promise' },
+  bye: { t: 'Tak zatím! A dávej pozor na levé dveře!', o: [['[Konec]', null]] },
+};
+function canTalk() { return G && G.night === 2 && !G.talked && !G.dialog && roam.on && !G.coc.off && COC.root.position.distanceTo(roamCam.position) < 3; }
+function openDialog() { if (!G || G.dialog || G.coc.off) return; G.dialog = 'start'; G.talked = true; dialogSay(); }
+function dialogSay() { const n = DIALOG[G.dialog]; const dur = voice(n.t, { pitch: 340, vol: .5, formant: 1.12, pan: roam.on ? 0 : .6 }); }
+function choose(next) {
+  SFX.click();
+  const n = DIALOG[G.dialog];
+  if (n.fx === 'friend' || n.fx === 'promise') G.friend = true;
+  if (n.fx === 'promise') save('voxies_promise', true);
+  if (!next) { G.dialog = null; if (G.coc.pos === 'cDOOR') G.coc.retreatT = 1; return; }
+  G.dialog = next; dialogSay();
+}
+function drawDialog() {
+  if (!G || !G.dialog) return;
+  const n = DIALOG[G.dialog], bw = Math.min(860, HW - 120), bx = HW / 2 - bw / 2;
+  const ls = wrap(n.t, bw - 40, 21), bh = ls.length * 28 + 70 + n.o.length * 58;
+  const by = HH / 2 - bh / 2 - 20;
+  rr(bx, by, bw, bh, 14); ctx.fillStyle = 'rgba(20,8,16,.9)'; ctx.fill(); ctx.strokeStyle = '#ffc9a0'; ctx.lineWidth = 2; ctx.stroke();
+  txt('💬 Cocoa', bx + 20, by + 32, 19, '#ffc9a0');
+  ls.forEach((l, i) => txt(l, bx + bw / 2, by + 66 + i * 28, 21, '#fff', 'center'));
+  n.o.forEach(([label, next], i) => bigBtn(bx + 30, by + 80 + ls.length * 28 + i * 58, bw - 60, 48, (i + 1) + ') ' + label, 'dlg' + i, () => choose(next), true, 19));
+}
+
 // ====================================================================
 //  VSTUP
 // ====================================================================
@@ -1230,6 +1309,7 @@ addEventListener('keydown', e => {
   const k = e.key.toLowerCase();
   if (scene_ === 'mini' && M) { M.keys[k] = true; return; }
   if (scene_ !== 'play') return;
+  if (G.dialog) { const n = DIALOG[G.dialog]; const o = n.o[+k - 1]; if (o) choose(o[1]); return; }
   if (roam.on) { roam.keys[k] = true; if (k === 'f') roam.flash = !roam.flash && !G.out; if (k === 'e') interact(); if (k === 'r' || k === 'enter') toggleRoam(); return; }
   if (k === 'r') { toggleRoam(); return; }
   if (k === 'a') toggleDoor('L'); else if (k === 'd') toggleDoor('R');
@@ -1254,7 +1334,9 @@ document.getElementById('file').addEventListener('change', async e => {
 // ====================================================================
 const clock = new THREE.Clock();
 let charT = 0;
+let frameDt = 1 / 60, lastT = 0;
 function render(t) {
+  frameDt = Math.min(.1, t - lastT || 1 / 60); lastT = t;
   // stav 3D scény
   office.shutL.position.y = DOOR_H * (1 - (G ? G.aL : 0)); office.shutR.position.y = DOOR_H * (1 - (G ? G.aR : 0));
   const out = G && G.out, playing = G && (scene_ === 'play' || scene_ === 'scare');
@@ -1288,13 +1370,15 @@ function render(t) {
     } else if (a) {
       if (a.pos === AI[a.id].door) mode = 'door';
       if (a.pos === '1A' || a.pos === 'c3') mode = 'stage';
-      if (a.walkT > 0) mode = 'walk';
+      if (a.path) mode = 'walk';
     }
-    if (a && a.walkT > 0 && scene_ === 'play') { a.walkT -= 1 / 60; const k = 1 - Math.max(0, a.walkT) / a.walkDur; ch.root.position.lerpVectors(a.walkFrom, a.walkTo, k); const dv = a.walkTo.clone().sub(a.walkFrom); ch.root.rotation.y = Math.atan2(dv.x, dv.z); if (a.walkT <= 0) setSpot(ch, a.pos); }
+    if (a && a.path && scene_ === 'play') walkStep(a, ch, frameDt);
     const watching = a && G.cams && G.camA >= 1 && SPOTS[a.pos] && SPOTS[a.pos].cam === G.cam;
-    C.look += ((watching && a.watchT > 1.2 ? 1 : 0) - C.look) * .04;
-    C.lookAt = watching ? CAMS[G.cam].cam.position : null;
-    if (roam.on && a && !watching) { const d = ch.root.position.distanceTo(roamCam.position); if (d < 9) { C.look = Math.min(1, C.look + .03); C.lookAt = roamCam.position; } }
+    let tgt = watching && a.watchT > 1.2 ? 1 : 0, at = watching ? CAMS[G.cam].cam.position : null;
+    // když k nim přijdeš, otočí hlavu na tebe
+    if (roam.on && a && !a.off && ch.root.position.distanceTo(roamCam.position) < 7) { tgt = 1; at = roamCam.position; }
+    if (G && G.dialog && ch === COC) { tgt = 1; at = roam.on ? roamCam.position : officeCam.position; }
+    C.look += (tgt - C.look) * .06; if (at) C.lookAt = at; else if (C.look < .02) C.lookAt = null;
     C.lit = a ? a.lit : 0;
     if (scene_ === 'menu') { C.look = .6; C.lookAt = CAMS['1A'].cam.position; }
     poseCharacter(t, mode);
