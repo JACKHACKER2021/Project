@@ -263,7 +263,7 @@ function loadRoomModels() {
       const outside = c.x < bx0 - .1 || c.x > bx1 + .1 || c.z < bz0 - .1 || c.z > bz1 + .1 || bb.min.x < bx0 - .4 || bb.max.x > bx1 + .4 || bb.min.z < bz0 - .4 || bb.max.z > bz1 + .4;
       // zeď místnosti = tenká a u okraje modelu (vybavení uvnitř zůstává celé)
       const edge = c.x < bx0 + .6 || c.x > bx1 - .6 || c.z < bz0 + .6 || c.z > bz1 - .6;
-      const wall = edge && Math.min(sz.x, sz.z) < .7 && (Math.max(sz.x, sz.z) > 2.5 || sz.y > 3.5 || (sz.y > 1.8 && Math.max(sz.x, sz.z) < .9 && Math.min(sz.x, sz.z) < .25));
+      const wall = edge && Math.min(sz.x, sz.z) < .7 && (Math.max(sz.x, sz.z) > 2.5 || sz.y > 3.5);
       const slab = sz.y < .2 && sz.x > (bx1 - bx0) * .6 && sz.z > (bz1 - bz0) * .6;
       const trim = edge && sz.y < .25 && Math.min(sz.x, sz.z) < .3 && Math.max(sz.x, sz.z) > 3 && (c.y < .3 || c.y > 3.6);
       if (outside || wall || slab || trim) junk.push(o);
@@ -631,7 +631,7 @@ function startMenuSong() {
     for (const [mul, v] of [[1, .09], [2, .027]]) { const o = AC.createOscillator(), e = AC.createGain(); o.type = 'sine'; o.frequency.value = f * mul; e.gain.setValueAtTime(.0001, t); e.gain.exponentialRampToValueAtTime(v, t + .01); e.gain.exponentialRampToValueAtTime(.0001, t + .6); o.connect(e); e.connect(g); o.start(t); o.stop(t + .65); } };
   const boom = () => { const t = AC.currentTime, o = AC.createOscillator(), e = AC.createGain(); o.frequency.setValueAtTime(60, t); o.frequency.exponentialRampToValueAtTime(20, t + 2); e.gain.setValueAtTime(.0001, t); e.gain.exponentialRampToValueAtTime(.35, t + .02); e.gain.exponentialRampToValueAtTime(.0001, t + 2); o.connect(e); e.connect(g); o.start(t); o.stop(t + 2.1);
     const s2 = AC.createBufferSource(); s2.buffer = noiseBuf; const se = AC.createGain(); se.gain.setValueAtTime(.12, t); se.gain.exponentialRampToValueAtTime(.0001, t + .5); s2.connect(se); se.connect(g); s2.start(t, Math.random()); s2.stop(t + .6); };
-  const timer = setInterval(() => { const m = SONG_MEL[k % SONG_MEL.length]; if (m >= 0) box(m, 0); if (k % 48 === 0) boom(); k++; }, 320);
+  const timer = setInterval(() => { if (AC.state !== 'running') return; const m = SONG_MEL[k % SONG_MEL.length]; if (m >= 0) box(m, 0); if (k % 48 === 0) boom(); k++; }, 320);
   menuSong = { g, timer, nodes };
 }
 function stopMenuSong() {
@@ -1631,8 +1631,12 @@ function frame() {
 }
 setCharacter(VOX, buildVoxie(), 'Voxie'); menuSpots();
 fetch('models/cocoa.glb').then(r => r.ok ? r.arrayBuffer() : null).catch(() => null).then(buf => buf ? { buf } : idbGet('model')).then(async m => { if (m && m.buf) { try { const r = await loadGLB(m.buf, 'Cocoa'); setCharacter(COC, r.obj, 'Cocoa'); if (G) { G.coc.off = false; setSpot(COC, G.coc.pos); COC.root.visible = true; } else menuSpots(); } catch (e) {} } });
+// hudba v menu hned po startu; pokud prohlížeč zvuk blokuje, rozjede se prvním dotykem
+try { initAudio(); startMenuSong(); } catch (e) {}
+const unlock = () => { initAudio(); if (AC && AC.state !== 'running') AC.resume(); if (scene_ === 'menu') startMenuSong(); };
+['pointerdown', 'touchstart', 'keydown', 'click'].forEach(ev => addEventListener(ev, unlock, { capture: true, passive: true }));
 requestAnimationFrame(frame);
-window.__voxies = { hitVoxie, interact, workDone, THREE, scene3: scene, renderer, CAMS, get G() { return G; }, get scene() { return scene_; }, VOX, COC, AI, newGame, startNight, toggleDoor, setLight, toggleCams, selectCam, sayA, setSpot, loadGLB, setCharacter, setLook: v => { G.look = v; }, voice, jumpscare, roam, toggleRoam, get M() { return M; }, icon(size) { const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d'); const g = x.createRadialGradient(size / 2, size / 2, size * .1, size / 2, size / 2, size * .7); g.addColorStop(0, '#3b1d6e'); g.addColorStop(1, '#07030f'); x.fillStyle = g; x.fillRect(0, 0, size, size); drawLogo(x, size * .1, size * .1, size * .8); return c.toDataURL('image/png'); } };
+window.__voxies = { get menuSong() { return !!menuSong; }, get acState() { return AC && AC.state; }, hitVoxie, interact, workDone, THREE, scene3: scene, renderer, CAMS, get G() { return G; }, get scene() { return scene_; }, VOX, COC, AI, newGame, startNight, toggleDoor, setLight, toggleCams, selectCam, sayA, setSpot, loadGLB, setCharacter, setLook: v => { G.look = v; }, voice, jumpscare, roam, toggleRoam, get M() { return M; }, icon(size) { const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d'); const g = x.createRadialGradient(size / 2, size / 2, size * .1, size / 2, size / 2, size * .7); g.addColorStop(0, '#3b1d6e'); g.addColorStop(1, '#07030f'); x.fillStyle = g; x.fillRect(0, 0, size, size); drawLogo(x, size * .1, size * .1, size * .8); return c.toDataURL('image/png'); } };
 </script>
 </body>
 </html>

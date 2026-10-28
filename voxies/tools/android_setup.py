@@ -36,6 +36,8 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // hudba v menu bez nutnosti dotyku
+        getBridge().getWebView().getSettings().setMediaPlaybackRequiresUserGesture(false);
         hideBars();
     }
 
