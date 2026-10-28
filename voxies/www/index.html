@@ -263,7 +263,7 @@ function loadRoomModels() {
       const outside = c.x < bx0 - .1 || c.x > bx1 + .1 || c.z < bz0 - .1 || c.z > bz1 + .1 || bb.min.x < bx0 - .4 || bb.max.x > bx1 + .4 || bb.min.z < bz0 - .4 || bb.max.z > bz1 + .4;
       // zeď místnosti = tenká a u okraje modelu (vybavení uvnitř zůstává celé)
       const edge = c.x < bx0 + .6 || c.x > bx1 - .6 || c.z < bz0 + .6 || c.z > bz1 - .6;
-      const wall = edge && Math.min(sz.x, sz.z) < .7 && (Math.max(sz.x, sz.z) > 2.5 || sz.y > 3.5) && !(sz.y < 3 && c.y > .8 && c.y < 3);
+      const wall = edge && Math.min(sz.x, sz.z) < .7 && (Math.max(sz.x, sz.z) > 2.5 || sz.y > 3.5 || (sz.y > 1.8 && Math.max(sz.x, sz.z) < .9 && Math.min(sz.x, sz.z) < .25));
       const slab = sz.y < .2 && sz.x > (bx1 - bx0) * .6 && sz.z > (bz1 - bz0) * .6;
       const trim = edge && sz.y < .25 && Math.min(sz.x, sz.z) < .3 && Math.max(sz.x, sz.z) > 3 && (c.y < .3 || c.y > 3.6);
       if (outside || wall || slab || trim) junk.push(o);
@@ -274,7 +274,19 @@ function loadRoomModels() {
     const sc = Math.min(rw / (bx1 - bx0), rd / (bz1 - bz0), (r.h || H) / 4.2);
     root.scale.setScalar(sc);
     root.position.set((r.x0 + r.x1) / 2 - (bx0 + bx1) / 2 * sc, 0, (r.z0 + r.z1) / 2 - (bz0 + bz1) / 2 * sc);
-    scene.add(root);
+    scene.add(root); root.updateMatrixWorld(true);
+    // věci u zdí modelu přisadit k našim zdem (model je po zmenšení menší než místnost)
+    const mx0 = root.position.x + bx0 * sc, mx1 = root.position.x + bx1 * sc, mz0 = root.position.z + bz0 * sc, mz1 = root.position.z + bz1 * sc;
+    const near = 1.2 * sc, moves = [];
+    // celé předměty (děti uzlu s nejvíc dětmi), ne jednotlivé díly
+    let cont = root; root.traverse(o => { if (o.children.length > cont.children.length) cont = o; });
+    cont.children.slice().forEach(o => {
+      bb.setFromObject(o); if (bb.isEmpty()) return; let dx = 0, dz = 0;
+      if (bb.min.x - mx0 < near) dx = r.x0 + .12 - mx0; else if (mx1 - bb.max.x < near) dx = r.x1 - .12 - mx1;
+      if (bb.min.z - mz0 < near) dz = r.z0 + .12 - mz0; else if (mz1 - bb.max.z < near) dz = r.z1 - .12 - mz1;
+      if (dx || dz) moves.push([o, dx, dz]);
+    });
+    for (const [o, dx, dz] of moves) { const w = o.getWorldPosition(new THREE.Vector3()); w.x += dx; w.z += dz; o.parent.worldToLocal(w); o.position.copy(w); }
   });
 }
 loadRoomModels();
