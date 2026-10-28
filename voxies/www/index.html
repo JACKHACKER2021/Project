@@ -59,7 +59,7 @@ officeCam.position.copy(OFFICE_EYE);
 
 const hemi = new THREE.HemisphereLight(0x6a5aa0, 0x120a1c, .55); scene.add(hemi);
 const officeLamp = new THREE.PointLight(0xffd9a0, 9, 9, 1.4); officeLamp.position.set(0, 2.8, .4); scene.add(officeLamp);
-const roomLight = new THREE.PointLight(0xfff0d8, 18, 22, 1.2); scene.add(roomLight);
+const roomLight = new THREE.PointLight(0xfff0d8, 18, 26, 1.1); scene.add(roomLight);
 function hallSpot(x) { const s = new THREE.SpotLight(0xffe7b0, 0, 14, .55, .5, 1); s.position.set(x, 2.9, 1.2); s.target.position.set(x, 0, -2.5); scene.add(s, s.target); return s; }
 const hallL = hallSpot(-5), hallR = hallSpot(5);
 const redLight = new THREE.PointLight(0xff1010, 0, 6, 1.2); scene.add(redLight);
@@ -114,7 +114,7 @@ const ROOMS = {
   '4': { x0: 10, x1: 22, z0: -10, z1: -2, wall: '#26262c', f: ['#151518', '#222228'], open: { n: [[14, 18]], s: [[14, 18]] } },
   '7': { x0: -22, x1: -10, z0: -2, z1: 6, wall: '#24243a', f: ['#141420', '#24243a'], open: { n: [[-18, -14]] } },
   'X': { x0: 10, x1: 22, z0: -2, z1: 6, wall: '#151515', f: ['#0c0c0c', '#161616'], open: { n: [[14, 18]] } },
-  '6': { x0: -4, x1: 4, z0: -12, z1: -6, wall: '#2f5656', f: ['#cfe0e0', '#3a5a5a'], open: { n: [[-2, 2]] } },
+  '6': { x0: -4, x1: 4, z0: -12, z1: -3.05, wall: '#2f5656', f: ['#cfe0e0', '#3a5a5a'], open: { n: [[-2, 2]] } },
   '8': { x0: -6, x1: -4, z0: -12, z1: 1, wall: '#2e2040', f: ['#141018', '#2a2333'], open: { n: [[-6, -4]], e: [[-1, 1]] } },
   '9': { x0: 4, x1: 6, z0: -12, z1: 1, wall: '#2e2040', f: ['#141018', '#2a2333'], open: { n: [[4, 6]], w: [[-1, 1]] } },
   'OFF': { x0: -4, x1: 4, z0: -3, z1: 3, wall: '#2a1640', f: ['#1a1426', '#2c2340'], open: { w: [[-1, 1]], e: [[-1, 1]] } },
@@ -176,11 +176,10 @@ function props() {
   place(textPlane('VOXIE & PŘÁTELÉ', 5, .8, '#7ff4ff', { neon: true }), 0, 3.4, -29.8);
   box(1.6, 1, .9, mat('#1d1d24'), 3.6, 1.1, -27.6);
   place(textPlane('DJ REWIND\nMIMO PROVOZ', 1.4, .5, '#ff8a3b', { size: 44 }), 3.6, 1.2, -27.14);
-  // --- 1B herna ---
+  // --- 1B herna (model arcade.glb) ---
   const cols = ['#ff2bd6', '#7ff4ff', '#ffe46b', '#7cff6b', '#ff8a3b'];
-  for (let i = 0; i < 7; i++) arcade(-7.5 + i * 2.5, -21.4, 0, cols[i % 5]);
-  for (let i = 0; i < 3; i++) { arcade(-9.4, -19.5 + i * 1.3 + (i > 1 ? 4 : 0), Math.PI / 2, cols[(i + 2) % 5]); arcade(9.4, -19.5 + i * 1.3 + (i > 1 ? 4 : 0), -Math.PI / 2, cols[(i + 3) % 5]); }
-  place(textPlane('HERNA', 3, .8, '#ffe46b', { neon: true }), 0, 2.7, -21.9);
+  place(textPlane('HERNA', 2.4, .55, '#ffe46b', { neon: true }), 0, 2.86, -21.9);
+  for (const x of [-8.4, -7.2, 7.2, 8.4]) { arcade(x, -16.9, 0, cols[Math.abs(Math.round(x)) % 5]); arcade(x, -15.9, Math.PI, cols[(Math.abs(Math.round(x)) + 2) % 5]); }
   neonStrip(-10, -21.9, 10, -21.9, 3.0, '#ff2bd6');
   // --- 2 pizzerie ---
   box(6, 1.1, .8, mat('#6a2a18'), -16, .55, -21.4);
@@ -191,35 +190,17 @@ function props() {
     box(.1, .75, .1, mat('#333'), x, .38, z);
     for (let k = 0; k < 3; k++) { const c = new THREE.Mesh(new THREE.ConeGeometry(.1, .3, 8), mat(cols[k])); c.position.set(x + Math.cos(k * 2.1) * .45, .97, z + Math.sin(k * 2.1) * .45); scene.add(c); }
   }
-  // --- 3 bludiště ---
-  const tc = ['#ff3b3b', '#ffe46b', '#3bb2ff', '#7cff6b'];
-  for (let i = 0; i < 6; i++) { const t = new THREE.Mesh(new THREE.TorusGeometry(1.2 + (i % 2) * .4, .35, 10, 24), mat(tc[i % 4])); t.position.set(12.5 + (i % 3) * 3.5, 1.6 + Math.floor(i / 3) * 1.1, -20.5 + Math.floor(i / 3) * 3); t.rotation.y = i * .7; scene.add(t); }
-  const pit = new THREE.InstancedMesh(new THREE.SphereGeometry(.12, 8, 6), new THREE.MeshLambertMaterial(), 420);
-  const m4 = new THREE.Matrix4(), cl = new THREE.Color();
-  for (let i = 0; i < 420; i++) { m4.makeTranslation(rand(12, 21), rand(.1, .45), rand(-15, -11)); pit.setMatrixAt(i, m4); pit.setColorAt(i, cl.set(pick(['#ff3b3b', '#ffe46b', '#3bb2ff', '#7cff6b', '#ff2bd6']))); }
-  scene.add(pit);
+  // --- 3 bludiště, 4 sklad, 5 výdej lístků: modely ballpit/storage/tickets.glb ---
   place(textPlane('BLUDIŠTĚ', 3, .7, '#7cff6b', { neon: true }), 16, 2.8, -21.9);
-  // --- 4 sklad ---
-  for (let s = 0; s < 3; s++) { box(5, .06, .8, mat('#555'), 13.5, .6 + s * .9, -9.4); for (let i = 0; i < 6; i++) box(.6, .55, .6, mat(i % 2 ? '#7a5a3a' : '#6a4a2a'), 11.5 + i * .8, .9 + s * .9, -9.4); }
-  const cover = new THREE.Mesh(new THREE.SphereGeometry(1, 14, 10), mat('#4a4a52')); cover.scale.set(.8, 1.2, .7); cover.position.set(18.5, 1.1, -6); scene.add(cover);
-  place(textPlane('PROTOTYP\nNEZAPÍNAT!', 1.4, .6, '#111', { bg: '#ffe46b', lit: true, size: 50 }), 18.5, 1.3, -5.25);
-  // --- 5 výdej lístků ---
-  box(6, 1.1, .8, mat('#5a2a6a'), -16, .55, -5);
-  place(textPlane('VÝDEJ LÍSTKŮ', 3, .5, '#ffe46b', { neon: true }), -16, 1.8, -9.8);
-  for (let s = 0; s < 2; s++) for (let i = 0; i < 12; i++) box(.3, .3, .3, mat(pick(['#ff2bd6', '#ffe46b', '#7ff4ff', '#7cff6b', '#ff8a3b', '#b88cff'])), -20.5 + i * .4, 1.3 + s * .5, -9.6);
-  const tk = new THREE.Group(); box(1.2, 2.2, 1, mat('#1a3a6a'), 0, 1.1, 0, tk); box(1.3, .15, 1.1, mat('#111'), 0, 2.25, 0, tk); box(.8, .4, .6, mat('#111'), 0, 2.5, 0, tk);
-  const disp = box(.8, .3, .02, glow('#ff3b3b'), 0, 1.6, .51, tk); box(.4, .6, .1, mat('#888'), -.85, 1.2, .2, tk); box(.4, .6, .1, mat('#888'), .85, 1.2, .2, tk);
-  place(tk, -11.5, 0, -6.5, -Math.PI / 2);
-  disp.material = disp.material.clone(); animated.push(t => { disp.material.color.setScalar(0).r = .6 + .4 * Math.sin(t * 5); });
-  // --- 6 toalety ---
-  box(1.6, 2.2, .05, mat('#5a3a8a'), -2.2, 1.1, -11.8); box(1.6, 2.2, .05, mat('#8a3a5a'), 2.2, 1.1, -11.8);
-  place(textPlane('CHLAPCI', 1.2, .3, '#fff', {}), -2.2, 2.45, -11.85); place(textPlane('DÍVKY', 1.2, .3, '#fff', {}), 2.2, 2.45, -11.85);
-  box(1.6, 1, .03, mat('#9ab'), 0, 1.7, -11.9);
-  // --- 7 vchod ---
-  const glass = new THREE.Mesh(new THREE.PlaneGeometry(4, 2.4), new THREE.MeshBasicMaterial({ color: 0x0a1a30 })); place(glass, -16, 1.2, 5.9, Math.PI);
-  place(textPlane('ZAVŘENO', 1.6, .5, '#fff', { bg: '#b00000' }), -16, 1.6, 5.85, Math.PI);
-  box(2.4, 2.2, 1.4, mat('#3a2650'), -20.5, 1.1, 0);
-  place(textPlane('POKLADNA', 1.6, .4, '#7ff4ff', { neon: true }), -20.5, 2.5, .72);
+  place(textPlane('VÝDEJ LÍSTKŮ', 3, .5, '#ffe46b', { neon: true }), -21.9, 2.4, -6, Math.PI / 2);
+  // --- 6 toalety: kabinky na zadní stěně naproti vchodu ---
+  for (const [x, c, t] of [[-2, '#5a3a8a', 'CHLAPCI'], [2, '#8a3a5a', 'DÍVKY']]) {
+    box(1.8, 2.2, .06, mat(c), x, 1.1, -3.15); box(.06, 2.2, 1.4, mat('#cfe0e0'), x - .95, 1.1, -3.8); box(.06, 2.2, 1.4, mat('#cfe0e0'), x + .95, 1.1, -3.8);
+    place(textPlane(t, 1.2, .3, '#fff', {}), x, 2.45, -3.2, Math.PI);
+  }
+  box(.03, 1, 2.2, mat('#9ab'), -3.92, 1.7, -8.5); box(.5, .8, 2.4, mat('#dfe8e8'), -3.7, .4, -8.5);
+  box(.03, 1, 2.2, mat('#9ab'), 3.92, 1.7, -8.5); box(.5, .8, 2.4, mat('#dfe8e8'), 3.7, .4, -8.5);
+  // --- 7 vchod: model entrance.glb ---
   // --- chodby 8, 9 ---
   for (const x of [-5, 5]) {
     for (let i = 0; i < 4; i++) {
@@ -238,6 +219,40 @@ place(oven, -20.9, 0, -17, Math.PI / 2);
 const ovenMouth = oven.children[1]; ovenMouth.material = ovenMouth.material.clone();
 const terminal = box(.5, .35, .1, glow('#5dff8a'), -16, 1.3, -21.0);
 const pizzaMesh = new THREE.Mesh(new THREE.CylinderGeometry(.22, .22, .04, 16), mat('#e8b04a')); pizzaMesh.visible = false; scene.add(pizzaMesh);
+
+// ---------- modely místností (vybavení z GLB; zdi a podlahy jsou naše, aby seděly průchody) ----------
+// bounds = vnitřek místnosti v modelu (co je mimo, jsou zbytky a vyhodí se), room = kam ji posadit
+const ROOM_MODELS = [
+  { file: 'arcade', room: '1B', bounds: [-12.2, -7.2, 12.2, 7.2] },
+  { file: 'ballpit', room: '3', bounds: [-6.2, -7.2, 6.2, 7.2] },
+  { file: 'storage', room: '4', bounds: [-5.92, -5.17, 5.92, 5.17] },
+  { file: 'tickets', room: '5', bounds: [-5.67, -5.17, 5.67, 5.17] },
+  { file: 'entrance', room: '7', bounds: [-6.17, -5.67, 6.17, 5.67] },
+];
+function loadRoomModels() {
+  const loader = new GLTFLoader(), bb = new THREE.Box3(), c = new THREE.Vector3(), sz = new THREE.Vector3();
+  for (const rm of ROOM_MODELS) loader.load('models/rooms/' + rm.file + '.glb', g => {
+    const root = g.scene, [bx0, bz0, bx1, bz1] = rm.bounds, junk = [];
+    root.updateMatrixWorld(true);
+    root.traverse(o => {
+      if (!o.isMesh) return;
+      bb.setFromObject(o); bb.getCenter(c); bb.getSize(sz);
+      const outside = c.x < bx0 - .1 || c.x > bx1 + .1 || c.z < bz0 - .1 || c.z > bz1 + .1;
+      const wall = (sz.y > 2 && Math.min(sz.x, sz.z) < .7 && Math.max(sz.x, sz.z) > .9) || (Math.min(sz.x, sz.z) < .5 && Math.max(sz.x, sz.z) > 2.5 && (c.y < .4 || c.y > 3.2)) || (c.y > 3.6 && sz.y < .6 && Math.max(sz.x, sz.z) > 1.5);
+      const slab = sz.y < .2 && sz.x > (bx1 - bx0) * .6 && sz.z > (bz1 - bz0) * .6;
+      const trim = sz.y < .25 && Math.min(sz.x, sz.z) < .3 && Math.max(sz.x, sz.z) > 3 && c.y < .3;
+      if (outside || wall || slab || trim) junk.push(o);
+      else { [].concat(o.material).forEach(m => { if (m.transparent && m.opacity > .8) m.transparent = false; }); o.frustumCulled = true; }
+    });
+    junk.forEach(o => o.parent.remove(o));
+    const r = ROOMS[rm.room], rw = r.x1 - r.x0 - .4, rd = r.z1 - r.z0 - .4;
+    const sc = Math.min(rw / (bx1 - bx0), rd / (bz1 - bz0), (r.h || H) / 4.2);
+    root.scale.setScalar(sc);
+    root.position.set((r.x0 + r.x1) / 2 - (bx0 + bx1) / 2 * sc, 0, (r.z0 + r.z1) / 2 - (bz0 + bz1) / 2 * sc);
+    scene.add(root);
+  });
+}
+loadRoomModels();
 
 // ---------- kancelář ----------
 const office = {};
@@ -309,7 +324,7 @@ const CAMS = {
   '3': { name: 'Trubkové bludiště', pos: [10.6, 2.9, -10.6], look: [17, .6, -17] },
   '4': { name: 'Sklad', pos: [21.3, 2.9, -2.6], look: [15, .8, -7] },
   '5': { name: 'Výdej lístků', pos: [-10.6, 2.9, -2.6], look: [-17, .9, -7] },
-  '6': { name: 'Toalety', pos: [3.4, 2.9, -6.5], look: [-1, .9, -10.5] },
+  '6': { name: 'Toalety', pos: [3.4, 2.9, -11.4], look: [-1, .9, -5] },
   '7': { name: 'Vchod', pos: [-10.6, 2.9, 5.4], look: [-16, 1.2, -.5] },
   '8': { name: 'Levá chodba', pos: [-5, 2.85, .7], look: [-5, .9, -10] },
   '9': { name: 'Pravá chodba', pos: [5, 2.85, .7], look: [5, .9, -10] },
@@ -322,7 +337,7 @@ for (const id in CAMS) {
 }
 const SPOTS = {
   '1A': { p: [-1.4, .6, -27.6], cam: '1A' }, '1B': { p: [3, 0, -17], cam: '1B' }, '2': { p: [-15, 0, -15.6], cam: '2' },
-  '6': { p: [1.2, 0, -9.2], cam: '6' }, '8': { p: [-5, 0, -6], cam: '8' }, 'DOOR': { p: [-5, 0, -.15], yaw: Math.PI / 2 },
+  '6': { p: [1.2, 0, -6.5], cam: '6' }, '8': { p: [-5, 0, -6], cam: '8' }, 'DOOR': { p: [-5, 0, -.15], yaw: Math.PI / 2 },
   // Cocoa – pravá strana budovy
   'c3': { p: [15, 0, -13.2], cam: '3' }, 'c4': { p: [14.2, 0, -5], cam: '4' }, 'c1B': { p: [-3.5, 0, -16], cam: '1B' },
   'c9': { p: [5, 0, -6.5], cam: '9' }, 'cDOOR': { p: [5, 0, -.15], yaw: -Math.PI / 2 },
@@ -555,6 +570,33 @@ function setBuzz(on, pan) {
 const BOX = [12, 7, 9, 7, 4, 7, 2, 4, 5, 9, 12, 14, 12, 9, 7, -1, 12, 7, 9, 7, 4, 2, 0, 2, 4, 5, 4, 2, 0, -1, -1, -1];
 function startMusicBox() { if (!AC || musicBoxTimer) return; let i = 0; musicBoxTimer = setInterval(() => { const n = BOX[i++ % BOX.length]; if (n >= 0) { const f = 523.25 * Math.pow(2, n / 12); tone(f, 'triangle', .5, .09, -.8); tone(f * 2, 'sine', .25, .03, -.8); } }, 290); }
 function stopMusicBox() { clearInterval(musicBoxTimer); musicBoxTimer = null; }
+// písnička do menu – stejná jako v traileru: temný dron + hrací skříňka + občasné hluboké údery
+let menuSong = null;
+const SONG_MEL = [12, 7, 9, 7, 4, 7, 2, 4, 5, 9, 12, 14, 12, 9, 7, -1];
+function startMenuSong() {
+  if (!AC || menuSong) return;
+  const g = AC.createGain(); g.gain.value = .0001; g.gain.exponentialRampToValueAtTime(1, AC.currentTime + 2); g.connect(master);
+  const nodes = [];
+  // dron: 55 Hz s pomalým kolísáním + 82 Hz + šum za dolní propustí
+  const d1 = AC.createOscillator(); d1.frequency.value = 55; const d1g = AC.createGain(); d1g.gain.value = .08;
+  const lfo = AC.createOscillator(); lfo.frequency.value = .1; const lfoG = AC.createGain(); lfoG.gain.value = .03; lfo.connect(lfoG); lfoG.connect(d1g.gain);
+  const d2 = AC.createOscillator(); d2.frequency.value = 82.4; const d2g = AC.createGain(); d2g.gain.value = .05;
+  const n = AC.createBufferSource(); n.buffer = noiseBuf; n.loop = true; const nf = AC.createBiquadFilter(); nf.type = 'lowpass'; nf.frequency.value = 220; const ng = AC.createGain(); ng.gain.value = .12;
+  d1.connect(d1g); d1g.connect(g); d2.connect(d2g); d2g.connect(g); n.connect(nf); nf.connect(ng); ng.connect(g);
+  [d1, d2, lfo, n].forEach(o => { o.start(); nodes.push(o); });
+  let k = 0;
+  const box = (semi, when) => { const t = AC.currentTime + when, f = 523.25 * Math.pow(2, semi / 12);
+    for (const [mul, v] of [[1, .09], [2, .027]]) { const o = AC.createOscillator(), e = AC.createGain(); o.type = 'sine'; o.frequency.value = f * mul; e.gain.setValueAtTime(.0001, t); e.gain.exponentialRampToValueAtTime(v, t + .01); e.gain.exponentialRampToValueAtTime(.0001, t + .6); o.connect(e); e.connect(g); o.start(t); o.stop(t + .65); } };
+  const boom = () => { const t = AC.currentTime, o = AC.createOscillator(), e = AC.createGain(); o.frequency.setValueAtTime(60, t); o.frequency.exponentialRampToValueAtTime(20, t + 2); e.gain.setValueAtTime(.0001, t); e.gain.exponentialRampToValueAtTime(.35, t + .02); e.gain.exponentialRampToValueAtTime(.0001, t + 2); o.connect(e); e.connect(g); o.start(t); o.stop(t + 2.1);
+    const s2 = AC.createBufferSource(); s2.buffer = noiseBuf; const se = AC.createGain(); se.gain.setValueAtTime(.12, t); se.gain.exponentialRampToValueAtTime(.0001, t + .5); s2.connect(se); se.connect(g); s2.start(t, Math.random()); s2.stop(t + .6); };
+  const timer = setInterval(() => { const m = SONG_MEL[k % SONG_MEL.length]; if (m >= 0) box(m, 0); if (k % 48 === 0) boom(); k++; }, 320);
+  menuSong = { g, timer, nodes };
+}
+function stopMenuSong() {
+  if (!menuSong) return; const s = menuSong; menuSong = null; clearInterval(s.timer);
+  s.g.gain.setValueAtTime(s.g.gain.value, AC.currentTime); s.g.gain.exponentialRampToValueAtTime(.0001, AC.currentTime + .6);
+  setTimeout(() => { s.nodes.forEach(o => { try { o.stop(); } catch (e) {} }); s.g.disconnect(); }, 800);
+}
 
 // ---------- vlastní hlas: slabiky podle samohlásek, formantové filtry ----------
 const FORMANTS = { a: [800, 1250], e: [500, 1850], i: [320, 2300], o: [500, 900], u: [350, 750], y: [320, 2300] };
@@ -680,6 +722,7 @@ function sayA(a, kind, o = {}) {
 }
 function mkAI(id) { const d = AI[id]; return { walkT: 0, path: null, id, pos: d.start, timer: 0, lit: 0, seen: false, warned: false, knocked: false, attack: false, attackT: 0, retreatT: 0, watchT: 0, spokeCam: false, off: !d.ch.model }; }
 function newGame(n) {
+  stopMenuSong();
   const cocOff = !COC.model;
   G = {
     night: n, t: 0, power: 100, doorL: false, doorR: false, aL: 0, aR: 0, light: null, cams: false, camA: 0, cam: '1A', camStatic: 0,
@@ -710,8 +753,8 @@ function setLight(s) {
   for (const a of AIs()) { const d = AI[a.id]; if (!a.off && G.light === d.side && a.pos === d.door && !doorOf(d.side) && !a.seen) { a.seen = true; if (!d.nice) SFX.sting(); } }
 }
 function checkFlash(a) { const d = AI[a.id]; if (!d.nice && a.pos === d.door && !a.attack && a.lit >= 1 && !doorOf(d.side)) a.retreatT = .5; }
-function toggleCams() { if (scene_ !== 'play' || G.out || roam.on) return; if (!G.cams && G.light) setLight(null); G.cams = !G.cams; SFX.tablet(); if (G.cams) G.camStatic = .5; }
-function selectCam(id) { if (G.cam !== id) { G.cam = id; G.camStatic = .45; SFX.cam(); for (const a of AIs()) a.watchT = 0; } }
+function toggleCams() { if (scene_ !== 'play' || G.out || roam.on) return; if (!G.cams && G.light) setLight(null); G.cams = !G.cams; SFX.tablet(); if (G.cams) G.camStatic = .25; }
+function selectCam(id) { if (G.cam !== id) { G.cam = id; G.camStatic = .3; SFX.cam(); for (const a of AIs()) a.watchT = 0; } }
 function hangUp() { if (G && G.call.on) { G.call.on = false; if (speech && speech.who === 'phone') speech = null; SFX.click(); } }
 function moveTo(a, np) {
   const d = AI[a.id], old = a.pos; const from = d.ch.root.position.clone(); a.pos = np; setSpot(d.ch, np); a.watchT = 0; a.spokeCam = false;
@@ -839,7 +882,7 @@ let HW = 1280; const HH = 720; let HK = 1;
 function resize() {
   const w = innerWidth, h = innerHeight, dpr = Math.min(devicePixelRatio || 1, 2);
   renderer.setSize(w, h, false);
-  HW = Math.max(960, HH * w / h); HK = h * dpr / HH;
+  HW = Math.max(960, HH * w / h); HK = Math.min(h * dpr / HH, w * dpr / HW);
   hud.width = Math.round(w * dpr); hud.height = Math.round(h * dpr);
   const a = w / h; officeCam.aspect = a; officeCam.updateProjectionMatrix();
   for (const id in CAMS) { CAMS[id].cam.aspect = a; CAMS[id].cam.updateProjectionMatrix(); }
@@ -906,8 +949,8 @@ function drawSpeech() {
 function drawHUD(t) {
   const h = hourOf();
   if (G.cams && G.camA >= 1) {
-    ctx.fillStyle = 'rgba(30,60,40,.12)'; ctx.fillRect(0, 0, HW, HH); scanlines();
-    noise(.1 + G.camStatic * .9 + (Math.random() < .02 ? .2 : 0)); if (G.camStatic > .7) rect(0, 0, HW, HH, 'rgba(0,0,0,.65)');
+    scanlines();
+    noise(.05 + G.camStatic * .5 + (Math.random() < .015 ? .15 : 0)); if (G.camStatic > .9) rect(0, 0, HW, HH, 'rgba(0,0,0,.5)');
     vignette(.6);
     ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 3;
     for (const [x, y, dx, dy] of [[20, 20, 1, 1], [HW - 20, 20, -1, 1], [20, HH - 20, 1, -1], [HW - 20, HH - 20, -1, -1]]) { ctx.beginPath(); ctx.moveTo(x, y + 40 * dy); ctx.lineTo(x, y); ctx.lineTo(x + 40 * dx, y); ctx.stroke(); }
@@ -1000,7 +1043,7 @@ function drawEnding() {
   if (sceneT > 2) txt(`Normální konec. Ale kdo je vlastně uvnitř kostýmu?`, cx, 520, 22, '#ff8bea', 'center');
   if (sceneT > 3) bigBtn(cx - 200, 570, 400, 56, 'MENU', 'menu', toMenu);
 }
-function toMenu() { setBuzz(false); stopMusicBox(); stopAmbient(); stopChip(); scene_ = 'menu'; sceneT = 0; G = null; speech = null; scareT = -1; killer = null; menuSpots(); }
+function toMenu() { setTimeout(startMenuSong, 400); setBuzz(false); stopMusicBox(); stopAmbient(); stopChip(); scene_ = 'menu'; sceneT = 0; G = null; speech = null; scareT = -1; killer = null; menuSpots(); }
 function menuSpots() { setSpot(VOX, '1A'); setSpot(COC, 'm1A'); COC.root.visible = !!COC.model; }
 
 
@@ -1122,18 +1165,26 @@ const MINIS = {
     intro: '14. června 1997, 20:00. Narozeninová oslava. Jsi Voxie – teda pan Vojtěch v kostýmu. Rozdej dorty!',
     goals: [{ x: 520, kind: 'kid', c: '#ff6b6b', text: 'Dort pro Aničku! „Děkuju, Voxie!“' }, { x: 900, kind: 'kid', c: '#6bb2ff', text: 'Dort pro Tomáše! „Voxie, proč ti nesvítí oči?“' }, { x: 1300, kind: 'kid', c: '#7cff6b', text: 'Dort pro Ellu! „Cocoo, pojď si hrát!“' }, { x: 1750, kind: 'bunny', text: 'Cocoa: „Pane Vojtěchu, ten oblek jiskří…“' }, { x: 2100, kind: 'cake', text: 'Poslední dort. Oslavenec sfoukne svíčky…' }],
     end: ['Pak zhasla světla.', 'Děti utekly s rodiči ven. Zámky dveří se samy zamkly.', 'Na pódiu zůstal jen Voxie. A z kostýmu bylo slyšet: „Pomoc… nejde to sundat.“'] },
-  4: { title: 'ARCHIV 1997 · SCHOVKA', hero: 'bunny', bg: 'arcade', len: 2300,
+  3: { title: 'ARCHIV 1997 · SCHOVKA', hero: 'bunny', bg: 'arcade', len: 2300,
     intro: 'Ta samá noc, 21:30. Jsi Cocoa. V herně se ztratila malá holčička. Najdi ji.',
     goals: [{ x: 600, kind: 'cab', text: 'Za automatem nikdo není…' }, { x: 1100, kind: 'tube', text: '„Cocoo? Bojím se tmy.“ – „Neboj, jsem tady. Schovej se v trubkách.“' }, { x: 1600, kind: 'shadow', text: 'Ve tmě stojí Voxie. Oči mu nesvítí. „Kde jsou všichni? Nevidím…“' }, { x: 2050, kind: 'door', text: 'Cocoa otevřela zadní dveře. Holčička utekla ven k mámě.' }],
     end: ['Cocoa se vrátila pro pana Vojtěcha.', 'Ale Voxie už nemluvil. Jen šel. Pomalu. Ke kanceláři.', 'Od té noci Cocoa čeká na někoho, kdo jí pomůže ho dostat ven.'] },
-  5: { title: 'ARCHIV 1997 · OBCHŮZKA', hero: 'guard', bg: 'hall', len: 2300,
+  4: { title: 'ARCHIV 1997 · OBCHŮZKA', hero: 'guard', bg: 'hall', len: 2300,
     intro: '15. června 1997, 2:00. Jsi noční hlídač. Ten, co ti teď volá. Udělej obchůzku.',
     goals: [{ x: 550, kind: 'paper', text: 'Policejní páska. Na papíře: „Nehoda. Spis uzavřen.“' }, { x: 1000, kind: 'ticket', text: 'Kapitán Ticket sám počítá: LÍSTKY 0/5. „Kdo má pět, dostane klíč.“' }, { x: 1500, kind: 'voxie', text: 'Voxie stojí u dveří kanceláře. Klepe. „Pusť mě. Prosím.“' }, { x: 2000, kind: 'lock', text: 'ZAMČENÁ MÍSTNOST – kancelář pana Vojtěcha. Hlídač si vzal klíč a utekl.' }],
     end: ['Hlídač dal druhý den výpověď.', 'Herna zavřela. Animatronici zůstali zapnutí. Nikdo nevěděl, jak je vypnout.', 'Pět lístků. Někde v herně. A klíč, který se nikdy nevrátil.'] },
+  5: { title: 'ARCHIV 1997 · ZÁMKY OBLEKU', hero: 'man', bg: 'backstage', len: 2400,
+    intro: '14. června 1997, 19:45. Zákulisí. Jsi pan Vojtěch, majitel herny. Za chvíli začíná oslava a ty musíš do kostýmu Voxieho.',
+    goals: [{ x: 480, kind: 'leak', text: 'Ze stropu kape voda. „Opravím to zítra.“' },
+      { x: 900, kind: 'suit', text: 'Oblek Voxieho. Uvnitř drží pružinové zámky robotickou kostru stranou, aby se do něj vešel člověk. Cvak. Cvak. Jsi uvnitř.', become: 'voxie' },
+      { x: 1350, kind: 'leak', text: 'Kapka vody spadne na zámek u krku. Tiché kovové cvaknutí. „Co to bylo…?“', shake: .5 },
+      { x: 1750, kind: 'leak', text: 'CVAK. CVAK. CVAK. Zámky povolují jeden po druhém. Kostra robota se pomalu zavírá.', shake: 1.4 },
+      { x: 2150, kind: 'door', text: 'Za dveřmi hraje hudba a děti tleskají. Nikdo neslyší, jak pan Vojtěch volá o pomoc.', shake: .4 }],
+    end: ['Pružinové zámky obleku selhaly.', 'Pan Vojtěch se už nemohl hýbat. Děti si myslely, že je to součást show.', 'Od té noci se Voxie hýbe sám. A uvnitř kostýmu pořád někdo dýchá.'] },
 };
 let M = null, chipT = null;
 function startNight(n) { if (MINIS[n]) startMini(n); else newGame(n); }
-function startMini(n) { M = { n, def: MINIS[n], x: 120, i: 0, msg: MINIS[n].intro, msgT: 5, phase: 'play', endT: 0, dir: 0, walk: 0, hold: null, keys: {} }; scene_ = 'mini'; sceneT = 0; startChip(); }
+function startMini(n) { stopMenuSong(); M = { hero: MINIS[n].hero, shake: 0, blood: 0, drips: [], n, def: MINIS[n], x: 120, i: 0, msg: MINIS[n].intro, msgT: 5, phase: 'play', endT: 0, dir: 0, walk: 0, hold: null, keys: {} }; scene_ = 'mini'; sceneT = 0; startChip(); }
 function startChip() {
   stopChip(); if (!AC) return; let i = 0; const seq = [0, 4, 7, 12, 7, 4, 0, -1, 5, 9, 12, 9, 5, -1, 7, 11];
   chipT = setInterval(() => { if (!M || M.phase !== 'play') return; const n = seq[i++ % seq.length]; if (n >= 0) tone(262 * Math.pow(2, n / 12), 'square', .12, .025); }, 180);
@@ -1146,7 +1197,8 @@ function miniUpdate(dt) {
     let d = M.hold ? M.hold.dir : 0; if (M.keys.arrowleft || M.keys.a) d = -1; if (M.keys.arrowright || M.keys.d) d = 1;
     M.dir = d; M.x = clamp(M.x + d * 240 * dt, 60, M.def.len - 60); if (d) M.walk += dt * 10;
     const g = M.def.goals[M.i];
-    if (g && Math.abs(M.x - g.x) < 46) { M.msg = g.text; M.msgT = 4; M.i++; tone(988, 'square', .08, .05); tone(1319, 'square', .1, .05, 0, .09); }
+    if (g && Math.abs(M.x - g.x) < 46) { M.msg = g.text; M.msgT = 4.5; M.i++; if (g.become) { M.hero = g.become; SFX.clank(0); SFX.clank(0); } if (g.shake) { M.shake = g.shake; if (M.def.bg === 'backstage') M.blood = Math.min(1, M.blood + g.shake * .5); for (let k = 0; k < 3; k++) setTimeout(() => SFX.clank(rand(-.5, .5)), k * 220); tone(70, 'sawtooth', .6, .1, 0, 0, 40); } else { tone(988, 'square', .08, .05); tone(1319, 'square', .1, .05, 0, .09); } }
+    M.shake = Math.max(0, M.shake - dt * .6);
     if (!g && M.msgT < 0) { M.phase = 'end'; M.endT = 0; stopChip(); SFX.powerDown(); }
   } else M.endT += dt;
 }
@@ -1156,6 +1208,9 @@ function sprite(kind, x, y, c, t, f = 1) {
   if (kind === 'voxie') { R(-4, -24, 3, 3, '#5a3716'); R(1, -24, 3, 3, '#5a3716'); R(-4, -22, 8, 7, '#8a5a2b'); R(-3, -20, 2, 2, '#fff'); R(1, -20, 2, 2, '#fff'); R(-1, -17, 2, 1, '#2a1608'); R(-4, -15, 8, 8, '#8a5a2b'); R(-2, -14, 4, 1, '#ff2bd6'); R(-2, -12, 4, 4, '#d6a064'); const st = Math.sin(t) > 0 ? 1 : 0; R(-3, -7, 2, 7 - st, '#8a5a2b'); R(1, -7, 2, 6 + st, '#8a5a2b'); }
   else if (kind === 'bunny') { R(-3, -30, 2, 8, '#7a4a2a'); R(1, -30, 2, 8, '#7a4a2a'); R(-4, -22, 8, 7, '#9a6238'); R(-3, -20, 2, 2, '#111'); R(1, -20, 2, 2, '#111'); R(-1, -17, 2, 1, '#5a2a1a'); R(-3, -15, 6, 1, '#fff'); R(-3, -14, 6, 7, '#9a6238'); const st = Math.sin(t) > 0 ? 1 : 0; R(-3, -7, 2, 7 - st, '#9a6238'); R(1, -7, 2, 6 + st, '#9a6238'); }
   else if (kind === 'guard') { R(-3, -23, 6, 2, '#1a2a5a'); R(-3, -21, 6, 5, '#e0b090'); R(-2, -19, 1, 1, '#111'); R(1, -19, 1, 1, '#111'); R(-4, -16, 8, 9, '#2a3a7a'); R(-1, -15, 2, 1, '#ffe46b'); const st = Math.sin(t) > 0 ? 1 : 0; R(-3, -7, 2, 7 - st, '#1a1a2a'); R(1, -7, 2, 6 + st, '#1a1a2a'); ctx.save(); ctx.globalAlpha = .18; ctx.fillStyle = '#fff3c4'; ctx.beginPath(); ctx.moveTo(x + 4 * P, y - 13 * P); ctx.lineTo(x + 60 * P, y - 30 * P); ctx.lineTo(x + 60 * P, y + 2 * P); ctx.fill(); ctx.restore(); }
+  else if (kind === 'man') { R(-3, -25, 6, 2, '#3a2412'); R(-3, -23, 6, 6, '#e0b090'); R(-2, -21, 1, 1, '#111'); R(1, -21, 1, 1, '#111'); R(-3, -21, 6, 1, 'rgba(0,0,0,.4)'); R(-1, -18, 2, 1, '#a05040'); R(-4, -17, 8, 10, '#2a7a4a'); R(-1, -16, 2, 1, '#ffe46b'); const st = Math.sin(t) > 0 ? 1 : 0; R(-3, -7, 2, 7 - st, '#2a2a3a'); R(1, -7, 2, 6 + st, '#2a2a3a'); }
+  else if (kind === 'suit') { R(-6, -2, 12, 2, '#333'); R(-1, -6, 2, 4, '#555'); R(-4, -24, 3, 3, '#4a2e12'); R(1, -24, 3, 3, '#4a2e12'); R(-4, -22, 8, 7, '#6a4420'); R(-3, -20, 2, 2, '#111'); R(1, -20, 2, 2, '#111'); R(-4, -15, 8, 9, '#6a4420'); R(-2, -14, 4, 1, '#a01a8a'); for (let i = 0; i < 4; i++) R(-3 + i * 2, -12 + (i % 2) * 3, 1, 1, '#c0c0c0'); }
+  else if (kind === 'leak') { R(-8, -70, 16, 2, '#33333d'); const k = (t * 2) % 1; R(0, -68 + k * 60, 1, 2, '#7ab8ff'); R(-3, -1, 6, 1, '#3a5a8a'); }
   else if (kind === 'kid') { R(-2, -15, 4, 2, c); R(-1, -17, 2, 2, '#ffe46b'); R(-2, -13, 4, 4, '#e8b890'); R(-1, -12, 1, 1, '#111'); R(1, -12, 1, 1, '#111'); R(-2, -9, 4, 5, c); R(-2, -4, 1, 4, '#333'); R(1, -4, 1, 4, '#333'); }
   else if (kind === 'cake') { R(-4, -8, 8, 1, '#ddd'); R(-3, -12, 6, 4, '#ff8bea'); R(-3, -12, 6, 1, '#fff'); for (let i = 0; i < 3; i++) { R(-2 + i * 2, -14, 1, 2, '#fff'); if (Math.sin(t * 3 + i) > -.5) R(-2 + i * 2, -15, 1, 1, '#ffb000'); } R(-1, -8, 2, 8, '#6a4a2a'); }
   else if (kind === 'cab') { R(-4, -26, 8, 26, '#1d1a2a'); R(-3, -24, 6, 4, `hsl(${t * 60 % 360},80%,55%)`); R(-3, -19, 6, 1, '#ff3b3b'); }
@@ -1169,17 +1224,30 @@ function sprite(kind, x, y, c, t, f = 1) {
 function drawMini(t) {
   const D = M.def, ground = 560, cx = clamp(M.x - HW / 2, 0, D.len - HW);
   rect(0, 0, HW, HH, '#07040c');
+  ctx.save(); if (M.shake > 0) ctx.translate(rand(-12, 12) * M.shake, rand(-8, 8) * M.shake);
   // pozadí
   for (let x = -((cx * .5) % 160); x < HW; x += 160) {
     if (D.bg === 'party') { px(x + 40, 140, 70, 90, '#2a1640'); px(x + 50, 150, 50, 60, ['#ff2bd6', '#7ff4ff', '#ffe46b'][(Math.floor((x + cx * .5) / 160) % 3 + 3) % 3]); }
     if (D.bg === 'arcade') { px(x + 30, 260, 60, 180, '#120f20'); px(x + 38, 275, 44, 30, `hsl(${(x + t * 40) % 360},70%,${Math.sin(t * 2 + x) > 0 ? 45 : 25}%)`); }
+    if (D.bg === 'backstage') { px(x + 10, 90, 150, 10, '#2a2a33'); px(x + 70, 100, 10, 140, '#22222a'); px(x + 30, 400, 60, 60, '#3a2a1a'); px(x + 36, 406, 48, 4, '#5a4a2a'); }
     if (D.bg === 'hall') { px(x + 60, 120, 20, 8, Math.sin(t * 9 + x) > .7 ? '#333' : '#fff3c4'); px(x + 20, 230, 50, 70, '#3b1d6e'); }
   }
   px(0, ground, HW, HH - ground, D.bg === 'party' ? '#3a1a2a' : '#151020');
   for (let x = -(cx % 48); x < HW; x += 48) px(x, ground, 24, 8, '#2a2040');
   // cíle
   D.goals.forEach((g, i) => { const sx = g.x - cx; if (sx > -100 && sx < HW + 100) { sprite(g.kind, sx, ground, g.c, t, 1); if (i === M.i) txt('▼', sx, ground - (g.kind === 'bunny' ? 200 : 230), 22, '#ffe46b', 'center'); } });
-  sprite(D.hero, M.x - cx, ground, null, M.walk, 1);
+  sprite(M.hero, M.x - cx, ground, null, M.walk, 1);
+  // pixelová krev ze švů kostýmu
+  if (M.blood > 0 && M.hero === 'voxie') {
+    const hx = M.x - cx, P = 6, seams = [[-4, -15], [3, -15], [-4, -9], [3, -9], [-1, -16], [0, -22]];
+    seams.slice(0, Math.ceil(M.blood * seams.length)).forEach(([a, b], i) => { const len = 1 + Math.floor(((t * 3 + i * .7) % 1) * 4 * M.blood); px(hx + a * P, ground + b * P, P, P * len, '#9a0010'); px(hx + a * P, ground + b * P, P, P, '#d01020'); });
+    if (Math.random() < M.blood * .25) M.drips.push({ x: M.x + rand(-20, 20), y: ground - 60, v: 0 });
+  }
+  M.drips.forEach(d => { d.v += .4; d.y = Math.min(ground, d.y + d.v); px(d.x - cx, d.y, 6, 6, '#a00012'); });
+  if (M.drips.length > 140) M.drips.splice(0, 20);
+
+  ctx.restore();
+  if (M.shake > .8 && Math.random() < .3) rect(0, 0, HW, HH, 'rgba(120,0,0,.25)');
   // CRT efekt
   scanlines(); noise(.05); vignette(.8);
   txt(D.title, HW / 2, 50, 26, '#7ff4ff', 'center');
@@ -1189,6 +1257,7 @@ function drawMini(t) {
     bigBtn(HW - 210, 20, 190, 40, 'PŘESKOČIT ▶▶', 'skip', () => { M.phase = 'end'; M.endT = 10; stopChip(); }, true, 16);
   } else {
     rect(0, 0, HW, HH, `rgba(0,0,0,${Math.min(.85, M.endT * .5)})`);
+    if (D.bg === 'backstage') for (let x = 0; x < HW; x += 12) { const h = Math.max(0, (M.endT * 60 - (x * 37 % 90)) * (.4 + (x * 13 % 7) / 7)); px(x, 0, 12, Math.min(HH * .55, h), '#6a000c'); px(x, Math.min(HH * .55, h), 12, 6, '#a00012'); }
     if (Math.random() < .1) noise(.3);
     D.end.forEach((l, i) => { if (M.endT > 1 + i * 2.6) wrap(l, 900, 24).forEach((w, k) => txt(w, HW / 2, 250 + i * 90 + k * 30, 24, i === D.end.length - 1 ? '#ff8bea' : '#fff', 'center')); });
     if (M.endT > 1 + D.end.length * 2.6) bigBtn(HW / 2 - 200, 560, 400, 56, 'ZAČÍT NOC ' + M.n, 'go', () => { const n = M.n; M = null; newGame(n); });
@@ -1279,6 +1348,7 @@ const toL = e => { const r = hud.getBoundingClientRect(); return { x: (e.clientX
 function hit(p) { for (let i = buttons.length - 1; i >= 0; i--) { const b = buttons[i]; if (p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h) return b; } return null; }
 hud.addEventListener('pointerdown', e => {
   e.preventDefault(); initAudio();
+  if (scene_ === 'menu') startMenuSong();
   const p = toL(e), b = hit(p);
   try { if (!document.fullscreenElement && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {}); } catch (err) {}
   if (b) { b.cb(); return; }
@@ -1390,7 +1460,7 @@ function render(t) {
     const c = CAMS[G.cam]; cam = c.cam;
     // kamera se pomalu otáčí sem a tam
     cam.quaternion.copy(c.baseQ).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.sin(t * .35) * .12));
-    roomLight.position.set(...c.light); roomLight.intensity = G.cam === '4' ? (Math.sin(t * 9) > .3 ? 10 : 2) : G.cam === '8' || G.cam === '9' ? 4 : 12;
+    roomLight.position.set(...c.light); roomLight.intensity = G.cam === '4' ? (Math.sin(t * 9) > .3 ? 16 : 4) : G.cam === '8' || G.cam === '9' ? 9 : 22; hemi.intensity = .8;
   } else {
     roomLight.intensity = 0; flash.intensity = 0;
     const sh = scene_ === 'scare' ? .05 * (1 - clamp((scareT - .9) / .5, 0, 1)) : 0;
@@ -1406,7 +1476,7 @@ function render(t) {
   if (scene_ === 'menu') drawMenu(t);
   else if (scene_ === 'intro') drawIntro();
   else if (scene_ === 'play') {
-    if (G.camA > 0 && G.camA < 1) { const y = HH * (1 - G.camA); rr(60, y + 20, HW - 120, HH, 24); ctx.fillStyle = '#16161c'; ctx.fill(); rect(90, y + 50, HW - 180, HH, '#05080a'); }
+    if (G.camA > 0 && G.camA < 1) { const y = HH * (1 - G.camA); rr(60, y + 20, HW - 120, HH, 24); ctx.fillStyle = '#1b1b1f'; ctx.fill(); rect(90, y + 50, HW - 180, HH, '#000'); txt('VOXIE-CAM', HW / 2, y + 90, 22, '#5dff8a', 'center'); }
     if (roam.on) drawRoamHUD(t); else drawHUD(t);
   } else if (scene_ === 'mini') drawMini(t);
   else if (scene_ === 'scare') { if (scareT < .05) rect(0, 0, HW, HH, '#fff'); noise(.12 + Math.random() * .15); }
@@ -1422,7 +1492,7 @@ function frame() {
 setCharacter(VOX, buildVoxie(), 'Voxie'); menuSpots();
 fetch('models/cocoa.glb').then(r => r.ok ? r.arrayBuffer() : null).catch(() => null).then(buf => buf ? { buf } : idbGet('model')).then(async m => { if (m && m.buf) { try { const r = await loadGLB(m.buf, 'Cocoa'); setCharacter(COC, r.obj, 'Cocoa'); if (G) { G.coc.off = false; setSpot(COC, G.coc.pos); COC.root.visible = true; } else menuSpots(); } catch (e) {} } });
 requestAnimationFrame(frame);
-window.__voxies = { get G() { return G; }, get scene() { return scene_; }, VOX, COC, AI, newGame, startNight, toggleDoor, setLight, toggleCams, selectCam, sayA, setSpot, loadGLB, setCharacter, setLook: v => { G.look = v; }, voice, jumpscare, roam, toggleRoam, get M() { return M; }, icon(size) { const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d'); const g = x.createRadialGradient(size / 2, size / 2, size * .1, size / 2, size / 2, size * .7); g.addColorStop(0, '#3b1d6e'); g.addColorStop(1, '#07030f'); x.fillStyle = g; x.fillRect(0, 0, size, size); drawLogo(x, size * .1, size * .1, size * .8); return c.toDataURL('image/png'); } };
+window.__voxies = { THREE, scene3: scene, renderer, CAMS, get G() { return G; }, get scene() { return scene_; }, VOX, COC, AI, newGame, startNight, toggleDoor, setLight, toggleCams, selectCam, sayA, setSpot, loadGLB, setCharacter, setLook: v => { G.look = v; }, voice, jumpscare, roam, toggleRoam, get M() { return M; }, icon(size) { const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d'); const g = x.createRadialGradient(size / 2, size / 2, size * .1, size / 2, size / 2, size * .7); g.addColorStop(0, '#3b1d6e'); g.addColorStop(1, '#07030f'); x.fillStyle = g; x.fillRect(0, 0, size, size); drawLogo(x, size * .1, size * .1, size * .8); return c.toDataURL('image/png'); } };
 </script>
 </body>
 </html>
