@@ -192,6 +192,10 @@ function props() {
   }
   // --- 3 bludiště, 4 sklad, 5 výdej lístků: modely ballpit/storage/tickets.glb ---
   place(textPlane('BLUDIŠTĚ', 3, .7, '#7cff6b', { neon: true }), 16, 2.8, -21.9);
+  // míčky v bazénu
+  const pit = new THREE.InstancedMesh(new THREE.SphereGeometry(.13, 8, 6), new THREE.MeshLambertMaterial(), 520), m4 = new THREE.Matrix4(), cl = new THREE.Color();
+  for (let i = 0; i < 520; i++) { m4.makeTranslation(rand(13.6, 19.6), rand(.25, .62), rand(-15.2, -12.2)); pit.setMatrixAt(i, m4); pit.setColorAt(i, cl.set(pick(['#ff3b3b', '#ffe46b', '#3bb2ff', '#7cff6b', '#ff2bd6']))); }
+  scene.add(pit);
   place(textPlane('VÝDEJ LÍSTKŮ', 3, .5, '#ffe46b', { neon: true }), -21.9, 2.4, -6, Math.PI / 2);
   // --- 6 toalety: kabinky na zadní stěně naproti vchodu ---
   for (const [x, c, t] of [[-2, '#5a3a8a', 'CHLAPCI'], [2, '#8a3a5a', 'DÍVKY']]) {
@@ -250,10 +254,12 @@ function loadRoomModels() {
     root.traverse(o => {
       if (!o.isMesh) return;
       bb.setFromObject(o); bb.getCenter(c); bb.getSize(sz);
-      const outside = c.x < bx0 - .1 || c.x > bx1 + .1 || c.z < bz0 - .1 || c.z > bz1 + .1;
-      const wall = (sz.y > 2 && Math.min(sz.x, sz.z) < .7 && Math.max(sz.x, sz.z) > .9) || (Math.min(sz.x, sz.z) < .5 && Math.max(sz.x, sz.z) > 2.5 && (c.y < .4 || c.y > 3.2)) || (c.y > 3.6 && sz.y < .6 && Math.max(sz.x, sz.z) > 1.5);
+      const outside = c.x < bx0 - .1 || c.x > bx1 + .1 || c.z < bz0 - .1 || c.z > bz1 + .1 || bb.min.x < bx0 - .4 || bb.max.x > bx1 + .4 || bb.min.z < bz0 - .4 || bb.max.z > bz1 + .4;
+      // zeď místnosti = tenká a u okraje modelu (vybavení uvnitř zůstává celé)
+      const edge = c.x < bx0 + .6 || c.x > bx1 - .6 || c.z < bz0 + .6 || c.z > bz1 - .6;
+      const wall = edge && Math.min(sz.x, sz.z) < .7 && (Math.max(sz.x, sz.z) > 2.5 || sz.y > 3.5) && !(sz.y < 3 && c.y > .8 && c.y < 3);
       const slab = sz.y < .2 && sz.x > (bx1 - bx0) * .6 && sz.z > (bz1 - bz0) * .6;
-      const trim = sz.y < .25 && Math.min(sz.x, sz.z) < .3 && Math.max(sz.x, sz.z) > 3 && c.y < .3;
+      const trim = edge && sz.y < .25 && Math.min(sz.x, sz.z) < .3 && Math.max(sz.x, sz.z) > 3 && (c.y < .3 || c.y > 3.6);
       if (outside || wall || slab || trim) junk.push(o);
       else { [].concat(o.material).forEach(m => { if (m.transparent && m.opacity > .8) m.transparent = false; }); o.frustumCulled = true; }
     });
