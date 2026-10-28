@@ -180,7 +180,6 @@ function props() {
   // --- 1B herna (model arcade.glb) ---
   const cols = ['#ff2bd6', '#7ff4ff', '#ffe46b', '#7cff6b', '#ff8a3b'];
   place(textPlane('HERNA', 2.4, .55, '#ffe46b', { neon: true }), 0, 2.86, -21.9);
-  for (const x of [-8.4, -7.2, 7.2, 8.4]) { arcade(x, -16.9, 0, cols[Math.abs(Math.round(x)) % 5]); arcade(x, -15.9, Math.PI, cols[(Math.abs(Math.round(x)) + 2) % 5]); }
   neonStrip(-10, -21.9, 10, -21.9, 3.0, '#ff2bd6');
   // --- 2 pizzerie ---
   box(6, 1.1, .8, mat('#6a2a18'), -16, .55, -21.4);
@@ -247,12 +246,28 @@ LOADS.push(new GLTFLoader().loadAsync('models/axe.glb').then(g => {
 // ---------- modely místností (vybavení z GLB; zdi a podlahy jsou naše, aby seděly průchody) ----------
 // bounds = vnitřek místnosti v modelu (co je mimo, jsou zbytky a vyhodí se), room = kam ji posadit
 const ROOM_MODELS = [
-  { file: 'arcade', room: '1B', bounds: [-12.2, -7.2, 12.2, 7.2] },
+  // herna: automaty dočasně odstraněny – čekají na nové modely
   { file: 'ballpit', room: '3', bounds: [-6.2, -7.2, 6.2, 7.2] },
   { file: 'storage', room: '4', bounds: [-5.92, -5.17, 5.92, 5.17] },
   { file: 'tickets', room: '5', bounds: [-5.67, -5.17, 5.67, 5.17] },
   { file: 'entrance', room: '7', bounds: [-6.17, -5.67, 6.17, 5.67] },
 ];
+// automaty v herně (cabinet.glb) – model má přední stranu natočenou šikmo (-x, -z)
+const CAB_FRONT = Math.atan2(-1, -1);
+const CABINETS = [
+  ...[-9, -7.6, -6.2, 6.2, 7.6, 9].map(x => [x, -21.3, 0]),          // u severní zdi, čelem do herny
+  ...[-7.9, 7.9].flatMap(x => [[x, -17.4, Math.PI], [x, -15.6, 0]]),   // dvojice uprostřed, zády k sobě
+  ...[-19.2, -12.9].flatMap(z => [[-9.3, z, Math.PI / 2], [9.3, z, -Math.PI / 2]]), // u bočních zdí
+];
+LOADS.push(new GLTFLoader().loadAsync('models/cabinet.glb').then(g => {
+  const src = g.scene, b0 = new THREE.Box3().setFromObject(src), c0 = b0.getCenter(new THREE.Vector3());
+  for (const [x, z, face] of CABINETS) {
+    const holder = new THREE.Group(), m = src.clone(true);
+    m.position.set(-c0.x, -b0.min.y, -c0.z); holder.add(m);
+    // face = směr, kam má automat koukat (0 = +z)
+    holder.rotation.y = face - CAB_FRONT; holder.position.set(x, 0, z); scene.add(holder);
+  }
+}).catch(() => {}));
 function loadRoomModels() {
   const loader = new GLTFLoader(), bb = new THREE.Box3(), c = new THREE.Vector3(), sz = new THREE.Vector3();
   for (const rm of ROOM_MODELS) LOADS.push(loader.loadAsync('models/rooms/' + rm.file + '.glb').then(g => {
@@ -1088,7 +1103,7 @@ function drawMenu(t) {
   txt('Animatronici: Voxie' + (COC.model ? ' + Cocoa' : ''), 64, 448, 18, '#ffb3f0');
   if (beaten) txt('★ Přežil jsi 5 nocí' + (progress >= 7 ? ' · noci 6–7 odemčeny' : ''), 64, 560, 18, '#ffe46b');
   if (load('voxies_secret', false)) txt('🪓 Tajný konec: Osvobození', 64, 584, 18, '#ff6b6b');
-  txt('v1.6.0', HW - 20, 700, 14, '#666', 'right');
+  txt('v1.6.5', HW - 20, 700, 14, '#666', 'right');
   if (loadMsg) txt(loadMsg, 64, 590, 16, '#7ff4ff');
   txt('Táhni prstem = rozhlížení · Joystick = chůze mimo stůl · Q/E světla, A/D dveře, mezerník kamery, F baterka', 64, 700, 13, '#777');
 }
@@ -1650,7 +1665,7 @@ try { initAudio(); } catch (e) {}
 const unlock = () => { initAudio(); if (AC && AC.state !== 'running') AC.resume(); if (scene_ === 'menu') startMenuSong(); };
 ['pointerdown', 'touchstart', 'keydown', 'click'].forEach(ev => addEventListener(ev, unlock, { capture: true, passive: true }));
 requestAnimationFrame(frame);
-window.__voxies = { get menuSong() { return !!menuSong; }, get acState() { return AC && AC.state; }, hitVoxie, interact, workDone, THREE, scene3: scene, renderer, CAMS, get G() { return G; }, get scene() { return scene_; }, VOX, COC, AI, newGame, startNight, toggleDoor, setLight, toggleCams, selectCam, sayA, setSpot, loadGLB, setCharacter, setLook: v => { G.look = v; }, voice, jumpscare, roam, toggleRoam, get M() { return M; }, icon(size) { const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d'); const g = x.createRadialGradient(size / 2, size / 2, size * .1, size / 2, size / 2, size * .7); g.addColorStop(0, '#3b1d6e'); g.addColorStop(1, '#07030f'); x.fillStyle = g; x.fillRect(0, 0, size, size); drawLogo(x, size * .1, size * .1, size * .8); return c.toDataURL('image/png'); } };
+window.__voxies = { skipIntro() { if (scene_ === 'intro') { scene_ = 'play'; sceneT = 0; startAmbient(); } }, get menuSong() { return !!menuSong; }, get acState() { return AC && AC.state; }, hitVoxie, interact, workDone, THREE, scene3: scene, renderer, CAMS, get G() { return G; }, get scene() { return scene_; }, VOX, COC, AI, newGame, startNight, toggleDoor, setLight, toggleCams, selectCam, sayA, setSpot, loadGLB, setCharacter, setLook: v => { G.look = v; }, voice, jumpscare, roam, toggleRoam, get M() { return M; }, icon(size) { const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d'); const g = x.createRadialGradient(size / 2, size / 2, size * .1, size / 2, size / 2, size * .7); g.addColorStop(0, '#3b1d6e'); g.addColorStop(1, '#07030f'); x.fillStyle = g; x.fillRect(0, 0, size, size); drawLogo(x, size * .1, size * .1, size * .8); return c.toDataURL('image/png'); } };
 </script>
 </body>
 </html>
