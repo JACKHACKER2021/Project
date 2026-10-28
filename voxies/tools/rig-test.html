@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Voxie's Rig Test</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; color: #eee; font: 14px 'Courier New', monospace; overflow: hidden; }
+  #ui { position: absolute; top: 0; left: 0; bottom: 0; width: 300px; max-width: 80vw; background: rgba(10,6,18,.88); border-right: 1px solid #ff2bd655; overflow-y: auto; padding: 12px; box-sizing: border-box; transition: transform .2s; }
+  #ui.hidden { transform: translateX(-100%); }
+  #toggle { position: absolute; top: 10px; right: 10px; z-index: 2; }
+  h1 { font-size: 18px; color: #ff8bea; margin: 0 0 8px; }
+  h2 { font-size: 14px; color: #7ff4ff; margin: 14px 0 6px; }
+  button, label.file { display: inline-block; background: #2a1638; color: #fff; border: 1px solid #ff2bd6; border-radius: 8px; padding: 8px 10px; margin: 3px 2px; cursor: pointer; font: inherit; }
+  button.on { background: #ff2bd6; }
+  input[type=file] { display: none; }
+  .bone { border-top: 1px solid #333; padding: 4px 0; }
+  .bone b { color: #ffe46b; font-weight: normal; }
+  .bone input { width: 100%; }
+  #info { color: #aaa; font-size: 12px; white-space: pre-wrap; }
+  #credit { position: absolute; right: 10px; bottom: 8px; color: #888; font-size: 11px; text-align: right; }
+</style>
+</head>
+<body>
+<button id="toggle">☰ Panel</button>
+<div id="ui">
+  <h1>Rig test GLB</h1>
+  <label class="file">📂 Načíst .glb<input id="file" type="file" accept=".glb,.gltf"></label>
+  <div id="info">Načti model…</div>
+  <button id="face">↻ Otočit čelem / zády</button>
+  <h2>Animace</h2>
+  <div id="anims"></div>
+  <h2>Světlo</h2>
+  <button id="flash">🔦 Baterka</button> <button id="stage">💡 Pódium</button>
+  <h2>Kosti (ruční ovládání)</h2>
+  <div id="bones"></div>
+</div>
+<div id="credit"></div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// ---------- scéna ----------
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.prepend(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x05030a);
+scene.fog = new THREE.Fog(0x05030a, 8, 22);
+const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, .05, 100);
+camera.position.set(0, 1.6, 6);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 1.1, 0); controls.enableDamping = true;
+
+scene.add(new THREE.HemisphereLight(0x9a8ad0, 0x201030, 1.3));
+const key = new THREE.DirectionalLight(0xfff0dd, 1.6); key.position.set(1.5, 3, 5); scene.add(key);
+const stageLight = new THREE.SpotLight(0xffe2b0, 60, 20, .5, .5);
+stageLight.position.set(0, 7, 3); stageLight.castShadow = true; scene.add(stageLight, stageLight.target);
+const pink = new THREE.PointLight(0xff2bd6, 8, 10); pink.position.set(-3, 2, -2); scene.add(pink);
+const cyan = new THREE.PointLight(0x00e5ff, 6, 10); cyan.position.set(3, 2, -2); scene.add(cyan);
+const flashlight = new THREE.SpotLight(0xfff3c4, 0, 18, .35, .6); scene.add(flashlight, flashlight.target);
+const redLight = new THREE.PointLight(0xff1010, 0, 6); scene.add(redLight);
+
+// kostkovaná podlaha jako v herně
+const tex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d'); for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) { x.fillStyle = (i + j) % 2 ? '#1a1426' : '#2c2340'; x.fillRect(i * 8, j * 8, 8, 8); } const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(6, 6); t.magFilter = THREE.NearestFilter; t.colorSpace = THREE.SRGBColorSpace; return t; })();
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(30, 30), new THREE.MeshStandardMaterial({ map: tex, roughness: .9 }));
+floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
+
+// ---------- model a rig ----------
+let model = null, holder = new THREE.Group(), inner = new THREE.Group(), side = { R: -1, L: 1 }, rig = {}, rest = new Map(), bonesOrdered = [], manual = new Map();
+holder.add(inner); scene.add(holder);
+// modely, o kterých víme, že jsou vymodelované zády ke kameře
+const FACING = [[/cocoa/i, Math.PI]];
+let modelName = '';
+let current = 'idle', animT = 0;
+
+// role kostí: nejdřív podle známých jmen (tento model, Mixamo), jinak podle polohy
+const NAME_RULES = {
+  hips: [/^Bone_?28$/, /hips/i, /pelvis/i],
+  spine: [/Bone_?006/, /spine$/i, /spine_?0?1?$/i],
+  chest: [/Bone_?007/, /spine_?2|chest/i],
+  head: [/Bone_?013/, /head$/i, /neck/i],
+  armR1: [/Bone_?009_?r/, /right_?arm$|rightarm$|upperarm_?r/i], armR2: [/Bone_?010_?r/, /right_?forearm|forearm_?r/i], armR3: [/Bone_?011_?r/, /right_?hand$|hand_?r/i],
+  armL1: [/Bone_?009_?l/, /left_?arm$|leftarm$|upperarm_?l/i], armL2: [/Bone_?010_?l/, /left_?forearm|forearm_?l/i], armL3: [/Bone_?011_?l/, /left_?hand$|hand_?l/i],
+  legR1: [/Bone_?002_?r/, /right_?up_?leg|thigh_?r/i], legR2: [/Bone_?003_?r/, /right_?leg$|calf_?r/i],
+  legL1: [/Bone_?002_?l/, /left_?up_?leg|thigh_?l/i], legL2: [/Bone_?003_?l/, /left_?leg$|calf_?l/i],
+  earR1: [/Bone_?015_?r/], earR2: [/Bone_?016_?r/], earR3: [/Bone_?017_?r/],
+  earL1: [/Bone_?015_?l/], earL2: [/Bone_?016_?l/], earL3: [/Bone_?017_?l/],
+  tail: [/Bone_?002_?27/, /tail/i],
+};
+function mapRig(bones) {
+  rig = {};
+  for (const role in NAME_RULES) for (const re of NAME_RULES[role]) { const b = bones.find(b => re.test(b.name)); if (b) { rig[role] = b; break; } }
+}
+
+function loadArrayBuffer(buf, name) {
+  new GLTFLoader().parse(buf, '', g => setModel(g, name), e => info('Chyba načtení: ' + e.message));
+}
+function setModel(g, name) {
+  if (model) inner.remove(model);
+  model = g.scene; manual.clear(); rest.clear(); bonesOrdered = [];
+  model.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; } if (o.isBone) bonesOrdered.push(o); });
+  // srovnat velikost na ~2,2 m a postavit na podlahu
+  const box = new THREE.Box3().setFromObject(model), size = box.getSize(new THREE.Vector3());
+  const s = 2.2 / size.y; model.scale.setScalar(s);
+  model.position.set(-(box.min.x + box.max.x) / 2 * s, -box.min.y * s, -(box.min.z + box.max.z) / 2 * s);
+  inner.add(model);
+  modelName = name;
+  const extra0 = g.parser && g.parser.json.asset && g.parser.json.asset.extras || {};
+  const preset = FACING.find(([re]) => re.test((extra0.title || '') + ' ' + name));
+  setFacing(load('face:' + name, preset ? preset[1] : 0));
+  bonesOrdered.forEach(b => rest.set(b, { q: b.quaternion.clone(), p: b.position.clone() }));
+  mapRig(bonesOrdered);
+  detectSides();
+  const extra = g.parser && g.parser.json.asset && g.parser.json.asset.extras;
+  document.getElementById('credit').textContent = extra && extra.author ? `${extra.title || name} – ${extra.author}, ${extra.license || ''}` : '';
+  const roles = Object.keys(rig);
+  info(`${name}\nKostí: ${bonesOrdered.length}\nVlastní animace v souboru: ${g.animations.length}\nRozpoznané části: ${roles.length ? roles.join(', ') : 'žádné (použij ruční ovládání)'}`);
+  buildBoneUI();
+}
+function load(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }
+function setFacing(a) { inner.rotation.y = a; try { localStorage.setItem('face:' + modelName, JSON.stringify(a)); } catch (e) {} detectSides(); }
+// na které straně (±x) ruka opravdu je – podle toho se počítá směr „dolů“, „nahoru“, „dopředu“
+function detectSides() {
+  if (!model) return;
+  holder.updateMatrixWorld(true);
+  const wx = b => b ? b.getWorldPosition(new THREE.Vector3()).x : 0;
+  for (const k of ['R', 'L']) { const a = rig['arm' + k + '1'], b = rig['arm' + k + '2']; if (a && b) side[k] = Math.sign(wx(b) - wx(a)) || (k === 'R' ? -1 : 1); }
+}
+function info(s) { document.getElementById('info').textContent = s; }
+
+// ---------- otáčení kostí ve SVĚTOVÝCH osách (nezávisí na tom, jak je model riggnutý) ----------
+const _pq = new THREE.Quaternion(), _q = new THREE.Quaternion(), _e = new THREE.Euler();
+function rotW(bone, x, y, z) {
+  if (!bone || (!x && !y && !z)) return;
+  bone.parent.updateWorldMatrix(true, false);
+  bone.parent.getWorldQuaternion(_pq);
+  // převod rotace modelu (holder) do světa
+  _q.setFromEuler(_e.set(x, y, z, 'YXZ'));
+  const hq = holder.getWorldQuaternion(new THREE.Quaternion());
+  _q.premultiply(hq).multiply(hq.clone().invert());
+  const local = _pq.clone().invert().multiply(_q).multiply(_pq);
+  bone.quaternion.premultiply(local);
+}
+const R = (role, x = 0, y = 0, z = 0) => rotW(rig[role], x, y, z);
+
+// ---------- animace ----------
+const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+let twitchSeed = [0, 0, 0], twitchNext = 0;
+// w = 0 ruka dole, 1 pravá packa nahoře a mává
+function basePose(t, w = 0) {
+  // z T-pózy dát ruce dolů
+  const r = side.R, l = side.L;
+  R('armR1', 0, 0, -r * (1.2 - 2.3 * w)); R('armL1', 0, 0, -l * 1.2);
+  R('armR2', 0, -r * .15 * (1 - w), r * w * (.9 - Math.sin(t * 7) * .45)); R('armL2', 0, -l * .15, 0);
+}
+// občas v klidu zamává: každých 7–13 s na cca 2,6 s
+let waveAt = 3, waveLen = 2.6;
+function idleWave(t) {
+  if (t > waveAt + waveLen) waveAt = t + 7 + Math.random() * 6;
+  const k = (t - waveAt) / waveLen;
+  if (k < 0 || k > 1) return 0;
+  return ease(clamp(Math.min(k, 1 - k) * 4, 0, 1));
+}
+const ANIMS = {
+  rest: { label: '🧍 Výchozí póza', f() {} },
+  idle: { label: '😐 Klid (občas zamává)', f(t) {
+    const w = idleWave(t);
+    basePose(t, w);
+    R('chest', Math.sin(t * 1.6) * .03, 0, 0);
+    R('head', Math.sin(t * .7) * .05, Math.sin(t * .45) * .35 * (1 - w) + .2 * w, Math.sin(t * .3) * .05 + Math.sin(t * 3.5) * .1 * w);
+    const ear = Math.sin(t * 1.3) * .08;
+    R('earR1', ear, 0, 0); R('earL1', ear * .8, 0, 0); R('earR2', ear, 0, 0); R('earL2', ear, 0, 0);
+    R('tail', 0, Math.sin(t * 3) * .3, 0);
+  } },
+  look: { label: '👀 Sleduje kameru', f(t) {
+    basePose(t);
+    const toCam = new THREE.Vector3().subVectors(camera.position, holder.position);
+    const yaw = clamp(Math.atan2(toCam.x, toCam.z), -1.1, 1.1), pitch = clamp(-Math.atan2(toCam.y - 1.8, Math.hypot(toCam.x, toCam.z)), -.5, .5);
+    R('chest', 0, yaw * .3, 0); R('head', pitch, yaw * .7, 0);
+  } },
+  twitch: { label: '⚡ Škubání (porucha)', f(t) {
+    basePose(t);
+    if (t > twitchNext) { twitchNext = t + .08 + Math.random() * .5; twitchSeed = [rand(-.5, .5), rand(-.9, .9), rand(-.6, .6)]; }
+    R('head', twitchSeed[0], twitchSeed[1], twitchSeed[2]);
+    R('armR2', 0, 0, -side.R * twitchSeed[1] * .6); R('earL1', twitchSeed[0] * .8, 0, 0); R('earR1', -twitchSeed[2], 0, 0);
+    R('chest', 0, twitchSeed[1] * .15, 0);
+  } },
+  wave: { label: '👋 Mávání', f(t) {
+    R('armL1', 0, 0, -side.L * 1.2);
+    R('armR1', 0, 0, side.R * 1.1); R('armR2', 0, 0, side.R * (.9 - Math.sin(t * 7) * .45));
+    R('head', 0, .2, Math.sin(t * 3.5) * .12);
+    R('tail', 0, Math.sin(t * 6) * .4, 0);
+  } },
+  walk: { label: '🚶 Chůze', f(t) {
+    const w = t * 4.2, s = Math.sin(w);
+    basePose(t);
+    R('legR1', s * .5, 0, 0); R('legL1', -s * .5, 0, 0);
+    R('legR2', Math.max(0, -Math.cos(w)) * .6, 0, 0); R('legL2', Math.max(0, Math.cos(w)) * .6, 0, 0);
+    R('armR1', s * .4, 0, 0); R('armL1', -s * .4, 0, 0);
+    R('hips', 0, s * .08, 0); R('chest', .05, -s * .1, 0);
+    R('head', 0, s * .05, 0);
+    if (rig.hips) rig.hips.position.y += Math.abs(Math.cos(w)) * .04 / model.scale.x;
+    R('earR1', Math.abs(s) * .15, 0, 0); R('earL1', Math.abs(s) * .15, 0, 0);
+  } },
+  scare: { label: '😱 Jumpscare', once: 1.6, f(t) {
+    const k = ease(clamp(t / .18, 0, 1));
+    R('armR1', -.4 * k, -side.R * 1.3 * k, side.R * .3 * k); R('armL1', -.4 * k, -side.L * 1.3 * k, side.L * .3 * k);
+    R('armR2', 0, 0, side.R * .6 * k); R('armL2', 0, 0, side.L * .6 * k);
+    R('chest', .35 * k, 0, 0); R('head', -.35 * k + rand(-.08, .08), rand(-.1, .1), rand(-.1, .1));
+    R('earR1', -.5 * k, 0, 0); R('earL1', -.5 * k, 0, 0);
+    holder.position.z = k * 3.2; holder.position.x = rand(-.05, .05) * k;
+    redLight.intensity = 25 * k; redLight.position.set(0, 2.2, holder.position.z + 1);
+    shake.set(rand(-.04, .04) * k, rand(-.04, .04) * k, 0);
+  } },
+};
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v)), rand = (a, b) => a + Math.random() * (b - a);
+
+// ---------- UI ----------
+const animsEl = document.getElementById('anims');
+for (const id in ANIMS) {
+  const b = document.createElement('button'); b.textContent = ANIMS[id].label; b.dataset.id = id;
+  b.onclick = () => play(id); animsEl.appendChild(b);
+}
+function play(id) { current = id; animT = 0; waveAt = 3; [...animsEl.children].forEach(b => b.classList.toggle('on', b.dataset.id === id)); }
+play('idle');
+function buildBoneUI() {
+  const el = document.getElementById('bones'); el.innerHTML = '';
+  const roleOf = new Map(Object.entries(rig).map(([r, b]) => [b, r]));
+  for (const b of bonesOrdered) {
+    const d = document.createElement('div'); d.className = 'bone';
+    d.innerHTML = `<b>${b.name}</b>${roleOf.has(b) ? ' · ' + roleOf.get(b) : ''}`;
+    const vals = [0, 0, 0]; manual.set(b, vals);
+    ['X', 'Y', 'Z'].forEach((ax, i) => { const s = document.createElement('input'); s.type = 'range'; s.min = -3.14; s.max = 3.14; s.step = .01; s.value = 0; s.title = ax; s.oninput = () => vals[i] = +s.value; d.appendChild(s); });
+    el.appendChild(d);
+  }
+}
+document.getElementById('file').onchange = e => { const f = e.target.files[0]; if (!f) return; f.arrayBuffer().then(buf => loadArrayBuffer(buf, f.name)); };
+document.getElementById('face').onclick = () => { if (model) setFacing(inner.rotation.y ? 0 : Math.PI); };
+document.getElementById('toggle').onclick = () => document.getElementById('ui').classList.toggle('hidden');
+document.getElementById('flash').onclick = e => { flashlight.intensity = flashlight.intensity ? 0 : 80; e.target.classList.toggle('on', !!flashlight.intensity); };
+document.getElementById('stage').onclick = e => { stageLight.intensity = stageLight.intensity ? 0 : 60; e.target.classList.toggle('on', !!stageLight.intensity); };
+document.getElementById('stage').classList.add('on');
+const param = new URLSearchParams(location.search).get('model');
+if (param) fetch(param).then(r => r.arrayBuffer()).then(buf => loadArrayBuffer(buf, param.split('/').pop())).catch(e => info('Nepodařilo se načíst ' + param));
+
+// ---------- smyčka ----------
+const clock = new THREE.Clock();
+const shake = new THREE.Vector3();
+renderer.setAnimationLoop(() => {
+  const dt = Math.min(.05, clock.getDelta()); animT += dt;
+  camera.position.sub(shake); shake.set(0, 0, 0);
+  controls.update();
+  flashlight.position.copy(camera.position); flashlight.target.position.copy(controls.target);
+  redLight.intensity = 0; holder.position.set(0, 0, 0);
+  if (model) {
+    for (const [b, r] of rest) { b.quaternion.copy(r.q); b.position.copy(r.p); }
+    const a = ANIMS[current];
+    if (a.once && animT > a.once) play('idle');
+    else a.f(animT);
+    for (const [b, v] of manual) rotW(b, v[0], v[1], v[2]);
+  }
+  camera.position.add(shake);
+  renderer.render(scene, camera);
+});
+addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
+window.__rig = { camera, play, get rig() { return rig; } };
+</script>
+</body>
+</html>
