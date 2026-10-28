@@ -1,7 +1,8 @@
 # Night at Voxie's
 
 Hororová hra o nočním hlídači ve zrušené herně **Voxie's Fun Factory** (1997).
-Celá hra je v jednom souboru `www/index.html`, běží offline a bez knihoven.
+3D verze: `www/index.html` (three.js je přibalený v `www/lib`, běží offline). Původní 2D verze: `www/classic.html`.
+Vlastní animatronik: v menu „📂 Vlastní model .glb“ – model se uloží jen v zařízení (IndexedDB), do repozitáře ani APK se nepřibaluje.
 
 ## Hraní v prohlížeči
 Otevři `www/index.html` (na mobilu otoč na šířku).

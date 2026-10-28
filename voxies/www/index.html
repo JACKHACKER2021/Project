@@ -4,145 +4,483 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<title>Night at Voxie's</title>
+<title>Night at Voxie's 3D</title>
 <style>
   html, body { margin: 0; height: 100%; background: #000; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
-  canvas { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: block; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+  #hud { z-index: 2; }
   #rotate { display: none; position: fixed; inset: 0; background: #000; color: #ffb3f0; font: 22px 'Courier New', monospace; align-items: center; justify-content: center; text-align: center; padding: 24px; z-index: 5; }
   @media (orientation: portrait) and (max-width: 900px) { #rotate { display: flex; } }
+  #file { display: none; }
 </style>
 </head>
 <body>
-<canvas id="c"></canvas>
+<canvas id="gl"></canvas>
+<canvas id="hud"></canvas>
+<input id="file" type="file" accept=".glb">
 <div id="rotate">Otoč zařízení na šířku 📱↻</div>
-<script>
-'use strict';
+<script type="importmap">
+{ "imports": { "three": "./lib/three.module.js", "three/addons/": "./lib/addons/" } }
+</script>
+<script type="module">
 // ====================================================================
-//  NIGHT AT VOXIE'S – noční hlídač ve Voxie's Fun Factory
+//  NIGHT AT VOXIE'S 3D – noční hlídač ve Voxie's Fun Factory
 // ====================================================================
-const W = 1280, H = 720;
-const FONT = "'Courier New', 'Lucida Console', monospace";
-const HOUR = 70;                       // reálné sekundy na herní hodinu (6 h ≈ 7 min)
-const MOVE_INT = 5;                    // jak často dostane Voxie šanci se pohnout
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+const HOUR = 70, MOVE_INT = 5;
 const SPEED = +new URLSearchParams(location.search).get('speed') || 1;
-
-const cv = document.getElementById('c');
-const ctx = cv.getContext('2d');
-let K = 1;
-
-function resize() {
-  const s = Math.min(innerWidth / W, innerHeight / H);
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  cv.style.width = W * s + 'px';
-  cv.style.height = H * s + 'px';
-  cv.width = Math.round(W * s * dpr);
-  cv.height = Math.round(H * s * dpr);
-  K = cv.width / W;
-}
-addEventListener('resize', resize);
-resize();
-
-// ---------- úložiště ----------
-function load(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }
-function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
-
-// ---------- pomocné ----------
+const FONT = "'Courier New', 'Lucida Console', monospace";
 const rand = (a, b) => a + Math.random() * (b - a);
 const pick = a => a[Math.floor(Math.random() * a.length)];
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
-
-function shade(hex, f) {
-  const n = parseInt(hex.slice(1), 16);
-  let r = n >> 16, g = (n >> 8) & 255, b = n & 255;
-  if (f < 0) { r *= 1 + f; g *= 1 + f; b *= 1 + f; }
-  else { r += (255 - r) * f; g += (255 - g) * f; b += (255 - b) * f; }
-  return `rgb(${r | 0},${g | 0},${b | 0})`;
-}
-function poly(p, fill) {
-  ctx.beginPath(); ctx.moveTo(p[0], p[1]);
-  for (let i = 2; i < p.length; i += 2) ctx.lineTo(p[i], p[i + 1]);
-  ctx.closePath();
-  if (fill) { ctx.fillStyle = fill; ctx.fill(); }
-}
-function rr(x, y, w, h, r) {
-  ctx.beginPath(); ctx.moveTo(x + r, y);
-  ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
-  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
-}
-function rect(x, y, w, h, c) { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); }
-function txt(s, x, y, size, col, align = 'left', weight = 'bold') {
-  ctx.font = `${weight} ${size}px ${FONT}`; ctx.fillStyle = col; ctx.textAlign = align; ctx.textBaseline = 'alphabetic';
-  ctx.fillText(s, x, y);
-}
-function neon(s, x, y, size, col, blur = 18, align = 'center') {
-  ctx.save(); ctx.shadowColor = col; ctx.shadowBlur = blur; txt(s, x, y, size, col, align); txt(s, x, y, size, '#ffffff', align); ctx.globalAlpha = .55; txt(s, x, y, size, col, align); ctx.restore();
-}
-function wrap(s, maxW, size) {
-  ctx.font = `bold ${size}px ${FONT}`;
-  const words = s.split(' '), lines = []; let line = '';
-  for (const w of words) { const t = line ? line + ' ' + w : w; if (ctx.measureText(t).width > maxW && line) { lines.push(line); line = w; } else line = t; }
-  if (line) lines.push(line);
-  return lines;
-}
-// kostka – přední stěna x,y,w,h, hloubka d šikmo nahoru doprava
-function cube(x, y, w, h, d, col, grid) {
-  const dx = d * .7, dy = d * .5;
-  poly([x, y, x + w, y, x + w + dx, y - dy, x + dx, y - dy], shade(col, .22));
-  poly([x + w, y, x + w + dx, y - dy, x + w + dx, y + h - dy, x + w, y + h], shade(col, -.38));
-  ctx.fillStyle = col; ctx.fillRect(x, y, w, h);
-  if (grid) {
-    ctx.strokeStyle = 'rgba(0,0,0,.16)'; ctx.lineWidth = 1; ctx.beginPath();
-    for (let gx = x + grid; gx < x + w - 1; gx += grid) { ctx.moveTo(gx, y); ctx.lineTo(gx, y + h); }
-    for (let gy = y + grid; gy < y + h - 1; gy += grid) { ctx.moveTo(x, gy); ctx.lineTo(x + w, gy); }
-    ctx.stroke();
-  }
-}
-function floorGrid(bx0, bx1, by, fx0, fx1, fy, M, N, c1, c2) {
-  const P = (i, j) => { const t = Math.pow(j / N, 1.6); const xb = bx0 + (bx1 - bx0) * i / M, xf = fx0 + (fx1 - fx0) * i / M; return [xb + (xf - xb) * t, by + (fy - by) * t]; };
-  for (let j = 0; j < N; j++) for (let i = 0; i < M; i++) {
-    const a = P(i, j), b = P(i + 1, j), c = P(i + 1, j + 1), d = P(i, j + 1);
-    poly([a[0], a[1], b[0], b[1], c[0], c[1], d[0], d[1]], (i + j) % 2 ? c1 : c2);
-  }
-}
-function vignette(a, cx = W / 2, cy = H / 2, r0 = 200, r1 = 820) {
-  const g = ctx.createRadialGradient(cx, cy, r0, cx, cy, r1);
-  g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, `rgba(0,0,0,${a})`);
-  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-}
-
-// ---------- šum a scanlines ----------
-const noiseFrames = [];
-for (let f = 0; f < 5; f++) {
-  const c = document.createElement('canvas'); c.width = 320; c.height = 180;
-  const x = c.getContext('2d'), id = x.createImageData(320, 180);
-  for (let i = 0; i < id.data.length; i += 4) { const v = Math.random() * 255; id.data[i] = id.data[i + 1] = id.data[i + 2] = v; id.data[i + 3] = 255; }
-  x.putImageData(id, 0, 0); noiseFrames.push(c);
-}
-const scan = document.createElement('canvas'); scan.width = 4; scan.height = 4;
-{ const x = scan.getContext('2d'); x.fillStyle = 'rgba(0,0,0,.35)'; x.fillRect(0, 0, 4, 1); x.fillRect(0, 2, 4, 1); }
-let scanPat = null;
-function noise(a) { if (a <= 0) return; ctx.save(); ctx.globalAlpha = Math.min(1, a); ctx.imageSmoothingEnabled = false; ctx.drawImage(noiseFrames[(Math.random() * 5) | 0], 0, 0, W, H); ctx.restore(); }
-function scanlines() { if (!scanPat) scanPat = ctx.createPattern(scan, 'repeat'); ctx.fillStyle = scanPat; ctx.fillRect(0, 0, W, H); }
+const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+function load(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }
+function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function idb() { return new Promise((res, rej) => { const r = indexedDB.open('voxies', 1); r.onupgradeneeded = () => r.result.createObjectStore('kv'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); }
+async function idbGet(k) { try { const db = await idb(); return await new Promise(res => { const q = db.transaction('kv').objectStore('kv').get(k); q.onsuccess = () => res(q.result); q.onerror = () => res(null); }); } catch (e) { return null; } }
+async function idbSet(k, v) { try { const db = await idb(); db.transaction('kv', 'readwrite').objectStore('kv').put(v, k); } catch (e) {} }
 
 // ====================================================================
-//  ZVUK (vše syntetizované přes WebAudio, žádné soubory)
+//  RENDERER, SCÉNA
 // ====================================================================
-let AC = null, master = null, noiseBuf = null, ambient = null, buzz = null, musicBoxTimer = null;
+const glCanvas = document.getElementById('gl');
+const renderer = new THREE.WebGLRenderer({ canvas: glCanvas, antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x020104);
+scene.fog = new THREE.Fog(0x020104, 6, 30);
+
+const officeCam = new THREE.PerspectiveCamera(72, 16 / 9, .05, 80);
+const OFFICE_EYE = new THREE.Vector3(0, 1.35, 1.9);
+officeCam.position.copy(OFFICE_EYE);
+
+const hemi = new THREE.HemisphereLight(0x6a5aa0, 0x120a1c, .55); scene.add(hemi);
+const officeLamp = new THREE.PointLight(0xffd9a0, 9, 9, 1.4); officeLamp.position.set(0, 2.8, .4); scene.add(officeLamp);
+const roomLight = new THREE.PointLight(0xfff0d8, 18, 22, 1.2); scene.add(roomLight);
+function hallSpot(x) { const s = new THREE.SpotLight(0xffe7b0, 0, 14, .55, .5, 1); s.position.set(x, 2.9, 1.2); s.target.position.set(x, 0, -2.5); scene.add(s, s.target); return s; }
+const hallL = hallSpot(-5), hallR = hallSpot(5);
+const redLight = new THREE.PointLight(0xff1010, 0, 6, 1.2); scene.add(redLight);
+const doorGlow = new THREE.PointLight(0xa0c0ff, 0, 4, 1.5); doorGlow.position.set(-4.6, 1.9, 0); scene.add(doorGlow);
+
+// ---------- textury z canvasu ----------
+function canvasTex(w, h, draw, rep) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  if (rep) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rep[0], rep[1]); t.magFilter = THREE.NearestFilter; }
+  return t;
+}
+const checker = (a, b) => (x, w, h) => { const n = 8; for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) { x.fillStyle = (i + j) % 2 ? a : b; x.fillRect(i * w / n, j * h / n, w / n, h / n); } };
+const matCache = new Map();
+function mat(color, o = {}) {
+  const k = color + JSON.stringify(o);
+  if (!o.map && matCache.has(k)) return matCache.get(k);
+  const m = new THREE.MeshLambertMaterial({ color, ...o });
+  if (!o.map) matCache.set(k, m);
+  return m;
+}
+const glow = c => new THREE.MeshBasicMaterial({ color: c, fog: true });
+function box(w, h, d, m, x, y, z, parent = scene) { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); parent.add(b); return b; }
+function textPlane(text, w, h, color, opts = {}) {
+  const px = 128, cw = Math.round(px * w / h * 1.0) * 2, ch = px * 2;
+  const tex = canvasTex(cw, ch, (x, W, H) => {
+    if (opts.bg) { x.fillStyle = opts.bg; x.fillRect(0, 0, W, H); }
+    x.font = `bold ${opts.size || H * .55}px ${FONT}`; x.textAlign = 'center'; x.textBaseline = 'middle';
+    const lines = text.split('\n'), lh = (opts.size || H * .55) * 1.1;
+    lines.forEach((l, i) => {
+      const y = H / 2 + (i - (lines.length - 1) / 2) * lh;
+      if (opts.neon) { x.shadowColor = color; x.shadowBlur = 24; x.fillStyle = color; x.fillText(l, W / 2, y); x.shadowBlur = 8; x.fillStyle = '#fff'; x.fillText(l, W / 2, y); }
+      else { x.fillStyle = color; x.fillText(l, W / 2, y); }
+    });
+  });
+  const m = opts.lit ? new THREE.MeshLambertMaterial({ map: tex, transparent: !opts.bg }) : new THREE.MeshBasicMaterial({ map: tex, transparent: !opts.bg });
+  const p = new THREE.Mesh(new THREE.PlaneGeometry(w, h), m);
+  return p;
+}
+function place(o, x, y, z, ry = 0, parent = scene) { o.position.set(x, y, z); o.rotation.y = ry; parent.add(o); return o; }
+
+// ====================================================================
+//  BUDOVA
+// ====================================================================
+const H = 3.2;
+const ROOMS = {
+  '1A': { x0: -6, x1: 6, z0: -30, z1: -22, h: 4, wall: '#2a0f3a', f: ['#1a0c22', '#2a1736'], open: { s: [[-4, 4]] } },
+  '1B': { x0: -10, x1: 10, z0: -22, z1: -12, wall: '#141c44', f: ['#0c1020', '#1c2440'], open: { n: [[-4, 4]], w: [[-18, -14]], e: [[-18, -14]], s: [[-2, 2], [-6, -4], [4, 6]] } },
+  '2': { x0: -22, x1: -10, z0: -22, z1: -10, wall: '#4a2414', f: ['#2a0f0a', '#cfc6b4'], open: { e: [[-18, -14]], s: [[-18, -14]] } },
+  '3': { x0: 10, x1: 22, z0: -22, z1: -10, wall: '#123a32', f: ['#0a1a18', '#14302a'], open: { w: [[-18, -14]], s: [[14, 18]] } },
+  '5': { x0: -22, x1: -10, z0: -10, z1: -2, wall: '#44381a', f: ['#201a08', '#3a3010'], open: { n: [[-18, -14]], s: [[-18, -14]] } },
+  '4': { x0: 10, x1: 22, z0: -10, z1: -2, wall: '#26262c', f: ['#151518', '#222228'], open: { n: [[14, 18]], s: [[14, 18]] } },
+  '7': { x0: -22, x1: -10, z0: -2, z1: 6, wall: '#24243a', f: ['#141420', '#24243a'], open: { n: [[-18, -14]] } },
+  'X': { x0: 10, x1: 22, z0: -2, z1: 6, wall: '#151515', f: ['#0c0c0c', '#161616'], open: { n: [[14, 18]] } },
+  '6': { x0: -4, x1: 4, z0: -12, z1: -6, wall: '#2f5656', f: ['#cfe0e0', '#3a5a5a'], open: { n: [[-2, 2]] } },
+  '8': { x0: -6, x1: -4, z0: -12, z1: 1, wall: '#2e2040', f: ['#141018', '#2a2333'], open: { n: [[-6, -4]], e: [[-1, 1]] } },
+  '9': { x0: 4, x1: 6, z0: -12, z1: 1, wall: '#2e2040', f: ['#141018', '#2a2333'], open: { n: [[4, 6]], w: [[-1, 1]] } },
+  'OFF': { x0: -4, x1: 4, z0: -3, z1: 3, wall: '#2a1640', f: ['#1a1426', '#2c2340'], open: { w: [[-1, 1]], e: [[-1, 1]] } },
+};
+const DOOR_H = 2.5;
+function buildRoom(r) {
+  const h = r.h || H, w = r.x1 - r.x0, d = r.z1 - r.z0, cx = (r.x0 + r.x1) / 2, cz = (r.z0 + r.z1) / 2;
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(w, d), mat('#ffffff', { map: canvasTex(64, 64, checker(r.f[0], r.f[1]), [w / 2, d / 2]) }));
+  floor.rotation.x = -Math.PI / 2; floor.position.set(cx, 0, cz); scene.add(floor);
+  const ceil = new THREE.Mesh(new THREE.PlaneGeometry(w, d), mat('#0b0910')); ceil.rotation.x = Math.PI / 2; ceil.position.set(cx, h, cz); scene.add(ceil);
+  const wm = mat(r.wall), trim = mat(shadeHex(r.wall, .35));
+  const T = .1, inset = .05;
+  const edge = (side, a0, a1, fixed) => {
+    const ops = (r.open[side] || []).slice().sort((p, q) => p[0] - q[0]);
+    let cur = a0;
+    const seg = (s, e, y0, y1) => {
+      if (e - s < .01) return;
+      const len = e - s, mid = (s + e) / 2, hh = y1 - y0;
+      if (side === 'n' || side === 's') box(len, hh, T, wm, mid, y0 + hh / 2, fixed);
+      else box(T, hh, len, wm, fixed, y0 + hh / 2, mid);
+    };
+    for (const [s, e] of ops) { seg(cur, s, 0, h); seg(s, e, DOOR_H, h); cur = e; }
+    seg(cur, a1, 0, h);
+    // spodní lišta
+    const len = a1 - a0, mid = (a0 + a1) / 2;
+    if (side === 'n' || side === 's') box(len, .12, T * 1.4, trim, mid, .06, fixed); else box(T * 1.4, .12, len, trim, fixed, .06, mid);
+  };
+  edge('n', r.x0, r.x1, r.z0 + inset); edge('s', r.x0, r.x1, r.z1 - inset);
+  edge('w', r.z0, r.z1, r.x0 + inset); edge('e', r.z0, r.z1, r.x1 - inset);
+}
+function shadeHex(hex, f) { const c = new THREE.Color(hex); c.lerp(new THREE.Color(f > 0 ? '#ffffff' : '#000000'), Math.abs(f)); return '#' + c.getHexString(); }
+Object.values(ROOMS).forEach(buildRoom);
+
+// neonové pásy podél stěn místností
+function neonStrip(x0, z0, x1, z1, y, c) { const len = Math.hypot(x1 - x0, z1 - z0); const m = box(len, .05, .05, glow(c), (x0 + x1) / 2, y, (z0 + z1) / 2); m.rotation.y = -Math.atan2(z1 - z0, x1 - x0); return m; }
+
+// ---------- rekvizity ----------
+const animated = []; // {mesh, f(t)}
+const R = (s => () => { s = (s * 16807) % 2147483647; return s / 2147483647; })(1997);
+
+function arcade(x, z, ry, col) {
+  const g = new THREE.Group();
+  box(.8, 1.8, .7, mat('#15121e'), 0, .9, 0, g);
+  const scr = box(.6, .45, .02, glow(col), 0, 1.25, .36, g);
+  box(.7, .18, .05, glow(shadeHex(col, .3)), 0, 1.68, .34, g);
+  box(.7, .08, .35, mat('#2a2636'), 0, .95, .45, g);
+  box(.06, .12, .06, glow('#ff3b3b'), -.15, 1.05, .5, g);
+  place(g, x, 0, z, ry);
+  const base = new THREE.Color(col), ph = R() * 10;
+  animated.push(t => scr.material.color.copy(base).multiplyScalar(.6 + .4 * Math.sin(t * 2.3 + ph)));
+  scr.material = scr.material.clone();
+}
+function props() {
+  // --- 1A pódium ---
+  box(10, .6, 4, mat('#3a2650'), 0, .3, -28);
+  box(10, .06, .06, glow('#ff2bd6'), 0, .6, -26);
+  for (let i = 0; i < 8; i++) { box(.5, 3.8, .2, mat(i % 2 ? '#8a0f2a' : '#a8143a'), -5.6 + i * .25, 1.9, -29.7); box(.5, 3.8, .2, mat(i % 2 ? '#8a0f2a' : '#a8143a'), 5.6 - i * .25, 1.9, -29.7); }
+  for (let i = 0; i < 30; i++) box(.06, .06, .02, glow('#ffe46b'), rand(-3.5, 3.5), rand(1.5, 3.7), -29.85);
+  place(textPlane('VOXIE & PŘÁTELÉ', 5, .8, '#7ff4ff', { neon: true }), 0, 3.4, -29.8);
+  box(1.6, 1, .9, mat('#1d1d24'), 3.6, 1.1, -27.6);
+  place(textPlane('DJ REWIND\nMIMO PROVOZ', 1.4, .5, '#ff8a3b', { size: 44 }), 3.6, 1.2, -27.14);
+  // --- 1B herna ---
+  const cols = ['#ff2bd6', '#7ff4ff', '#ffe46b', '#7cff6b', '#ff8a3b'];
+  for (let i = 0; i < 7; i++) arcade(-7.5 + i * 2.5, -21.4, 0, cols[i % 5]);
+  for (let i = 0; i < 3; i++) { arcade(-9.4, -19.5 + i * 1.3 + (i > 1 ? 4 : 0), Math.PI / 2, cols[(i + 2) % 5]); arcade(9.4, -19.5 + i * 1.3 + (i > 1 ? 4 : 0), -Math.PI / 2, cols[(i + 3) % 5]); }
+  place(textPlane('HERNA', 3, .8, '#ffe46b', { neon: true }), 0, 2.7, -21.9);
+  neonStrip(-10, -21.9, 10, -21.9, 3.0, '#ff2bd6');
+  // --- 2 pizzerie ---
+  box(6, 1.1, .8, mat('#6a2a18'), -16, .55, -21.4);
+  place(textPlane('PIZZA', 3, .9, '#ff8a3b', { neon: true }), -16, 2.4, -21.9);
+  const cloth = mat('#ffffff', { map: canvasTex(64, 64, checker('#d6203a', '#eeeeee'), [3, 1]) });
+  for (const [x, z] of [[-19, -18], [-15, -18], [-19, -13], [-15, -13], [-12, -15.5]]) {
+    const t = new THREE.Mesh(new THREE.CylinderGeometry(.8, .8, .08, 20), cloth); t.position.set(x, .78, z); scene.add(t);
+    box(.1, .75, .1, mat('#333'), x, .38, z);
+    for (let k = 0; k < 3; k++) { const c = new THREE.Mesh(new THREE.ConeGeometry(.1, .3, 8), mat(cols[k])); c.position.set(x + Math.cos(k * 2.1) * .45, .97, z + Math.sin(k * 2.1) * .45); scene.add(c); }
+  }
+  // --- 3 bludiště ---
+  const tc = ['#ff3b3b', '#ffe46b', '#3bb2ff', '#7cff6b'];
+  for (let i = 0; i < 6; i++) { const t = new THREE.Mesh(new THREE.TorusGeometry(1.2 + (i % 2) * .4, .35, 10, 24), mat(tc[i % 4])); t.position.set(12.5 + (i % 3) * 3.5, 1.6 + Math.floor(i / 3) * 1.1, -20.5 + Math.floor(i / 3) * 3); t.rotation.y = i * .7; scene.add(t); }
+  const pit = new THREE.InstancedMesh(new THREE.SphereGeometry(.12, 8, 6), new THREE.MeshLambertMaterial(), 420);
+  const m4 = new THREE.Matrix4(), cl = new THREE.Color();
+  for (let i = 0; i < 420; i++) { m4.makeTranslation(rand(12, 21), rand(.1, .45), rand(-15, -11)); pit.setMatrixAt(i, m4); pit.setColorAt(i, cl.set(pick(['#ff3b3b', '#ffe46b', '#3bb2ff', '#7cff6b', '#ff2bd6']))); }
+  scene.add(pit);
+  place(textPlane('BLUDIŠTĚ', 3, .7, '#7cff6b', { neon: true }), 16, 2.8, -21.9);
+  // --- 4 sklad ---
+  for (let s = 0; s < 3; s++) { box(5, .06, .8, mat('#555'), 13.5, .6 + s * .9, -9.4); for (let i = 0; i < 6; i++) box(.6, .55, .6, mat(i % 2 ? '#7a5a3a' : '#6a4a2a'), 11.5 + i * .8, .9 + s * .9, -9.4); }
+  const cover = new THREE.Mesh(new THREE.SphereGeometry(1, 14, 10), mat('#4a4a52')); cover.scale.set(.8, 1.2, .7); cover.position.set(18.5, 1.1, -6); scene.add(cover);
+  place(textPlane('PROTOTYP\nNEZAPÍNAT!', 1.4, .6, '#111', { bg: '#ffe46b', lit: true, size: 50 }), 18.5, 1.3, -5.25);
+  // --- 5 výdej lístků ---
+  box(6, 1.1, .8, mat('#5a2a6a'), -16, .55, -5);
+  place(textPlane('VÝDEJ LÍSTKŮ', 3, .5, '#ffe46b', { neon: true }), -16, 1.8, -9.8);
+  for (let s = 0; s < 2; s++) for (let i = 0; i < 12; i++) box(.3, .3, .3, mat(pick(['#ff2bd6', '#ffe46b', '#7ff4ff', '#7cff6b', '#ff8a3b', '#b88cff'])), -20.5 + i * .4, 1.3 + s * .5, -9.6);
+  const tk = new THREE.Group(); box(1.2, 2.2, 1, mat('#1a3a6a'), 0, 1.1, 0, tk); box(1.3, .15, 1.1, mat('#111'), 0, 2.25, 0, tk); box(.8, .4, .6, mat('#111'), 0, 2.5, 0, tk);
+  const disp = box(.8, .3, .02, glow('#ff3b3b'), 0, 1.6, .51, tk); box(.4, .6, .1, mat('#888'), -.85, 1.2, .2, tk); box(.4, .6, .1, mat('#888'), .85, 1.2, .2, tk);
+  place(tk, -11.5, 0, -6.5, -Math.PI / 2);
+  disp.material = disp.material.clone(); animated.push(t => { disp.material.color.setScalar(0).r = .6 + .4 * Math.sin(t * 5); });
+  // --- 6 toalety ---
+  box(1.6, 2.2, .05, mat('#5a3a8a'), -2.2, 1.1, -11.8); box(1.6, 2.2, .05, mat('#8a3a5a'), 2.2, 1.1, -11.8);
+  place(textPlane('CHLAPCI', 1.2, .3, '#fff', {}), -2.2, 2.45, -11.85); place(textPlane('DÍVKY', 1.2, .3, '#fff', {}), 2.2, 2.45, -11.85);
+  box(1.6, 1, .03, mat('#9ab'), 0, 1.7, -11.9);
+  // --- 7 vchod ---
+  const glass = new THREE.Mesh(new THREE.PlaneGeometry(4, 2.4), new THREE.MeshBasicMaterial({ color: 0x0a1a30 })); place(glass, -16, 1.2, 5.9, Math.PI);
+  place(textPlane('ZAVŘENO', 1.6, .5, '#fff', { bg: '#b00000' }), -16, 1.6, 5.85, Math.PI);
+  box(2.4, 2.2, 1.4, mat('#3a2650'), -20.5, 1.1, 0);
+  place(textPlane('POKLADNA', 1.6, .4, '#7ff4ff', { neon: true }), -20.5, 2.5, .72);
+  // --- chodby 8, 9 ---
+  for (const x of [-5, 5]) {
+    for (let i = 0; i < 4; i++) {
+      const f = box(.8, .05, .2, glow('#fff3c4'), x, H - .03, -10 + i * 3);
+      if (i === 2) { f.material = f.material.clone(); animated.push(t => f.material.color.setScalar(Math.sin(t * 13) > .55 ? .15 : 1)); }
+    }
+    for (let i = 0; i < 3; i++) { const p = textPlane(pick(['BAV SE!', 'VOXIE\nTĚ VIDÍ', 'OSLAVY\nKAŽDÝ DEN', '1997']), .9, 1.2, '#ffe46b', { bg: pick(['#3b1d6e', '#14313d', '#4a1438']), lit: true, size: 46 }); place(p, x + (x < 0 ? -.94 : .94), 1.6, -10 + i * 3.5, x < 0 ? Math.PI / 2 : -Math.PI / 2); }
+  }
+  neonStrip(-5.95, -12, -5.95, 1, .15, '#ff2bd6'); neonStrip(5.95, -12, 5.95, 1, .15, '#00e5ff');
+}
+props();
+
+// ---------- kancelář ----------
+const office = {};
+(function buildOffice() {
+  place(textPlane('VOXIE\'S', 3.2, 1, '#ff2bd6', { neon: true }), 0, 2.55, -2.93);
+  office.sign = scene.children[scene.children.length - 1];
+  place(textPlane('FUN FACTORY', 2.2, .3, '#7ff4ff', { neon: true }), 0, 1.95, -2.93);
+  neonStrip(-4, -2.93, 4, -2.93, 1.7, '#00e5ff'); neonStrip(-4, -2.92, 4, -2.92, 1.6, '#ff2bd6');
+  // plakáty
+  const poster = (txt, bg, x) => place(textPlane(txt, 1.1, 1.5, '#ffe46b', { bg, lit: true, size: 44 }), x, 1.6, -2.93);
+  poster('BAV SE\nS VOXIEM!', '#3b1d6e', -2.6); poster('NAROZENINY\nU VOXIEHO', '#14213d', 2.6);
+  office.paperPos = [-1.3, 1.05, -2.92];
+  // stůl
+  box(3.4, .08, 1.2, mat('#5a4030'), 0, .78, .55); box(3.3, .74, .05, mat('#3b2a1e'), 0, .39, -.03);
+  box(.08, .74, 1.1, mat('#3b2a1e'), -1.65, .39, .55); box(.08, .74, 1.1, mat('#3b2a1e'), 1.65, .39, .55);
+  // CRT
+  box(.8, .6, .6, mat('#3a3a40'), 0, 1.12, .25);
+  office.crtTex = canvasTex(256, 192, () => {});
+  office.crt = new THREE.Mesh(new THREE.PlaneGeometry(.64, .46), new THREE.MeshBasicMaterial({ map: office.crtTex })); place(office.crt, 0, 1.13, .56);
+  // větrák
+  const fan = new THREE.Group(); box(.06, .4, .06, mat('#2a2a2a'), 0, .2, 0, fan); box(.3, .04, .3, mat('#222'), 0, .02, 0, fan);
+  const blades = new THREE.Group(); blades.position.set(0, .45, .05); fan.add(blades);
+  for (let i = 0; i < 3; i++) { const b = box(.08, .2, .01, mat('#aaaab4'), 0, .1, 0, blades); const p = new THREE.Group(); p.add(b); p.rotation.z = i * 2.094; blades.add(p); }
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(.24, .01, 6, 24), mat('#555')); ring.position.set(0, .45, .06); fan.add(ring);
+  place(fan, -1.0, .82, .45, .3); office.blades = blades;
+  // pizza, kelímek, telefon
+  box(.5, .07, .5, mat('#c9a46a'), .9, .86, .5);
+  const cup = new THREE.Mesh(new THREE.CylinderGeometry(.05, .04, .14, 12), mat('#eeeeee')); cup.position.set(-.55, .89, .75); scene.add(cup);
+  box(.3, .12, .2, mat('#202024'), 1.35, .88, .75);
+  office.phoneLed = box(.04, .04, .04, glow('#ff3030'), 1.45, .96, .78); office.phoneLed.material = office.phoneLed.material.clone();
+  // rolety dveří
+  const shut = x => { const g = new THREE.Group(); const sm = mat('#ffffff', { map: canvasTex(64, 64, (c, w, h) => { c.fillStyle = '#4b505b'; c.fillRect(0, 0, w, h); c.fillStyle = 'rgba(0,0,0,.35)'; for (let y = 0; y < h; y += 8) c.fillRect(0, y, w, 2); }, [1, 6]) });
+    box(.08, DOOR_H, 2.05, sm, 0, DOOR_H / 2, 0, g);
+    const hz = canvasTex(64, 16, (c, w, h) => { for (let i = 0; i < 8; i++) { c.fillStyle = i % 2 ? '#111' : '#e2b500'; c.beginPath(); c.moveTo(i * 8, 0); c.lineTo(i * 8 + 8, 0); c.lineTo(i * 8, h); c.lineTo(i * 8 - 8, h); c.fill(); } });
+    box(.1, .15, 2.06, mat('#ffffff', { map: hz }), 0, .08, 0, g);
+    g.position.set(x, DOOR_H, 0); scene.add(g); return g; };
+  office.shutL = shut(-4); office.shutR = shut(4);
+  // panely s tlačítky (svítí podle stavu)
+  const panel = x => { const s = x < 0 ? 1 : -1; box(.06, .7, .35, mat('#1d1726'), x + s * .03, 1.3, 1.6);
+    const d = box(.05, .14, .14, glow('#4a1414'), x + s * .07, 1.45, 1.6); d.material = d.material.clone();
+    const l = box(.05, .14, .14, glow('#3a3a3a'), x + s * .07, 1.15, 1.6); l.material = l.material.clone(); return { d, l }; };
+  office.panL = panel(-4); office.panR = panel(4);
+  // lampa
+  box(.6, .05, .6, glow('#fff3d0'), 0, H - .03, .4);
+})();
+function drawCRT() {
+  const c = office.crtTex.image, x = c.getContext('2d');
+  x.fillStyle = G && G.out ? '#010201' : '#0b2a14'; x.fillRect(0, 0, 256, 192);
+  if (G && !G.out) { x.fillStyle = '#5dff8a'; x.font = `bold 22px ${FONT}`; x.textAlign = 'center'; x.fillText('VOXIE-OS 2.0', 128, 50); x.fillText('NOC ' + G.night, 128, 90); x.fillText('PROUD ' + Math.max(0, Math.ceil(G.power)) + '%', 128, 130); x.fillText(Math.sin(performance.now() / 300) > 0 ? '_' : ' ', 128, 165); }
+  office.crtTex.needsUpdate = true;
+}
+const PAPER = [
+  'VOXIE\'S ZNOVU\nOTEVÍRÁ!', 'HERNA ZAVŘENA\nROKU 1997', 'NEHODA NA OSLAVĚ:\nSPIS UZAVŘEN', 'KDE JE PROTOTYP\n„GLITCH"?', 'SVĚDEK: MASKOT\nSE POHNUL SÁM',
+];
+let paperMesh = null;
+function setPaper(n) {
+  if (paperMesh) scene.remove(paperMesh);
+  paperMesh = textPlane(PAPER[n - 1] || PAPER[0], .7, .45, '#111', { bg: '#d8d2c0', lit: true, size: 30 });
+  place(paperMesh, ...office.paperPos); paperMesh.rotation.z = -.05;
+}
+
+// ====================================================================
+//  KAMERY A POZICE ANIMATRONIKA
+// ====================================================================
+const CAMS = {
+  '1A': { name: 'Pódium', pos: [5.2, 3.5, -22.6], look: [-1, 1.4, -27.5] },
+  '1B': { name: 'Herna s automaty', pos: [-9.3, 2.9, -12.6], look: [3, .9, -18] },
+  '2': { name: 'Pizzerie', pos: [-10.6, 2.9, -10.6], look: [-16, .7, -16] },
+  '3': { name: 'Trubkové bludiště', pos: [10.6, 2.9, -10.6], look: [17, .6, -17] },
+  '4': { name: 'Sklad', pos: [21.3, 2.9, -2.6], look: [15, .8, -7] },
+  '5': { name: 'Výdej lístků', pos: [-10.6, 2.9, -2.6], look: [-17, .9, -7] },
+  '6': { name: 'Toalety', pos: [3.4, 2.9, -6.5], look: [-1, .9, -10.5] },
+  '7': { name: 'Vchod', pos: [-10.6, 2.9, 5.4], look: [-16, 1.2, -.5] },
+  '8': { name: 'Levá chodba', pos: [-5, 2.85, .7], look: [-5, .9, -10] },
+  '9': { name: 'Pravá chodba', pos: [5, 2.85, .7], look: [5, .9, -10] },
+};
+const ROOM_OF = { '1A': '1A', '1B': '1B', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9' };
+for (const id in CAMS) {
+  const c = CAMS[id], cam = new THREE.PerspectiveCamera(68, 16 / 9, .05, 60);
+  cam.position.set(...c.pos); cam.lookAt(...c.look); c.cam = cam; c.baseQ = cam.quaternion.clone();
+  const r = ROOMS[ROOM_OF[id]]; c.light = [(r.x0 + r.x1) / 2, (r.h || H) - .4, (r.z0 + r.z1) / 2];
+}
+const SPOTS = {
+  '1A': { p: [-1.4, .6, -27.6], cam: '1A' }, '1B': { p: [3, 0, -17], cam: '1B' }, '2': { p: [-15, 0, -15.6], cam: '2' },
+  '6': { p: [1.2, 0, -9.2], cam: '6' }, '8': { p: [-5, 0, -6], cam: '8' }, 'DOOR': { p: [-5, 0, -.15], yaw: Math.PI / 2 },
+};
+const VOX_NEXT = { '1A': ['1B'], '1B': ['2', '2', '6'], '6': ['2'], '2': ['8'], '8': ['DOOR'] };
+
+// ====================================================================
+//  ANIMATRONIK (vestavěný Voxie nebo vlastní GLB)
+// ====================================================================
+const charRoot = new THREE.Group(); scene.add(charRoot);
+let charModel = null, rig = {}, rest = new Map(), charName = 'Voxie', eyeMats = [], side = { R: -1, L: 1 };
+function buildVoxie() {
+  const FUR = '#8a5a2b', DARK = '#5a3716', BELLY = '#d6a064';
+  const furTex = canvasTex(32, 32, (x, w, h) => { x.fillStyle = FUR; x.fillRect(0, 0, w, h); x.strokeStyle = 'rgba(0,0,0,.25)'; x.lineWidth = 2; x.strokeRect(1, 1, w - 2, h - 2); });
+  const fur = new THREE.MeshLambertMaterial({ map: furTex }), dark = mat(DARK), belly = mat(BELLY);
+  const g = new THREE.Group(); rig = {};
+  const node = (name, parent, x, y, z) => { const n = new THREE.Group(); n.name = name; n.position.set(x, y, z); parent.add(n); return n; };
+  const hips = node('hips', g, 0, .8, 0); rig.hips = hips;
+  for (const s of [-1, 1]) {
+    const k = s < 0 ? 'R' : 'L';
+    const l1 = node('leg' + k + '1', hips, s * .2, 0, 0); box(.26, .45, .3, fur, 0, -.22, 0, l1);
+    const l2 = node('leg' + k + '2', l1, 0, -.45, 0); box(.24, .32, .28, fur, 0, -.16, 0, l2); box(.3, .1, .4, dark, 0, -.3, .05, l2);
+    rig['leg' + k + '1'] = l1; rig['leg' + k + '2'] = l2;
+  }
+  const chest = node('chest', hips, 0, .05, 0); rig.chest = rig.spine = chest;
+  box(.8, .72, .55, fur, 0, .36, 0, chest); box(.52, .5, .02, belly, 0, .32, .28, chest);
+  box(.18, .14, .06, mat('#ff2bd6'), -.11, .68, .29, chest); box(.18, .14, .06, mat('#ff2bd6'), .11, .68, .29, chest);
+  for (const s of [-1, 1]) {
+    const k = s < 0 ? 'R' : 'L';
+    const a1 = node('arm' + k + '1', chest, s * .52, .64, 0); box(.22, .4, .24, fur, 0, -.2, 0, a1);
+    const a2 = node('arm' + k + '2', a1, 0, -.4, 0); box(.2, .34, .22, fur, 0, -.17, 0, a2); box(.22, .1, .24, dark, 0, -.34, 0, a2);
+    const a3 = node('arm' + k + '3', a2, 0, -.4, 0);
+    rig['arm' + k + '1'] = a1; rig['arm' + k + '2'] = a2; rig['arm' + k + '3'] = a3;
+  }
+  const head = node('head', chest, 0, .74, 0); rig.head = head;
+  box(.82, .64, .7, fur, 0, .32, 0, head); box(.38, .2, .2, belly, 0, .17, .38, head); box(.14, .09, .06, mat('#2a1608'), 0, .24, .48, head);
+  for (const s of [-1, 1]) {
+    const e = node('ear', head, s * .3, .64, 0); box(.22, .2, .14, fur, 0, .1, 0, e); box(.12, .1, .02, mat('#e88aa0'), 0, .1, .08, e);
+    rig[s < 0 ? 'earR1' : 'earL1'] = e;
+    box(.18, .16, .03, mat('#f2f2ea'), s * .19, .44, .355, head);
+  }
+  eyeMats = [];
+  for (const s of [-1, 1]) { const m = new THREE.MeshBasicMaterial({ color: 0x111111 }); eyeMats.push(m); box(.08, .08, .03, m, s * .19, .44, .37, head); }
+  g.traverse(o => { if (o.isMesh) o.frustumCulled = false; });
+  return g;
+}
+const NAME_RULES = {
+  hips: [/^Bone_?28$/, /hips/i, /pelvis/i], spine: [/Bone_?006/, /spine_?0?1?$/i], chest: [/Bone_?007/, /spine_?2|chest/i], head: [/Bone_?013/, /head$/i, /neck/i],
+  armR1: [/Bone_?009_?r/, /right_?arm$|rightarm$|upperarm_?r/i], armR2: [/Bone_?010_?r/, /right_?fore_?arm|forearm_?r/i], armR3: [/Bone_?011_?r/, /right_?hand$|hand_?r/i],
+  armL1: [/Bone_?009_?l/, /left_?arm$|leftarm$|upperarm_?l/i], armL2: [/Bone_?010_?l/, /left_?fore_?arm|forearm_?l/i], armL3: [/Bone_?011_?l/, /left_?hand$|hand_?l/i],
+  legR1: [/Bone_?002_?r/, /right_?up_?leg|thigh_?r/i], legR2: [/Bone_?003_?r/, /right_?leg$|calf_?r/i], legL1: [/Bone_?002_?l/, /left_?up_?leg|thigh_?l/i], legL2: [/Bone_?003_?l/, /left_?leg$|calf_?l/i],
+  earR1: [/Bone_?015_?r/], earL1: [/Bone_?015_?l/],
+};
+function setCharacter(obj, name) {
+  if (charModel) charRoot.remove(charModel);
+  charModel = obj; charName = name; rest.clear();
+  charRoot.position.set(0, 0, 0); charRoot.rotation.set(0, 0, 0);
+  if (obj.userData.gltf) {
+    eyeMats = [];
+    obj.traverse(o => { if (o.isMesh) { o.frustumCulled = false; [].concat(o.material).forEach(m => { m.transparent = false; m.depthWrite = true; m.alphaTest = .5; m.side = THREE.DoubleSide; m.needsUpdate = true; }); } });
+    const box3 = new THREE.Box3().setFromObject(obj), size = box3.getSize(new THREE.Vector3());
+    const s = 2.0 / size.y; obj.scale.setScalar(s);
+    obj.position.set(-(box3.min.x + box3.max.x) / 2 * s, -box3.min.y * s, -(box3.min.z + box3.max.z) / 2 * s);
+    const bones = []; obj.traverse(o => { if (o.isBone) bones.push(o); });
+    rig = {};
+    for (const role in NAME_RULES) for (const re of NAME_RULES[role]) { const b = bones.find(b => re.test(b.name)); if (b) { rig[role] = b; break; } }
+  }
+  charRoot.add(obj);
+  obj.traverse(o => { if (o.isBone || (o.isGroup && o !== obj)) rest.set(o, { q: o.quaternion.clone(), p: o.position.clone(), s: o.scale.clone() }); });
+  charRoot.updateMatrixWorld(true);
+  for (const k of ['R', 'L']) { const a = rig['arm' + k + '1']; if (a) { const p = charRoot.worldToLocal(a.getWorldPosition(new THREE.Vector3())); side[k] = Math.sign(p.x) || (k === 'R' ? -1 : 1); } }
+}
+function loadGLB(buf, name) {
+  return new Promise((res, rej) => new GLTFLoader().parse(buf, '', g => { g.scene.userData.gltf = true; res({ obj: g.scene, name }); }, rej));
+}
+function niceName(file) { const n = file.replace(/\.glb$/i, '').replace(/^[0-9a-f]{6,}-/i, ''); const w = n.split(/[_\- ]/)[0] || 'Animatronik'; return w.charAt(0).toUpperCase() + w.slice(1); }
+
+// ---------- pózy: směry v rámci postavy (+z = dopředu), nezávislé na riggu ----------
+const _v1 = new THREE.Vector3(), _v2 = new THREE.Vector3(), _pq = new THREE.Quaternion(), _q = new THREE.Quaternion(), _cq = new THREE.Quaternion(), _e = new THREE.Euler();
+function rotW(bone, x, y, z) {
+  if (!bone || (!x && !y && !z)) return;
+  bone.parent.updateWorldMatrix(true, false); bone.parent.getWorldQuaternion(_pq);
+  charRoot.getWorldQuaternion(_cq);
+  _q.setFromEuler(_e.set(x, y, z, 'YXZ')).premultiply(_cq).multiply(_cq.clone().invert());
+  bone.quaternion.premultiply(_pq.clone().invert().multiply(_q).multiply(_pq));
+}
+function aim(bone, tip, dir) {
+  if (!bone || !tip) return;
+  bone.updateWorldMatrix(true, true);
+  const cur = tip.getWorldPosition(_v2).sub(bone.getWorldPosition(_v1)).normalize();
+  charRoot.getWorldQuaternion(_cq);
+  const target = dir.clone().normalize().applyQuaternion(_cq);
+  _q.setFromUnitVectors(cur, target);
+  bone.parent.getWorldQuaternion(_pq);
+  bone.quaternion.premultiply(_pq.clone().invert().multiply(_q).multiply(_pq));
+}
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+const lerpV = (a, b, t) => a.clone().lerp(b, t);
+function arm(k, up, fore) { aim(rig['arm' + k + '1'], rig['arm' + k + '2'], up); aim(rig['arm' + k + '2'], rig['arm' + k + '3'], fore); }
+function armsDown(t, wave = 0) {
+  const r = side.R, l = side.L;
+  arm('L', V(l * .22, -1, .05), V(l * .12, -1, .2));
+  const upD = V(r * .22, -1, .05), foreD = V(r * .12, -1, .2);
+  if (!wave) { arm('R', upD, foreD); return; }
+  arm('R', lerpV(upD, V(r * .9, .3, .55), wave), lerpV(foreD, V(r * (.25 + Math.sin(t * 7) * .45), 1, .4), wave));
+}
+const C = { idle: 0, look: 0, waveAt: 4, lit: 0, twitch: [0, 0, 0], twitchNext: 0, scare: -1 };
+function poseCharacter(t, mode) {
+  for (const [b, r] of rest) { b.quaternion.copy(r.q); b.position.copy(r.p); b.scale.copy(r.s); }
+  if (!charModel) return;
+  if (mode === 'scare') {
+    const k = ease(clamp(C.scare / .12, 0, 1)), j = 1 - clamp((C.scare - .9) / .5, 0, 1), r = side.R, l = side.L;
+    arm('R', lerpV(V(r * .2, -1, .1), V(r * .35, .3, 1), k), lerpV(V(r * .1, -1, .2), V(r * .15, .45, 1), k));
+    arm('L', lerpV(V(l * .2, -1, .1), V(l * .35, .3, 1), k), lerpV(V(l * .1, -1, .2), V(l * .15, .45, 1), k));
+    rotW(rig.chest, .3 * k, 0, 0);
+    rotW(rig.head, (-.35 + rand(-.12, .12) * j) * k, rand(-.15, .15) * j, rand(-.25, .25) * j * k);
+    if (rig.head) rig.head.scale.setScalar(1 + .18 * k);
+    rotW(rig.earR1, rand(-.3, .3) * j, 0, 0); rotW(rig.earL1, rand(-.3, .3) * j, 0, 0);
+    return;
+  }
+  // klid: hlava (uši jdou s ní), občas zamává
+  let w = 0;
+  if (mode === 'idle' || mode === 'stage') {
+    if (t > C.waveAt + 2.6) C.waveAt = t + 8 + Math.random() * 8;
+    const kk = (t - C.waveAt) / 2.6; if (kk > 0 && kk < 1) w = ease(clamp(Math.min(kk, 1 - kk) * 4, 0, 1));
+  }
+  armsDown(t, w);
+  let yaw = Math.sin(t * .45) * .2 * (1 - w) + .15 * w, pitch = Math.sin(t * .7) * .04, roll = Math.sin(t * 3.5) * .08 * w;
+  // otočit hlavu ke kameře, která se na ni dívá
+  if (C.look > 0 && C.lookAt) {
+    const p = charRoot.worldToLocal(C.lookAt.clone());
+    const ly = clamp(Math.atan2(p.x, p.z), -1.1, 1.1), lp = clamp(-Math.atan2(p.y - 1.7, Math.hypot(p.x, p.z)), -.6, .6);
+    yaw += (ly - yaw) * C.look; pitch += (lp - pitch) * C.look; roll += .35 * C.look;
+  }
+  if (mode === 'door') { roll += .25 + Math.sin(t * .8) * .05; pitch += .1; }
+  if (C.lit > 2.3) { // rozzlobená – škube sebou
+    if (t > C.twitchNext) { C.twitchNext = t + .06 + Math.random() * .25; C.twitch = [rand(-.4, .4), rand(-.7, .7), rand(-.5, .5)]; }
+    pitch += C.twitch[0]; yaw += C.twitch[1]; roll += C.twitch[2];
+    const r = side.R; arm('R', V(r * .2, -.3, 1), V(r * .1, -.1, 1));
+  }
+  rotW(rig.chest, Math.sin(t * 1.6) * .02, 0, 0);
+  rotW(rig.head, pitch, yaw, roll);
+}
+function setSpot(id) {
+  const s = SPOTS[id];
+  charRoot.position.set(...s.p);
+  if (s.yaw != null) charRoot.rotation.y = s.yaw;
+  else { const c = CAMS[s.cam].pos; charRoot.rotation.y = Math.atan2(c[0] - s.p[0], c[2] - s.p[2]) + rand(-.3, .3); }
+}
+
+// ====================================================================
+//  ZVUK + HLAS
+// ====================================================================
+let AC = null, master = null, noiseBuf = null, ambient = null, buzz = null, musicBoxTimer = null, crush = null;
 function initAudio() {
   if (AC) { if (AC.state === 'suspended') AC.resume(); return; }
   try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
   master = AC.createGain(); master.gain.value = .85; master.connect(AC.destination);
   noiseBuf = AC.createBuffer(1, AC.sampleRate * 2, AC.sampleRate);
   const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  crush = AC.createWaveShaper(); const cv = new Float32Array(256); for (let i = 0; i < 256; i++) { const x = i / 128 - 1; cv[i] = Math.round(x * 6) / 6; } crush.curve = cv;
 }
 function panNode(p) { if (AC.createStereoPanner) { const n = AC.createStereoPanner(); n.pan.value = clamp(p, -1, 1); return n; } return AC.createGain(); }
-function out(node, pan) { const p = panNode(pan || 0); node.connect(p); p.connect(master); }
+function out(node, pan, dest) { const p = panNode(pan || 0); node.connect(p); p.connect(dest || master); }
 function tone(freq, type, dur, vol, pan = 0, when = 0, slideTo = 0) {
   if (!AC) return;
   const t = AC.currentTime + when, o = AC.createOscillator(), g = AC.createGain();
-  o.type = type; o.frequency.setValueAtTime(freq, t);
-  if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+  o.type = type; o.frequency.setValueAtTime(freq, t); if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
   g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
   o.connect(g); out(g, pan); o.start(t); o.stop(t + dur + .05);
 }
@@ -162,13 +500,7 @@ const SFX = {
   steps(pan, n, vol, gap = .48, fade = 0) { for (let i = 0; i < n; i++) setTimeout(() => SFX.step(pan, Math.max(.02, vol - fade * i)), i * gap * 1000); },
   knock(pan) { for (let i = 0; i < 3; i++) { tone(210, 'triangle', .14, .35, pan, i * .2); noiseHit(.08, .25, 1400, 'bandpass', pan, i * .2, 4); } },
   sting() { tone(110, 'sawtooth', 1.1, .12, -.6, 0, 104); tone(116.5, 'sawtooth', 1.1, .1, -.6); tone(55, 'square', 1.1, .08, -.6); },
-  growl() { tone(70, 'sawtooth', .8, .15, -.7, 0, 45); noiseHit(.8, .12, 300, 'lowpass', -.7); },
-  laugh(pan = 0) { for (let i = 0; i < 4; i++) { tone(330 - i * 18, 'square', .13, .045, pan, i * .2, 300 - i * 18); } },
-  scare() {
-    if (!AC) return;
-    noiseHit(1.3, .7, 1800, 'bandpass', 0, 0, .7);
-    tone(380, 'sawtooth', 1.2, .35, -.2, 0, 950); tone(395, 'sawtooth', 1.2, .35, .2, 0, 1000); tone(120, 'square', 1.2, .3, 0, 0, 60);
-  },
+  scare() { noiseHit(1.3, .7, 1800, 'bandpass', 0, 0, .7); tone(380, 'sawtooth', 1.2, .35, -.2, 0, 950); tone(395, 'sawtooth', 1.2, .35, .2, 0, 1000); tone(120, 'square', 1.2, .3, 0, 0, 60); },
   chime() { for (let i = 0; i < 6; i++) { tone(784, 'sine', 1.6, .22, 0, i * .85); tone(1568, 'sine', .8, .06, 0, i * .85); tone(392, 'triangle', 1.2, .08, 0, i * .85); } },
   ring() { for (let r = 0; r < 2; r++) for (let i = 0; i < 10; i++) { tone(440, 'square', .05, .03, .4, r * 1.4 + i * .06); tone(480, 'square', .05, .03, .4, r * 1.4 + i * .06); } },
   powerDown() { tone(240, 'sawtooth', 1.8, .2, 0, 0, 25); noiseHit(1.2, .2, 200); },
@@ -178,839 +510,519 @@ const SFX = {
 function startAmbient() {
   if (!AC || ambient) return;
   const g = AC.createGain(); g.gain.value = .0001; g.gain.exponentialRampToValueAtTime(1, AC.currentTime + 2); g.connect(master);
-  const h = AC.createOscillator(); h.type = 'sine'; h.frequency.value = 55;
-  const hg = AC.createGain(); hg.gain.value = .025; h.connect(hg); hg.connect(g); h.start();
-  const n = AC.createBufferSource(); n.buffer = noiseBuf; n.loop = true;
-  const f = AC.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 380;
+  const h = AC.createOscillator(); h.type = 'sine'; h.frequency.value = 55; const hg = AC.createGain(); hg.gain.value = .025; h.connect(hg); hg.connect(g); h.start();
+  const n = AC.createBufferSource(); n.buffer = noiseBuf; n.loop = true; const f = AC.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 380;
   const ng = AC.createGain(); ng.gain.value = .05; n.connect(f); f.connect(ng); ng.connect(g); n.start();
   ambient = { g, nodes: [h, n] };
 }
-function stopAmbient() {
-  if (!ambient) return;
-  const a = ambient; ambient = null;
-  a.g.gain.setValueAtTime(a.g.gain.value, AC.currentTime); a.g.gain.exponentialRampToValueAtTime(.0001, AC.currentTime + .3);
-  setTimeout(() => a.nodes.forEach(n => { try { n.stop(); } catch (e) {} }), 400);
-}
+function stopAmbient() { if (!ambient) return; const a = ambient; ambient = null; a.g.gain.setValueAtTime(a.g.gain.value, AC.currentTime); a.g.gain.exponentialRampToValueAtTime(.0001, AC.currentTime + .3); setTimeout(() => a.nodes.forEach(n => { try { n.stop(); } catch (e) {} }), 400); }
 function setBuzz(on, pan) {
   if (!AC) return;
   if (buzz) { const b = buzz; buzz = null; b.g.gain.setValueAtTime(b.g.gain.value, AC.currentTime); b.g.gain.exponentialRampToValueAtTime(.0001, AC.currentTime + .05); setTimeout(() => { try { b.o.stop(); } catch (e) {} }, 100); }
-  if (on) {
-    const o = AC.createOscillator(), f = AC.createBiquadFilter(), g = AC.createGain();
-    o.type = 'sawtooth'; o.frequency.value = 118; f.type = 'bandpass'; f.frequency.value = 900; f.Q.value = 2;
-    g.gain.value = .045; o.connect(f); f.connect(g); out(g, pan); o.start(); buzz = { o, g };
-  }
+  if (on) { const o = AC.createOscillator(), f = AC.createBiquadFilter(), g = AC.createGain(); o.type = 'sawtooth'; o.frequency.value = 118; f.type = 'bandpass'; f.frequency.value = 900; f.Q.value = 2; g.gain.value = .045; o.connect(f); f.connect(g); out(g, pan); o.start(); buzz = { o, g }; }
 }
-// vlastní melodie hrací skříňky
 const BOX = [12, 7, 9, 7, 4, 7, 2, 4, 5, 9, 12, 14, 12, 9, 7, -1, 12, 7, 9, 7, 4, 2, 0, 2, 4, 5, 4, 2, 0, -1, -1, -1];
-function startMusicBox() {
-  if (!AC || musicBoxTimer) return;
-  let i = 0;
-  musicBoxTimer = setInterval(() => {
-    const n = BOX[i++ % BOX.length];
-    if (n >= 0) { const f = 523.25 * Math.pow(2, n / 12); tone(f, 'triangle', .5, .09, -.8); tone(f * 2, 'sine', .25, .03, -.8); }
-  }, 290);
-}
+function startMusicBox() { if (!AC || musicBoxTimer) return; let i = 0; musicBoxTimer = setInterval(() => { const n = BOX[i++ % BOX.length]; if (n >= 0) { const f = 523.25 * Math.pow(2, n / 12); tone(f, 'triangle', .5, .09, -.8); tone(f * 2, 'sine', .25, .03, -.8); } }, 290); }
 function stopMusicBox() { clearInterval(musicBoxTimer); musicBoxTimer = null; }
 
-// ---------- hlas telefonu (jen když zařízení umí česky) ----------
-let csVoice = null;
-function findVoice() { try { const v = speechSynthesis.getVoices(); csVoice = v.find(x => /^cs/i.test(x.lang)) || null; } catch (e) {} }
-try { speechSynthesis.onvoiceschanged = findVoice; findVoice(); } catch (e) {}
-function speak(s) { if (!csVoice) return; try { const u = new SpeechSynthesisUtterance(s); u.voice = csVoice; u.lang = csVoice.lang; u.rate = 1.05; u.pitch = .8; u.volume = .9; speechSynthesis.speak(u); } catch (e) {} }
-function hush() { try { speechSynthesis.cancel(); } catch (e) {} }
+// ---------- vlastní hlas: slabiky podle samohlásek, formantové filtry ----------
+const FORMANTS = { a: [800, 1250], e: [500, 1850], i: [320, 2300], o: [500, 900], u: [350, 750], y: [320, 2300] };
+function voice(text, o = {}) {
+  // vrátí délku v sekundách
+  const base = o.pitch || 300, vol = o.vol == null ? .5 : o.vol, pan = o.pan || 0;
+  const clean = text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const syl = [];
+  for (const m of clean.matchAll(/([^aeiouy\s.,!?…]*)([aeiouy]+)|([.,!?…]+)/g)) { if (m[3]) syl.push({ pause: /[.!?…]/.test(m[3]) ? .32 : .16 }); else syl.push({ v: m[2][0], hard: /[kptcsšzřx]/.test(m[1] || '') }); }
+  if (!AC || vol <= 0) return syl.reduce((a, s) => a + (s.pause || .1), 0) + .2;
+  const dest = AC.createGain(); dest.gain.value = vol;
+  let chain = dest;
+  if (o.radio) { const hp = AC.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 500; const lp = AC.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2800; dest.connect(hp); hp.connect(lp); chain = lp; }
+  if (o.creep) { const c2 = AC.createGain(); chain.connect(crush); crush.connect(c2); chain = c2; }
+  out(chain, pan);
+  let t = AC.currentTime + .05, q = o.question || /\?\s*$/.test(text);
+  const n = syl.filter(s => !s.pause).length; let i = 0;
+  for (const s of syl) {
+    if (s.pause) { t += s.pause; continue; }
+    const dur = rand(.075, .12) * (o.slow || 1), prog = i++ / Math.max(1, n - 1);
+    let f0 = base * (1 + rand(-.08, .12)) * (q && prog > .75 ? 1.25 : 1) * (1 - prog * .12);
+    if (o.creep && Math.random() < .2) f0 *= .55;
+    const osc = AC.createOscillator(), osc2 = AC.createOscillator(); osc.type = 'sawtooth'; osc2.type = 'square';
+    osc.frequency.setValueAtTime(f0, t); osc.frequency.linearRampToValueAtTime(f0 * rand(.9, 1.08), t + dur);
+    osc2.frequency.setValueAtTime(f0 * 1.005, t);
+    const mix = AC.createGain(); mix.gain.value = .5; osc.connect(mix); osc2.connect(mix);
+    const env = AC.createGain(); env.gain.setValueAtTime(.0001, t); env.gain.exponentialRampToValueAtTime(1, t + .015); env.gain.setValueAtTime(1, t + dur * .6); env.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    const [F1, F2] = FORMANTS[s.v] || FORMANTS.a;
+    for (const [F, gg] of [[F1, 1], [F2, .6]]) { const bp = AC.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = F * (o.formant || 1); bp.Q.value = 6; const g = AC.createGain(); g.gain.value = gg; mix.connect(bp); bp.connect(g); g.connect(env); }
+    env.connect(dest);
+    if (s.hard) { const nb = AC.createBufferSource(); nb.buffer = noiseBuf; const nf = AC.createBiquadFilter(); nf.type = 'highpass'; nf.frequency.value = 3000; const ng = AC.createGain(); ng.gain.setValueAtTime(.25, t); ng.gain.exponentialRampToValueAtTime(.0001, t + .03); nb.connect(nf); nf.connect(ng); ng.connect(dest); nb.start(t, Math.random()); nb.stop(t + .04); }
+    osc.start(t); osc2.start(t); osc.stop(t + dur + .02); osc2.stop(t + dur + .02);
+    t += dur * .92;
+  }
+  return t - AC.currentTime + .2;
+}
 
 // ====================================================================
-//  OBSAH: noci, telefonáty, noviny
+//  OBSAH: hlášky
 // ====================================================================
-const VOX_LEVELS = [
-  [2, 2, 3, 4, 5, 5],
-  [5, 6, 6, 7, 8, 9],
-  [7, 8, 9, 10, 11, 12],
-  [10, 11, 12, 13, 14, 15],
-  [13, 14, 15, 17, 18, 20],
-];
-const DRAIN = [.095, .1, .105, .11, .115];
+const N = s => s.replace(/\{N\}/g, charName);
 const CALLS = [
-  [
-    'Haló? Haló, haló! Jestli tohle posloucháš, tak gratuluju k nové práci ve Voxie\'s Fun Factory.',
-    'Nahrál jsem ti pár rad. Já tu dělal noční směny... no, dřív. Než se to tu zavřelo.',
+  ['Haló? Haló, haló! Jestli tohle posloucháš, tak gratuluju k nové práci ve Voxie\'s Fun Factory.',
     'Animatronici mají v noci volný režim. Prý aby jim neztuhly klouby. Takže se trochu procházejí.',
-    'Hlavně Voxie. Ten velký medvěd z kostiček. Rád chodí levou chodbou až k tvým dveřím.',
-    'Když uslyšíš kroky vlevo, rozsviť světlo ve dveřích. Napočítej do dvou a zhasni. Světlo ho vyleká a odejde.',
-    'Ale nesviť na něj moc dlouho. Nemá rád, když se na něj někdo dívá. Fakt nemá. Když mu zčervenají oči, je pozdě.',
-    'Dveře ho zastaví taky, jenže žerou hodně proudu. A když dojde proud... no, prostě ať nedojde.',
-    'Kamery na tabletu ti ukážou, kde kdo je. Taky berou proud, tak je nenechávej běžet pořád.',
-    'V šest jdeš domů. Zvládneš to. Já to taky zvládal. Většinou. Dobrou noc!',
-  ],
-  [
-    'Haló? Tak jsi to přežil! Věděl jsem, že na to máš.',
-    'Dneska bude Voxie čilejší. Čím dál v týdnu, tím líp mu jdou nohy.',
-    'Pořád platí to samé: kroky vlevo, posvítit, napočítat do dvou, zhasnout.',
-    'Jo, a kdybys v trubkovém bludišti zaslechl škrábání... to je asi Pixel. Ta by měla být vypnutá.',
-    'Proč herna zavřela? No... v devadesát sedmém tu byla jedna narozeninová oslava. Ale o tom jindy.',
-    'Šetři proudem. Dobrou noc.',
-  ],
-  [
-    'Haló? Třetí noc. To už jsi tu skoro inventář.',
-    'Na pódiu stojí DJ Rewind. Kdysi hrál na každé oslavě. Teď je v opravě, aspoň podle papírů.',
-    'Voxie se tě dneska bude snažit unavit. Nepanikař a nedívej se na něj dlouho.',
-    'Po té oslavě nikdo neřekl, co se vlastně stalo. Jen že ten den se Voxie poprvé pohnul sám.',
-    'Hlavně vydrž do šesti.',
-  ],
-  [
-    'Haló... haló? Nevím, jestli mě slyšíš. Kamery dneska zlobí.',
+    'Hlavně {N}. Ráda chodí levou chodbou až k tvým dveřím. A ráda si povídá.',
+    'Když uslyšíš kroky vlevo, rozsviť světlo ve dveřích. Napočítej do dvou a zhasni. Světlo ji vyleká a odejde.',
+    'Ale nesviť na ni moc dlouho. Nemá ráda, když se na ni někdo dívá. Když se začne cukat, je pozdě.',
+    'Dveře ji zastaví taky, jenže žerou hodně proudu. A když dojde proud... no, prostě ať nedojde.',
+    'Kamery na tabletu ukážou, kde kdo je. Taky berou proud. V šest jdeš domů. Dobrou noc!'],
+  ['Haló? Tak jsi to přežil! Věděl jsem, že na to máš.',
+    'Dneska bude {N} čilejší. Čím dál v týdnu, tím líp jí jdou nohy.',
+    'Jestli na tebe bude mluvit, neodpovídej. Je to jen nahrávka. Asi.',
+    'Proč herna zavřela? No... v devadesát sedmém tu byla jedna narozeninová oslava. Ale o tom jindy.'],
+  ['Haló? Třetí noc. To už jsi tu skoro inventář.',
+    'Všiml sis, že se {N} dívá přímo do kamer? Ona ví, kde jsou.',
+    'Po té oslavě nikdo neřekl, co se vlastně stalo. Jen že ten den se maskot poprvé pohnul sám.',
+    'Hlavně vydrž do šesti.'],
+  ['Haló... haló? Nevím, jestli mě slyšíš. Kamery dneska zlobí.',
     'Ve skladu je něco, čemu se říkalo Glitch. Prototyp. Neměl by tu vůbec být.',
-    'Kdyby obraz začal šumět, přepni jinam. Nekoukej do šumu.',
-    'Voxie je dneska rychlý. Hodně rychlý. Měj prst na světle.',
-    'Zkusím ti zítra říct víc. Jestli tu zítra budu.',
-  ],
-  [
-    'Haló. Poslední noc, co? Pátek.',
+    '{N} je dneska rychlá. Hodně rychlá. Měj prst na světle.',
+    'Zkusím ti zítra říct víc. Jestli tu zítra budu.'],
+  ['Haló. Poslední noc, co? Pátek.',
     'Kapitán Ticket u výdeje pořád počítá lístky. Nikdo ho nezapnul. Počítá sám.',
-    'Tu oslavu v devadesát sedmém vedl Voxie. Teda... někdo v kostýmu Voxieho. Ten kostým se pak už nikdy nesundal.',
-    'Jestli dneska uvidíš, že mu v očích něco svítí, nedívej se. Prostě se nedívej.',
-    'Vydrž do šesti. Pak si vezmi výplatu a už se nevracej.',
-  ],
+    'Tu oslavu v devadesát sedmém vedl maskot. Teda... někdo v kostýmu. Ten kostým se pak už nikdy nesundal.',
+    'Vydrž do šesti. Pak si vezmi výplatu a už se nevracej.'],
 ];
-const PAPER = [
-  ['VOXIE\'S ZNOVU', 'OTEVÍRÁ!'],
-  ['HERNA ZAVŘENA', 'ROKU 1997'],
-  ['NEHODA NA OSLAVĚ:', 'SPIS UZAVŘEN'],
-  ['KDE JE PROTOTYP', '„GLITCH"?'],
-  ['SVĚDEK: MEDVĚD', 'SE POHNUL SÁM'],
-];
-const TIPS = [
-  'Posviť na Voxieho 1–3 sekundy a pak zhasni. Dlouhé zírání ho rozzuří.',
-  'Kroky zleva znamenají, že Voxie jde levou chodbou.',
-  'Zavřené dveře ho zastaví, ale proud mizí dvakrát rychleji.',
-  'Kamery nenechávej zapnuté pořád – berou proud.',
-  'Když je Voxie u dveří a ty koukáš do kamer, zaútočí, jakmile tablet sklopíš.',
-];
-const CAMS = {
-  '1A': 'Pódium', '1B': 'Herna s automaty', '2': 'Pizzerie', '3': 'Trubkové bludiště', '4': 'Sklad',
-  '5': 'Výdej lístků', '6': 'Toalety', '7': 'Vchod', '8': 'Levá chodba', '9': 'Pravá chodba',
+const LINES = {
+  start: ['Show začíná o půlnoci!', 'Jé, nový kamarád!', 'Hrajeme si na schovku?'],
+  hall: ['Hihi... slyším tě dýchat.', 'Už jdu, už jdu!', 'Kde jsi? Pojď si hrát.'],
+  door: ['Ťuk ťuk! Můžu dál?', 'Jsi tam? Vidím světlo pod dveřmi.', 'Otevři. Mám pro tebe dárek.'],
+  closed: ['Proč jsi zavřel? To není fér!', 'Nechceš si hrát? Dobře... zatím.'],
+  flash: ['Au! To světlo pálí...', 'Dobře, dobře. Přijdu pozdějc.', 'Nesviť na mě!'],
+  stare: ['Proč na mě pořád koukáš?', 'Přestaň zírat. PŘESTAŇ.'],
+  camera: ['Vidím tě taky.', 'Ahoj, kamero!', 'Taky se na tebe dívám.'],
+  dark: ['Tma... konečně.', 'Teď si zahrajeme po mém.'],
+  win: ['Zítra si zase pohrajeme.', 'Už jdeš? Tak zítra.'],
+  scare: ['MÁM TĚ!'],
 };
-const VOX_NEXT = { '1A': ['1B'], '1B': ['2', '2', '6'], '6': ['2'], '2': ['8'], '8': ['DOOR'] };
+const TIPS = ['Posviť na ni 1–3 sekundy a pak zhasni. Dlouhé zírání ji rozzuří.', 'Kroky a hlas zleva znamenají, že jde levou chodbou.', 'Zavřené dveře ji zastaví, ale proud mizí rychleji.', 'Kamery nenechávej zapnuté pořád – berou proud.', 'Když je u dveří a ty koukáš do kamer, zaútočí, jakmile tablet sklopíš.'];
+const VOX_LEVELS = [[2, 2, 3, 4, 5, 5], [5, 6, 6, 7, 8, 9], [7, 8, 9, 10, 11, 12], [10, 11, 12, 13, 14, 15], [13, 14, 15, 17, 18, 20]];
+const DRAIN = [.095, .1, .105, .11, .115];
 
 // ====================================================================
 //  STAV HRY
 // ====================================================================
-let scene = 'menu', sceneT = 0, G = null;
-let progress = load('voxies_night', 1);
-let beaten = load('voxies_beaten', false);
-let buttons = [], hoverBtn = null, mouse = { x: -1, y: -1 };
-
+let scene_ = 'menu', sceneT = 0, G = null;
+let progress = load('voxies_night', 1), beaten = load('voxies_beaten', false);
+let speech = null; // {who, text, t, dur, col}
+function say(kind, o = {}) {
+  if (!G) return;
+  if (speech && speech.who !== 'phone' && speech.t < speech.dur && !o.force) return;
+  const text = N(pick(LINES[kind]));
+  const v = G.vox, pos = v.pos;
+  let pan = 0, vol = .1, radio = false;
+  if (pos === 'DOOR') { pan = -.85; vol = .75; }
+  else if (pos === '8') { pan = -.6; vol = .35; }
+  if (G.cams && SPOTS[pos] && SPOTS[pos].cam === G.cam) { radio = true; vol = Math.max(vol, .55); pan = 0; }
+  if (o.vol != null) vol = o.vol;
+  const dur = voice(text, { pitch: charName === 'Voxie' ? 210 : 330, vol, pan, radio, creep: G.night >= 3 || o.creep, formant: charName === 'Voxie' ? .9 : 1.12 });
+  speech = { who: charName, text, t: 0, dur: Math.max(dur, 1.6), col: '#ff8bea', heard: vol > .2 };
+}
 function newGame(n) {
   G = {
-    night: n, t: 0, power: 100,
-    doorL: false, doorR: false, aL: 0, aR: 0, light: null, cams: false, camA: 0, cam: '1A', camStatic: 0,
-    vox: { pos: '1A', timer: 0, lit: 0, seen: false, warned: false, attack: false, attackT: 0, retreatT: 0 },
+    night: n, t: 0, power: 100, doorL: false, doorR: false, aL: 0, aR: 0, light: null, cams: false, camA: 0, cam: '1A', camStatic: 0,
+    vox: { pos: '1A', timer: 0, lit: 0, seen: false, warned: false, attack: false, attackT: 0, retreatT: 0, watchT: 0, spokeCam: false },
     out: false, outT: 0, outPhase: 0, outDur: [0, 0, 0],
-    call: { i: -1, t: 0, on: true, ring: 3.2, lines: CALLS[n - 1] || [] },
-    flick: 0, ambT: rand(12, 25), fanA: 0, killer: null,
+    call: { i: -1, t: 0, on: true, ring: 3.2, lines: CALLS[n - 1] || [], dur: 0 },
+    look: 0, lookV: 0, flick: 0, ambT: rand(12, 25), chatT: rand(25, 45), tip: null,
   };
-  scene = 'intro'; sceneT = 0;
+  speech = null; C.scare = -1; C.lit = 0; C.look = 0;
+  setSpot('1A'); setPaper(n);
+  scene_ = 'intro'; sceneT = 0;
 }
-function hourOf() { return Math.min(6, Math.floor(G.t / HOUR)); }
-function voxLevel() { return VOX_LEVELS[G.night - 1][Math.min(5, hourOf())]; }
-function usage() { return G.out ? 0 : 1 + (G.doorL ? 1 : 0) + (G.doorR ? 1 : 0) + (G.light ? 1 : 0) + (G.cams ? 1 : 0); }
-
-function toggleDoor(side) {
-  if (scene !== 'play' || G.out) return;
-  if (side === 'L') G.doorL = !G.doorL; else G.doorR = !G.doorR;
-  SFX.door(side === 'L' ? -.8 : .8);
-}
-function setLight(side) {
-  if (scene !== 'play' || G.out) return;
-  const prev = G.light;
-  G.light = (G.light === side || side == null) ? null : side;
+const hourOf = () => Math.min(6, Math.floor(G.t / HOUR));
+const voxLevel = () => VOX_LEVELS[G.night - 1][Math.min(5, hourOf())];
+const usage = () => G.out ? 0 : 1 + (G.doorL ? 1 : 0) + (G.doorR ? 1 : 0) + (G.light ? 1 : 0) + (G.cams ? 1 : 0);
+function toggleDoor(s) { if (scene_ !== 'play' || G.out) return; if (s === 'L') G.doorL = !G.doorL; else G.doorR = !G.doorR; SFX.door(s === 'L' ? -.8 : .8); }
+function setLight(s) {
+  if (scene_ !== 'play' || G.out) return;
+  const prev = G.light; G.light = (G.light === s || s == null) ? null : s;
   if (prev === 'L' && G.light !== 'L') checkFlash();
   if (G.light) SFX.click();
   setBuzz(!!G.light, G.light === 'L' ? -.8 : .8);
-  const v = G.vox;
-  if (G.light === 'L' && v.pos === 'DOOR' && !G.doorL && !v.seen) { v.seen = true; SFX.sting(); }
+  const v = G.vox; if (G.light === 'L' && v.pos === 'DOOR' && !G.doorL && !v.seen) { v.seen = true; SFX.sting(); }
 }
-function checkFlash() {
-  const v = G.vox;
-  if (v.pos === 'DOOR' && !v.attack && v.lit >= 1 && !G.doorL) v.retreatT = .45;
-}
-function toggleCams() {
-  if (scene !== 'play' || G.out) return;
-  if (!G.cams && G.light) setLight(null);
-  G.cams = !G.cams; SFX.tablet();
-  if (G.cams) G.camStatic = .5;
-}
-function selectCam(id) { if (G.cam !== id) { G.cam = id; G.camStatic = .45; SFX.cam(); } }
-function hangUp() { if (G && G.call.on) { G.call.on = false; hush(); SFX.click(); } }
-
+function checkFlash() { const v = G.vox; if (v.pos === 'DOOR' && !v.attack && v.lit >= 1 && !G.doorL) v.retreatT = .5; }
+function toggleCams() { if (scene_ !== 'play' || G.out) return; if (!G.cams && G.light) setLight(null); G.cams = !G.cams; SFX.tablet(); if (G.cams) G.camStatic = .5; }
+function selectCam(id) { if (G.cam !== id) { G.cam = id; G.camStatic = .45; SFX.cam(); G.vox.watchT = 0; } }
+function hangUp() { if (G && G.call.on) { G.call.on = false; if (speech && speech.who === 'phone') speech = null; SFX.click(); } }
 function voxMoveTo(np) {
-  const v = G.vox, old = v.pos;
-  v.pos = np;
-  if (G.cams && (G.cam === old || G.cam === np)) G.camStatic = 1.1;
-  if (old === '1A') SFX.laugh(0);
-  if (np === '8') SFX.steps(-.55, 3, .2);
-  if (np === 'DOOR') { SFX.steps(-.9, 4, .42, .42); v.lit = 0; v.seen = false; v.warned = false; }
+  const v = G.vox, old = v.pos; v.pos = np; setSpot(np); v.watchT = 0; v.spokeCam = false;
+  if (G.cams && (G.cam === old || (SPOTS[np].cam && SPOTS[np].cam === G.cam))) G.camStatic = 1.1;
+  if (np === '8') { SFX.steps(-.55, 3, .2); setTimeout(() => G && G.vox.pos === '8' && say('hall'), 1500); }
+  if (np === 'DOOR') { SFX.steps(-.9, 4, .42, .42); v.lit = 0; v.seen = false; v.warned = false; setTimeout(() => G && G.vox.pos === 'DOOR' && !G.doorL && say('door'), 2200); }
 }
 function voxRetreat(knock) {
   const v = G.vox;
-  if (knock) SFX.knock(-.9);
-  setTimeout(() => SFX.steps(-.8, 4, .3, .45, .06), knock ? 700 : 0);
-  v.pos = pick(['2', '1B']); v.lit = 0; v.timer = -2; v.retreatT = 0; v.seen = false;
+  if (knock) { SFX.knock(-.9); setTimeout(() => say('closed', { vol: .5 }), 700); } else say('flash', { force: true });
+  setTimeout(() => SFX.steps(-.8, 4, .3, .45, .06), knock ? 1600 : 900);
+  v.pos = pick(['2', '1B']); v.lit = 0; v.timer = -2; v.retreatT = 0; v.seen = false; C.lit = 0;
+  setTimeout(() => { if (G && G.vox.pos !== 'DOOR') setSpot(G.vox.pos); }, 50);
 }
 function voxUpdate(dt) {
   const v = G.vox;
-  if (v.attack) {
-    v.attackT += dt;
-    if (!G.cams || v.attackT > 3) { if (G.cams) G.cams = false; jumpscare(); }
-    return;
-  }
+  if (v.attack) { v.attackT += dt; if (!G.cams || v.attackT > 3) { G.cams = false; jumpscare(); } return; }
   if (v.retreatT > 0) { v.retreatT -= dt; if (v.retreatT <= 0) voxRetreat(false); return; }
   if (v.pos === 'DOOR' && G.light === 'L' && !G.doorL) {
     v.lit += dt;
-    if (v.lit > 2.3 && !v.warned) { v.warned = true; SFX.growl(); }
+    if (v.lit > 2.3 && !v.warned) { v.warned = true; say('stare', { force: true, creep: true }); }
     if (v.lit > 3.5) { v.attack = true; v.attackT = 0; setLight(null); return; }
   }
-  if (G.t < 20) return; // na začátku noci má hlídač chvilku klid
-  v.timer += dt;
-  if (v.timer < MOVE_INT) return;
-  v.timer -= MOVE_INT;
+  // sleduje kameru
+  const sp = SPOTS[v.pos];
+  if (G.cams && sp && sp.cam === G.cam && G.camA >= 1) { v.watchT += dt; if (v.watchT > 3.5 && !v.spokeCam) { v.spokeCam = true; say('camera'); } } else v.watchT = Math.max(0, v.watchT - dt * 2);
+  if (G.t < 20) return;
+  v.timer += dt; if (v.timer < MOVE_INT) return; v.timer -= MOVE_INT;
   if (Math.random() * 20 >= voxLevel()) return;
-  if (v.pos === 'DOOR') {
-    if (G.doorL) voxRetreat(true);
-    else if (G.light === 'L') { /* stojí a zírá */ }
-    else { v.attack = true; v.attackT = 0; }
-  } else voxMoveTo(pick(VOX_NEXT[v.pos]));
+  if (v.pos === 'DOOR') { if (G.doorL) voxRetreat(true); else if (G.light === 'L') {} else { v.attack = true; v.attackT = 0; } }
+  else voxMoveTo(pick(VOX_NEXT[v.pos]));
 }
 function powerOut() {
-  G.out = true; G.power = 0;
-  if (G.doorL || G.doorR) SFX.door(0);
-  G.doorL = G.doorR = false; G.light = null; G.cams = false; setBuzz(false);
-  stopAmbient(); SFX.powerDown(); hangUp();
-  G.outPhase = 0; G.outT = 0; G.outDur = [rand(3, 8), rand(6, 14), rand(2, 4)];
+  G.out = true; G.power = 0; if (G.doorL || G.doorR) SFX.door(0);
+  G.doorL = G.doorR = false; G.light = null; G.cams = false; setBuzz(false); stopAmbient(); SFX.powerDown(); hangUp();
+  G.outPhase = 0; G.outT = 0; G.outDur = [rand(3, 7), rand(6, 13), rand(2, 4)];
+  G.vox.pos = 'DOOR'; setSpot('DOOR');
 }
 function outUpdate(dt) {
-  G.outT += dt;
-  if (G.outT < G.outDur[G.outPhase]) return;
+  G.outT += dt; if (G.outT < G.outDur[G.outPhase]) return;
   G.outT = 0; G.outPhase++;
-  if (G.outPhase === 1) startMusicBox();
-  else if (G.outPhase === 2) stopMusicBox();
-  else jumpscare();
+  if (G.outPhase === 1) { startMusicBox(); setTimeout(() => say('dark', { force: true, vol: .6, creep: true }), 800); }
+  else if (G.outPhase === 2) stopMusicBox(); else jumpscare();
 }
 function jumpscare() {
-  if (scene !== 'play') return;
-  scene = 'scare'; sceneT = 0; setBuzz(false); stopMusicBox(); stopAmbient(); hush(); SFX.scare();
+  if (scene_ !== 'play') return;
+  scene_ = 'scare'; sceneT = 0; setBuzz(false); stopMusicBox(); stopAmbient(); SFX.scare();
+  voice(N(LINES.scare[0]), { pitch: 420, vol: .8, creep: true, slow: .8 });
+  C.scare = 0; G.cams = false; G.camA = 0;
   try { navigator.vibrate && navigator.vibrate([300, 80, 400]); } catch (e) {}
 }
 function win() {
-  scene = 'win'; sceneT = 0; setBuzz(false); stopMusicBox(); stopAmbient(); hush(); SFX.chime();
+  scene_ = 'win'; sceneT = 0; setBuzz(false); stopMusicBox(); stopAmbient(); SFX.chime();
+  setTimeout(() => voice(N(pick(LINES.win)), { pitch: charName === 'Voxie' ? 210 : 330, vol: .35, radio: true, creep: true }), 3500);
   if (G.night < 5) { progress = Math.max(progress, G.night + 1); save('voxies_night', progress); }
   else { beaten = true; save('voxies_beaten', true); progress = Math.max(progress, 5); save('voxies_night', progress); }
 }
-
 function update(dt) {
   sceneT += dt;
-  if (scene !== 'play') {
-    if (scene === 'intro' && sceneT > 3) { scene = 'play'; sceneT = 0; startAmbient(); }
-    if (scene === 'scare' && sceneT > 1.25) { scene = 'dead'; sceneT = 0; }
-    return;
-  }
+  if (speech) speech.t += dt;
+  if (scene_ === 'intro' && sceneT > 3) { scene_ = 'play'; sceneT = 0; startAmbient(); }
+  if (scene_ === 'scare') { C.scare += dt; if (sceneT > 1.4) { scene_ = 'dead'; sceneT = 0; } return; }
+  if (scene_ !== 'play') return;
   G.t += dt;
   if (G.t >= 6 * HOUR) { win(); return; }
-  G.aL += ((G.doorL ? 1 : 0) - G.aL) * Math.min(1, dt * 14);
-  G.aR += ((G.doorR ? 1 : 0) - G.aR) * Math.min(1, dt * 14);
+  G.aL += ((G.doorL ? 1 : 0) - G.aL) * Math.min(1, dt * 12); G.aR += ((G.doorR ? 1 : 0) - G.aR) * Math.min(1, dt * 12);
   G.camA = clamp(G.camA + (G.cams ? dt : -dt) * 5, 0, 1);
   G.camStatic = Math.max(0, G.camStatic - dt);
-  G.fanA += dt * 18;
-  G.flick = Math.random() < .015 ? rand(.05, .2) : Math.max(0, G.flick - dt);
+  G.look = clamp(G.look + G.lookV * dt, -1.15, 1.15);
+  G.flick = Math.random() < .012 ? rand(.05, .2) : Math.max(0, G.flick - dt);
   if (G.out) { outUpdate(dt); return; }
   G.power -= usage() * DRAIN[G.night - 1] * dt;
   if (G.power <= 0) { powerOut(); return; }
   voxUpdate(dt);
-  // telefon
   const c = G.call;
   if (c.on) {
-    if (c.ring > 0) { if (Math.floor(c.ring / 1.6) !== Math.floor((c.ring - dt) / 1.6) || c.ring === 3.2) SFX.ring(); c.ring -= dt; if (c.ring <= 0) { c.i = 0; c.t = 0; speak(c.lines[0]); } }
-    else {
-      c.t += dt;
-      const dur = Math.max(3.2, c.lines[c.i].length * .068);
-      if (c.t > dur) { c.i++; c.t = 0; if (c.i >= c.lines.length) c.on = false; else speak(c.lines[c.i]); }
-    }
+    if (c.ring > 0) { if (Math.floor(c.ring / 1.6) !== Math.floor((c.ring - dt) / 1.6) || c.ring === 3.2) SFX.ring(); c.ring -= dt; if (c.ring <= 0) { c.i = 0; c.t = 0; phoneLine(); } }
+    else { c.t += dt; if (c.t > c.dur) { c.i++; c.t = 0; if (c.i >= c.lines.length) c.on = false; else phoneLine(); } }
   }
-  // atmosféra
-  G.ambT -= dt;
-  if (G.ambT <= 0) { G.ambT = rand(15, 35); (Math.random() < .6 ? SFX.arcade : SFX.clank)(rand(-.7, .7)); }
+  G.ambT -= dt; if (G.ambT <= 0) { G.ambT = rand(15, 35); (Math.random() < .6 ? SFX.arcade : SFX.clank)(rand(-.7, .7)); }
+  G.chatT -= dt; if (G.chatT <= 0) { G.chatT = rand(40, 70); if (!G.call.on && ['1A', '1B', '2'].includes(G.vox.pos)) say('start', { vol: .12 }); }
+}
+function phoneLine() {
+  const c = G.call, text = N(c.lines[c.i]);
+  const d = voice(text, { pitch: 120, vol: .35, radio: true, formant: .85, pan: .3 });
+  c.dur = Math.max(3, d + .4);
+  speech = { who: 'phone', text, t: 0, dur: c.dur, col: '#fff7c9' };
 }
 
 // ====================================================================
-//  KRESLENÍ – VOXIE
+//  HUD (2D canvas přes 3D)
 // ====================================================================
-let lastEyes = null;
-function drawVoxie(cx, base, s, o = {}) {
-  const u = s * 10, d = u * 1.1, g = u;
-  const FUR = '#8a5a2b', DARK = '#5a3716', BELLY = '#d6a064', BOW = '#ff2bd6';
-  const B = (x0, y0, x1, y1, col, dd = d, grid = 0) => cube(cx + x0 * u, base + y0 * u, (x1 - x0) * u, (y1 - y0) * u, dd, col, grid);
-  const F = (x0, y0, x1, y1, col) => rect(cx + x0 * u, base + y0 * u, (x1 - x0) * u, (y1 - y0) * u, col);
-  // nohy
-  B(-3.4, -4, -.6, 0, FUR, d, g); B(.6, -4, 3.4, 0, FUR, d, g);
-  B(-3.8, -1.2, -.3, 0, DARK); B(.3, -1.2, 3.8, 0, DARK);
-  // tělo
-  B(-4, -12, 4, -4, FUR, d, g);
-  F(-2.6, -10.6, 2.6, -5, BELLY);
-  ctx.save(); ctx.globalAlpha = .55; txt('V', cx, base - 6.4 * u, 3.4 * u, '#7b3f9e', 'center'); ctx.restore();
-  // ruce
-  const ay = o.arms ? -3 : 0;
-  B(-6.3, -12 + ay, -4, -5 + ay, FUR, d, g); B(4, -12 + ay, 6.3, -5 + ay, FUR, d, g);
-  B(-6.3, -5.8 + ay, -4, -4.6 + ay, DARK); B(4, -5.8 + ay, 6.3, -4.6 + ay, DARK);
-  // motýlek
-  B(-2.2, -12.9, -.25, -11.3, BOW, u * .4); B(.25, -12.9, 2.2, -11.3, BOW, u * .4); B(-.6, -12.6, .6, -11.6, '#b0108f', u * .3);
-  // uši
-  B(-5.1, -23.2, -2.5, -20.6, FUR, d, g); B(2.5, -23.2, 5.1, -20.6, FUR, d, g);
-  F(-4.4, -22.5, -3.2, -21.2, '#e88aa0'); F(3.2, -22.5, 4.4, -21.2, '#e88aa0');
-  // hlava + čelist
-  const jo = (o.open || 0) * 2.8;
-  if (o.open) {
-    F(-3.6, -14.6, 3.6, -12.4 + jo, '#120606');
-    for (let i = 0; i < 6; i++) { F(-3.4 + i * 1.2, -14.6, -2.7 + i * 1.2, -13.8, '#f1ead2'); F(-3.4 + i * 1.2, -13.2 + jo, -2.7 + i * 1.2, -12.4 + jo, '#f1ead2'); }
-  }
-  B(-4.7, -12.4 - 2 + jo, 4.7, -12.4 + jo, FUR, d, g);   // čelist
-  B(-4.7, -21, 4.7, -14.6, FUR, d, g);                    // hlava
-  B(-2.3, -16.4, 2.3, -14.2, BELLY, u * .8);              // čumák
-  B(-.95, -16.6, .95, -15.5, '#2a1608', u * .4);          // nos
-  // oči
-  F(-3.5, -19.8, -1.3, -17.6, '#f2f2ea'); F(1.3, -19.8, 3.5, -17.6, '#f2f2ea');
-  const pc = o.red ? '#ff1a1a' : '#111';
-  const px = o.look || 0;
-  F(-2.9 + px, -19.2, -1.9 + px, -18.2, pc); F(1.9 + px, -19.2, 2.9 + px, -18.2, pc);
-  lastEyes = { l: [cx + (-2.4 + px) * u, base - 18.7 * u], r: [cx + (2.4 + px) * u, base - 18.7 * u], s: u, red: !!o.red };
-  return lastEyes;
+const hud = document.getElementById('hud'), hx = hud.getContext('2d');
+let HW = 1280; const HH = 720; let HK = 1;
+function resize() {
+  const w = innerWidth, h = innerHeight, dpr = Math.min(devicePixelRatio || 1, 2);
+  renderer.setSize(w, h, false);
+  HW = Math.max(960, HH * w / h); HK = h * dpr / HH;
+  hud.width = Math.round(w * dpr); hud.height = Math.round(h * dpr);
+  const a = w / h; officeCam.aspect = a; officeCam.updateProjectionMatrix();
+  for (const id in CAMS) { CAMS[id].cam.aspect = a; CAMS[id].cam.updateProjectionMatrix(); }
 }
-function glowEyes(e, col = '#ffffff', a = 1) {
-  if (!e) return;
-  ctx.save(); ctx.globalAlpha = a; ctx.shadowColor = col; ctx.shadowBlur = e.s * 2.2; ctx.fillStyle = col;
-  const r = Math.max(2, e.s * .38);
-  ctx.fillRect(e.l[0] - r, e.l[1] - r, r * 2, r * 2); ctx.fillRect(e.r[0] - r, e.r[1] - r, r * 2, r * 2);
-  ctx.restore();
+addEventListener('resize', resize); resize();
+const noiseFrames = []; for (let f = 0; f < 5; f++) { const c = document.createElement('canvas'); c.width = 320; c.height = 180; const x = c.getContext('2d'), id = x.createImageData(320, 180); for (let i = 0; i < id.data.length; i += 4) { const v = Math.random() * 255; id.data[i] = id.data[i + 1] = id.data[i + 2] = v; id.data[i + 3] = 255; } x.putImageData(id, 0, 0); noiseFrames.push(c); }
+const scanC = document.createElement('canvas'); scanC.width = 4; scanC.height = 4; { const x = scanC.getContext('2d'); x.fillStyle = 'rgba(0,0,0,.35)'; x.fillRect(0, 0, 4, 1); x.fillRect(0, 2, 4, 1); }
+let scanPat = null;
+const ctx = hx;
+function rect(x, y, w, h, c) { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); }
+function rr(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+function txt(s, x, y, size, col, align = 'left') { ctx.font = `bold ${size}px ${FONT}`; ctx.fillStyle = col; ctx.textAlign = align; ctx.textBaseline = 'alphabetic'; ctx.fillText(s, x, y); }
+function neon(s, x, y, size, col, blur = 18, align = 'center') { ctx.save(); ctx.shadowColor = col; ctx.shadowBlur = blur; txt(s, x, y, size, col, align); txt(s, x, y, size, '#fff', align); ctx.globalAlpha = .55; txt(s, x, y, size, col, align); ctx.restore(); }
+function wrap(s, maxW, size) { ctx.font = `bold ${size}px ${FONT}`; const words = s.split(' '), lines = []; let line = ''; for (const w of words) { const t = line ? line + ' ' + w : w; if (ctx.measureText(t).width > maxW && line) { lines.push(line); line = w; } else line = t; } if (line) lines.push(line); return lines; }
+function noise(a) { if (a <= 0) return; ctx.save(); ctx.globalAlpha = Math.min(1, a); ctx.imageSmoothingEnabled = false; ctx.drawImage(noiseFrames[(Math.random() * 5) | 0], 0, 0, HW, HH); ctx.restore(); }
+function scanlines() { if (!scanPat) scanPat = ctx.createPattern(scanC, 'repeat'); ctx.fillStyle = scanPat; ctx.fillRect(0, 0, HW, HH); }
+function vignette(a) { const g = ctx.createRadialGradient(HW / 2, HH / 2, 200, HW / 2, HH / 2, HW * .65); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, `rgba(0,0,0,${a})`); ctx.fillStyle = g; ctx.fillRect(0, 0, HW, HH); }
+let buttons = [], hoverBtn = null;
+function addBtn(x, y, w, h, id, cb) { buttons.push({ x, y, w, h, id, cb }); }
+function bigBtn(x, y, w, h, label, id, cb, enabled = true, size = 22) {
+  const hov = hoverBtn === id && enabled;
+  rr(x, y, w, h, 12); ctx.fillStyle = enabled ? (hov ? '#ff2bd6' : 'rgba(255,43,214,.2)') : 'rgba(255,255,255,.05)'; ctx.fill();
+  ctx.lineWidth = 2; ctx.strokeStyle = enabled ? '#ff2bd6' : '#444'; ctx.stroke();
+  txt(label, x + w / 2, y + h / 2 + size * .36, size, enabled ? '#fff' : '#666', 'center');
+  if (enabled) addBtn(x, y, w, h, id, cb);
 }
-
-// ====================================================================
-//  KRESLENÍ – KANCELÁŘ
-// ====================================================================
-const DOOR_L = [40, 118, 240, 160, 240, 590, 40, 652];
-const DOOR_R = [1240, 118, 1040, 160, 1040, 590, 1240, 652];
-function doorway(P, side, closedA, lit) {
-  const v = G.vox, cx = side === 'L' ? 140 : 1140;
-  ctx.save(); poly(P); ctx.clip();
-  rect(0, 0, W, H, '#030205');
-  if (lit) {
-    const g = ctx.createRadialGradient(cx, 420, 20, cx, 420, 330);
-    g.addColorStop(0, '#6a5a36'); g.addColorStop(.6, '#2b2414'); g.addColorStop(1, '#070604');
-    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-    ctx.strokeStyle = 'rgba(0,0,0,.35)'; ctx.lineWidth = 3;
-    for (let i = 0; i < 6; i++) { const y = 470 + i * i * 6; ctx.beginPath(); ctx.moveTo(side === 'L' ? 40 : 1040, y); ctx.lineTo(side === 'L' ? 240 : 1240, y); ctx.stroke(); }
-    rect(cx - 40, 250, 80, 140, 'rgba(0,0,0,.35)'); // konec chodby
-    if (side === 'L' && v.pos === 'DOOR') {
-      drawVoxie(cx, 648, 2.0, { red: v.lit > 2.3 && Math.random() < .7, look: .3 });
-      if (v.lit > 2.3) glowEyes(lastEyes, '#ff2020', .6);
-    }
-  } else if (G.out && G.outPhase === 1 && side === 'L') {
-    // jen oči ve tmě a hrací skříňka
-    if (Math.random() < .75) glowEyes({ l: [120, 278], r: [168, 278], s: 20 }, '#fff6c0', .9);
-  }
-  // roleta
-  if (closedA > .01) {
-    const top = 100, h = 560 * closedA;
-    const g = ctx.createLinearGradient(0, top, 0, top + h);
-    g.addColorStop(0, '#3c3f47'); g.addColorStop(1, '#5b606b');
-    ctx.fillStyle = g; ctx.fillRect(0, top, W, h);
-    ctx.fillStyle = 'rgba(0,0,0,.35)';
-    for (let y = top + h; y > top; y -= 26) ctx.fillRect(0, y - 3, W, 3);
-    for (let x = 0; x < W; x += 36) { poly([x, top + h - 16, x + 18, top + h - 16, x + 6, top + h, x - 12, top + h], '#e2b500'); }
-    rect(0, top + h - 18, W, 2, '#111');
-  }
-  ctx.restore();
-  // rám
-  ctx.lineWidth = 10; ctx.strokeStyle = '#2b1f3a'; poly(P); ctx.stroke();
-  ctx.lineWidth = 2; ctx.strokeStyle = '#ff2bd655'; poly(P); ctx.stroke();
+function roundBtn(x, y, r, on, onCol, offCol, label, id, cb) {
+  ctx.save(); ctx.beginPath(); ctx.arc(x, y, r + 6, 0, 7); ctx.fillStyle = 'rgba(10,6,16,.75)'; ctx.fill();
+  ctx.beginPath(); ctx.arc(x, y, r, 0, 7); if (on) { ctx.shadowColor = onCol; ctx.shadowBlur = 25; } ctx.fillStyle = on ? onCol : offCol; ctx.fill(); ctx.restore();
+  txt(label, x, y + r + 22, 15, '#e8e0f0', 'center');
+  addBtn(x - r - 12, y - r - 12, r * 2 + 24, r * 2 + 40, id, cb);
 }
-function panelBtn(x, y, r, on, onCol, offCol, label, id, cb) {
-  ctx.save();
-  ctx.beginPath(); ctx.arc(x, y, r + 6, 0, 7); ctx.fillStyle = '#16121c'; ctx.fill();
-  ctx.beginPath(); ctx.arc(x, y, r, 0, 7);
-  if (on) { ctx.shadowColor = onCol; ctx.shadowBlur = 25; }
-  ctx.fillStyle = on ? onCol : offCol; ctx.fill(); ctx.shadowBlur = 0;
-  ctx.beginPath(); ctx.arc(x - r * .3, y - r * .3, r * .3, 0, 7); ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.fill();
-  ctx.restore();
-  txt(label, x, y + r + 24, 15, '#cfc6dd', 'center');
-  addBtn(x - r - 14, y - r - 14, r * 2 + 28, r * 2 + 44, id, cb);
-}
-function drawOffice() {
-  const dark = G.out;
-  // zeď
-  const g = ctx.createLinearGradient(0, 0, 0, 540);
-  g.addColorStop(0, '#120a20'); g.addColorStop(1, '#24133a');
-  ctx.fillStyle = g; ctx.fillRect(0, 0, W, 540);
-  // retro vzor na zdi
-  ctx.save(); ctx.globalAlpha = .12;
-  for (let x = 0; x < W; x += 64) for (let y = 30; y < 520; y += 64) { poly([x, y, x + 20, y + 30, x - 20, y + 30], (x / 64 + y / 64) % 2 ? '#00e5ff' : '#ff2bd6'); }
-  ctx.restore();
-  // neonový pás
-  ctx.save(); ctx.shadowColor = '#00e5ff'; ctx.shadowBlur = 18; rect(240, 362, 800, 5, '#7ff4ff'); ctx.shadowColor = '#ff2bd6'; rect(240, 376, 800, 3, '#ff8bea'); ctx.restore();
-  // podlaha
-  floorGrid(240, 1040, 540, -200, 1480, 720, 14, 6, '#1a1426', '#2c2340');
-  rect(0, 534, W, 8, '#0c0814');
-  // neon VOXIE'S
-  if (!dark && Math.random() > .02) neon('VOXIE\'S', 640, 105, 64, '#ff2bd6', 26);
-  else txt('VOXIE\'S', 640, 105, 64, '#3a1238', 'center');
-  txt('FUN FACTORY', 640, 140, 22, dark ? '#1a1a2a' : '#7ff4ff', 'center');
-  // plakát vlevo
-  rect(300, 170, 150, 200, '#f7d046'); rect(306, 176, 138, 188, '#3b1d6e');
-  ctx.save(); drawVoxie(375, 330, .55, {}); ctx.restore();
-  txt('BAV SE', 375, 200, 22, '#ffe46b', 'center'); txt('S VOXIEM!', 375, 356, 18, '#ffe46b', 'center');
-  // plakát vpravo
-  rect(830, 170, 150, 200, '#00c2d1'); rect(836, 176, 138, 188, '#14213d');
-  const bc = ['#ff2bd6', '#ffe46b', '#7ff4ff', '#7cff6b'];
-  for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.ellipse(865 + i * 28, 240 + (i % 2) * 18, 13, 17, 0, 0, 7); ctx.fillStyle = bc[i]; ctx.fill(); rect(864 + i * 28, 257 + (i % 2) * 18, 2, 60, '#ccc'); }
-  txt('NAROZENINY', 905, 205, 19, '#fff', 'center'); txt('U VOXIEHO', 905, 352, 19, '#ffe46b', 'center');
-  // noviny – mění se každou noc
-  ctx.save(); ctx.translate(560, 230); ctx.rotate(-.06);
-  rect(0, 0, 160, 110, '#d8d2c0'); rect(8, 8, 144, 4, '#333');
-  const pp = PAPER[G.night - 1] || PAPER[0];
-  txt(pp[0], 80, 32, 13, '#111', 'center'); txt(pp[1], 80, 48, 13, '#111', 'center');
-  for (let i = 0; i < 5; i++) rect(10, 60 + i * 9, i === 4 ? 80 : 140, 3, '#888');
-  ctx.restore();
-  // dveře
-  doorway(DOOR_L, 'L', G.aL, G.light === 'L' && !dark);
-  doorway(DOOR_R, 'R', G.aR, G.light === 'R' && !dark);
-  // stůl
-  poly([310, 540, 970, 540, 1060, 720, 220, 720], '#3b2a1e');
-  poly([310, 540, 970, 540, 980, 556, 300, 556], '#5a4030');
-  // CRT monitor
-  cube(540, 400, 190, 140, 50, '#3a3a40');
-  rect(556, 414, 158, 108, dark ? '#020302' : '#0b2a14');
-  if (!dark) { txt('VOXIE-OS 1.0', 635, 448, 16, '#5dff8a', 'center'); txt('NOC ' + G.night, 635, 474, 16, '#5dff8a', 'center'); txt(G.cams ? 'KAMERY ●' : '_', 635, 500, 16, '#5dff8a', 'center'); }
-  // větrák
-  const fx = 410, fy = 470;
-  rect(fx - 6, fy + 10, 12, 60, '#2a2a2a'); rect(fx - 40, fy + 66, 80, 10, '#222');
-  ctx.save(); ctx.translate(fx, fy); ctx.rotate(dark ? 0 : G.fanA);
-  for (let i = 0; i < 3; i++) { ctx.rotate(Math.PI * 2 / 3); ctx.beginPath(); ctx.ellipse(0, -24, 10, 24, 0, 0, 7); ctx.fillStyle = 'rgba(160,160,170,.8)'; ctx.fill(); }
-  ctx.restore();
-  ctx.beginPath(); ctx.arc(fx, fy, 48, 0, 7); ctx.strokeStyle = '#555'; ctx.lineWidth = 3; ctx.stroke();
-  // krabice od pizzy, kelímek, telefon, žetony
-  cube(760, 520, 140, 22, 40, '#c9a46a'); txt('PIZZA', 830, 538, 14, '#7a2a10', 'center');
-  cube(470, 505, 26, 36, 14, '#e8e8e8'); rect(470, 515, 26, 6, '#ff2bd6');
-  cube(890, 470, 70, 40, 22, '#202024');
-  const ringOn = G.call.on && !dark;
-  ctx.beginPath(); ctx.arc(945, 466, 6, 0, 7); ctx.fillStyle = ringOn && Math.sin(sceneT * 8) > 0 ? '#ff3030' : '#401010'; ctx.fill();
-  for (let i = 0; i < 5; i++) { ctx.beginPath(); ctx.ellipse(340 + i * 14, 600 + (i % 2) * 6, 9, 5, 0, 0, 7); ctx.fillStyle = '#d9b23a'; ctx.fill(); }
-  // panely s tlačítky
-  rect(256, 280, 74, 210, '#1d1726'); rect(950, 280, 74, 210, '#1d1726');
-  panelBtn(293, 330, 24, G.doorL, '#ff3b3b', '#4a1414', 'DVEŘE', 'doorL', () => toggleDoor('L'));
-  panelBtn(293, 420, 24, G.light === 'L', '#fff3c4', '#3a3a3a', 'SVĚTLO', 'lightL', () => setLight('L'));
-  panelBtn(987, 330, 24, G.doorR, '#ff3b3b', '#4a1414', 'DVEŘE', 'doorR', () => toggleDoor('R'));
-  panelBtn(987, 420, 24, G.light === 'R', '#fff3c4', '#3a3a3a', 'SVĚTLO', 'lightR', () => setLight('R'));
-  // světlo z dveří
-  if (G.light) {
-    const lx = G.light === 'L' ? 140 : 1140;
-    const lg = ctx.createRadialGradient(lx, 400, 50, lx, 400, 600);
-    lg.addColorStop(0, 'rgba(255,230,160,.18)'); lg.addColorStop(1, 'rgba(255,230,160,0)');
-    ctx.fillStyle = lg; ctx.fillRect(0, 0, W, H);
-  }
-  // tma
-  if (dark) {
-    ctx.fillStyle = 'rgba(0,0,0,.93)'; ctx.fillRect(0, 0, W, H);
-    if (G.outPhase === 1 && Math.random() < .75) glowEyes({ l: [120, 278], r: [168, 278], s: 20 }, '#fff6c0', .9);
-  } else {
-    vignette(.75, 640, 400, 250, 800);
-    if (G.flick > 0) { ctx.fillStyle = `rgba(0,0,0,${G.flick * 2.5})`; ctx.fillRect(0, 0, W, H); }
-  }
-}
-
-// ====================================================================
-//  KRESLENÍ – KAMERY (pokoje kreslené kódem)
-// ====================================================================
-const R = rng(1997);
-const BALLS = Array.from({ length: 140 }, () => [R() * 880 + 200, R() * 160 + 520, pick(['#ff3b3b', '#ffe46b', '#3bb2ff', '#7cff6b', '#ff2bd6'])]);
-const STARS = Array.from({ length: 26 }, () => [R() * 600 + 340, R() * 200 + 120, R() * 4 + 2]);
-const PLUSH = Array.from({ length: 24 }, () => pick(['#ff2bd6', '#ffe46b', '#7ff4ff', '#7cff6b', '#ff8a3b', '#b88cff']));
-const RAIN = Array.from({ length: 70 }, () => [R(), R()]);
-
-function box(o) {
-  const bx0 = o.bx0 || 200, bx1 = o.bx1 || 1080, by0 = o.by0 || 110, by1 = o.by1 || 460;
-  poly([0, 0, W, 0, bx1, by0, bx0, by0], o.ceil || '#0b0910');
-  poly([0, 0, bx0, by0, bx0, by1, 0, H], o.side || shade(o.wall, -.3));
-  poly([W, 0, bx1, by0, bx1, by1, W, H], o.side || shade(o.wall, -.3));
-  rect(bx0, by0, bx1 - bx0, by1 - by0, o.wall);
-  floorGrid(bx0, bx1, by1, 0, W, H, 12, 7, o.f1 || '#1a1424', o.f2 || '#2a2236');
-}
-function cabinet(x, y, w, h, col, t) {
-  cube(x, y, w, h, w * .35, '#15121e');
-  rect(x + w * .1, y + h * .05, w * .8, h * .1, col);
-  const sc = `hsl(${(t * 40 + x) % 360},80%,${45 + 15 * Math.sin(t * 3 + x)}%)`;
-  ctx.save(); ctx.shadowColor = sc; ctx.shadowBlur = 20; rect(x + w * .14, y + h * .2, w * .72, h * .28, sc); ctx.restore();
-  rect(x + w * .1, y + h * .55, w * .8, h * .08, '#2a2636');
-  ctx.beginPath(); ctx.arc(x + w * .35, y + h * .59, w * .06, 0, 7); ctx.fillStyle = '#ff3b3b'; ctx.fill();
-}
-function hall(side, t) {
-  const vx = 640, vy = 330;
-  poly([0, 0, W, 0, 760, 250, 520, 250], '#0d0b12');
-  poly([0, 0, 520, 250, 520, 420, 0, H], '#2a1d36');
-  poly([W, 0, 760, 250, 760, 420, W, H], '#24182e');
-  rect(520, 250, 240, 170, '#07060a');
-  floorGrid(520, 760, 420, 0, W, H, 8, 9, '#141018', '#2a2333');
-  // plakáty na stěnách
-  poly([110, 210, 260, 250, 260, 400, 110, 420], '#3b1d6e'); poly([120, 222, 250, 258, 250, 300, 120, 270], '#ffe46b');
-  poly([1170, 210, 1020, 250, 1020, 400, 1170, 420], '#14313d'); poly([1160, 300, 1030, 315, 1030, 330, 1160, 320], '#ff2bd6');
-  // stropní světla
-  for (let i = 0; i < 3; i++) {
-    const k = i / 3, y = 30 + k * 190, w = 220 * (1 - k * .8);
-    const on = !(i === 1 && Math.sin(t * 13) > .6);
-    ctx.save(); if (on) { ctx.shadowColor = '#fff3c4'; ctx.shadowBlur = 20; }
-    rect(640 - w / 2, y, w, 10 * (1 - k * .6), on ? '#fff3c4' : '#444'); ctx.restore();
-  }
-  txt(side === 'L' ? '← KANCELÁŘ' : 'KANCELÁŘ →', side === 'L' ? 300 : 980, 640, 22, '#ffffff44', 'center');
-}
-function drawRoom(id, t) {
-  const v = G ? G.vox : { pos: '1A' };
-  lastEyes = null;
-  let darkness = .55;
-  switch (id) {
-    case '1A': {
-      box({ wall: '#2a0f3a', f1: '#1a0c22', f2: '#2a1736' });
-      rect(200, 110, 880, 350, '#160828');
-      for (const s of STARS) { ctx.save(); ctx.shadowColor = '#ffe46b'; ctx.shadowBlur = 10; rect(s[0], s[1], s[2], s[2], '#ffe46b'); ctx.restore(); }
-      // opona
-      for (let i = 0; i < 6; i++) { rect(200 + i * 22, 110, 20, 350, i % 2 ? '#8a0f2a' : '#a8143a'); rect(1060 - i * 22, 110, 20, 350, i % 2 ? '#8a0f2a' : '#a8143a'); }
-      neon('VOXIE & PŘÁTELÉ', 640, 165, 34, '#7ff4ff', 16);
-      // pódium
-      cube(260, 430, 760, 60, 60, '#3a2650');
-      rect(260, 486, 760, 8, '#ff2bd6');
-      // DJ pult (mimo provoz)
-      cube(820, 360, 150, 70, 40, '#1d1d24'); ctx.beginPath(); ctx.arc(860, 362, 22, 0, 7); ctx.fillStyle = '#111'; ctx.fill(); ctx.beginPath(); ctx.arc(930, 362, 22, 0, 7); ctx.fill();
-      txt('DJ REWIND', 895, 405, 16, '#ff8a3b', 'center'); txt('MIMO PROVOZ', 895, 424, 12, '#ffffff88', 'center');
-      if (v.pos === '1A') drawVoxie(560, 432, 1.25, { look: Math.sin(t * .3) * .2 });
-      // reflektory
-      ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = .08;
-      poly([300, 0, 380, 0, 700, 470, 420, 470], '#ffe46b'); poly([980, 0, 900, 0, 580, 470, 860, 470], '#7ff4ff');
-      ctx.restore();
-      darkness = .45; break;
-    }
-    case '1B': {
-      box({ wall: '#0f1838', f1: '#0c1020', f2: '#1c2440' });
-      for (let i = 0; i < 6; i++) cabinet(250 + i * 135, 250, 95, 210, ['#ff2bd6', '#7ff4ff', '#ffe46b'][i % 3], t);
-      cabinet(30, 300, 150, 340, '#ff2bd6', t + 2); cabinet(1100, 300, 150, 340, '#7cff6b', t + 4);
-      neon('HERNA', 640, 200, 40, '#ffe46b', 18);
-      if (v.pos === '1B') drawVoxie(760, 600, 1.45, { look: -.2 });
-      darkness = .5; break;
-    }
-    case '2': {
-      box({ wall: '#3a1a10', f1: '#2a0f0a', f2: '#e8e0d0' });
-      cube(400, 300, 480, 160, 40, '#6a2a18');
-      neon('PIZZA', 640, 260, 54, '#ff8a3b', 20);
-      rect(420, 320, 440, 40, '#1a0a06'); txt('MENU: SÝROVÁ · SALÁM · VOXIE SPECIÁL', 640, 346, 14, '#ffe46b', 'center');
-      const tables = [[260, 560], [640, 610], [1020, 560]];
-      for (const [x, y] of tables) {
-        ctx.beginPath(); ctx.ellipse(x, y, 150, 45, 0, 0, 7); ctx.fillStyle = '#e8e8e8'; ctx.fill();
-        for (let k = 0; k < 8; k++) { ctx.beginPath(); ctx.ellipse(x - 120 + k * 34, y, 14, 30, 0, 0, 7); ctx.fillStyle = k % 2 ? '#d6203a' : '#e8e8e8'; ctx.fill(); }
-        for (let k = 0; k < 3; k++) poly([x - 80 + k * 80, y - 20, x - 66 + k * 80, y - 70, x - 52 + k * 80, y - 20], ['#ff2bd6', '#7ff4ff', '#ffe46b'][k]);
-      }
-      if (v.pos === '2') drawVoxie(470, 640, 1.6, { look: .3 });
-      darkness = .55; break;
-    }
-    case '3': {
-      box({ wall: '#10302a', f1: '#0a1a18', f2: '#14302a' });
-      const tubes = [['#ff3b3b', 330, 230, 90], ['#ffe46b', 520, 190, 70], ['#3bb2ff', 760, 250, 100], ['#7cff6b', 950, 200, 60]];
-      for (const [c, x, y, r] of tubes) { ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.lineWidth = 34; ctx.strokeStyle = c; ctx.stroke(); ctx.beginPath(); ctx.arc(x, y, r - 17, 0, 7); ctx.fillStyle = '#050505'; ctx.fill(); }
-      rect(250, 300, 780, 26, '#3bb2ff'); rect(420, 120, 26, 200, '#ff3b3b');
-      ctx.strokeStyle = 'rgba(255,255,255,.12)'; ctx.lineWidth = 2;
-      for (let x = 200; x < 1080; x += 30) { ctx.beginPath(); ctx.moveTo(x, 330); ctx.lineTo(x + 20, 460); ctx.stroke(); }
-      for (const b of BALLS) { ctx.beginPath(); ctx.arc(b[0], b[1], 14, 0, 7); ctx.fillStyle = b[2]; ctx.fill(); }
-      // jen záblesk očí v trubce (Pixel spí... snad)
-      if (G && G.night >= 2 && Math.sin(t * .7) > .97) glowEyes({ l: [745, 250], r: [775, 250], s: 6 }, '#7cff6b', .9);
-      txt('BLUDIŠTĚ', 640, 100, 30, '#7cff6b', 'center');
-      darkness = .6; break;
-    }
-    case '4': {
-      box({ wall: '#1e1e22', f1: '#151518', f2: '#1e1e22' });
-      for (let s = 0; s < 3; s++) { rect(220, 180 + s * 100, 300, 8, '#555'); for (let i = 0; i < 5; i++) cube(230 + i * 58, 140 + s * 100, 46, 40, 18, i % 2 ? '#7a5a3a' : '#6a4a2a'); }
-      // zakrytý tvar
-      ctx.beginPath(); ctx.moveTo(700, 460); ctx.quadraticCurveTo(690, 210, 830, 200); ctx.quadraticCurveTo(970, 210, 960, 460); ctx.closePath(); ctx.fillStyle = '#4a4a52'; ctx.fill();
-      ctx.strokeStyle = '#333'; ctx.lineWidth = 3; for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.moveTo(740 + i * 50, 240); ctx.lineTo(720 + i * 60, 455); ctx.stroke(); }
-      rect(730, 330, 200, 50, '#ffe46b'); txt('PROTOTYP', 830, 352, 18, '#111', 'center'); txt('NEZAPÍNAT!', 830, 372, 16, '#b00', 'center');
-      const bulb = Math.sin(t * 9) > .3;
-      ctx.save(); if (bulb) { ctx.shadowColor = '#fff3c4'; ctx.shadowBlur = 30; } ctx.beginPath(); ctx.arc(640, 130, 10, 0, 7); ctx.fillStyle = bulb ? '#fff3c4' : '#444'; ctx.fill(); ctx.restore();
-      txt('ZÁKAZ VSTUPU', 360, 440, 18, '#ff3b3b', 'center');
-      darkness = bulb ? .6 : .8; break;
-    }
-    case '5': {
-      box({ wall: '#3a3010', f1: '#201a08', f2: '#3a3010' });
-      for (let s = 0; s < 2; s++) for (let i = 0; i < 12; i++) cube(230 + i * 38, 210 + s * 70, 26, 26, 12, PLUSH[s * 12 + i]);
-      cube(220, 380, 480, 80, 40, '#5a2a6a'); txt('VÝDEJ LÍSTKŮ', 460, 430, 26, '#ffe46b', 'center');
-      // Kapitán Ticket
-      cube(800, 160, 180, 300, 60, '#1a3a6a');
-      rect(810, 140, 160, 22, '#111'); poly([800, 140, 990, 140, 950, 100, 840, 100], '#111'); rect(860, 112, 70, 10, '#ffe46b');
-      rect(830, 200, 120, 50, '#000'); txt(String(1997 + Math.floor(t) % 3).padStart(4, '0'), 890, 236, 30, '#ff3b3b', 'center');
-      rect(860, 300, 60, 14, '#000'); rect(880, 314, 20, 30 + 10 * Math.sin(t), '#ffb3d0');
-      cube(740, 300, 60, 18, 12, '#888'); cube(980, 300, 60, 18, 12, '#888');
-      txt('KAPITÁN TICKET', 890, 440, 16, '#7ff4ff', 'center');
-      darkness = .5; break;
-    }
-    case '6': {
-      box({ wall: '#2a4a4a', f1: '#d8e8e8', f2: '#3a5a5a' });
-      ctx.strokeStyle = 'rgba(0,0,0,.15)'; ctx.lineWidth = 1;
-      for (let x = 200; x < 1080; x += 30) { ctx.beginPath(); ctx.moveTo(x, 110); ctx.lineTo(x, 460); ctx.stroke(); }
-      for (let y = 110; y < 460; y += 30) { ctx.beginPath(); ctx.moveTo(200, y); ctx.lineTo(1080, y); ctx.stroke(); }
-      rect(280, 220, 160, 240, '#5a3a8a'); rect(840, 220, 160, 240, '#8a3a5a');
-      txt('CHLAPCI', 360, 205, 20, '#fff', 'center'); txt('DÍVKY', 920, 205, 20, '#fff', 'center');
-      rect(560, 180, 160, 110, '#9ab'); rect(566, 186, 148, 98, '#26343a');
-      if (v.pos === '6') drawVoxie(640, 600, 1.35, { look: 0 });
-      darkness = .55; break;
-    }
-    case '7': {
-      box({ wall: '#202030', f1: '#141420', f2: '#202030' });
-      rect(420, 150, 440, 310, '#334'); rect(430, 160, 205, 300, '#0a1420'); rect(645, 160, 205, 300, '#0a1420');
-      ctx.strokeStyle = 'rgba(160,190,255,.35)'; ctx.lineWidth = 2;
-      for (const r of RAIN) { const x = 430 + r[0] * 420, y = 160 + ((r[1] * 300 + t * 400) % 300); ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 4, y + 16); ctx.stroke(); }
-      rect(560, 260, 160, 50, '#b00'); txt('ZAVŘENO', 640, 295, 28, '#fff', 'center');
-      rect(500, 470, 280, 40, '#5a2a6a'); txt('VÍTEJ!', 640, 498, 22, '#ffe46b', 'center');
-      cube(230, 250, 140, 210, 40, '#3a2650'); txt('POKLADNA', 300, 300, 16, '#7ff4ff', 'center');
-      darkness = .6; break;
-    }
-    case '8': case '9': {
-      hall(id === '8' ? 'L' : 'R', t);
-      if (id === '8' && v.pos === '8') drawVoxie(640, 640, 1.7, { look: .2 });
-      darkness = .6; break;
-    }
-  }
-  // tma pokoje + svítící oči
-  const g = ctx.createRadialGradient(640, 360, 120, 640, 360, 760);
-  g.addColorStop(0, `rgba(0,0,0,${darkness * .35})`); g.addColorStop(1, `rgba(0,0,0,${Math.min(1, darkness + .3)})`);
-  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-  if (lastEyes) glowEyes(lastEyes, '#ffffff', .85);
-}
-
-// mapa budovy (souřadnice v rámci mapy)
-const MAP = {
-  '1A': [150, 5, 100, 36], '1B': [140, 55, 120, 46], '2': [15, 55, 110, 58], '3': [275, 55, 110, 58],
-  '5': [15, 130, 90, 40], '6': [150, 118, 100, 34], '4': [295, 130, 90, 40], '8': [112, 172, 44, 100],
-  '9': [244, 172, 44, 100], '7': [15, 190, 80, 40], 'X': [305, 190, 80, 40], 'TY': [165, 228, 70, 44],
-};
-const LINKS = [['1A', '1B'], ['1B', '2'], ['1B', '3'], ['2', '5'], ['3', '4'], ['1B', '6'], ['2', '8'], ['8', 'TY'], ['3', '9'], ['9', 'TY'], ['5', '7'], ['4', 'X']];
+const MAP = { '1A': [150, 5, 100, 36], '1B': [140, 55, 120, 46], '2': [15, 55, 110, 58], '3': [275, 55, 110, 58], '5': [15, 130, 90, 40], '6': [150, 118, 100, 34], '4': [295, 130, 90, 40], '8': [112, 172, 44, 100], '9': [244, 172, 44, 100], '7': [15, 190, 80, 40], 'X': [305, 190, 80, 40], 'TY': [165, 228, 70, 44] };
+const LINKS = [['1A', '1B'], ['1B', '2'], ['1B', '3'], ['2', '5'], ['3', '4'], ['1B', '6'], ['1B', '8'], ['8', 'TY'], ['1B', '9'], ['9', 'TY'], ['5', '7'], ['4', 'X']];
 function drawMap() {
-  const mx = 818, my = 366, sc = 1.1;
+  const sc = 1.1, mx = HW - 440 * sc + 10, my = 360;
   ctx.save(); ctx.translate(mx, my); ctx.scale(sc, sc);
-  rr(-10, -10, 410, 295, 10); ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fill();
+  rr(-10, -10, 410, 295, 10); ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fill();
   ctx.strokeStyle = 'rgba(255,255,255,.25)'; ctx.lineWidth = 6;
   for (const [a, b] of LINKS) { const A = MAP[a], B = MAP[b]; ctx.beginPath(); ctx.moveTo(A[0] + A[2] / 2, A[1] + A[3] / 2); ctx.lineTo(B[0] + B[2] / 2, B[1] + B[3] / 2); ctx.stroke(); }
   for (const id in MAP) {
     const [x, y, w, h] = MAP[id], sel = G.cam === id;
     rect(x, y, w, h, id === 'TY' ? '#3a2650' : id === 'X' ? '#222' : sel ? '#1f8a3a' : '#2a2a34');
     ctx.strokeStyle = sel ? '#7cff6b' : '#888'; ctx.lineWidth = 2; ctx.strokeRect(x, y, w, h);
-    txt(id === 'TY' ? 'TY' : id === 'X' ? '🔒' : 'CAM ' + id, x + w / 2, y + h / 2 + 6, id.length > 1 && id !== 'TY' ? 14 : 15, sel ? '#fff' : '#ccc', 'center');
+    txt(id === 'TY' ? 'TY' : id === 'X' ? '🔒' : 'CAM ' + id, x + w / 2, y + h / 2 + 6, 14, sel ? '#fff' : '#ccc', 'center');
     if (CAMS[id]) addBtn(mx + x * sc, my + y * sc, w * sc, h * sc, 'cam' + id, () => selectCam(id));
   }
   ctx.restore();
 }
-function drawCams(t) {
-  drawRoom(G.cam, t);
-  ctx.fillStyle = 'rgba(30,60,40,.12)'; ctx.fillRect(0, 0, W, H);
-  scanlines();
-  noise(.1 + G.camStatic * .9 + (Math.random() < .02 ? .2 : 0));
-  if (G.camStatic > .7) rect(0, 0, W, H, 'rgba(0,0,0,.6)');
-  vignette(.6);
-  ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 3;
-  for (const [x, y, dx, dy] of [[20, 20, 1, 1], [W - 20, 20, -1, 1], [20, H - 20, 1, -1], [W - 20, H - 20, -1, -1]]) { ctx.beginPath(); ctx.moveTo(x, y + 40 * dy); ctx.lineTo(x, y); ctx.lineTo(x + 40 * dx, y); ctx.stroke(); }
-  if (Math.sin(t * 4) > 0) { ctx.beginPath(); ctx.arc(46, 213, 9, 0, 7); ctx.fillStyle = '#ff2020'; ctx.fill(); }
-  txt('REC', 64, 220, 20, '#fff');
-  txt('CAM ' + G.cam, 30, 150, 34, '#fff'); txt(CAMS[G.cam], 30, 180, 22, '#cfe');
-  drawMap();
+function drawSpeech() {
+  if (!speech || speech.t > speech.dur) return;
+  if (speech.who !== 'phone' && !speech.heard) return;
+  const name = speech.who === 'phone' ? '☎ Bývalý hlídač' : speech.who, phone = speech.who === 'phone';
+  const bw = Math.min(720, HW - 560), bx = phone ? (G && G.cams ? 24 : HW / 2 - bw / 2) : HW / 2 - bw / 2;
+  const lines = wrap(speech.text, bw - 30, 20), bh = lines.length * 26 + 44;
+  const by = phone ? (G && G.cams ? 640 - bh : 642 - bh) : 92;
+  ctx.save(); ctx.globalAlpha = Math.min(1, (speech.dur - speech.t) * 3);
+  rr(bx, by, bw, bh, 10); ctx.fillStyle = 'rgba(0,0,0,.75)'; ctx.fill(); ctx.strokeStyle = speech.col + '88'; ctx.lineWidth = 2; ctx.stroke();
+  txt(name, bx + 16, by + 26, 17, speech.col);
+  lines.forEach((l, i) => txt(l, bx + bw / 2, by + 52 + i * 26, 20, '#fff', 'center'));
+  ctx.restore();
 }
-
-// ====================================================================
-//  HUD + TLAČÍTKA
-// ====================================================================
-function addBtn(x, y, w, h, id, cb) { buttons.push({ x, y, w, h, id, cb }); }
-function bigBtn(x, y, w, h, label, id, cb, enabled = true) {
-  const hov = hoverBtn === id && enabled;
-  rr(x, y, w, h, 12); ctx.fillStyle = enabled ? (hov ? '#ff2bd6' : 'rgba(255,43,214,.18)') : 'rgba(255,255,255,.05)'; ctx.fill();
-  ctx.lineWidth = 2; ctx.strokeStyle = enabled ? '#ff2bd6' : '#444'; ctx.stroke();
-  txt(label, x + w / 2, y + h / 2 + 8, 22, enabled ? '#fff' : '#666', 'center');
-  if (enabled) addBtn(x, y, w, h, id, cb);
-}
-function drawHUD() {
+function drawHUD(t) {
   const h = hourOf();
+  if (G.cams && G.camA >= 1) {
+    ctx.fillStyle = 'rgba(30,60,40,.12)'; ctx.fillRect(0, 0, HW, HH); scanlines();
+    noise(.1 + G.camStatic * .9 + (Math.random() < .02 ? .2 : 0)); if (G.camStatic > .7) rect(0, 0, HW, HH, 'rgba(0,0,0,.65)');
+    vignette(.6);
+    ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 3;
+    for (const [x, y, dx, dy] of [[20, 20, 1, 1], [HW - 20, 20, -1, 1], [20, HH - 20, 1, -1], [HW - 20, HH - 20, -1, -1]]) { ctx.beginPath(); ctx.moveTo(x, y + 40 * dy); ctx.lineTo(x, y); ctx.lineTo(x + 40 * dx, y); ctx.stroke(); }
+    if (Math.sin(t * 4) > 0) { ctx.beginPath(); ctx.arc(46, 213, 9, 0, 7); ctx.fillStyle = '#ff2020'; ctx.fill(); }
+    txt('REC', 64, 220, 20, '#fff'); txt('CAM ' + G.cam, 30, 150, 34, '#fff'); txt(CAMS[G.cam].name, 30, 180, 22, '#cfe');
+    drawMap();
+  } else if (!G.out) {
+    vignette(.55);
+    if (G.flick > 0) rect(0, 0, HW, HH, `rgba(0,0,0,${G.flick * 2.5})`);
+    // tlačítka dveří a světel – vždy na krajích obrazovky
+    roundBtn(70, 300, 30, G.doorL, '#ff3b3b', '#4a1414', 'DVEŘE', 'doorL', () => toggleDoor('L'));
+    roundBtn(70, 410, 30, G.light === 'L', '#fff3c4', '#3a3a3a', 'SVĚTLO', 'lightL', () => setLight('L'));
+    roundBtn(HW - 70, 300, 30, G.doorR, '#ff3b3b', '#4a1414', 'DVEŘE', 'doorR', () => toggleDoor('R'));
+    roundBtn(HW - 70, 410, 30, G.light === 'R', '#fff3c4', '#3a3a3a', 'SVĚTLO', 'lightR', () => setLight('R'));
+    // šipky rozhlížení
+    const arrow = (x, dir, id) => { rr(x, 300, 46, 120, 10); ctx.fillStyle = hoverBtn === id ? 'rgba(127,244,255,.3)' : 'rgba(127,244,255,.1)'; ctx.fill(); txt(dir < 0 ? '◀' : '▶', x + 23, 370, 26, '#bff', 'center'); addBtn(x, 300, 46, 120, id, () => { lookTarget = clamp((lookTarget ?? G.look) + dir * .95, -1.15, 1.15); }); };
+    arrow(130, 1, 'lookL'); arrow(HW - 176, -1, 'lookR');
+  } else rect(0, 0, HW, HH, 'rgba(0,0,0,.15)');
   txt('Noc ' + G.night, 24, 42, 26, '#fff');
-  txt((h === 0 ? '0' : h) + ':00', W - 24, 54, 46, '#fff', 'right');
+  txt((h === 0 ? '0' : h) + ':00', HW - 24, 54, 46, '#fff', 'right');
   if (!G.out) {
     txt('Proud: ' + Math.max(0, Math.ceil(G.power)) + ' %', 24, 662, 24, G.power < 20 ? '#ff6b6b' : '#fff');
     txt('Spotřeba:', 24, 694, 20, '#ccc');
-    const u = usage();
-    for (let i = 0; i < 5; i++) rect(140 + i * 26, 676, 20, 22, i < u ? ['#4cff6b', '#4cff6b', '#ffe46b', '#ff9b3b', '#ff3b3b'][i] : '#2a2a2a');
-    // lišta kamer
-    const hov = hoverBtn === 'cams';
-    rr(400, 664, 480, 46, 10); ctx.fillStyle = hov ? 'rgba(127,244,255,.35)' : 'rgba(127,244,255,.15)'; ctx.fill();
-    ctx.strokeStyle = '#7ff4ff'; ctx.lineWidth = 2; ctx.stroke();
-    txt(G.cams ? '▼  ZAVŘÍT KAMERY  ▼' : '▲  KAMERY  ▲', 640, 695, 22, '#e8fdff', 'center');
-    addBtn(400, 656, 480, 64, 'cams', toggleCams);
+    const u = usage(); for (let i = 0; i < 5; i++) rect(140 + i * 26, 676, 20, 22, i < u ? ['#4cff6b', '#4cff6b', '#ffe46b', '#ff9b3b', '#ff3b3b'][i] : '#2a2a2a');
+    const bx = HW / 2 - 240; rr(bx, 664, 480, 46, 10); ctx.fillStyle = hoverBtn === 'cams' ? 'rgba(127,244,255,.35)' : 'rgba(127,244,255,.15)'; ctx.fill(); ctx.strokeStyle = '#7ff4ff'; ctx.lineWidth = 2; ctx.stroke();
+    txt(G.cams ? '▼  ZAVŘÍT KAMERY  ▼' : '▲  KAMERY  ▲', HW / 2, 695, 22, '#e8fdff', 'center');
+    addBtn(bx, 656, 480, 64, 'cams', toggleCams);
   }
-  // telefon
-  const c = G.call;
-  if (c.on) {
-    bigBtn(24, 60, 170, 40, 'ZAVĚSIT ✆', 'hang', hangUp);
-    if (c.ring > 0) txt('☎ Volá: Bývalý hlídač...', 210, 88, 20, '#ffe46b');
-    else {
-      const bx = G.cams ? 24 : 310, bw = G.cams ? 760 : 660;
-      const lines = wrap(c.lines[c.i], bw - 30, 20);
-      const bh = lines.length * 26 + 18, by = G.cams ? 640 - bh : 650 - bh - 8;
-      rr(bx, by, bw, bh, 10); ctx.fillStyle = 'rgba(0,0,0,.72)'; ctx.fill();
-      lines.forEach((l, i) => txt(l, bx + bw / 2, by + 26 + i * 26, 20, '#fff7c9', 'center'));
-    }
-  }
+  if (G.call.on) { bigBtn(24, 60, 170, 40, 'ZAVĚSIT ✆', 'hang', hangUp, true, 20); if (G.call.ring > 0) txt('☎ Volá: Bývalý hlídač...', 210, 88, 20, '#ffe46b'); }
+  drawSpeech();
 }
-
-// ====================================================================
-//  SCÉNY
-// ====================================================================
 function drawMenu(t) {
-  // pozadí: pódium přes kameru
-  const saved = G; G = null;
-  drawRoom('1A', t);
-  G = saved;
-  scanlines(); noise(.13 + (Math.random() < .05 ? .3 : 0)); vignette(.9);
-  rect(0, 0, 560, H, 'rgba(0,0,0,.55)');
-  neon('NIGHT AT', 60, 130, 46, '#7ff4ff', 14, 'left');
-  neon('VOXIE\'S', 60, 210, 92, '#ff2bd6', 26, 'left');
-  txt('Voxie\'s Fun Factory · zavřeno od 1997', 64, 250, 18, '#ccc');
-  bigBtn(60, 300, 400, 56, 'NOVÁ HRA', 'new', () => { progress = Math.max(1, progress); newGame(1); });
-  bigBtn(60, 372, 400, 56, 'POKRAČOVAT · NOC ' + progress, 'cont', () => newGame(progress), progress > 1);
-  txt('Výběr noci:', 64, 470, 18, '#aaa');
-  for (let n = 1; n <= 7; n++) {
-    const ok = n <= 5 && n <= progress;
-    bigBtn(60 + (n - 1) * 58, 482, 50, 46, n <= 5 ? String(n) : '🔒', 'n' + n, () => newGame(n), ok);
-  }
-  txt('Noci 6 a 7 a další animatronici: brzy.', 64, 556, 16, '#888');
-  if (beaten) txt('★ Přežil jsi všech 5 nocí', 64, 584, 18, '#ffe46b');
-  txt('Ovládání: dotykem tlačítek, nebo A/D dveře, Q/E světla, mezerník kamery', 64, 690, 15, '#777');
+  scanlines(); noise(.12 + (Math.random() < .05 ? .3 : 0)); vignette(.85);
+  const g = ctx.createLinearGradient(0, 0, 620, 0); g.addColorStop(0, 'rgba(0,0,0,.85)'); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, 620, HH);
+  neon('NIGHT AT', 60, 110, 44, '#7ff4ff', 14, 'left');
+  neon('VOXIE\'S', 60, 190, 90, '#ff2bd6', 26, 'left');
+  neon('3D', 450, 190, 44, '#ffe46b', 14, 'left');
+  txt('Voxie\'s Fun Factory · zavřeno od 1997', 64, 228, 18, '#ccc');
+  bigBtn(60, 262, 400, 52, 'NOVÁ HRA', 'new', () => newGame(1));
+  bigBtn(60, 326, 400, 52, 'POKRAČOVAT · NOC ' + progress, 'cont', () => newGame(progress), progress > 1);
+  txt('Výběr noci:', 64, 410, 18, '#aaa');
+  for (let n = 1; n <= 7; n++) bigBtn(60 + (n - 1) * 58, 420, 50, 44, n <= 5 ? String(n) : '🔒', 'n' + n, () => newGame(n), n <= 5 && n <= progress);
+  txt('Animatronik: ' + charName, 64, 500, 18, '#ffb3f0');
+  bigBtn(60, 510, 250, 44, '📂 Vlastní model .glb', 'glb', () => document.getElementById('file').click(), true, 17);
+  bigBtn(320, 510, 140, 44, 'Voxie', 'vox', () => { setCharacter(buildVoxie(), 'Voxie'); idbSet('model', null); }, charName !== 'Voxie', 17);
+  bigBtn(60, 566, 400, 40, 'Klasická 2D verze', 'classic', () => { location.href = 'classic.html'; }, true, 17);
+  if (beaten) txt('★ Přežil jsi všech 5 nocí', 64, 640, 18, '#ffe46b');
+  if (loadMsg) txt(loadMsg, 64, 670, 16, '#7ff4ff');
+  txt('Rozhlížení: táhni prstem / myší, šipky ◀ ▶. Klávesy: A/D dveře, Q/E světla, mezerník kamery', 64, 700, 14, '#777');
 }
-function drawIntro() {
-  rect(0, 0, W, H, '#000');
-  const a = clamp(Math.min(sceneT, 3 - sceneT) * 1.5, 0, 1);
-  ctx.save(); ctx.globalAlpha = a;
-  txt('0:00', 640, 330, 90, '#fff', 'center');
-  txt('Noc ' + G.night, 640, 400, 40, '#ff8bea', 'center');
-  ctx.restore();
-  noise(.05);
-}
-function drawScare() {
-  const k = Math.min(1, sceneT / .2);
-  const sx = rand(-25, 25) * (1 - sceneT * .3), sy = rand(-20, 20);
-  rect(0, 0, W, H, '#050208');
-  ctx.save(); ctx.translate(sx, sy);
-  const s = 4.5 + k * 2.5, u = s * 10;
-  drawVoxie(640, 380 + 16.6 * u, s, { open: Math.min(1, sceneT * 6), red: true, arms: true });
-  glowEyes(lastEyes, '#ff2020', .8);
-  ctx.restore();
-  if (sceneT < .06) rect(0, 0, W, H, '#fff');
-  noise(.15 + Math.random() * .2);
-}
+function drawIntro() { rect(0, 0, HW, HH, '#000'); const a = clamp(Math.min(sceneT, 3 - sceneT) * 1.5, 0, 1); ctx.save(); ctx.globalAlpha = a; txt('0:00', HW / 2, 330, 90, '#fff', 'center'); txt('Noc ' + G.night, HW / 2, 400, 40, '#ff8bea', 'center'); ctx.restore(); noise(.05); }
 function drawDead() {
-  rect(0, 0, W, H, '#000');
-  noise(Math.max(.15, .9 - sceneT));
-  if (sceneT < 1) return;
-  txt('KONEC HRY', 640, 250, 72, '#ff3b3b', 'center');
-  txt(G.out ? 'Došel proud… a Voxie si tě našel.' : 'Voxie tě našel.', 640, 310, 26, '#fff', 'center');
+  rect(0, 0, HW, HH, '#000'); noise(Math.max(.15, .9 - sceneT)); if (sceneT < 1) return;
+  txt('KONEC HRY', HW / 2, 250, 72, '#ff3b3b', 'center');
+  txt(G.out ? `Došel proud… a ${charName} si tě našla.` : `${charName} tě našla.`, HW / 2, 310, 26, '#fff', 'center');
   if (!G.tip) G.tip = pick(TIPS);
-  wrap('Tip: ' + G.tip, 800, 18).forEach((l, i) => txt(l, 640, 360 + i * 24, 18, '#aaa', 'center'));
-  bigBtn(440, 440, 400, 56, 'ZKUSIT ZNOVU', 'retry', () => newGame(G.night));
-  bigBtn(440, 512, 400, 56, 'MENU', 'menu', () => { scene = 'menu'; sceneT = 0; });
+  wrap('Tip: ' + G.tip, 800, 18).forEach((l, i) => txt(l, HW / 2, 360 + i * 24, 18, '#aaa', 'center'));
+  bigBtn(HW / 2 - 200, 440, 400, 56, 'ZKUSIT ZNOVU', 'retry', () => newGame(G.night));
+  bigBtn(HW / 2 - 200, 512, 400, 56, 'MENU', 'menu', toMenu);
 }
 function drawWin() {
-  rect(0, 0, W, H, '#000');
+  rect(0, 0, HW, HH, '#000');
   const roll = clamp((sceneT - .6) / .8, 0, 1);
-  ctx.save(); ctx.beginPath(); ctx.rect(400, 200, 480, 140); ctx.clip();
-  txt('5:00', 640, 310 - roll * 140, 100, '#fff', 'center');
-  txt('6:00', 640, 450 - roll * 140, 100, '#fff', 'center');
-  ctx.restore();
+  ctx.save(); ctx.beginPath(); ctx.rect(HW / 2 - 240, 200, 480, 140); ctx.clip();
+  txt('5:00', HW / 2, 310 - roll * 140, 100, '#fff', 'center'); txt('6:00', HW / 2, 450 - roll * 140, 100, '#fff', 'center'); ctx.restore();
   if (sceneT > 2) {
-    txt('Noc ' + G.night + ' přežita!', 640, 400, 34, '#ffe46b', 'center');
-    if (G.night >= 5) bigBtn(440, 460, 400, 56, 'POKRAČOVAT', 'end', () => { scene = 'ending'; sceneT = 0; });
-    else bigBtn(440, 460, 400, 56, 'DALŠÍ NOC', 'next', () => newGame(G.night + 1));
-    bigBtn(440, 532, 400, 56, 'MENU', 'menu', () => { scene = 'menu'; sceneT = 0; });
+    txt('Noc ' + G.night + ' přežita!', HW / 2, 400, 34, '#ffe46b', 'center');
+    if (G.night >= 5) bigBtn(HW / 2 - 200, 460, 400, 56, 'POKRAČOVAT', 'end', () => { scene_ = 'ending'; sceneT = 0; });
+    else bigBtn(HW / 2 - 200, 460, 400, 56, 'DALŠÍ NOC', 'next', () => newGame(G.night + 1));
+    bigBtn(HW / 2 - 200, 532, 400, 56, 'MENU', 'menu', toMenu);
   }
 }
 function drawEnding() {
-  rect(0, 0, W, H, '#0a0612');
-  rect(390, 90, 500, 380, '#e8e2cc');
-  txt('VOXIE\'S FUN FACTORY', 640, 140, 26, '#3b1d6e', 'center');
-  txt('Výplatní páska – noční hlídač', 640, 172, 18, '#333', 'center');
-  rect(420, 190, 440, 2, '#999');
-  const rows = [['Odpracováno', '5 nocí'], ['Hodinová mzda', '4,00 $'], ['Příplatek za noc', '0,10 $'], ['Celkem', '120,50 $']];
-  rows.forEach(([a, b], i) => { txt(a, 430, 230 + i * 36, 20, '#222'); txt(b, 850, 230 + i * 36, 20, '#222', 'right'); });
-  txt('Podpis vedoucího: ______', 430, 420, 18, '#555');
-  if (sceneT > 2) txt('Normální konec. Ale kdo je vlastně uvnitř Voxieho?', 640, 520, 22, '#ff8bea', 'center');
-  if (sceneT > 3) bigBtn(440, 570, 400, 56, 'MENU', 'menu', () => { scene = 'menu'; sceneT = 0; });
+  rect(0, 0, HW, HH, '#0a0612'); const cx = HW / 2;
+  rect(cx - 250, 90, 500, 380, '#e8e2cc');
+  txt('VOXIE\'S FUN FACTORY', cx, 140, 26, '#3b1d6e', 'center'); txt('Výplatní páska – noční hlídač', cx, 172, 18, '#333', 'center'); rect(cx - 220, 190, 440, 2, '#999');
+  [['Odpracováno', '5 nocí'], ['Hodinová mzda', '4,00 $'], ['Příplatek za noc', '0,10 $'], ['Celkem', '120,50 $']].forEach(([a, b], i) => { txt(a, cx - 210, 230 + i * 36, 20, '#222'); txt(b, cx + 210, 230 + i * 36, 20, '#222', 'right'); });
+  if (sceneT > 2) txt(`Normální konec. Ale kdo je vlastně uvnitř kostýmu?`, cx, 520, 22, '#ff8bea', 'center');
+  if (sceneT > 3) bigBtn(cx - 200, 570, 400, 56, 'MENU', 'menu', toMenu);
 }
-
-function render(t) {
-  buttons = [];
-  ctx.setTransform(K, 0, 0, K, 0, 0);
-  ctx.clearRect(0, 0, W, H);
-  if (scene === 'menu') drawMenu(t);
-  else if (scene === 'intro') drawIntro();
-  else if (scene === 'play') {
-    if (G.camA < 1) {
-      drawOffice();
-      if (G.camA > 0) { const y = H * (1 - G.camA); rr(60, y + 20, W - 120, H, 24); ctx.fillStyle = '#16161c'; ctx.fill(); rect(90, y + 50, W - 180, H, '#05080a'); }
-    }
-    else drawCams(t);
-    drawHUD();
-  }
-  else if (scene === 'scare') drawScare();
-  else if (scene === 'dead') drawDead();
-  else if (scene === 'win') drawWin();
-  else if (scene === 'ending') drawEnding();
-  cv.style.cursor = hoverBtn ? 'pointer' : 'default';
-}
+function toMenu() { setBuzz(false); stopMusicBox(); stopAmbient(); scene_ = 'menu'; sceneT = 0; G = null; speech = null; C.scare = -1; setSpot('1A'); }
 
 // ====================================================================
 //  VSTUP
 // ====================================================================
-function toLogical(e) { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * W, y: (e.clientY - r.top) / r.height * H }; }
+let lookTarget = null, drag = null;
+const toL = e => { const r = hud.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * HW, y: (e.clientY - r.top) / r.height * HH }; };
 function hit(p) { for (let i = buttons.length - 1; i >= 0; i--) { const b = buttons[i]; if (p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h) return b; } return null; }
-cv.addEventListener('pointerdown', e => {
+hud.addEventListener('pointerdown', e => {
   e.preventDefault(); initAudio();
-  const b = hit(toLogical(e));
+  const p = toL(e), b = hit(p);
   if (b) { b.cb(); return; }
-  if (scene === 'intro') { scene = 'play'; sceneT = 0; startAmbient(); }
+  if (scene_ === 'intro') { scene_ = 'play'; sceneT = 0; startAmbient(); return; }
+  if (scene_ === 'play' && !G.cams) { drag = { x: p.x, look: G.look, id: e.pointerId }; lookTarget = null; }
 });
-cv.addEventListener('pointermove', e => { mouse = toLogical(e); const b = hit(mouse); hoverBtn = b ? b.id : null; });
+hud.addEventListener('pointermove', e => {
+  const p = toL(e), b = hit(p); hoverBtn = b ? b.id : null;
+  if (drag && drag.id === e.pointerId && G) { G.look = clamp(drag.look + (p.x - drag.x) / HW * 2.4, -1.15, 1.15); }
+  if (e.pointerType === 'mouse' && !drag && G && scene_ === 'play' && !G.cams && !b) {
+    const edge = HW * .12; G.lookV = p.x < edge ? 1.6 * (1 - p.x / edge) : p.x > HW - edge ? -1.6 * (1 - (HW - p.x) / edge) : 0;
+  }
+});
+const endDrag = e => { if (drag && drag.id === e.pointerId) drag = null; };
+hud.addEventListener('pointerup', endDrag); hud.addEventListener('pointercancel', endDrag);
+hud.addEventListener('pointerleave', () => { if (G) G.lookV = 0; });
 addEventListener('keydown', e => {
-  initAudio();
-  if (scene !== 'play') return;
+  initAudio(); if (scene_ !== 'play') return;
   const k = e.key.toLowerCase();
-  if (k === 'a') toggleDoor('L');
-  else if (k === 'd') toggleDoor('R');
-  else if (k === 'q' && !G.cams) setLight('L');
-  else if (k === 'e' && !G.cams) setLight('R');
+  if (k === 'a') toggleDoor('L'); else if (k === 'd') toggleDoor('R');
+  else if (k === 'q' && !G.cams) setLight('L'); else if (k === 'e' && !G.cams) setLight('R');
   else if (k === ' ' || k === 's') { e.preventDefault(); toggleCams(); }
+  else if (k === 'arrowleft') G.lookV = 1.6; else if (k === 'arrowright') G.lookV = -1.6;
   else if (G.cams) { const map = { '1': '1A', '2': '1B', '3': '2', '4': '3', '5': '4', '6': '5', '7': '6', '8': '7', '9': '8', '0': '9' }; if (map[k]) selectCam(map[k]); }
 });
-document.addEventListener('visibilitychange', () => { if (document.hidden && AC) AC.suspend(); else if (AC) AC.resume(); });
-// tlačítko Zpět na Androidu (Capacitor) – zpět do menu
-document.addEventListener('backbutton', () => { if (scene !== 'menu') { setBuzz(false); stopMusicBox(); stopAmbient(); hush(); scene = 'menu'; sceneT = 0; } });
+addEventListener('keyup', e => { if (G && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) G.lookV = 0; });
+document.addEventListener('visibilitychange', () => { if (!AC) return; if (document.hidden) AC.suspend(); else AC.resume(); });
+document.addEventListener('backbutton', () => { if (scene_ !== 'menu') toMenu(); });
+let loadMsg = '';
+document.getElementById('file').addEventListener('change', async e => {
+  const f = e.target.files[0]; if (!f) return; loadMsg = 'Načítám ' + f.name + '…';
+  try { const buf = await f.arrayBuffer(); const r = await loadGLB(buf, niceName(f.name)); setCharacter(r.obj, r.name); setSpot('1A'); idbSet('model', { buf, name: r.name }); loadMsg = 'Model načten: ' + r.name + ' (uložen jen v tomto zařízení)'; }
+  catch (err) { loadMsg = 'Model se nepodařilo načíst: ' + err.message; }
+  e.target.value = '';
+});
 
 // ====================================================================
 //  SMYČKA
 // ====================================================================
-let last = performance.now(), paused = false;
-function frame(now) {
-  let dt = Math.min(.1, (now - last) / 1000); last = now;
-  if (document.hidden) dt = 0;
-  update(dt * SPEED);
-  render(now / 1000);
+const clock = new THREE.Clock();
+let charT = 0;
+function render(t) {
+  // stav 3D scény
+  office.shutL.position.y = DOOR_H * (1 - (G ? G.aL : 0)); office.shutR.position.y = DOOR_H * (1 - (G ? G.aR : 0));
+  const out = G && G.out, playing = G && (scene_ === 'play' || scene_ === 'scare');
+  officeLamp.intensity = out ? 0 : 9 * (G && G.flick > 0 ? .3 : 1) * (.95 + Math.random() * .05);
+  hemi.intensity = out ? .06 : .55;
+  hallL.intensity = G && G.light === 'L' && !out ? 26 : 0; hallR.intensity = G && G.light === 'R' && !out ? 26 : 0;
+  doorGlow.intensity = out && G.outPhase === 1 && Math.random() < .75 ? 1.2 : 0;
+  office.blades.rotation.z = out ? office.blades.rotation.z : t * 18;
+  if (G) {
+    office.panL.d.material.color.set(G.doorL ? '#ff3b3b' : '#4a1414'); office.panL.l.material.color.set(G.light === 'L' ? '#fff3c4' : '#3a3a3a');
+    office.panR.d.material.color.set(G.doorR ? '#ff3b3b' : '#4a1414'); office.panR.l.material.color.set(G.light === 'R' ? '#fff3c4' : '#3a3a3a');
+    office.phoneLed.material.color.set(G.call.on && Math.sin(t * 8) > 0 ? '#ff3030' : '#300808');
+  }
+  if (Math.floor(t * 4) !== Math.floor((t - .016) * 4)) drawCRT();
+  for (const f of animated) f(t);
+  // animatronik
+  let mode = 'idle', cam = officeCam;
+  const v = G && G.vox;
+  if (scene_ === 'scare') {
+    mode = 'scare';
+    const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(officeCam.quaternion);
+    const k = ease(clamp(C.scare / .12, 0, 1));
+    charRoot.position.copy(officeCam.position).addScaledVector(fwd, 2.7 - 1.1 * k); charRoot.position.y = officeCam.position.y - 1.75 - .25 * k;
+    charRoot.rotation.set(0, Math.atan2(-fwd.x, -fwd.z), 0);
+    redLight.intensity = 6 * k * (Math.random() < .15 ? .3 : 1); redLight.position.copy(charRoot.position).addScaledVector(fwd, -.9).setY(officeCam.position.y - .6);
+  } else {
+    redLight.intensity = 0;
+    if (v && v.pos === 'DOOR') mode = 'door';
+    if (v && v.pos === '1A') mode = 'stage';
+  }
+  // kamera sleduje ji – hlava se otočí do kamery
+  const watching = G && G.cams && G.camA >= 1 && SPOTS[v.pos] && SPOTS[v.pos].cam === G.cam;
+  C.look += ((watching && v.watchT > 1.2 ? 1 : 0) - C.look) * .04;
+  C.lookAt = watching ? CAMS[G.cam].cam.position : null;
+  C.lit = v ? v.lit : 0;
+  if (scene_ === 'menu') { C.look = .6; C.lookAt = CAMS['1A'].cam.position; }
+  poseCharacter(t, mode);
+  // kamera
+  if (scene_ === 'menu') { cam = CAMS['1A'].cam; roomLight.position.set(...CAMS['1A'].light); roomLight.intensity = 14; }
+  else if (G && G.cams && G.camA >= 1) {
+    const c = CAMS[G.cam]; cam = c.cam;
+    // kamera se pomalu otáčí sem a tam
+    cam.quaternion.copy(c.baseQ).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.sin(t * .35) * .12));
+    roomLight.position.set(...c.light); roomLight.intensity = G.cam === '4' ? (Math.sin(t * 9) > .3 ? 10 : 2) : G.cam === '8' || G.cam === '9' ? 4 : 12;
+  } else {
+    roomLight.intensity = 0;
+    const sh = scene_ === 'scare' ? .05 * (1 - clamp((C.scare - .9) / .5, 0, 1)) : 0;
+    officeCam.position.copy(OFFICE_EYE).add(new THREE.Vector3(rand(-sh, sh), rand(-sh, sh), 0));
+    if (lookTarget != null && G) { G.look += (lookTarget - G.look) * .12; if (Math.abs(lookTarget - G.look) < .01) lookTarget = null; }
+    officeCam.rotation.set(-.05, G ? G.look : 0, 0, 'YXZ');
+  }
+  if (scene_ === 'intro' || scene_ === 'dead' || scene_ === 'win' || scene_ === 'ending') renderer.clear();
+  else renderer.render(scene, cam);
+  // tablet vyjíždí
+  buttons = [];
+  hx.setTransform(HK, 0, 0, HK, 0, 0); hx.clearRect(0, 0, HW, HH);
+  if (scene_ === 'menu') drawMenu(t);
+  else if (scene_ === 'intro') drawIntro();
+  else if (scene_ === 'play') {
+    if (G.camA > 0 && G.camA < 1) { const y = HH * (1 - G.camA); rr(60, y + 20, HW - 120, HH, 24); ctx.fillStyle = '#16161c'; ctx.fill(); rect(90, y + 50, HW - 180, HH, '#05080a'); }
+    drawHUD(t);
+  } else if (scene_ === 'scare') { if (C.scare < .05) rect(0, 0, HW, HH, '#fff'); noise(.12 + Math.random() * .15); }
+  else if (scene_ === 'dead') drawDead(); else if (scene_ === 'win') drawWin(); else if (scene_ === 'ending') drawEnding();
+  hud.style.cursor = hoverBtn ? 'pointer' : 'default';
+}
+function frame() {
+  const dt = Math.min(.1, clock.getDelta());
+  if (!document.hidden) update(dt * SPEED);
+  render(clock.elapsedTime);
   requestAnimationFrame(frame);
 }
+setCharacter(buildVoxie(), 'Voxie'); setSpot('1A');
+idbGet('model').then(async m => { if (m && m.buf) { try { const r = await loadGLB(m.buf, m.name); setCharacter(r.obj, r.name); setSpot(G ? G.vox.pos : '1A'); } catch (e) {} } });
 requestAnimationFrame(frame);
-window.__voxies = { get G() { return G; }, get scene() { return scene; }, newGame, toggleDoor, setLight, toggleCams, selectCam };
+window.__voxies = { get G() { return G; }, get scene() { return scene_; }, newGame, toggleDoor, setLight, toggleCams, selectCam, say, setSpot, loadGLB, setCharacter, setLook: v => { G.look = v; }, voice };
 </script>
 </body>
 </html>
