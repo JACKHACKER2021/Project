@@ -796,7 +796,7 @@ function render(t, dt) {
   LIGHTS[3].color.setHSL((t * .1) % 1, .8, .6); MARK.rotation.y = t;
   for (const [b, q, base] of cocBones) { b.quaternion.copy(q).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, cocArms ? base : base * .2))); }
   // probuzení: světla blikají, Cocoa se otočí k Vojtěchovi a pak k hráči
-  if (S === 'wake') { const fl = sceneT > 3 && Math.random() < .25; LIGHTS.forEach(L => L.intensity = fl ? 1 : 8); hemi.intensity = fl ? .2 : 1.2; amb.intensity = fl ? .05 : .4;
+  if (S === 'wake') { const fl = sceneT > 3 && Math.random() < .25; LIGHTS.forEach(L => L.intensity = fl ? 1 : 8); hemi.intensity = fl ? .2 : 1.2; ambL.intensity = fl ? .05 : .4;
     const look = sceneT > 22 ? Math.atan2(P.x - COC.position.x, P.z - COC.position.z) : Math.atan2(VOJ.position.x - COC.position.x, VOJ.position.z - COC.position.z);
     COC.rotation.y += (look - COC.rotation.y) * Math.min(1, dt * 2); if (sceneT > 22 && Math.random() < .01) SFX.whisper(); }
   const exCam = extrasScene(t);
@@ -811,7 +811,7 @@ function render(t, dt) {
   if (S === 'play' || S === 'wake') drawDev(dt);
   hud.style.cursor = hover ? 'pointer' : 'default';
 }
-function frame() { const dt = Math.min(.1, clock.getDelta()); if (manualT === null) { update(dt); render(clock.elapsedTime, dt); } requestAnimationFrame(frame); }
+function frame() { requestAnimationFrame(frame); const dt = Math.min(.1, clock.getDelta()); if (manualT === null) { try { update(dt); render(clock.elapsedTime, dt); } catch (e) { console.error(e); } } }
 Promise.all([cocLoad, bldLoad, nowLoad]).then(() => { loaded = true; });
 ['pointerdown', 'touchstart', 'keydown'].forEach(ev => addEventListener(ev, () => { initAudio(); if (AC && AC.state !== 'running') AC.resume(); startMenuSong(); }, { capture: true, passive: true }));
 requestAnimationFrame(frame);
