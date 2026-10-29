@@ -119,9 +119,9 @@ function buildVoxie1() {
   for (const s of [-1, 1]) {
     const e = node('ear', head, s * .3, .64, 0); box(.22, .2, .14, fur, 0, .1, 0, e); box(.12, .1, .02, mat('#e88aa0'), 0, .1, .08, e);
     rig[s < 0 ? 'earR1' : 'earL1'] = e;
-    box(.18, .16, .03, mat('#f2f2ea'), s * .19, .44, .355, head);
+    { const e = new THREE.Mesh(new THREE.CylinderGeometry(.095, .095, .03, 24), mat('#f2f2ea')); e.rotation.x = Math.PI / 2; e.position.set(s * .19, .44, .355); head.add(e); }
   }
-  for (const s of [-1, 1]) { const m = new THREE.MeshBasicMaterial({ color: 0x111111 }); box(.08, .08, .03, m, s * .19, .44, .37, head); }
+  for (const s of [-1, 1]) { const e = new THREE.Mesh(new THREE.CylinderGeometry(.045, .045, .03, 20), new THREE.MeshBasicMaterial({ color: 0x111111 })); e.rotation.x = Math.PI / 2; e.position.set(s * .19, .43, .372); head.add(e); const hl = new THREE.Mesh(new THREE.CircleGeometry(.014, 10), new THREE.MeshBasicMaterial({ color: 0xffffff })); hl.position.set(s * .19 + .015, .445, .388); head.add(hl); }
   g.traverse(o => { if (o.isMesh) o.frustumCulled = false; }); g.userData.head = head;
   return g;
 }
@@ -457,8 +457,8 @@ const roomName = () => NIGHTS[NIGHT].era === 'now' ? NAMES_NOW[roomNow(P.x, P.z)
 const sun = new THREE.DirectionalLight(0xfff4e0, 0); sun.position.set(20, 40, RZ + 10); sun.target.position.set(0, 0, RZ); scene.add(sun, sun.target);
 function setEra(era) {
   const now = era === 'now';
-  LIGHTS.forEach(L => L.intensity = now ? 0 : 10); hemi.intensity = now ? .9 : 1.6; hemi.color.set(now ? 0xdde8ff : 0xfff0e0); ambL.intensity = now ? .35 : .55; sun.intensity = now ? 1.2 : 0;
-  scene.background.set(now ? 0x8a96a4 : 0x0a0812); scene.fog.color.set(now ? 0x9aa4b0 : 0x0a0812); scene.fog.near = now ? 30 : 14; scene.fog.far = now ? 90 : 40;
+  LIGHTS.forEach(L => L.intensity = now ? 0 : 10); hemi.intensity = now ? 1.6 : 1.6; hemi.color.set(now ? 0xdde8ff : 0xfff0e0); ambL.intensity = now ? .7 : .55; sun.intensity = now ? 1.2 : 0;
+  scene.background.set(now ? 0x7fb2e6 : 0x0a0812); scene.fog.color.set(now ? 0x7fb2e6 : 0x0a0812); scene.fog.near = now ? 80 : 14; scene.fog.far = now ? 300 : 40;
 }
 function resetWorld() {
   NPCS.forEach(h => { h.visible = false; h.userData.walk = 0; }); VOJ.visible = true; VOJ.position.set(14.2, 0, -6); VOJ.rotation.y = Math.PI / 2;
