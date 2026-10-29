@@ -420,32 +420,42 @@ const EMA = makeHuman('#ff8ac0', '#c04080', '#7a4a20', '#f0c8a8'); EMA.scale.set
 const YOUNGD = makeHuman('#5a5a5a', '#2a2a2a', '#2a1a10', '#e0b8a0', '#222'); HERNA.add(YOUNGD);
 WHO.EK = ['Ema (6 let)', '#ffb0e0', 2.4]; WHO.VZ = ['Ty (pan Vojtěch)', '#7fb0ff', 1]; WHO.DM = ['Mladý hlídač D.', '#c0c0c0', .9];
 const STEPS80 = [
-  { x: 0, z: -21, label: 'EMA', npcEma: true, say: [['EK', 'Tati! Proč musí Bunny pryč? On je můj nejlepší kamarád.'], ['VZ', 'Je už starý, broučku. Zámky v jeho obleku nejsou bezpečné.'], ['EK', 'Ale Voxie bude smutný, že je sám.'], ['VZ', 'Voxie brzy dostane nového parťáka. Slibuju.']] },
-  { x: 2.2, z: -24.8, label: 'VYPNOUT', say: [['VZ', 'Tak, Bunny. Glitchi. Naposledy.'], ['VZ', 'První testovací robot VoxieWorks… nikdy jsi nefungoval tak, jak měl.'], ['X', '*Vypínáš Hollow Bunnyho. Oči mu pomalu zhasnou.*'], ['VZ', 'Sbohem, kamaráde. Děti tě milovaly.']], act() { BUNNY.userData.off = true; SFX.powerDown(); } },
+  { x: 0, z: -21, label: 'EMA', npcEma: true, say: [['EK', 'Tati! Proč musí Bunny pryč? On je můj nejlepší kamarád.'], ['VZ', 'Je už starý, broučku. Zámky v jeho obleku nejsou bezpečné.'], ['EK', 'Ale Voxie bude smutný, že je sám.'], ['VZ', 'Voxie brzy dostane nového parťáka. Slibuju.'], ['EK', 'Tak si naposledy zahrajeme na schovávanou! Počítej do deseti!']], act() { emaHide(); } },
+  { x: 18.5, z: -12.2, label: 'NAJDI EMU', npcEma: true, say: [['EK', 'Našel jsi mě! Bunny mi vždycky pomáhal se schovat.'], ['VZ', 'Bunny ti pomáhal? Vždyť se ani nehýbe, když jsou rozsvícená světla.'], ['EK', 'V noci se hýbe. Povídá si se mnou.'], ['VZ', '…Pojď, rozloučíme se s ním.']], act() { EMA.userData.hidden = false; } },
+  { x: 2.2, z: -24.8, label: 'VYPNOUT', say: [['EK', 'Pa pa, Bunny. Budeš mi chybět.'], ['VZ', 'Tak, Bunny. Glitchi. Naposledy.'], ['VZ', 'První testovací robot VoxieWorks… nikdy jsi nefungoval tak, jak měl.'], ['X', '*Vypínáš Hollow Bunnyho. Oči mu pomalu zhasnou.*'], ['VZ', 'Sbohem, kamaráde. Děti tě milovaly.']], act() { BUNNY.userData.off = true; SFX.powerDown(); P.glitchT = 6; } },
   { x: 14, z: -4.5, label: 'DÍLNA', say: [['X', '*Odnášíš Bunnyho do dílny a zakrýváš ho plachtou*'], ['VZ', 'Tady budeš spát. Nikdo tě už neoblékne. Nikdy.'], ['EK', 'Tati… Bunny se na mě podíval.'], ['VZ', 'To se ti jen zdálo, Emo.']], act() { BUNNY.position.set(18.5, 0, -8.6); BUNNY.rotation.set(.25, -1.2, 0); SHEET.visible = true; } },
-  { x: 5, z: -10.5, label: 'HLÍDAČ', npcD: true, say: [['DM', 'Pane Vojtěchu? Mám dílnu zamknout?'], ['VZ', 'Ano. A ten oblek nikdy nikomu nedávej. Klíč máš jen ty, D.'], ['DM', 'Samozřejmě, pane.'], ['X', '*Mladý hlídač se dívá na Emu o vteřinu déle, než by měl.*'], ['EK', 'Tati, pojedeme už domů?'], ['VZ', 'Pojedeme, broučku.']] },
+  { x: 5, z: -10.5, label: 'HLÍDAČ', npcD: true, say: [['DM', 'Pane Vojtěchu? Mám dílnu zamknout?'], ['VZ', 'Ano. A ten oblek nikdy nikomu nedávej. Klíč máš jen ty, D.'], ['DM', 'Samozřejmě, pane.'], ['X', '*Mladý hlídač se dívá na Emu o vteřinu déle, než by měl.*'], ['DM', 'Ahoj, Emo. Ty jsi ale velká holka.'], ['EK', '…Tati, pojedeme už domů?']] },
+  { x: -16, z: 3.5, label: 'DOMŮ', say: [['VZ', 'Dobrou noc, Voxie\'s.'], ['EK', 'Tati, slyšíš to? Z dílny někdo ťuká.'], ['VZ', 'To je jen staré topení, broučku. Pojď.'], ['X', '*Za vámi se v dílně rozsvítí dvě malá zelená světla.*']] },
 ];
+const GHOSTB = makeHare(true); HERNA.add(GHOSTB); GHOSTB.visible = false;
 const SHEET = new THREE.Mesh(new THREE.ConeGeometry(.9, 2.3, 6, 1, true), mat('#d0d0c8', { side: THREE.DoubleSide })); SHEET.position.set(18.5, 1.15, -8.6); HERNA.add(SHEET); SHEET.visible = false;
 function start1980() { resetWorld(); HERNA.visible = true; HLIGHTS.forEach(L => L.intensity = 9); hemi.intensity = 1.5; hemi.color.set(0xfff0d8); scene.fog.color.set(0x14100a); scene.background.set(0x14100a); scene.fog.far = 40;
-  BUNNY.position.set(2.2, .6, -27.5); BUNNY.rotation.set(0, 0, 0); BUNNY.userData.off = false; SHEET.visible = false; EMA.position.set(HX + 1, 0, -20); YOUNGD.position.set(HX + 5, 0, -11.6); YOUNGD.rotation.y = Math.PI;
+  BUNNY.position.set(2.2, .6, -27.5); BUNNY.rotation.set(0, 0, 0); BUNNY.userData.off = false; SHEET.visible = false; EMA.position.set(1, 0, -20); EMA.userData.hidden = false; YOUNGD.position.set(HX + 5, 0, -11.6); YOUNGD.rotation.y = Math.PI;
   P = { x: HX - 8, z: -17, yaw: -Math.PI / 2, pitch: 0, st: 1, bob: 0, step: 0, busy: false, steps: STEPS80.map(s => ({ ...s, x: s.x + HX })), flashOn: false }; MODE = 'herna';
   S = 'card'; sceneT = 0; CARD = { t: 'NOC 1 · ROK 1980', s: 'Herna Voxie\'s. Jsi pan Vojtěch. Dnes vyřadíš z provozu Hollow Bunnyho.', next() { S = 'play'; sceneT = 0; } }; }
 // ---------- scénka před nocí 3: Glitch za Emou ----------
 let GL = null;
 function glitchCut() { resetWorld(); HERNA.visible = true; HLIGHTS.forEach(L => L.intensity = 4); HLIGHTS[2].intensity = 7; hemi.intensity = .9; hemi.color.set(0xfff0d8); scene.background.set(0x14100a); scene.fog.color.set(0x14100a); scene.fog.far = 30;
-  EMA.position.set(15, 0, -5.5); EMA.rotation.y = Math.PI * .1; BUNNY.position.set(16.2, 0, -8.6); BUNNY.rotation.set(0, Math.PI * .15, 0); BUNNY.userData.off = false; SHEET.visible = false;
-  P = { x: HX + 14.2, z: -2.7, yaw: .2, pitch: -.05, st: 1, bob: 0, steps: null }; MODE = 'herna'; Q = []; line = null; S = 'glitch'; sceneT = 0; GL = { said: 0 }; }
+  EMA.position.set(12.4, 0, -5.4); EMA.rotation.y = Math.PI * .1; BUNNY.position.set(12.2, 0, -9.2); BUNNY.rotation.set(0, Math.PI * .15, 0); BUNNY.userData.off = false; SHEET.visible = false;
+  P = { x: HX + 13.6, z: -2.6, yaw: .2, pitch: -.05, st: 1, bob: 0, steps: null }; MODE = 'herna'; Q = []; line = null; S = 'glitch'; sceneT = 0; GL = { said: 0 }; }
 const GL_SAY = [[1.5, 'X', 'Rok 1980. Dílna. Ema se tam schovávala, když táta pracoval.'], [6, 'EK', 'Tati? Jsi to ty?'], [10, 'EK', '…Kdo je tam?'], [14.5, 'EK', 'Bunny…? Vždyť jsi vypnutý.'], [18.5, 'X', 'Glitch se nikdy úplně nevypnul.']];
 function updateGlitch(dt) { const t = sceneT; while (GL.said < GL_SAY.length && t >= GL_SAY[GL.said][0]) { queue([GL_SAY[GL.said].slice(1)]); GL.said++; } tickLines(dt);
   // Bunny se plíží k Emě, když se nedívá; jakmile se otočí, ztuhne a vypne se
   const turned = t > 12.5 && t < 17;
-  if (!turned && t < 12.5 && t > 3) { const tx = 15.4, tz = -6.6; BUNNY.position.x += (tx - BUNNY.position.x) * dt * .35; BUNNY.position.z += (tz - BUNNY.position.z) * dt * .35; BUNNY.userData.ph = (BUNNY.userData.ph || 0) + dt * 4; BUNNY.userData.walking = true; BUNNY.userData.jaw.rotation.x = .12 + Math.abs(Math.sin(t * 12)) * .15; }
+  if (!turned && t < 12.5 && t > 3) { const tx = 12.4, tz = -6.7; BUNNY.position.x += (tx - BUNNY.position.x) * dt * .35; BUNNY.position.z += (tz - BUNNY.position.z) * dt * .35; BUNNY.userData.ph = (BUNNY.userData.ph || 0) + dt * 4; BUNNY.userData.walking = true; BUNNY.userData.jaw.rotation.x = .12 + Math.abs(Math.sin(t * 12)) * .15; }
   else BUNNY.userData.walking = false;
   if (t > 12.5 && t - dt <= 12.5) { BUNNY.userData.off = true; BUNNY.userData.head.rotation.x = .5; BUNNY.userData.jaw.rotation.x = 0; SFX.powerDown(); }
   EMA.rotation.y += ((turned ? Math.PI : Math.PI * .1) - EMA.rotation.y) * Math.min(1, dt * 6);
   if (t > 17 && t - dt <= 17) { EMA.rotation.y = Math.PI * .1; BUNNY.userData.head.rotation.x = 0; BUNNY.userData.off = false; SFX.scare(); }
   if (t > 22) { HERNA.visible = false; BUNNY.userData.head.rotation.x = 0; S = 'card'; sceneT = 0; CARD = { t: 'NOC 3', s: 'Frights & Hides. Zajíc je dnes neklidnější. A ty už víš, komu kdysi říkali Glitch.', next() { resetWorld(); Q = []; line = null; P = { x: 9, z: 0, yaw: 0, pitch: 0, st: 1, bob: 0, steps: null, bat: 100, flashOn: true }; MODE = 'house'; HARE.visible = true; S = 'play'; sceneT = 0; startShift(3); } }; }
 }
+// Ema se schová v dětském koutku; Bunny se mezitím „glitchne“ jinde
+function emaHide() { EMA.userData.hidden = true; EMA.position.set(18.5, 0, -13.3); EMA.rotation.y = 0; queue([['X', '*Ema utekla. Najdi ji – prý je někde, kde je hodně barev.*']]); }
+function updateGlitch80(dt) { if (!P.glitchT) return; P.glitchT -= dt;
+  if (P.glitchT > 4.5 && P.glitchT - dt <= 4.5 || Math.abs(P.glitchT - 4.4) < dt) {}
+  if (P.glitchT < 4 && P.glitchT + dt >= 4) { GHOSTB.visible = true; GHOSTB.position.set(P.x - HX - Math.sin(P.yaw) * 6, 0, P.z - Math.cos(P.yaw) * 6); GHOSTB.rotation.y = Math.atan2(Math.sin(P.yaw), Math.cos(P.yaw)); SFX.whisper(); }
+  if (P.glitchT < 3.6 && P.glitchT + dt >= 3.6) { GHOSTB.visible = false; tone(90, 'square', .2, .08); }
+  if (P.glitchT <= 0) P.glitchT = 0; }
 function end1980() { S = 'card'; sceneT = 0; HERNA.visible = false; CARD = { t: 'O 17 LET POZDĚJI…', s: 'Ema zmizela. A klíč od dílny měl jen jeden člověk.', next() { startTour(); } }; }
 function resetWorld() { WARE.visible = false; HERNA.visible = false; HAREC.visible = false; HARE.visible = false; OWNER.visible = false; GVOJ.visible = false; GEMA.visible = false; MARK.visible = false; siren.forEach(L => L.intensity = 0); AUD.forEach(m => m.visible = false);
   hemi.intensity = .5; hemi.color.set(0x8a7a90); scene.fog.color.set(0x050304); scene.background.set(0x050304); scene.fog.far = 22; HLIGHTS.forEach(L => L.intensity = 0); NIGHT = null; HARE_AI = null; }
@@ -488,7 +498,7 @@ function update(dt) {
   if (S !== 'play') return;
   tickLines(dt); move(dt); updateSteps(dt);
   if (MODE === 'ware') { siren.forEach((L, i) => L.intensity = Math.sin(sceneT * 6 + i * Math.PI) > 0 ? 6 : 0); }
-  if (MODE === 'herna') { const ed = Math.hypot(P.x - EMA.position.x - HX, P.z - EMA.position.z); if (P.step >= 1 && ed > 2.2) walkTo(EMA, P.x - HX - .9, P.z + .9, 2.3, dt); else { EMA.userData.walk = 0; EMA.rotation.y = Math.atan2(P.x - HX - EMA.position.x, P.z - EMA.position.z); } YOUNGD.rotation.y = Math.atan2(P.x - HX - YOUNGD.position.x, P.z - YOUNGD.position.z); }
+  if (MODE === 'herna') { updateGlitch80(dt); const ed = Math.hypot(P.x - EMA.position.x - HX, P.z - EMA.position.z); if (EMA.userData.hidden) { EMA.userData.walk = 0; } else if (P.step >= 2 && ed > 2.2) walkTo(EMA, P.x - HX - .9, P.z + .9, 2.3, dt); else { EMA.userData.walk = 0; EMA.rotation.y = Math.atan2(P.x - HX - EMA.position.x, P.z - EMA.position.z); } YOUNGD.rotation.y = Math.atan2(P.x - HX - YOUNGD.position.x, P.z - YOUNGD.position.z); }
   if (MODE === 'house') {
     if (OWNER.visible) { if (P.ownerTo) { if (walkTo(OWNER, P.ownerTo[0], P.ownerTo[1], 2, dt)) { P.ownerTo = null; } } else { OWNER.userData.walk = 0; OWNER.rotation.y = Math.atan2(P.x - OWNER.position.x, P.z - OWNER.position.z); } }
     if (NIGHT) updateShift(dt);
@@ -527,7 +537,7 @@ function drawMenu(t) {
   btn(60, 250, 420, 56, '▶ HRÁT (prolog + noci 1–3)', 'play', () => { initAudio(); startPrologue(); }, 18);
   btn(60, 316, 205, 46, 'NOC 1 · 1980', 'n1', () => { initAudio(); stopMenuSong(); start1980(); }, 15); btn(275, 316, 205, 46, 'NOC 2 · DŮM', 'n2', () => { initAudio(); stopMenuSong(); startTour(); }, 15); btn(490, 316, 205, 46, 'NOC 3 · GLITCH', 'n3', () => { initAudio(); stopMenuSong(); glitchCut(); }, 15);
   ['Prolog: bývalý hlídač D. utíká policii a schová se do obleku Hollow Bunnyho.', 'Noc 1 (1980): jako pan Vojtěch vyřadíš Bunnyho z provozu. Ema je ještě živá.', 'Noc 2: strašidelný dům z relikvií herny. Ema a Vojtěch ti pomáhají.', '🔦 Posviť zajíci do očí · 🔊 reproduktory ho odlákají · baterku nabiješ u stolu'].forEach((l, i) => txt(l, 64, 410 + i * 28, 16, '#d8ffc8'));
-  txt('v0.1.0 prototyp', HW - 20, 700, 14, '#888', 'right');
+  txt('v0.2.0 prototyp', HW - 20, 700, 14, '#888', 'right');
 }
 function drawPlay(t) {
   if (MODE === 'ware' && S === 'play') { /* bez HUD baterky */ }
@@ -581,7 +591,7 @@ function render(t, dt) {
   else { cam.position.set(Math.sin(t * .1) * 1.2, 1.5, -15.5); cam.lookAt(0, 1.1, -21); HARE.visible = true; if (!HARE_AI) { HARE.position.set(0, 0, -21); HARE.rotation.set(0, Math.sin(t * .3) * .2, 0); } }
   const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(cam.quaternion); flash.position.copy(cam.position); flash.position.y -= .2; flash.target.position.copy(cam.position).addScaledVector(fwd, 6);
   flash.intensity = S === 'menu' ? 18 : P && P.flashOn ? 26 * (Math.random() < .02 ? .3 : 1) : (MODE === 'house' && P ? 10 : 0);
-  if (S === 'glitch') { cam.lookAt(HX + 15.6, 1, -6.8); }
+  if (S === 'glitch') { cam.lookAt(HX + 12.4, 1, -7); }
   if (S === 'loading' || S === 'card' || S === 'dead') renderer.clear(); else renderer.render(scene, cam);
   buttons = []; ctx.setTransform(HK, 0, 0, HK, 0, 0); ctx.clearRect(0, 0, HW, HH);
   if (S === 'loading') { rect(0, 0, HW, HH, '#000'); drawLogo4(HW / 2 - 90, 190, 180); txt('Načítám strašidelný dům…', HW / 2, 440, 22, '#9fff6b', 'center'); }
