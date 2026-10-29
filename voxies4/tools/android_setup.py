@@ -59,7 +59,7 @@ public class MainActivity extends BridgeActivity {
 # verze aplikace
 gradle = os.path.join(root, 'android', 'app', 'build.gradle')
 g = open(gradle).read()
-g = re.sub(r'versionCode \d+', 'versionCode 2', g); g = re.sub(r'versionName "[^"]*"', 'versionName "0.2.0"', g)
+g = re.sub(r'versionCode \d+', 'versionCode 5', g); g = re.sub(r'versionName "[^"]*"', 'versionName "0.5.0"', g)
 open(gradle, 'w').write(g)
 
 # stejný podpisový klíč pro všechny verze (aby šla aktualizace bez odinstalace a postup zůstal)
