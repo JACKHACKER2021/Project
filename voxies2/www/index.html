@@ -141,7 +141,7 @@ wispGeo.setAttribute('position', new THREE.BufferAttribute(wispArr, 3));
 const WISP = new THREE.Points(wispGeo, new THREE.PointsMaterial({ color: 0x1a1020, size: .09, transparent: true, opacity: .55, depthWrite: false })); WISP.frustumCulled = false; COC.add(WISP);
 const _cq2 = new THREE.Quaternion(), _ce = new THREE.Euler();
 function animCoc(t, dt) {
-  COC.position.y = .08 + Math.sin(t * 1.3) * .07; COC.rotation.z = Math.sin(t * .9) * .04; COC.rotation.x = Math.sin(t * .7) * .03;
+  COC.position.y += .08 + Math.sin(t * 1.3) * .07; COC.rotation.z = Math.sin(t * .9) * .04; COC.rotation.x = Math.sin(t * .7) * .03;
   const B = COC.userData.bones; if (B) for (const [b, q, ax, amp, sp, ph, base = 0, bax = ax] of B) { _ce.set(0, 0, 0); _ce[bax] += base; _ce[ax] += Math.sin(t * sp + ph) * amp; b.quaternion.copy(q).multiply(_cq2.setFromEuler(_ce)); }
   for (let i = 0; i < WISPN; i++) { let y = wispArr[i * 3 + 1] + dt * (.25 + (i % 5) * .06); if (y > 2.4) { y = 0; wispArr[i * 3] = rand(-.35, .35); wispArr[i * 3 + 2] = rand(-.25, .25); } wispArr[i * 3 + 1] = y; wispArr[i * 3] += Math.sin(t * 2 + i) * dt * .1; }
   wispGeo.attributes.position.needsUpdate = true;
