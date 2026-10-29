@@ -255,6 +255,7 @@ function update(dt) {
   if (S === 'intro' && sceneT > 6) beginPlay();
   if (S === 'mini') { updateMini(dt); return; }
   if (S === 'home') { updateHome(dt); return; }
+  if (S === 'finale') { updateFinale(dt); return; }
   if (S === 'scare' && sceneT > 1.5) { S = 'dead'; sceneT = 0; }
   if (S !== 'play') return;
   const hPrev = hour(); G.t += dt; if (G.t >= 6 * HOUR) { winNight(); return; }
@@ -328,6 +329,7 @@ function vignette(a) { const g = ctx.createRadialGradient(HW / 2, HH / 2, 180, H
 let buttons = [], hover = null;
 const addBtn = (x, y, w, h, id, cb) => buttons.push({ x, y, w, h, id, cb });
 function btn(x, y, w, h, label, id, cb, on = true, size = 20, col = '#ff3b3b') {
+  if (TRAILER) return;
   rr(x, y, w, h, 10); ctx.fillStyle = on ? (hover === id ? col : 'rgba(120,20,20,.35)') : 'rgba(255,255,255,.05)'; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = on ? col : '#444'; ctx.stroke();
   txt(label, x + w / 2, y + h / 2 + size * .36, size, on ? '#fff' : '#666', 'center'); if (on) addBtn(x, y, w, h, id, cb);
 }
@@ -513,7 +515,7 @@ function drawEnd(win) {
   rect(0, 0, HW, HH, '#000'); noise(win ? .05 : Math.max(.15, .8 - sceneT));
   if (win) { neon('6:00', HW / 2, 300, 110, '#ffe46b', 20); txt(G.heartOff ? 'Srdce herny zhaslo. Bylo ticho.' : 'Přežil jsi ' + G.night + '. noc ve zbytcích Voxie\'s.', HW / 2, 380, 24, '#fff', 'center'); }
   else { txt('KONEC', HW / 2, 280, 80, '#ff3030', 'center'); txt(G.killer === 'V' ? 'Zničený Voxie tě našel.' : 'Stín tě pohltil.', HW / 2, 340, 24, '#fff', 'center'); }
-  if (sceneT > 1.5) { if (win) btn(HW / 2 - 200, 440, 400, 56, G.night < 7 ? '▶ NOC ' + (G.night + 1) : '📰 RANNÍ ZPRÁVY', 'again', () => { if (G.night < 7) startNight(G.night + 1); else { S = 'news'; sceneT = 0; } }); else btn(HW / 2 - 200, 440, 400, 56, 'ZNOVU NOC ' + G.night, 'again', () => newGame()); btn(HW / 2 - 200, 512, 400, 56, 'MENU', 'menu', () => { S = 'menu'; sceneT = 0; startMenuSong(); }); }
+  if (sceneT > 1.5) { if (win) btn(HW / 2 - 200, 440, 400, 56, G.night < 7 ? '▶ NOC ' + (G.night + 1) : '▶ POKRAČOVAT', 'again', () => { if (G.night < 7) startNight(G.night + 1); else startFinale(); }); else btn(HW / 2 - 200, 440, 400, 56, 'ZNOVU NOC ' + G.night, 'again', () => newGame()); btn(HW / 2 - 200, 512, 400, 56, 'MENU', 'menu', () => { S = 'menu'; sceneT = 0; startMenuSong(); }); }
 }
 
 // ====================================================================
@@ -941,6 +943,61 @@ function drawHome(t) {
   else btn(HW - 220, 24, 196, 44, 'PŘESKOČIT ▶', 'hskip', () => { sceneT = 44.5; }, true, 16);
 }
 // ====================================================================
+//  ANIMOVANÝ KONEC: rozloučení s Cocou, Voxie odejde, východ
+// ====================================================================
+// [čas, pozice kamery, cíl] v souřadnicích plánu (z bez RZ)
+const FIN_CAM = [
+  [0, [0, 1.6, 0], [-5, 1.5, 0]], [3, [-4.6, 1.6, 0], [-5, 1.5, -6]], [8, [-5, 1.6, -11], [-5, 1.4, -16]],
+  [11, [-4.5, 1.6, -14.5], [-7, 1.3, -17]], [21, [-5, 1.6, -15], [-7, 1.3, -17]],
+  [23.5, [-4.8, 1.6, -15.2], [-1, 1.3, -19]], [33, [-4.8, 1.6, -15.2], [0, 1.4, -21]],
+  [36, [-8.5, 1.6, -16], [-12, 1.4, -16]], [40, [-15.5, 1.6, -12], [-16, 1.4, -6]], [44, [-16, 1.6, -3], [-16, 1.4, 4]],
+  [48, [-16, 1.6, 3.5], [-16, 1.4, 7]], [52, [-16, 1.6, 5], [-16, 1.4, 8]],
+];
+const FIN_SUB = [[12.5, 'Cocoa', 'Přišel jsi až sem… kvůli mně.'], [15.5, 'Cocoa', 'Srdce už netluče. Jsem volná.'], [18.5, 'Cocoa', 'Sbohem. A děkuju.'], [27, '', '…Voxie se zastavil. Jen se dívá.'], [31, '', 'Pak se otočil a odkulhal do tmy.'], [41, '', 'Východ. Poprvé po dlouhé době je venku ticho.']];
+const EXIT = new THREE.Group(); EXIT.visible = false; BLD.add(EXIT);
+{ const r = G1['7'], z = r.z1 + RZ - .2; const d = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 2.4), new THREE.MeshBasicMaterial({ color: 0xeef4ff })); d.position.set(-16, 1.2, z); d.rotation.y = Math.PI; EXIT.add(d);
+  const L = new THREE.PointLight(0xdfe8ff, 6, 12, 1.2); L.position.set(-16, 1.6, z - 1); EXIT.add(L);
+  const sg = canvasTex(256, 64, c => { c.fillStyle = '#062a10'; c.fillRect(0, 0, 256, 64); c.fillStyle = '#5dff8a'; c.font = 'bold 40px Courier New'; c.textAlign = 'center'; c.fillText('VÝCHOD', 128, 46); });
+  const s2 = new THREE.Mesh(new THREE.PlaneGeometry(1, .25), new THREE.MeshBasicMaterial({ map: sg })); s2.position.set(-16, 2.7, z - .02); s2.rotation.y = Math.PI; EXIT.add(s2); }
+let finSaid = 0;
+function startFinale() { S = 'finale'; sceneT = 0; finSaid = 0; EXIT.visible = true; stopAmbient(); }
+function updateFinale(dt) {
+  const t = sceneT;
+  while (finSaid < FIN_SUB.length && t >= FIN_SUB[finSaid][0]) { const [, who, l] = FIN_SUB[finSaid]; if (who) voice(l, { vol: .45, pan: -.2 }); finSaid++; }
+  if ((t < 11 || (t > 34 && t < 48)) && Math.floor(t * 1.8) !== Math.floor((t - dt) * 1.8)) SFX.step(.06, 0);
+  if (t > 23 && t < 34 && Math.floor(t * 1.4) !== Math.floor((t - dt) * 1.4) && (t < 26.5 || t > 30.5)) { SFX.step(.25 * (Math.floor(t * 1.4) % 2 ? .5 : 1), .2); if (Math.random() < .4) SFX.spark(.15, .2); }
+  if (t > 26.5 && t - dt <= 26.5) heartbeat(.3);
+  if (t > 53) { EXIT.visible = false; COC.visible = false; S = 'news'; sceneT = 0; }
+}
+function finaleScene(t) {
+  let i = 0; while (i < FIN_CAM.length - 2 && t > FIN_CAM[i + 1][0]) i++;
+  const [t0, p0, l0] = FIN_CAM[i], [t1, p1, l1] = FIN_CAM[i + 1], k = ease(clamp((t - t0) / (t1 - t0), 0, 1)), L = (a, b) => a.map((v, j) => v + (b[j] - v) * k);
+  const p = L(p0, p1), l = L(l0, l1), walking = t < 11 || t > 34;
+  cam.position.set(p[0], p[1] + (walking ? Math.sin(t * 10) * .03 : 0), p[2] + RZ); cam.lookAt(l[0], l[1], l[2] + RZ);
+  // Cocoa: stojí, otočí se k hráči a rozplyne se
+  COC.visible = t > 9 && t < 22.5; COC.position.set(-7, 0, -17 + RZ); COC.rotation.y = Math.atan2(cam.position.x - COC.position.x, cam.position.z - COC.position.z);
+  shadowMat.opacity = clamp(.85 - Math.max(0, t - 19.5) * .3, 0, .85) + Math.sin(t * 6) * .05; cocEyeMat.color.setScalar(t > 21 ? .4 : 1);
+  // Voxie: přikulhá zezadu, zastaví se, odejde
+  const u = VOX.userData, from = [0, -23], stop = [-1.6, -18.5];
+  let vp = null, moving = false, face = 0;
+  if (t > 23 && t < 26.5) { const q = (t - 23) / 3.5; vp = [from[0] + (stop[0] - from[0]) * q, from[1] + (stop[1] - from[1]) * q]; moving = true; face = Math.atan2(stop[0] - from[0], stop[1] - from[1]); }
+  else if (t >= 26.5 && t < 30.5) { vp = stop; face = Math.atan2(cam.position.x - stop[0], cam.position.z - RZ - stop[1]); }
+  else if (t >= 30.5 && t < 35) { const q = (t - 30.5) / 4.5; vp = [stop[0] + (from[0] - stop[0]) * q, stop[1] + (from[1] - stop[1]) * q]; moving = true; face = Math.atan2(from[0] - stop[0], from[1] - stop[1]); }
+  VOX.visible = !!vp;
+  if (vp) { const ph = t * 5.5; VOX.position.set(vp[0], moving ? Math.abs(Math.sin(ph)) * .07 : 0, vp[1] + RZ); VOX.rotation.set(0, face, moving ? Math.sin(ph) * .13 : .05); if (moving) u.aR2.rotation.x = Math.sin(ph) * .5; u.redEye.material.color.setRGB(t > 27 && t < 30 && Math.random() < .3 ? .2 : 1, 0, 0); }
+  flash.position.copy(cam.position).y -= .2; const fw = new THREE.Vector3(0, 0, -1).applyQuaternion(cam.quaternion); flash.target.position.copy(cam.position).addScaledVector(fw, 6); flash.intensity = 30;
+  hemi.intensity = .5; animBuilding(t, .016, false);
+}
+function drawFinale(t) {
+  vignette(.75); const s = sceneT;
+  if (s < 1.5) rect(0, 0, HW, HH, `rgba(0,0,0,${1 - s / 1.5})`);
+  const cur = FIN_SUB.filter(c => s >= c[0] && s < c[0] + 3).pop();
+  if (cur) { rr(HW / 2 - 380, 600, 760, 62, 10); ctx.fillStyle = 'rgba(0,0,0,.7)'; ctx.fill(); if (cur[1]) txt(cur[1], HW / 2 - 364, 620, 14, '#d0a0ff'); txt(cur[2], HW / 2, 648, 20, '#fff', 'center'); }
+  if (s > 48) rect(0, 0, HW, HH, `rgba(255,255,255,${clamp((s - 48) / 3, 0, 1)})`);
+  if (s > 51) txt('…', HW / 2, 360, 30, '#000', 'center');
+  btn(HW - 220, 24, 196, 44, 'PŘESKOČIT ▶', 'fskip', () => { sceneT = 53; }, true, 16);
+}
+// ====================================================================
 //  VSTUP
 // ====================================================================
 let drag = null, flashId = null, joy = null;
@@ -1012,8 +1069,8 @@ function render(t, dt) {
     if (!isV) { shadowMat.opacity = .8 + Math.sin(t * 6) * .1; }
   } else if (S === 'extras' || S === 'devmenu' || S === 'loading') { VOX.visible = true; COC.visible = false; VOX.position.set(0, 0, -3.6); VOX.rotation.y = 0; cam.rotation.set(-.05, Math.sin(t * .15) * .15, 0); flash.intensity = 14; }
   if (S === 'menu') { COC.visible = false; VOX.visible = true; VOX.rotation.y = 0; VOX.position.set(0, 0, -3.6); cam.rotation.set(-.05, Math.sin(t * .15) * .15, 0); flash.intensity = 14; }
-  if (S === 'home') homeCam(sceneT);
-  const showWorld = S === 'home' || S === 'menu' || S === 'play' || S === 'scare' || S === 'extras' || S === 'devmenu';
+  if (S === 'home') homeCam(sceneT); if (S === 'finale') finaleScene(sceneT);
+  const showWorld = S === 'finale' || S === 'home' || S === 'menu' || S === 'play' || S === 'scare' || S === 'extras' || S === 'devmenu';
   if (showWorld && !(S === 'play' && G && G.monA >= 1)) renderer.render(scene, viewCam); else renderer.clear();
   if (S === 'play' && G && G.mon && G.monA >= 1 && bldReady && G.online.has(G.cam)) renderFeed(t, dt);
   if (VIEW) { viewAmb.intensity = VIEW.light * .5; animBuilding(t, 0, false); VOX.visible = false; hemi.intensity = VIEW.light; flash.intensity = 0; scene.fog.far = 60; renderer.render(scene, VIEW.cam); scene.fog.far = 18; ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, hud.width, hud.height); return; }
@@ -1022,10 +1079,11 @@ function render(t, dt) {
   else if (S === 'menu') drawMenu(t);
   else if (S === 'extras') drawExtras(t); else if (S === 'devmenu') drawDevMenu(t);
   else if (S === 'intro') drawIntro();
-  else if (S === 'mini') drawMini(t); else if (S === 'home') drawHome(t); else if (S === 'news') drawNews(t);
+  else if (S === 'mini') drawMini(t); else if (S === 'home') drawHome(t); else if (S === 'finale') drawFinale(t); else if (S === 'news') drawNews(t);
   else if (S === 'play') { drawHUD(t); drawDev(t, dt); }
   else if (S === 'scare') { if (sceneT < .05) rect(0, 0, HW, HH, '#fff'); noise(.15 + Math.random() * .15); }
   else if (S === 'dead') drawEnd(false); else if (S === 'win') drawEnd(true);
+  if (CARD) { ctx.setTransform(HK, 0, 0, HK, 0, 0); rect(0, 0, HW, HH, '#000'); noise(.07); if (CARD.logo) drawLogo(ctx, HW / 2 - 110, 150, 220); neon(CARD.t, HW / 2, CARD.logo ? 450 : 350, CARD.size || 46, CARD.col || '#ff3030', 20); if (CARD.s) txt(CARD.s, HW / 2, (CARD.logo ? 450 : 350) + 56, 22, '#ddd', 'center'); }
   hud.style.cursor = hover ? 'pointer' : 'default';
 }
 const feedCam = new THREE.PerspectiveCamera(62, 16 / 9, .05, 40);
@@ -1039,14 +1097,14 @@ function renderFeed(t, dt) {
   renderer.setScissorTest(false); renderer.setViewport(0, 0, innerWidth, innerHeight);
   [VOX.visible, COC.visible, ITEM.visible] = vis; hemi.intensity = hi; scene.fog.far = ff; flash.intensity = fl; placeVox();
 }
-let VIEW = null; const viewAmb = new THREE.AmbientLight(0xd8e0ff, 0); scene.add(viewAmb);
+let VIEW = null, CARD = null; var TRAILER = false; const viewAmb = new THREE.AmbientLight(0xd8e0ff, 0); scene.add(viewAmb);
 function frame() { const dt = Math.min(.1, clock.getDelta()); if (manualT === null) { update(dt); render(clock.elapsedTime, dt); } requestAnimationFrame(frame); }
 Promise.all([cocLoad, bldLoad]).then(() => { loaded = true; });
 const unlock = () => { initAudio(); if (AC && AC.state !== 'running') AC.resume(); if (S === 'menu' || S === 'extras' || S === 'devmenu') startMenuSong(); };
 ['pointerdown', 'touchstart', 'keydown'].forEach(ev => addEventListener(ev, unlock, { capture: true, passive: true }));
 try { initAudio(); } catch (e) {}
 requestAnimationFrame(frame);
-window.__v2 = { icon(size) { const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d'); const g = x.createRadialGradient(size / 2, size / 2, size * .1, size / 2, size / 2, size * .7); g.addColorStop(0, '#3a0a0a'); g.addColorStop(1, '#050101'); x.fillStyle = g; x.fillRect(0, 0, size, size); drawLogo(x, size * .1, size * .1, size * .8); return c.toDataURL('image/png'); }, get G() { return G; }, walkable, roomAt, startHome, setT(v) { sceneT = v; }, view(p, l, light = 1.6) { if (!p) { VIEW = null; return; } const c = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, .05, 120); c.position.set(p[0], p[1], p[2] + RZ); c.lookAt(l[0], l[1], l[2] + RZ); VIEW = { cam: c, light }; if (FX.ceil) FX.ceil.visible = p[1] < 8; }, startNight, leaveDesk, backDesk, taskDone, RROOMS, get MG() { return MG; }, get S() { return S; }, newGame, toggleMon, lure, repair, voxMove, manual(on) { manualT = on ? 0 : null; }, step(dt) { manualT += dt; update(dt); render(manualT, dt); }, skip() { if (S === 'intro') { S = 'play'; sceneT = 0; } } };
+window.__v2 = { icon(size) { const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d'); const g = x.createRadialGradient(size / 2, size / 2, size * .1, size / 2, size / 2, size * .7); g.addColorStop(0, '#3a0a0a'); g.addColorStop(1, '#050101'); x.fillStyle = g; x.fillRect(0, 0, size, size); drawLogo(x, size * .1, size * .1, size * .8); return c.toDataURL('image/png'); }, get G() { return G; }, walkable, roomAt, startHome, startFinale, manual(on) { manualT = on ? 0 : null; }, step(dt) { manualT += dt; update(dt); render(manualT, dt); }, card(c) { CARD = c; }, set trailer(v) { TRAILER = v; }, set S(v) { S = v; sceneT = 0; }, setT(v) { sceneT = v; }, view(p, l, light = 1.6) { if (!p) { VIEW = null; return; } const c = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, .05, 120); c.position.set(p[0], p[1], p[2] + RZ); c.lookAt(l[0], l[1], l[2] + RZ); VIEW = { cam: c, light }; if (FX.ceil) FX.ceil.visible = p[1] < 8; }, startNight, leaveDesk, backDesk, taskDone, RROOMS, get MG() { return MG; }, get S() { return S; }, newGame, toggleMon, lure, repair, voxMove, manual(on) { manualT = on ? 0 : null; }, step(dt) { manualT += dt; update(dt); render(manualT, dt); }, skip() { if (S === 'intro') { S = 'play'; sceneT = 0; } } };
 </script>
 </body>
 </html>
