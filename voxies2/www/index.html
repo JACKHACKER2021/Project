@@ -204,7 +204,7 @@ const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } cat
 function newGame(n = G ? G.night : 1) {
   stopMenuSong(); n = clamp(n | 0, 1, 7);
   G = { t: 0, bat: 100, mon: false, monA: 0, flash: false, look: 0, cam: '8', online: new Set(n >= 5 ? ['8'] : n >= 3 ? ['5', '8'] : ['2', '5', '8']), fix: null,
-    night: n, roam: false, rp: { x: 0, z: 0, yaw: 0, pitch: 0, st: 1, bob: 0 }, task: 0, hold: 0, calm: 1, heartOff: false,
+    night: n, roam: false, rp: { x: 0, z: 0, yaw: 0, pitch: 0, st: 1, bob: 0 }, task: 0, hold: 0, calm: 1, torch: 100, heartOff: false,
     vox: { i: 0, timer: 0, lure: null, lureT: 0, lit: 0, holeT: 0 }, coc: { on: false, t: rand(35, 55), stay: 0, spot: 0 },
     msg: '', msgT: 0, out: false, outT: 0, killer: null, staticT: 0 };
   placeVox(); COC.visible = false; G.coc.t = cocT(); S = 'intro'; sceneT = 0;
@@ -245,13 +245,13 @@ function update(dt) {
   if (DEV.freeze) { if (G.monA !== undefined) {} }
   // baterie
   if (!G.out) {
-    G.bat -= dt * (.05 + (G.mon ? .09 : 0) + (G.flash ? .16 : 0) + (G.fix ? .12 : 0));
+    G.bat -= dt * (.05 + (G.mon ? .09 : 0) + (G.flash && !G.roam ? .16 : 0) + (G.fix ? .12 : 0));
     if (G.bat <= 0) { G.bat = 0; G.out = true; G.mon = false; G.flash = false; G.fix = null; SFX.powerDown(); say('Baterie je prázdná…', 4); G.outT = 0; setTimeout(() => vojtech('out', { force: true, vol: .7 }), 3000); }
   } else { G.outT += dt; if (G.outT > 9 && ROUTE[v.i] !== 'HOLE') { v.i = ROUTE.length - 1; placeVox(); } if (G.outT > 13) jumpscare('V'); return; }
   // oprava kamery
   if (G.fix) { if (!G.mon) G.fix = null; else { G.fix.p += dt; if (Math.random() < dt * 4) SFX.click(); if (G.fix.p >= 6) { G.online.add(G.fix.id); say('Kamera ' + G.fix.id + ' je zpět online.', 2.5); tone(1320, 'square', .12, .05); G.fix = null; } } }
   // Voxie: blíží se, lákání zvukem, díra ve zdi
-  if (G.roam) roamPlayer(dt);
+  if (G.roam) { roamPlayer(dt); G.flash = true; }
   const lvl = LV[hour()] + (G.night - 1) * 1.5;
   if (DEV.freeze) return;
   if (G.roam && ROUTE[v.i] === 'HOLE') v.i = 4;
@@ -575,6 +575,12 @@ const roomAt = (x, z) => { for (const id in RROOMS) if (inR(RROOMS[id], x, z, 0)
   const RB = RROOMS['1B']; for (let i = 0; i < 5; i++) { const b = box(.9, 1.8, .7, mat('#151020'), RB.x0 + 1.4 + i * 2.2, .9, RB.z0 + .6); b.rotation.z = rand(-.15, .15); }
   for (const [id, c] of [['1A', 0xff1a0a], ['9', 0x2050ff], ['3', 0x6020a0]]) { const L = new THREE.PointLight(c, 3, 9, 1.4); L.position.set(RROOMS[id].cx, 2.6, RROOMS[id].cz); scene.add(L); }
 }
+scene.add(cam);
+const TORCH = new THREE.Group(); cam.add(TORCH); TORCH.position.set(.22, -.24, -.45); TORCH.rotation.set(.08, .05, 0);
+{ const body = new THREE.Mesh(new THREE.CylinderGeometry(.03, .03, .22, 12), mat('#2a2a30')); body.rotation.x = Math.PI / 2; TORCH.add(body);
+  const head = new THREE.Mesh(new THREE.CylinderGeometry(.045, .032, .06, 12), mat('#555560')); head.rotation.x = Math.PI / 2; head.position.z = -.13; TORCH.add(head);
+  const lens = new THREE.Mesh(new THREE.CircleGeometry(.04, 12), new THREE.MeshBasicMaterial({ color: 0xfff3c4 })); lens.position.z = -.161; lens.rotation.y = Math.PI; TORCH.userData.lens = lens; TORCH.add(lens);
+  const hand = new THREE.Mesh(new THREE.BoxGeometry(.09, .07, .1), mat('#c89a78')); hand.position.set(0, -.02, .03); TORCH.add(hand); }
 const ITEM = new THREE.Group(); scene.add(ITEM);
 const itemMat = new THREE.MeshBasicMaterial({ color: 0xffd040 });
 const itemBox = new THREE.Mesh(new THREE.BoxGeometry(.3, .3, .3), itemMat), itemHeart = new THREE.Mesh(new THREE.SphereGeometry(.45, 16, 12), itemMat);
@@ -592,9 +598,9 @@ function leaveDesk() {
   G.roam = true; G.flash = false; G.fix = null; COC.visible = false; G.coc.on = false;
   const r = RROOMS.TY; Object.assign(G.rp, { x: r.cx, z: r.cz + 1, yaw: 0, pitch: 0, bob: 0 });
   const v = G.vox; if (ROUTE[v.i] === 'HOLE') v.i = 4; const vr = RROOMS[ROUTE[v.i]]; v.rx = vr.cx; v.rz = vr.cz; v.lit = 0;
-  SFX.step(.2, 0); say('Opustil jsi kancelář. Baterka bere z té samé baterie.', 3.5);
+  SFX.step(.2, 0); say('Opustil jsi kancelář. Kapesní baterka svítí – namiř ji na Voxieho.', 3.5);
 }
-function backDesk() { if (!G || !G.roam) return; G.roam = false; G.look = 0; G.flash = false; placeVox(); SFX.step(.2, 0); }
+function backDesk() { if (!G || !G.roam) return; G.roam = false; G.flash = false; G.look = 0; G.flash = false; placeVox(); SFX.step(.2, 0); }
 function taskDone(st) { G.task++; G.hold = 0; tone(1320, 'square', .12, .05); tone(1760, 'square', .12, .05, 0, .12); st.on(G); }
 function roamPlayer(dt) {
   const p = G.rp; let mx = 0, mz = 0;
@@ -644,7 +650,7 @@ function drawRoamHUD(t) {
   drawTaskLine(24, my + 272 * sc + 24);
   if (st && st.kind !== 'pick' && G.hold > 0) { rr(HW / 2 - 160, 560, 320, 18, 6); ctx.fillStyle = '#111'; ctx.fill(); rect(HW / 2 - 157, 563, 314 * G.hold / st.t, 12, '#ffe46b'); }
   if (G.vox.lit > 0) txt('Voxie couvá…', HW / 2, 540, 18, '#ffb0b0', 'center');
-  if (!G.out) { rr(HW - 170, 520, 140, 110, 16); ctx.fillStyle = G.flash ? 'rgba(255,240,200,.85)' : 'rgba(120,20,20,.35)'; ctx.fill(); ctx.strokeStyle = '#fff3c4'; ctx.lineWidth = 2; ctx.stroke(); txt('🔦', HW - 100, 588, 40, '#fff', 'center'); txt('DRŽ', HW - 100, 618, 14, G.flash ? '#000' : '#ccc', 'center'); addBtn(HW - 170, 520, 140, 110, 'flash', () => {}); }
+  txt('🔦 baterka svítí', HW - 30, 620, 16, '#fff3c4', 'right');
   if (roomAt(G.rp.x, G.rp.z) === 'TY') btn(HW / 2 - 160, 640, 320, 56, '🪑 ZPĚT KE STOLU', 'back', backDesk, true, 18, '#5dff8a');
   if (joy) { ctx.save(); ctx.globalAlpha = .5; ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(joy.ox, joy.oy, 70, 0, 7); ctx.stroke(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(joy.ox + joy.dx * 70, joy.oy + joy.dy * 70, 26, 0, 7); ctx.fill(); ctx.restore(); }
   else txt('◀ vlevo: chůze (na doraz = běh) · vpravo: rozhlížení ▶', HW / 2, 700, 14, '#777', 'center');
@@ -721,7 +727,7 @@ const toL = e => { const r = hud.getBoundingClientRect(); return { x: (e.clientX
 const hit = p => { for (let i = buttons.length - 1; i >= 0; i--) { const b = buttons[i]; if (p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h) return b; } return null; };
 hud.addEventListener('pointerdown', e => {
   e.preventDefault(); initAudio(); const p = toL(e), b = hit(p);
-  if (b && b.id === 'flash') { if (G && !G.out) { G.flash = true; flashId = e.pointerId; SFX.click(); } return; }
+  if (b && b.id === 'flash') { if (G && !G.out && !G.roam) { G.flash = true; flashId = e.pointerId; SFX.click(); } return; }
   if (b) { b.cb(); return; }
   if (S === 'intro') { S = 'play'; sceneT = 0; startAmbient(); return; }
   if (S === 'mini' || (S === 'play' && G.roam && p.x < HW * .45)) { joy = { id: e.pointerId, ox: p.x, oy: p.y, dx: 0, dy: 0 }; return; }
@@ -764,6 +770,7 @@ function render(t, dt) {
   redLight.intensity = 0;
   if (roaming) { VOX.visible = true; VOX.position.set(G.vox.rx, 0, G.vox.rz); VOX.rotation.y = Math.atan2(G.rp.x - G.vox.rx, G.rp.z - G.vox.rz); sparkLight.intensity = Math.random() < .15 ? rand(1, 4) : 0; sparkLight.position.set(G.vox.rx, 1.4, G.vox.rz); }
   renderItem(t, roaming);
+  TORCH.visible = !!roaming; if (roaming) { TORCH.userData.lens.material.color.setHex(G.flash ? 0xfff3c4 : 0x333333); TORCH.position.y = -.24 + Math.sin(G.rp.bob) * .01; }
   if (S === 'scare') {
     const k = ease(clamp(sceneT / .15, 0, 1)), j = 1 - clamp((sceneT - .8) / .6, 0, 1);
     if (G.killer === 'V') { VOX.visible = true; VOX.position.set(rand(-.04, .04) * j, -.45 * k, EYE.z - 2.4 + 1.2 * k); VOX.rotation.y = 0; u.jaw.rotation.x = .9; u.aL.rotation.x = -1.3 * k; u.aR.rotation.x = -1.3 * k; }
