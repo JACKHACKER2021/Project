@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>Night at Voxie's 3 – 1997</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+  #hud { z-index: 2; }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<canvas id="hud"></canvas>
+<script type="importmap">
+{ "imports": { "three": "./lib/three.module.js", "three/addons/": "./lib/addons/" } }
+</script>
+<script type="module">
+// ====================================================================
+//  NIGHT AT VOXIE'S 3 – 1997 (prototyp: noc 1)
+//  Herna je v provozu. Hraješ za tehdejšího nočního hlídače.
+// ====================================================================
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+const FONT = "'Courier New', monospace";
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('gl'), antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5)); renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x0a0812); scene.fog = new THREE.Fog(0x0a0812, 14, 40);
+const cam = new THREE.PerspectiveCamera(70, 16 / 9, .05, 80); scene.add(cam);
+// herna je rozsvícená: teplé světlo všude
+const hemi = new THREE.HemisphereLight(0xfff0e0, 0x302028, 1.6); scene.add(hemi);
+const ambL = new THREE.AmbientLight(0xffffff, .55); scene.add(ambL);
+const LIGHTS = [[0, 3, -17, 0xffe0c0], [-16, 3, -16, 0xffd0a0], [16, 3, -16, 0xc0ffe0], [0, 3.6, -26, 0xff60e0], [16, 3, -6, 0xfff0d0]].map(([x, y, z, c]) => { const L = new THREE.PointLight(c, 10, 16, 1.2); L.position.set(x, y, z); scene.add(L); return L; });
+const mat = (c, o = {}) => new THREE.MeshLambertMaterial({ color: c, ...o });
+function box(w, h, d, m, x, y, z, p = scene) { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); p.add(b); return b; }
+
+// ---------- plán budovy (stejný jako v 1. a 2. dílu) ----------
+const G1 = {
+  '1A': { x0: -6, x1: 6, z0: -30, z1: -22, h: 4, open: { s: [[-4, 4]] } },
+  '1B': { x0: -10, x1: 10, z0: -22, z1: -12, open: { n: [[-4, 4]], w: [[-18, -14]], e: [[-18, -14]], s: [[-2, 2], [-6, -4], [4, 6]] } },
+  '2': { x0: -22, x1: -10, z0: -22, z1: -10, open: { e: [[-18, -14]], s: [[-18, -14]] } },
+  '3': { x0: 10, x1: 22, z0: -22, z1: -10, open: { w: [[-18, -14]], s: [[14, 18]] } },
+  '5': { x0: -22, x1: -10, z0: -10, z1: -2, open: { n: [[-18, -14]], s: [[-18, -14]] } },
+  '4': { x0: 10, x1: 22, z0: -10, z1: -2, open: { n: [[14, 18]], s: [[14, 18]] } },
+  '7': { x0: -22, x1: -10, z0: -2, z1: 6, open: { n: [[-18, -14]] } },
+  'X': { x0: 10, x1: 22, z0: -2, z1: 6, open: { n: [[14, 18]] } },
+  '6': { x0: -4, x1: 4, z0: -12, z1: -3.05, open: { n: [[-2, 2]] } },
+  '8': { x0: -6, x1: -4, z0: -12, z1: 1, open: { n: [[-6, -4]], e: [[-1, 1]] } },
+  '9': { x0: 4, x1: 6, z0: -12, z1: 1, open: { n: [[4, 6]], w: [[-1, 1]] } },
+  'OFF': { x0: -4, x1: 4, z0: -3, z1: 3, open: { w: [[-1, 1]], e: [[-1, 1]] } },
+};
+const NAMES = { '1A': 'Pódium', '1B': 'Herna', '2': 'Pizzerie', '3': 'Dětský koutek', '4': 'Dílna a sklad', '5': 'Výdej lístků', '6': 'Toalety', '7': 'Vchod', 'X': 'Serverovna', '8': 'Západní chodba', '9': 'Východní chodba', 'OFF': 'Kancelář hlídače' };
+const ZONES = [];
+for (const id in G1) { const r = G1[id];
+  for (const side in r.open) for (const [a, b] of r.open[side]) { const fx = side === 'n' ? r.z0 : side === 's' ? r.z1 : side === 'w' ? r.x0 : r.x1;
+    ZONES.push(side === 'n' || side === 's' ? { x0: a + .3, x1: b - .3, z0: fx - .55, z1: fx + .55 } : { x0: fx - .55, x1: fx + .55, z0: a + .3, z1: b - .3 }); } }
+const inR = (r, x, z, m) => x > r.x0 + m && x < r.x1 - m && z > r.z0 + m && z < r.z1 - m;
+const walkable = (x, z) => Object.values(G1).some(r => inR(r, x, z, .3)) || ZONES.some(d => inR(d, x, z, 0));
+const roomAt = (x, z) => { for (const id in G1) if (inR(G1[id], x, z, 0)) return id; return null; };
+
+// ---------- postavy ----------
+// pan Vojtěch: kostičkový člověk (kostra jako u animatroniků)
+function makeHuman(shirt, pants, hair, skin = '#e0b090') {
+  const g = new THREE.Group(), node = (p, x, y, z) => { const n = new THREE.Group(); n.position.set(x, y, z); p.add(n); return n; };
+  const hips = node(g, 0, .9, 0), legs = [];
+  for (const s of [-1, 1]) { const l = node(hips, s * .11, 0, 0); box(.17, .45, .19, mat(pants), 0, -.22, 0, l); const k = node(l, 0, -.45, 0); box(.16, .42, .18, mat(pants), 0, -.2, 0, k); box(.18, .08, .28, mat('#1a1410'), 0, -.42, .05, k); legs.push([l, k]); }
+  const chest = node(hips, 0, .02, 0); box(.44, .58, .24, mat(shirt), 0, .3, 0, chest);
+  const arms = []; for (const s of [-1, 1]) { const a = node(chest, s * .29, .56, 0); box(.13, .32, .14, mat(shirt), 0, -.15, 0, a); const f = node(a, 0, -.32, 0); box(.12, .3, .13, mat(skin), 0, -.14, 0, f); arms.push([a, f]); }
+  const head = node(chest, 0, .62, 0); box(.3, .32, .3, mat(skin), 0, .16, 0, head); box(.32, .1, .32, mat(hair), 0, .34, -.01, head); box(.32, .2, .06, mat(hair), 0, .24, -.15, head);
+  for (const s of [-1, 1]) box(.05, .04, .02, mat('#1a1a1a'), s * .07, .19, .155, head);
+  const mouth = box(.1, .025, .02, mat('#6a2a20'), 0, .08, .155, head);
+  g.userData = { hips, legs, arms, chest, head, mouth }; return g;
+}
+function animHuman(h, ph, walk, t, talk = 0) {
+  const u = h.userData, s = Math.sin(ph);
+  u.legs[0][0].rotation.x = s * .5 * walk; u.legs[1][0].rotation.x = -s * .5 * walk; u.legs[0][1].rotation.x = Math.max(0, -s) * .5 * walk; u.legs[1][1].rotation.x = Math.max(0, s) * .5 * walk;
+  u.arms[0][0].rotation.x = -s * .4 * walk; u.arms[1][0].rotation.x = s * .4 * walk;
+  u.hips.position.y = .9 + Math.abs(Math.cos(ph)) * .03 * walk; u.chest.rotation.y = s * .05 * walk + Math.sin(t * .8) * .02;
+  u.head.rotation.x = Math.sin(t * 1.1) * .03; u.mouth.scale.y = talk ? 1 + Math.abs(Math.sin(t * 14)) * 3 : 1;
+}
+const VOJ = makeHuman('#2a4a8a', '#2a2a30', '#5a3a20'); VOJ.position.set(14.2, 0, -6); VOJ.rotation.y = Math.PI / 2; scene.add(VOJ);
+{ const tag = box(.12, .06, .01, mat('#ffe46b'), .12, .5, .125, VOJ.userData.chest); }
+// Voxie v roce 1997: celý, čistý, na pódiu
+function makeVoxie97() {
+  const g = new THREE.Group(), fur = mat('#8a5a30'), dk = mat('#5a3a1a');
+  box(.36, .8, .36, fur, -.2, .4, 0, g); box(.36, .8, .36, fur, .2, .4, 0, g);
+  box(.9, .9, .6, fur, 0, 1.25, 0, g); box(.6, .6, .1, mat('#c09060'), 0, 1.2, .31, g);
+  box(.26, .8, .3, fur, -.6, 1.25, 0, g); box(.26, .8, .3, fur, .6, 1.25, 0, g);
+  const head = new THREE.Group(); head.position.set(0, 1.9, 0); g.add(head);
+  box(.8, .7, .7, fur, 0, .2, 0, head); box(.4, .25, .2, mat('#c09060'), 0, .05, .4, head); box(.14, .1, .06, mat('#111'), 0, .14, .5, head);
+  for (const s of [-1, 1]) { box(.24, .24, .12, dk, s * .3, .62, 0, head); box(.12, .12, .04, mat('#fff'), s * .17, .32, .36, head); box(.06, .06, .02, mat('#111'), s * .17, .32, .38, head); }
+  box(.5, .1, .55, mat('#111'), 0, .62, 0, head); box(.36, .3, .4, mat('#111'), 0, .8, 0, head); // klobouk
+  box(.24, .08, .06, mat('#c02020'), 0, 1.0, .32, g); // motýlek
+  g.userData.head = head; return g;
+}
+const VOX = makeVoxie97(); VOX.position.set(-2, .6, -27.5); scene.add(VOX);
+// Cocoa na dílenském stole: díly se objevují, jak je doneseš
+const COC = new THREE.Group(); COC.position.set(15.6, 0, -6); COC.rotation.y = -Math.PI / 2; scene.add(COC);
+const PARTS = {}; let cocBones = [];
+box(1.2, .2, .9, mat('#5a3a22'), 15.6, .8, -6); box(.1, .8, .1, mat('#333'), 15.1, .4, -6.35); box(.1, .8, .1, mat('#333'), 16.1, .4, -5.65); box(.1, .8, .1, mat('#333'), 15.1, .4, -5.65); box(.1, .8, .1, mat('#333'), 16.1, .4, -6.35);
+const cocLoad = new GLTFLoader().loadAsync('models/cocoa.glb').then(gl => {
+  const m = gl.scene, b = new THREE.Box3().setFromObject(m), s = 1.6 / b.getSize(new THREE.Vector3()).y; m.scale.setScalar(s); m.position.set(-(b.min.x + b.max.x) / 2 * s, .9 - b.min.y * s, -(b.min.z + b.max.z) / 2 * s);
+  m.traverse(o => { if (o.isMesh) { o.frustumCulled = false; [].concat(o.material).forEach(q => { q.transparent = false; q.depthWrite = true; q.alphaTest = .5; q.side = THREE.DoubleSide; }); const k = { Object_7: 'Arms', Object_9: 'Body', Object_11: 'Head', Object_13: 'Legs' }[o.name]; if (k) (PARTS[k] = PARTS[k] || []).push(o); } });
+  COC.add(m);
+  const bs = []; m.traverse(o => { if (o.isBone) bs.push(o); }); const f = re => bs.find(x => re.test(x.name));
+  for (const [re, base] of [[/Bone_?009_?r/, 1.15], [/Bone_?009_?l/, -1.15]]) { const x = f(re); if (x) cocBones.push([x, x.quaternion.clone(), base]); }
+  cocBones.head = f(/Bone_?013/); if (cocBones.head) cocBones.headQ = cocBones.head.quaternion.clone();
+  for (const k of ['Arms', 'Head', 'Legs']) (PARTS[k] || []).forEach(o => o.visible = false);
+}).catch(e => console.warn('cocoa', e));
+const bldLoad = new GLTFLoader().loadAsync('models/building.glb').then(g => { scene.add(g.scene); }).catch(e => console.warn('building', e));
+
+// ====================================================================
+//  ZVUK
+// ====================================================================
+let AC = null, master, noiseBuf, amb = null;
+function initAudio() {
+  if (AC) { if (AC.state !== 'running') AC.resume(); return; }
+  try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
+  master = AC.createGain(); master.gain.value = .85; master.connect(AC.destination);
+  noiseBuf = AC.createBuffer(1, AC.sampleRate * 2, AC.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+}
+function out(n, pan) { const p = AC.createStereoPanner ? AC.createStereoPanner() : AC.createGain(); if (p.pan) p.pan.value = clamp(pan || 0, -1, 1); n.connect(p); p.connect(master); }
+function tone(f, type, dur, vol, pan = 0, when = 0, slide = 0) { if (!AC) return; const t = AC.currentTime + when, o = AC.createOscillator(), g = AC.createGain(); o.type = type; o.frequency.setValueAtTime(f, t); if (slide) o.frequency.exponentialRampToValueAtTime(slide, t + dur); g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + dur); o.connect(g); out(g, pan); o.start(t); o.stop(t + dur + .05); }
+function noiseHit(dur, vol, freq, type = 'lowpass', pan = 0, when = 0, q = 1) { if (!AC) return; const t = AC.currentTime + when, s = AC.createBufferSource(), f = AC.createBiquadFilter(), g = AC.createGain(); s.buffer = noiseBuf; f.type = type; f.frequency.value = freq; f.Q.value = q; g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + dur); s.connect(f); f.connect(g); out(g, pan); s.start(t, Math.random()); s.stop(t + dur + .05); }
+const SFX = {
+  spark(vol, pan) { for (let i = 0; i < 4; i++) noiseHit(.05, vol, 4000, 'highpass', pan, i * rand(.03, .09)); tone(rand(80, 140), 'sawtooth', .15, vol * .4, pan); },
+  step(vol, pan) { tone(55, 'sine', .25, vol, pan, 0, 30); noiseHit(.12, vol * .6, 300, 'lowpass', pan); tone(420, 'triangle', .1, vol * .3, pan, .05, 380); },
+  click() { tone(1600, 'square', .03, .05); }, cam() { tone(900, 'square', .05, .05); noiseHit(.15, .1, 3000, 'highpass'); },
+  lure() { for (let i = 0; i < 6; i++) tone(pick([523, 659, 784]), 'square', .12, .04, 0, i * .14); },
+  whisper() { noiseHit(1.4, .12, 1800, 'bandpass', -.6, 0, 3); tone(340, 'sine', 1.2, .02, -.6, 0, 300); },
+  drain() { tone(300, 'sawtooth', 1.2, .18, 0, 0, 40); noiseHit(1, .25, 900, 'bandpass'); },
+  scare() { noiseHit(1.3, .7, 1800, 'bandpass', 0, 0, .7); tone(380, 'sawtooth', 1.2, .35, -.2, 0, 950); tone(395, 'sawtooth', 1.2, .35, .2, 0, 1000); tone(120, 'square', 1.2, .3, 0, 0, 60); },
+  chime() { for (let i = 0; i < 6; i++) tone(784, 'sine', 1.6, .2, 0, i * .85); },
+  powerDown() { tone(240, 'sawtooth', 1.8, .2, 0, 0, 25); noiseHit(1.2, .2, 200); },
+};
+// hlas pana Vojtěcha: hluboký, rozladěný, šeptavý (slabiky podle samohlásek)
+const FORM = { a: [800, 1250], e: [500, 1850], i: [320, 2300], o: [500, 900], u: [350, 750], y: [320, 2300] };
+function voice(text, o = {}) {
+  const clean = text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''), syl = [];
+  for (const m of clean.matchAll(/([^aeiouy\s.,!?…]*)([aeiouy]+)|([.,!?…]+)/g)) syl.push(m[3] ? { pause: /[.!?…]/.test(m[3]) ? .4 : .2 } : { v: m[2][0] });
+  if (!AC) return syl.reduce((a, s) => a + (s.pause || .14), 0) + .3;
+  const dest = AC.createGain(); dest.gain.value = o.vol || .5; const hp = AC.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 180; dest.connect(hp); out(hp, o.pan || 0);
+  let t = AC.currentTime + .05;
+  for (const sy of syl) {
+    if (sy.pause) { t += sy.pause; continue; }
+    const dur = rand(.12, .19), f0 = 95 * (o.pitch || 1) * rand(.85, 1.15) * (Math.random() < .15 ? .6 : 1);
+    const osc = AC.createOscillator(); osc.type = 'sawtooth'; osc.frequency.setValueAtTime(f0, t); osc.frequency.linearRampToValueAtTime(f0 * rand(.8, 1.05), t + dur);
+    const env = AC.createGain(); env.gain.setValueAtTime(.0001, t); env.gain.exponentialRampToValueAtTime(1, t + .03); env.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    const [F1, F2] = FORM[sy.v] || FORM.a;
+    for (const [F, gg] of [[F1, 1], [F2, .5]]) { const bp = AC.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = F * .85; bp.Q.value = 5; const g = AC.createGain(); g.gain.value = gg; osc.connect(bp); bp.connect(g); g.connect(env); }
+    const nz = AC.createBufferSource(); nz.buffer = noiseBuf; const nf = AC.createBiquadFilter(); nf.type = 'bandpass'; nf.frequency.value = 1500; const ng = AC.createGain(); ng.gain.setValueAtTime(.25, t); ng.gain.exponentialRampToValueAtTime(.0001, t + dur); nz.connect(nf); nf.connect(ng); ng.connect(env); nz.start(t, Math.random()); nz.stop(t + dur);
+    env.connect(dest); osc.start(t); osc.stop(t + dur + .02); t += dur * .95;
+  }
+  return t - AC.currentTime + .3;
+}
+function startAmbient() {
+  if (!AC || amb) return; const g = AC.createGain(); g.gain.value = .9; g.connect(master);
+  const n = AC.createBufferSource(); n.buffer = noiseBuf; n.loop = true; const f = AC.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 260; const ng = AC.createGain(); ng.gain.value = .09; n.connect(f); f.connect(ng); ng.connect(g); n.start();
+  const o = AC.createOscillator(); o.frequency.value = 41; const og = AC.createGain(); og.gain.value = .05; o.connect(og); og.connect(g); o.start();
+  amb = { g, nodes: [n, o] };
+}
+function heartbeat(vol) { tone(48, 'sine', .22, vol); tone(44, 'sine', .25, vol * .8, 0, .2); }
+
+// ---------- díly Cocoy k nalezení ----------
+function labelTex(t, col) { const c = document.createElement('canvas'); c.width = 256; c.height = 64; const x = c.getContext('2d'); x.fillStyle = 'rgba(0,0,0,.6)'; x.fillRect(0, 0, 256, 64); x.fillStyle = col; x.font = 'bold 34px Courier New'; x.textAlign = 'center'; x.fillText(t, 128, 44); const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; return tx; }
+const ITEMS = [
+  { k: 'Head', name: 'hlavu', label: 'HLAVA', x: -18.5, z: -12, room: '2', col: '#ffb0d0' },
+  { k: 'Arms', name: 'ruce', label: 'RUCE', x: 7.5, z: -20.5, room: '1B', col: '#b0e0ff' },
+  { k: 'Legs', name: 'nohy', label: 'NOHY', x: 4.5, z: -24, room: '1A', col: '#d0ffb0' },
+];
+for (const it of ITEMS) { const g = new THREE.Group(); g.position.set(it.x, 0, it.z); scene.add(g); box(.6, .45, .5, mat('#a07040'), 0, .22, 0, g); box(.62, .05, .52, mat('#6a4a2a'), 0, .46, 0, g);
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: labelTex(it.label, it.col), depthTest: false })); sp.scale.set(.9, .22, 1); sp.position.y = 1; g.add(sp); it.obj = g; }
+
+// ---------- příběh noci 1 ----------
+// řádky: [mluvčí, text]; mluvčí V = Vojtěch, C = Cocoa, H = hlídač (myšlenky)
+const SAY = {
+  intro: [['V', 'Á, tady jsi! Dnes je velká noc. Zítra děti poprvé uvidí Cocou.'], ['V', 'Jenže je pořád na kusy. Donesl bys mi díly? Krabice jsou rozházené po herně.'], ['V', 'Hlava je v pizzerii, ruce v herně u automatů a nohy u pódia.'], ['H', '…Zase on. Zase jeho rozkazy.']],
+  Head: [['V', 'Hlava! Podívej na ty oči. Moje Ema by ji milovala.']],
+  Arms: [['V', 'Ruce. Opatrně s tím, ty klouby jsou drahé.'], ['H', 'Jako bych byl jeho poslíček.']],
+  Legs: [['V', 'Nohy… a je kompletní. Díky. Teď ji jen zapojím.']],
+  wake: [['V', 'Tak, Cocoo. Probuď se.'], ['C', '…'], ['V', 'Funguje! Ona… se na mě dívá. Cocoo?'], ['V', 'Kdo… kdo jsi?'], ['C', 'Tati. To jsem já. Ema.'], ['V', 'Emo…? To není možné. Ty jsi…'], ['C', 'Neodešla jsem. Zabil mě.'], ['C', 'Je tady. Za tebou.'], ['H', '…']],
+};
+const WHO = { V: ['Vojtěch', '#7fb0ff', 1], C: ['Cocoa', '#ffb0e0', 1.8], H: ['Hlídač', '#bbbbbb', 0] };
+let S = 'loading', sceneT = 0, P = null, Q = [], line = null, lineT = 0, loaded = false;
+function queue(lines, then) { Q.push(...lines.map(l => ({ l }))); if (then) Q.push({ then }); }
+function nextLine() {
+  while (Q.length && Q[0].then) Q.shift().then();
+  const n = Q.shift(); if (!n) { line = null; return; }
+  const [w, t] = n.l, [, , pitch] = WHO[w]; line = { w, t }; lineT = 0;
+  line.dur = Math.max(2.6, w === 'H' ? t.length * .06 + 1.2 : voice(t, { vol: .55, pitch }) + .6);
+}
+function newGame() { P = { x: 0, z: 0, yaw: Math.PI / 2, pitch: 0, st: 1, bob: 0, carry: null, done: 0, phase: 'intro', vojWalk: 0 }; Q = []; line = null; S = 'intro'; sceneT = 0;
+  ITEMS.forEach(it => { it.obj.visible = true; it.got = false; }); for (const k of ['Arms', 'Head', 'Legs']) (PARTS[k] || []).forEach(o => o.visible = false); LIGHTS.forEach(L => L.intensity = 10); hemi.intensity = 1.6; ambL.intensity = .55; }
+function task() { if (P.phase !== 'parts') return ''; if (P.carry) return 'Odnes ' + P.carry.name + ' Vojtěchovi do dílny'; const n = ITEMS.find(i => !i.got); return n ? 'Najdi ' + n.name + ' Cocoy – ' + NAMES[n.room] : ''; }
+function update(dt) {
+  sceneT += dt;
+  if (S === 'loading') { if (loaded || sceneT > 15) { S = 'menu'; sceneT = 0; } return; }
+  if (S === 'intro' && sceneT > 7) { S = 'play'; sceneT = 0; }
+  if (S !== 'play' && S !== 'wake') return;
+  if (line) { lineT += dt; if (lineT > line.dur) nextLine(); } else if (Q.length) nextLine();
+  if (S === 'play') {
+    if (P.phase === 'intro' && sceneT > .5 && !P.met) { const d = Math.hypot(P.x - VOJ.position.x, P.z - VOJ.position.z); if (d < 3.2) { P.met = true; queue(SAY.intro, () => P.phase = 'parts'); } }
+    move(dt);
+    for (const it of ITEMS) if (!it.got && !P.carry && P.phase === 'parts' && Math.hypot(P.x - it.x, P.z - it.z) < 1.2) { it.got = true; it.obj.visible = false; P.carry = it; SFX.click(); tone(660, 'square', .1, .05); }
+    if (P.carry && Math.hypot(P.x - VOJ.position.x, P.z - VOJ.position.z) < 2.6) { const it = P.carry; P.carry = null; P.done++; (PARTS[it.k] || []).forEach(o => o.visible = true); tone(880, 'square', .12, .05); tone(1320, 'square', .12, .05, 0, .12);
+      queue(SAY[it.k], P.done === 3 ? () => { S = 'wake'; sceneT = 0; queue(SAY.wake, () => { S = 'end'; sceneT = 0; }); } : null); }
+  }
+}
+function move(dt) {
+  let mx = 0, mz = 0; if (joy) { mx = joy.dx; mz = joy.dy; }
+  if (keys.w || keys.arrowup) mz -= 1; if (keys.s || keys.arrowdown) mz += 1; if (keys.a) mx -= 1; if (keys.d) mx += 1;
+  if (keys.arrowleft) P.yaw += dt * 2; if (keys.arrowright) P.yaw -= dt * 2;
+  const m = Math.hypot(mx, mz), run = (m > .92 || keys.shift) && P.st > .02 && m > .1; P.st = clamp(P.st + (run ? -dt * .2 : dt * .12), 0, 1);
+  if (m > .05) { const sp = (run ? 4.2 : 2.4) * dt * Math.min(1, m) / m, sn = Math.sin(P.yaw), cs = Math.cos(P.yaw), dx = (mx * cs + mz * sn) * sp, dz = (-mx * sn + mz * cs) * sp;
+    if (walkable(P.x + dx, P.z)) P.x += dx; if (walkable(P.x, P.z + dz)) P.z += dz; const pb = P.bob; P.bob += dt * (run ? 12 : 8); if (Math.floor(pb / Math.PI) !== Math.floor(P.bob / Math.PI)) SFX.step(.04, 0); }
+}
+
+// ---------- HUD ----------
+const hud = document.getElementById('hud'), ctx = hud.getContext('2d');
+let HW = 1280, HK = 1; const HH = 720;
+function resize() { const w = innerWidth, h = innerHeight, d = Math.min(devicePixelRatio || 1, 2); renderer.setSize(w, h, false); HW = Math.max(960, HH * w / h); HK = Math.min(h * d / HH, w * d / HW); hud.width = Math.round(w * d); hud.height = Math.round(h * d); cam.aspect = w / h; cam.updateProjectionMatrix(); }
+addEventListener('resize', resize); resize();
+const rect = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); };
+function rr(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+function txt(s, x, y, size, col, align = 'left') { ctx.font = `bold ${size}px ${FONT}`; ctx.fillStyle = col; ctx.textAlign = align; ctx.fillText(s, x, y); }
+function neon(s, x, y, size, col, blur = 18) { ctx.save(); ctx.shadowColor = col; ctx.shadowBlur = blur; txt(s, x, y, size, col, 'center'); txt(s, x, y, size, '#fff', 'center'); ctx.restore(); }
+let buttons = [], hover = null;
+const addBtn = (x, y, w, h, id, cb) => buttons.push({ x, y, w, h, id, cb });
+function btn(x, y, w, h, label, id, cb, size = 20, col = '#ffb030') { rr(x, y, w, h, 10); ctx.fillStyle = hover === id ? col : 'rgba(40,20,60,.6)'; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = col; ctx.stroke(); txt(label, x + w / 2, y + h / 2 + size * .36, size, '#fff', 'center'); addBtn(x, y, w, h, id, cb); }
+function drawSub() {
+  if (!line) return; const [nm, col] = WHO[line.w];
+  rr(HW / 2 - 400, 590, 800, 84, 10); ctx.fillStyle = 'rgba(0,0,0,.72)'; ctx.fill(); txt(nm, HW / 2 - 384, 612, 15, col);
+  ctx.font = `bold 20px ${FONT}`; const words = line.t.split(' '); let l = '', y = 642; for (const w of words) { const t2 = l ? l + ' ' + w : w; if (ctx.measureText(t2).width > 760 && l) { txt(l, HW / 2, y, 20, line.w === 'H' ? '#ccc' : '#fff', 'center'); l = w; y += 26; } else l = t2; } txt(l, HW / 2, y, 20, line.w === 'H' ? '#ccc' : '#fff', 'center');
+}
+function drawPlay(t) {
+  txt('1997 · 21:' + String(Math.min(59, Math.floor(sceneT / 6))).padStart(2, '0'), HW - 24, 46, 30, '#ffe46b', 'right');
+  txt('Noc 1 · ' + (NAMES[roomAt(P.x, P.z)] || 'chodba'), 24, 40, 20, '#ffb0e0');
+  rect(24, 52, 180, 6, '#222'); rect(24, 52, 180 * P.st, 6, '#6bc8ff');
+  const tk = task(); if (tk) txt('Úkol: ' + tk, 24, 84, 17, '#ffe46b'); else if (P.phase === 'intro') txt('Úkol: jdi za panem Vojtěchem do dílny (sklad)', 24, 84, 17, '#ffe46b');
+  if (P.carry) txt('Neseš: ' + P.carry.label, 24, 108, 16, P.carry.col);
+  // minimapa
+  const sc = 4, mx = 24, my = 120; ctx.save(); ctx.globalAlpha = .8; rect(mx - 4, my - 4, 44 * sc + 8, 36 * sc + 8, 'rgba(0,0,0,.5)');
+  for (const id in G1) { const r = G1[id]; ctx.strokeStyle = '#7a5a9a'; ctx.lineWidth = 1.5; ctx.strokeRect(mx + (r.x0 + 22) * sc, my + (r.z0 + 30) * sc, (r.x1 - r.x0) * sc, (r.z1 - r.z0) * sc); }
+  const goal = P.phase === 'intro' || P.carry ? [VOJ.position.x, VOJ.position.z] : (ITEMS.find(i => !i.got) || {}).x !== undefined ? [ITEMS.find(i => !i.got).x, ITEMS.find(i => !i.got).z] : null;
+  if (goal && Math.sin(t * 6) > 0) { ctx.fillStyle = '#ffe46b'; ctx.beginPath(); ctx.arc(mx + (goal[0] + 22) * sc, my + (goal[1] + 30) * sc, 4, 0, 7); ctx.fill(); }
+  const px = mx + (P.x + 22) * sc, py = my + (P.z + 30) * sc; ctx.fillStyle = '#5dff8a'; ctx.beginPath(); ctx.arc(px, py, 4, 0, 7); ctx.fill(); ctx.strokeStyle = '#5dff8a'; ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px - Math.sin(P.yaw) * 10, py - Math.cos(P.yaw) * 10); ctx.stroke(); ctx.restore();
+  if (joy) { ctx.save(); ctx.globalAlpha = .45; ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(joy.ox, joy.oy, 70, 0, 7); ctx.stroke(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(joy.ox + joy.dx * 70, joy.oy + joy.dy * 70, 26, 0, 7); ctx.fill(); ctx.restore(); }
+  else if (!line) txt('◀ vlevo: chůze · vpravo: rozhlížení ▶', HW / 2, 700, 14, '#aaa', 'center');
+  drawSub();
+}
+function drawLogo3(x, y, s) { ctx.save(); ctx.translate(x, y); ctx.scale(s / 100, s / 100); ctx.shadowColor = '#ff60e0'; ctx.shadowBlur = 14; ctx.strokeStyle = '#ff60e0'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(50, 50, 47, 0, 7); ctx.stroke(); ctx.shadowBlur = 0;
+  rect(28, 30, 44, 40, '#8a5a30'); rect(24, 22, 12, 12, '#5a3a1a'); rect(64, 22, 12, 12, '#5a3a1a'); rect(36, 40, 8, 8, '#fff'); rect(56, 40, 8, 8, '#fff'); rect(39, 43, 4, 4, '#111'); rect(59, 43, 4, 4, '#111'); rect(42, 54, 16, 8, '#c09060'); rect(46, 54, 8, 4, '#111'); rect(30, 14, 40, 6, '#111'); rect(36, 4, 28, 12, '#111'); ctx.restore(); }
+function drawMenu(t) {
+  rect(0, 0, HW, HH, 'rgba(10,0,20,.55)'); drawLogo3(60, 40, 150);
+  ctx.save(); ctx.shadowColor = '#ff60e0'; ctx.shadowBlur = 24; txt('NIGHT AT', 230, 100, 40, '#ffb0e0'); txt("VOXIE'S", 230, 178, 80, '#ff60e0'); txt('3', 610, 178, 80, '#fff'); ctx.restore();
+  txt('1997. Rok, kdy to všechno začalo.', 234, 208, 18, '#ddd');
+  btn(60, 250, 400, 56, '▶ HRÁT NOC 1', 'play', () => { initAudio(); newGame(); }, 22);
+  ['Herna Voxie\'s je v plném provozu. Všude svítí, všechno hraje.', 'Jsi tehdejší noční hlídač. Pan Vojtěch dnes staví Cocou.', '🚶 Levá půlka: chůze (na doraz běh) · pravá: rozhlížení', 'Prototyp: noc 1 ze 7.'].forEach((l, i) => txt(l, 64, 360 + i * 30, 17, '#ffd8f0'));
+  txt('v0.1.0 prototyp', HW - 20, 700, 14, '#888', 'right');
+}
+function drawIntro() { rect(0, 0, HW, HH, '#000'); ctx.save(); const a = clamp(Math.min(sceneT, 7 - sceneT) * 1.2, 0, 1); ctx.globalAlpha = a;
+  neon('1997', HW / 2, 280, 90, '#ff60e0'); txt('Herna Voxie\'s. Večer před představením nové maskotky.', HW / 2, 360, 22, '#fff', 'center'); txt('Tehdy tu ještě nikdo nezemřel. Skoro nikdo.', HW / 2, 396, 20, '#ff8080', 'center'); ctx.restore(); }
+function drawEnd() { rect(0, 0, HW, HH, `rgba(0,0,0,${clamp(sceneT, 0, 1)})`); if (sceneT > 1.2) { neon('KONEC NOCI 1', HW / 2, 300, 56, '#ff3030'); txt('Cocoa ví, kdo ji zabil. A teď to víš i ty.', HW / 2, 360, 22, '#fff', 'center'); txt('Prototyp Night at Voxie\'s 3', HW / 2, 400, 16, '#aaa', 'center'); btn(HW / 2 - 160, 460, 320, 56, 'MENU', 'menu', () => { S = 'menu'; sceneT = 0; }); } }
+
+// ---------- vstup ----------
+let joy = null, drag = null; const keys = {};
+const toL = e => { const r = hud.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * HW, y: (e.clientY - r.top) / r.height * HH }; };
+const hit = p => { for (let i = buttons.length - 1; i >= 0; i--) { const b = buttons[i]; if (p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h) return b; } return null; };
+hud.addEventListener('pointerdown', e => { e.preventDefault(); initAudio(); const p = toL(e), b = hit(p); if (b) { b.cb(); return; }
+  if (S === 'intro') { S = 'play'; sceneT = 0; return; }
+  if (S === 'play') { if (p.x < HW * .45) joy = { id: e.pointerId, ox: p.x, oy: p.y, dx: 0, dy: 0 }; else drag = { id: e.pointerId, x: p.x, y: p.y, yaw: P.yaw, pitch: P.pitch }; } });
+hud.addEventListener('pointermove', e => { const p = toL(e), b = hit(p); hover = b ? b.id : null;
+  if (joy && joy.id === e.pointerId) { let dx = (p.x - joy.ox) / 70, dy = (p.y - joy.oy) / 70; const m = Math.hypot(dx, dy); if (m > 1) { dx /= m; dy /= m; } joy.dx = dx; joy.dy = dy; }
+  if (drag && drag.id === e.pointerId) { P.yaw = drag.yaw - (p.x - drag.x) / HW * 4; P.pitch = clamp(drag.pitch - (p.y - drag.y) / HH * 2.5, -.9, .7); } });
+const up = e => { if (joy && joy.id === e.pointerId) joy = null; if (drag && drag.id === e.pointerId) drag = null; };
+hud.addEventListener('pointerup', up); hud.addEventListener('pointercancel', up);
+addEventListener('keydown', e => { initAudio(); keys[e.key.toLowerCase()] = true; }); addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+
+// ---------- smyčka ----------
+const clock = new THREE.Clock(); let manualT = null;
+function render(t, dt) {
+  // Vojtěch se otáčí za hráčem, mluví, Voxie na pódiu tančí
+  if (P) { const tv = Math.atan2(P.x - VOJ.position.x, P.z - VOJ.position.z); if (S === 'wake') VOJ.rotation.y += ((Math.atan2(COC.position.x - VOJ.position.x, COC.position.z - VOJ.position.z)) - VOJ.rotation.y) * Math.min(1, dt * 3); else VOJ.rotation.y += (tv - VOJ.rotation.y) * Math.min(1, dt * 3); }
+  animHuman(VOJ, t * 6, 0, t, line && line.w === 'V');
+  VOX.userData.head.rotation.y = Math.sin(t * 1.5) * .3; VOX.rotation.y = Math.sin(t * .7) * .2; VOX.position.y = .6 + Math.abs(Math.sin(t * 3)) * .05;
+  LIGHTS[3].color.setHSL((t * .1) % 1, .8, .6);
+  for (const [b, q, base] of cocBones) { b.quaternion.copy(q).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, P && P.done === 3 ? base : base * .2))); }
+  // probuzení: světla blikají, Cocoa se otočí k Vojtěchovi a pak k hráči
+  if (S === 'wake') { const fl = sceneT > 3 && Math.random() < .25; LIGHTS.forEach(L => L.intensity = fl ? 1 : 8); hemi.intensity = fl ? .2 : 1.2; ambL.intensity = fl ? .05 : .4;
+    const look = sceneT > 22 ? Math.atan2(P.x - COC.position.x, P.z - COC.position.z) : Math.atan2(VOJ.position.x - COC.position.x, VOJ.position.z - COC.position.z);
+    COC.rotation.y += (look - COC.rotation.y) * Math.min(1, dt * 2); if (sceneT > 22 && Math.random() < .01) SFX.whisper(); }
+  if (P) { cam.position.set(P.x, 1.62 + Math.sin(P.bob) * .035, P.z); cam.rotation.set(P.pitch, P.yaw, 0, 'YXZ');
+    if (S === 'wake') { const tgt = new THREE.Vector3(sceneT > 22 ? COC.position.x : (COC.position.x + VOJ.position.x) / 2, 1.4, COC.position.z); const m = new THREE.Matrix4().lookAt(cam.position, tgt, new THREE.Vector3(0, 1, 0)); const q = new THREE.Quaternion().setFromRotationMatrix(m); cam.quaternion.slerp(q, clamp(sceneT / 2, 0, 1)); } }
+  else { cam.position.set(Math.sin(t * .08) * 4, 2.2, -10); cam.lookAt(0, 1.2, -26); }
+  if (S === 'loading' || S === 'intro') renderer.clear(); else renderer.render(scene, cam);
+  buttons = []; ctx.setTransform(HK, 0, 0, HK, 0, 0); ctx.clearRect(0, 0, HW, HH);
+  if (S === 'loading') { rect(0, 0, HW, HH, '#000'); drawLogo3(HW / 2 - 90, 190, 180); txt('Načítám rok 1997…', HW / 2, 440, 22, '#ffb0e0', 'center'); }
+  else if (S === 'menu') drawMenu(t); else if (S === 'intro') drawIntro(); else if (S === 'play') drawPlay(t);
+  else if (S === 'wake') { drawSub(); if (sceneT > 30) rect(0, 0, HW, HH, `rgba(0,0,0,${clamp((sceneT - 30) / 2, 0, 1)})`); }
+  else if (S === 'end') drawEnd();
+  hud.style.cursor = hover ? 'pointer' : 'default';
+}
+function frame() { const dt = Math.min(.1, clock.getDelta()); if (manualT === null) { update(dt); render(clock.elapsedTime, dt); } requestAnimationFrame(frame); }
+Promise.all([cocLoad, bldLoad]).then(() => { loaded = true; });
+['pointerdown', 'touchstart', 'keydown'].forEach(ev => addEventListener(ev, () => { initAudio(); if (AC && AC.state !== 'running') AC.resume(); }, { capture: true, passive: true }));
+requestAnimationFrame(frame);
+window.__v3 = { get S() { return S; }, get P() { return P; }, newGame, ITEMS, VOJ, setS(v) { S = v; sceneT = 0; }, manual(on) { manualT = on ? 0 : null; }, step(dt) { manualT += dt; update(dt); render(manualT, dt); } };
+</script>
+</body>
+</html>
