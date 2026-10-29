@@ -94,7 +94,7 @@ const fur = new THREE.MeshLambertMaterial({ map: burnTex }), metal = mat('#7a7f8
 function makeVoxie() {
   const g = new THREE.Group(), node = (p, x, y, z) => { const n = new THREE.Group(); n.position.set(x, y, z); p.add(n); return n; };
   const hips = node(g, 0, .8, 0);
-  for (const s of [-1, 1]) { const l = node(hips, s * .2, 0, 0); box(.26, .45, .3, fur, 0, -.22, 0, l); const l2 = node(l, 0, -.45, 0); box(.24, .32, .28, fur, 0, -.16, 0, l2); box(.3, .1, .4, mat('#2a1a0a'), 0, -.3, .05, l2); }
+  const legs = []; for (const s of [-1, 1]) { const l = node(hips, s * .2, 0, 0); box(.26, .45, .3, fur, 0, -.22, 0, l); const l2 = node(l, 0, -.45, 0); box(.24, .32, .28, fur, 0, -.16, 0, l2); box(.3, .1, .4, mat('#2a1a0a'), 0, -.3, .05, l2); legs.push([l, l2]); }
   const chest = node(hips, 0, .05, .02); chest.rotation.x = .18;
   box(.8, .72, .2, fur, 0, .36, -.18, chest); box(.15, .72, .55, fur, -.33, .36, 0, chest); box(.15, .72, .55, fur, .33, .36, 0, chest); box(.8, .18, .55, fur, 0, .64, 0, chest);
   box(.5, .06, .06, metal, 0, .18, .05, chest); box(.06, .55, .06, metal, 0, .35, .02, chest); box(.36, .2, .18, dMetal, 0, .42, -.02, chest);
@@ -110,7 +110,7 @@ function makeVoxie() {
   const ear = node(head, .3, .64, 0); ear.rotation.z = -.7; box(.22, .2, .14, fur, 0, .1, 0, ear);
   box(.18, .16, .03, mat('#111'), -.19, .44, .355, head); const redEye = box(.05, .05, .02, new THREE.MeshBasicMaterial({ color: 0xff1010 }), -.19, .44, .37, head);
   const eyeL = new THREE.Mesh(new THREE.SphereGeometry(.07, 10, 8), mat('#e8e8e0')); eyeL.position.set(.2, .28, .42); head.add(eyeL);
-  g.userData = { head, jaw, aR2, aL, aR, redEye, chest };
+  g.userData = { head, jaw, aR2, aL, aR, redEye, chest, legs, hips };
   return g;
 }
 const VOX = makeVoxie(); scene.add(VOX);
@@ -121,7 +121,31 @@ const cocEyes = new THREE.Group(); COC.add(cocEyes);
 const cocEyeMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
 for (const x of [-.16, .16]) { const e = new THREE.Mesh(new THREE.SphereGeometry(.055, 10, 8), cocEyeMat); e.position.set(x, 1.55, .42); cocEyes.add(e); }
 { const fb = new THREE.Group(); COC.add(fb); box(.6, .8, .4, shadowMat, 0, .8, 0, fb); const hd = new THREE.Mesh(new THREE.SphereGeometry(.42, 16, 12), shadowMat); hd.position.set(0, 1.5, 0); fb.add(hd); for (const x of [-.12, .12]) box(.12, .7, .08, shadowMat, x, 2.15, -.1, fb);
-  cocLoad = new GLTFLoader().loadAsync('models/cocoa.glb').then(gl => { const m = gl.scene, b = new THREE.Box3().setFromObject(m), s = 1.85 / b.getSize(new THREE.Vector3()).y; m.scale.setScalar(s); m.position.set(-(b.min.x + b.max.x) / 2 * s, -b.min.y * s, -(b.min.z + b.max.z) / 2 * s); m.traverse(o => { if (o.isMesh) { o.material = shadowMat; o.frustumCulled = false; } }); COC.add(m); fb.visible = false; const nb = new THREE.Box3().setFromObject(m); cocEyes.position.set(0, nb.max.y * .78 - 1.55, nb.max.z * .9 - .42); }).catch(() => {}); }
+  cocLoad = new GLTFLoader().loadAsync('models/cocoa.glb').then(gl => { const m = gl.scene, b = new THREE.Box3().setFromObject(m), s = 1.85 / b.getSize(new THREE.Vector3()).y; m.scale.setScalar(s); m.position.set(-(b.min.x + b.max.x) / 2 * s, -b.min.y * s, -(b.min.z + b.max.z) / 2 * s); m.traverse(o => { if (o.isMesh) { o.material = shadowMat; o.frustumCulled = false; } });
+    { const bs = []; m.traverse(o => { if (o.isBone) bs.push(o); }); const f = re => bs.find(b => re.test(b.name)), L = [];
+      for (const [re, ax, amp, sp, ph, base = 0] of [[/Bone_?009_?r/, 'z', .14, 1.1, 0, 1.15], [/Bone_?009_?l/, 'z', .14, 1.1, 1.7, -1.15], [/Bone_?010_?r/, 'x', .15, 1.6, .5], [/Bone_?010_?l/, 'x', .15, 1.6, 2.2], [/Bone_?013/, 'z', .1, .7, 0], [/Bone_?015_?r/, 'x', .12, 2.1, 0], [/Bone_?015_?l/, 'x', .12, 2.1, 1]]) { const b = f(re); if (b) L.push([b, b.quaternion.clone(), ax, amp, sp, ph, base]); }
+      COC.userData.bones = L; } COC.add(m); fb.visible = false; const nb = new THREE.Box3().setFromObject(m); cocEyes.position.set(0, nb.max.y * .78 - 1.55, nb.max.z * .9 - .42); }).catch(() => {}); }
+// kulhavá chůze: zdravá noha krok, poškozená se táhne
+function animVox(ph, amt) {
+  const u = VOX.userData, s = Math.sin(ph), [lame, good] = u.legs;
+  good[0].rotation.x = s * .55 * amt; good[1].rotation.x = Math.max(0, -Math.cos(ph)) * .6 * amt;
+  lame[0].rotation.x = -s * .22 * amt; lame[0].rotation.z = -.08 * amt; lame[1].rotation.x = .05 * amt;
+  u.hips.position.y = .8 - (s > 0 ? s * .07 : 0) * amt; u.hips.rotation.z = (s > 0 ? -.1 : .05) * amt; u.hips.rotation.y = s * .08 * amt;
+  u.aL.rotation.x = -s * .45 * amt; u.aR.rotation.x = s * .3 * amt + Math.sin(ph * 2) * .05 * amt; u.aR2.rotation.x = Math.sin(ph + 1) * .4 * amt;
+  u.head.rotation.x = .25 + Math.abs(s) * .1 * amt; u.chest.rotation.x = .18 + .08 * amt;
+}
+// duch Cocoy: vznáší se, ruce a hlava se volně hýbou, stoupá z ní dým
+const WISPN = 40, wispGeo = new THREE.BufferGeometry(), wispArr = new Float32Array(WISPN * 3);
+for (let i = 0; i < WISPN; i++) { wispArr[i * 3] = rand(-.4, .4); wispArr[i * 3 + 1] = rand(0, 2.2); wispArr[i * 3 + 2] = rand(-.3, .3); }
+wispGeo.setAttribute('position', new THREE.BufferAttribute(wispArr, 3));
+const WISP = new THREE.Points(wispGeo, new THREE.PointsMaterial({ color: 0x1a1020, size: .09, transparent: true, opacity: .55, depthWrite: false })); WISP.frustumCulled = false; COC.add(WISP);
+const _cq2 = new THREE.Quaternion(), _ce = new THREE.Euler();
+function animCoc(t, dt) {
+  COC.position.y = .08 + Math.sin(t * 1.3) * .07; COC.rotation.z = Math.sin(t * .9) * .04; COC.rotation.x = Math.sin(t * .7) * .03;
+  const B = COC.userData.bones; if (B) for (const [b, q, ax, amp, sp, ph, base = 0, bax = ax] of B) { _ce.set(0, 0, 0); _ce[bax] += base; _ce[ax] += Math.sin(t * sp + ph) * amp; b.quaternion.copy(q).multiply(_cq2.setFromEuler(_ce)); }
+  for (let i = 0; i < WISPN; i++) { let y = wispArr[i * 3 + 1] + dt * (.25 + (i % 5) * .06); if (y > 2.4) { y = 0; wispArr[i * 3] = rand(-.35, .35); wispArr[i * 3 + 2] = rand(-.25, .25); } wispArr[i * 3 + 1] = y; wispArr[i * 3] += Math.sin(t * 2 + i) * dt * .1; }
+  wispGeo.attributes.position.needsUpdate = true;
+}
 const COC_SPOTS = [[-2.4, 0, 2.2, .9], [2.6, 0, 1.6, -.9], [-1.6, 0, .4, .5]];
 
 // ====================================================================
@@ -751,7 +775,7 @@ function voxWalk(dt) {
   if (v.moving) { const dx = tx - v.rx, dz = tz - v.rz, l = Math.hypot(dx, dz); v.rx += dx / l * sp * dt; v.rz += dz / l * sp * dt; v.face = Math.atan2(dx, dz);
     const st = Math.floor(v.ph / Math.PI); if (st !== v.lastSt) { v.lastSt = st; if (G.roam) { const dd = Math.hypot(G.rp.x - v.rx, G.rp.z - v.rz); if (dd < 14) SFX.step(clamp(.45 - dd * .03, .02, .45) * (st % 2 ? .5 : 1), 0); } } }
 }
-function poseVox(t) { const v = G.vox, u = VOX.userData; VOX.visible = true; VOX.position.set(v.rx, v.moving ? Math.abs(Math.sin(v.ph)) * .07 : 0, v.rz); VOX.rotation.set(0, v.face || 0, v.moving ? Math.sin(v.ph) * .13 : .05); if (v.moving) u.aR2.rotation.x = Math.sin(v.ph) * .5; }
+function poseVox(t) { const v = G.vox, u = VOX.userData; VOX.visible = true; VOX.position.set(v.rx, v.moving ? Math.abs(Math.sin(v.ph)) * .07 : 0, v.rz); VOX.rotation.set(0, v.face || 0, v.moving ? Math.sin(v.ph) * .06 : .03); animVox(v.ph, v.moving ? 1 : 0); }
 function roamPlayer(dt) {
   const p = G.rp; let mx = 0, mz = 0;
   if (joy) { mx = joy.dx; mz = joy.dy; }
@@ -984,7 +1008,7 @@ function finaleScene(t) {
   else if (t >= 26.5 && t < 30.5) { vp = stop; face = Math.atan2(cam.position.x - stop[0], cam.position.z - RZ - stop[1]); }
   else if (t >= 30.5 && t < 35) { const q = (t - 30.5) / 4.5; vp = [stop[0] + (from[0] - stop[0]) * q, stop[1] + (from[1] - stop[1]) * q]; moving = true; face = Math.atan2(from[0] - stop[0], from[1] - stop[1]); }
   VOX.visible = !!vp;
-  if (vp) { const ph = t * 5.5; VOX.position.set(vp[0], moving ? Math.abs(Math.sin(ph)) * .07 : 0, vp[1] + RZ); VOX.rotation.set(0, face, moving ? Math.sin(ph) * .13 : .05); if (moving) u.aR2.rotation.x = Math.sin(ph) * .5; u.redEye.material.color.setRGB(t > 27 && t < 30 && Math.random() < .3 ? .2 : 1, 0, 0); }
+  if (vp) { const ph = t * 5.5; VOX.position.set(vp[0], moving ? Math.abs(Math.sin(ph)) * .07 : 0, vp[1] + RZ); VOX.rotation.set(0, face, moving ? Math.sin(ph) * .06 : .03); animVox(ph, moving ? 1 : 0); u.redEye.material.color.setRGB(t > 27 && t < 30 && Math.random() < .3 ? .2 : 1, 0, 0); }
   flash.position.copy(cam.position).y -= .2; const fw = new THREE.Vector3(0, 0, -1).applyQuaternion(cam.quaternion); flash.target.position.copy(cam.position).addScaledVector(fw, 6); flash.intensity = 30;
   hemi.intensity = .5; animBuilding(t, .016, false);
 }
@@ -1070,6 +1094,7 @@ function render(t, dt) {
   } else if (S === 'extras' || S === 'devmenu' || S === 'loading') { VOX.visible = true; COC.visible = false; VOX.position.set(0, 0, -3.6); VOX.rotation.y = 0; cam.rotation.set(-.05, Math.sin(t * .15) * .15, 0); flash.intensity = 14; }
   if (S === 'menu') { COC.visible = false; VOX.visible = true; VOX.rotation.y = 0; VOX.position.set(0, 0, -3.6); cam.rotation.set(-.05, Math.sin(t * .15) * .15, 0); flash.intensity = 14; }
   if (S === 'home') homeCam(sceneT); if (S === 'finale') finaleScene(sceneT);
+  if (COC.visible) animCoc(t, dt);
   const showWorld = S === 'finale' || S === 'home' || S === 'menu' || S === 'play' || S === 'scare' || S === 'extras' || S === 'devmenu';
   if (showWorld && !(S === 'play' && G && G.monA >= 1)) renderer.render(scene, viewCam); else renderer.clear();
   if (S === 'play' && G && G.mon && G.monA >= 1 && bldReady && G.online.has(G.cam)) renderFeed(t, dt);
