@@ -1,0 +1,7 @@
+node_modules/
+android/
+www/models/cocoa.glb
+*.keystore
+www/models/building.glb
+www/models/axe.glb
+www/models/axe.glb

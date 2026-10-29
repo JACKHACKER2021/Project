@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>Night at Voxie's 4 – Frights & Hides</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+  #hud { z-index: 2; }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<canvas id="hud"></canvas>
+<script type="importmap">
+{ "imports": { "three": "./lib/three.module.js", "three/addons/": "./lib/addons/" } }
+</script>
+<script type="module">
+// ====================================================================
+//  NIGHT AT VOXIE'S 4 – FRIGHTS & HIDES (prototyp)
+//  Strašidelný dům postavený z toho, co přežilo požár herny Voxie's.
+// ====================================================================
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+const FONT = "'Courier New', monospace";
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('gl'), antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5)); renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x050304); scene.fog = new THREE.Fog(0x050304, 6, 22);
+const cam = new THREE.PerspectiveCamera(70, 16 / 9, .05, 80); scene.add(cam);
+const hemi = new THREE.HemisphereLight(0x8a7a90, 0x100808, .5); scene.add(hemi);
+const flash = new THREE.SpotLight(0xfff0d0, 0, 18, .5, .55, 1.1); scene.add(flash, flash.target);
+function canvasTex(w, h, draw) { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.magFilter = THREE.NearestFilter; return t; }
+const mat = (c, o = {}) => new THREE.MeshLambertMaterial({ color: c, ...o });
+function box(w, h, d, m, x, y, z, p = scene) { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); p.add(b); return b; }
+function textPlane(t, w, h, col, bg = 'rgba(0,0,0,0)', size = 40) { const c = document.createElement('canvas'); c.width = 512; c.height = Math.round(512 * h / w); const x = c.getContext('2d'); x.fillStyle = bg; x.fillRect(0, 0, c.width, c.height); x.fillStyle = col; x.font = `bold ${size}px ${FONT}`; x.textAlign = 'center'; x.shadowColor = col; x.shadowBlur = 12; t.split('\n').forEach((l, i, a) => x.fillText(l, 256, c.height / 2 + (i - (a.length - 1) / 2) * size * 1.15 + size * .35)); const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; return new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: tx, transparent: true })); }
+
+// ====================================================================
+//  MAPA: strašidelný dům Frights & Hides
+// ====================================================================
+const ROOMS = {
+  LOBBY: { name: 'Vstupní hala', x0: -6, x1: 6, z0: -2, z1: 6, open: { n: [[-1, 1]], e: [[0, 2]] }, wall: '#2a1820', f: ['#1a1014', '#2a1a20'] },
+  HALL: { name: 'Chodba hrůzy', x0: -2, x1: 2, z0: -16, z1: -2, open: { s: [[-1, 1]], w: [[-11, -9]], e: [[-11, -9]], n: [[-1, 1]] }, wall: '#1a2018', f: ['#101410', '#1a201a'] },
+  COCOA: { name: 'Pokoj Cocoy', x0: -12, x1: -2, z0: -14, z1: -6, open: { e: [[-11, -9]] }, wall: '#2a1430', f: ['#140a18', '#24142a'] },
+  VOXIE: { name: 'Voxieho dílna', x0: 2, x1: 12, z0: -14, z1: -6, open: { w: [[-11, -9]] }, wall: '#2a1a0c', f: ['#140c06', '#241a10'] },
+  BACK: { name: 'Zadní sklad', x0: -6, x1: 6, z0: -26, z1: -16, open: { s: [[-1, 1]] }, wall: '#18181c', f: ['#0c0c0e', '#18181c'] },
+  OFFICE: { name: 'Kancelář hlídače', x0: 6, x1: 12, z0: -2, z1: 4, open: { w: [[0, 2]] }, wall: '#202028', f: ['#14141a', '#202028'] },
+};
+const H = 3.2, DOOR_H = 2.4;
+function checker(a, b) { return (x, w, h) => { for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) { x.fillStyle = (i + j) % 2 ? a : b; x.fillRect(i * w / 8, j * h / 8, w / 8, h / 8); } for (let i = 0; i < 20; i++) { x.fillStyle = 'rgba(0,0,0,.4)'; x.fillRect(rand(0, w), rand(0, h), rand(2, 8), rand(2, 8)); } }; }
+const wallTex = canvasTex(64, 64, (x, w, h) => { x.fillStyle = '#888'; x.fillRect(0, 0, w, h); for (let i = 0; i < 6; i++) { x.fillStyle = 'rgba(0,0,0,.25)'; x.fillRect(0, i * 11, w, 2); } for (let i = 0; i < 30; i++) { x.fillStyle = `rgba(${Math.random() < .3 ? '60,0,0' : '0,0,0'},${rand(.1, .4)})`; x.fillRect(rand(0, w), rand(0, h), rand(1, 6), rand(4, 20)); } });
+wallTex.wrapS = wallTex.wrapT = THREE.RepeatWrapping;
+for (const id in ROOMS) { const r = ROOMS[id], w = r.x1 - r.x0, d = r.z1 - r.z0, cx = (r.x0 + r.x1) / 2, cz = (r.z0 + r.z1) / 2;
+  const ft = canvasTex(64, 64, checker(r.f[0], r.f[1])); ft.wrapS = ft.wrapT = THREE.RepeatWrapping; ft.repeat.set(w / 2, d / 2);
+  const fl = new THREE.Mesh(new THREE.PlaneGeometry(w, d), new THREE.MeshLambertMaterial({ map: ft })); fl.rotation.x = -Math.PI / 2; fl.position.set(cx, 0, cz); scene.add(fl);
+  const ce = new THREE.Mesh(new THREE.PlaneGeometry(w, d), mat('#0a0608')); ce.rotation.x = Math.PI / 2; ce.position.set(cx, H, cz); scene.add(ce);
+  const wm = new THREE.MeshLambertMaterial({ map: wallTex, color: r.wall });
+  const edge = (side, a0, a1, fixed) => { const ops = (r.open[side] || []).slice().sort((p, q) => p[0] - q[0]); let cur = a0;
+    const seg = (s, e, y0, y1) => { if (e - s < .01) return; const len = e - s, mid = (s + e) / 2, hh = y1 - y0; if (side === 'n' || side === 's') box(len, hh, .12, wm, mid, y0 + hh / 2, fixed); else box(.12, hh, len, wm, fixed, y0 + hh / 2, mid); };
+    for (const [s, e] of ops) { seg(cur, s, 0, H); seg(s, e, DOOR_H, H); cur = e; } seg(cur, a1, 0, H); };
+  edge('n', r.x0, r.x1, r.z0); edge('s', r.x0, r.x1, r.z1); edge('w', r.z0, r.z1, r.x0); edge('e', r.z0, r.z1, r.x1); }
+const ZONES = []; for (const id in ROOMS) { const r = ROOMS[id]; for (const side in r.open) for (const [a, b] of r.open[side]) { const fx = side === 'n' ? r.z0 : side === 's' ? r.z1 : side === 'w' ? r.x0 : r.x1; ZONES.push(side === 'n' || side === 's' ? { x0: a + .3, x1: b - .3, z0: fx - .5, z1: fx + .5 } : { x0: fx - .5, x1: fx + .5, z0: a + .3, z1: b - .3 }); } }
+const inR = (r, x, z, m) => x > r.x0 + m && x < r.x1 - m && z > r.z0 + m && z < r.z1 - m;
+let PROPS_BLOCK = [];
+const walkable = (x, z) => (Object.values(ROOMS).some(r => inR(r, x, z, .3)) || ZONES.some(d => inR(d, x, z, 0))) && !PROPS_BLOCK.some(b => inR(b, x, z, 0));
+const roomAt = (x, z) => { for (const id in ROOMS) if (inR(ROOMS[id], x, z, 0)) return id; return null; };
+// světla: slabé, barevné, některá blikají
+const LAMPS = [[0, 2.8, 2, 0xff6040, 5], [0, 2.8, -9, 0x40ff60, 3], [-7, 2.8, -10, 0xc060ff, 4], [7, 2.8, -10, 0xff9030, 4], [0, 2.8, -21, 0xff2020, 3], [9, 2.6, 1, 0xd0e0ff, 4]].map(([x, y, z, c, i]) => { const L = new THREE.PointLight(c, i, 11, 1.4); L.position.set(x, y, z); L.userData.base = i; scene.add(L); return L; });
+// rekvizity
+{ const blk = (x0, z0, x1, z1) => PROPS_BLOCK.push({ x0, x1, z0, z1 });
+  // hala: pokladna, plakáty, nápis
+  box(2.4, 1.1, .8, mat('#3a1a20'), -3.5, .55, 4.4); box(2.5, .1, .9, mat('#1a0a0c'), -3.5, 1.15, 4.4); blk(-4.8, 3.9, -2.2, 4.9);
+  const sign = textPlane('FRIGHTS & HIDES', 5, 1, '#9fff6b', 'rgba(0,0,0,0)', 52); sign.position.set(0, 2.6, 5.9); sign.rotation.y = Math.PI; scene.add(sign);
+  const pl = textPlane('SKUTEČNÉ RELIKVIE\nZ VYHOŘELÉ HERNY\nVOXIE\'S!', 1.6, 2, '#ffd040', '#2a0a0a', 46); pl.position.set(-5.92, 1.6, 1); pl.rotation.y = Math.PI / 2; scene.add(pl);
+  const pl2 = textPlane('VSTUP NA\nVLASTNÍ\nNEBEZPEČÍ', 1.4, 1.6, '#ff4040', '#100404', 50); pl2.position.set(1.5, 1.6, -1.94); scene.add(pl2);
+  // chodba: klece, pavučiny, kostra, staré plakáty z herny
+  for (let i = 0; i < 5; i++) { const p = textPlane(pick(["VOXIE'S\nBAV SE!", 'COCOA\nJE ZPĚT', '1997', 'NEOTVÍRAT', 'VOXIE\nTĚ VIDÍ']), .9, 1.2, pick(['#ffe46b', '#ff60e0', '#ff4040']), pick(['#3b1d6e', '#2a0a0a', '#14313d']), 46); p.position.set(i % 2 ? 1.92 : -1.92, 1.6, -3.5 - i * 2.4); p.rotation.y = i % 2 ? -Math.PI / 2 : Math.PI / 2; scene.add(p); }
+  for (let i = 0; i < 3; i++) { const g = new THREE.Group(); g.position.set(i % 2 ? 1.5 : -1.5, 0, -5 - i * 3.5); scene.add(g); for (let k = 0; k < 6; k++) box(.03, 2, .03, mat('#3a3a3a'), Math.cos(k) * .3, 1, Math.sin(k) * .3, g); box(.7, .05, .7, mat('#3a3a3a'), 0, 2, 0, g); }
+  // kancelář: stůl, monitor, židle
+  box(2, .75, .9, mat('#3a2a1a'), 10.5, .37, 1); box(.7, .5, .1, mat('#111'), 10.5, 1.05, .7); const scr = box(.6, .4, .02, new THREE.MeshBasicMaterial({ color: 0x103018 }), 10.5, 1.05, .76); scr.userData.screen = true; blk(9.4, .5, 11.6, 1.5);
+  // zadní sklad: bedny, regály
+  for (const [x, z] of [[-4.5, -24], [-3.5, -24.5], [4.5, -18], [4, -24.6], [-4.6, -17.5]]) { box(1, 1, 1, mat('#4a3420'), x, .5, z); blk(x - .5, z - .5, x + .5, z + .5); }
+  box(.3, 2.4, 3, mat('#2a2a2e'), 5.6, 1.2, -21); blk(5.3, -22.5, 5.9, -19.5);
+}
+// ====================================================================
+//  ZVUK
+// ====================================================================
+let AC = null, master, noiseBuf, amb = null;
+function initAudio() {
+  if (AC) { if (AC.state !== 'running') AC.resume(); return; }
+  try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
+  master = AC.createGain(); master.gain.value = .85; master.connect(AC.destination);
+  noiseBuf = AC.createBuffer(1, AC.sampleRate * 2, AC.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+}
+function out(n, pan) { const p = AC.createStereoPanner ? AC.createStereoPanner() : AC.createGain(); if (p.pan) p.pan.value = clamp(pan || 0, -1, 1); n.connect(p); p.connect(master); }
+function tone(f, type, dur, vol, pan = 0, when = 0, slide = 0) { if (!AC) return; const t = AC.currentTime + when, o = AC.createOscillator(), g = AC.createGain(); o.type = type; o.frequency.setValueAtTime(f, t); if (slide) o.frequency.exponentialRampToValueAtTime(slide, t + dur); g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + dur); o.connect(g); out(g, pan); o.start(t); o.stop(t + dur + .05); }
+function noiseHit(dur, vol, freq, type = 'lowpass', pan = 0, when = 0, q = 1) { if (!AC) return; const t = AC.currentTime + when, s = AC.createBufferSource(), f = AC.createBiquadFilter(), g = AC.createGain(); s.buffer = noiseBuf; f.type = type; f.frequency.value = freq; f.Q.value = q; g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + dur); s.connect(f); f.connect(g); out(g, pan); s.start(t, Math.random()); s.stop(t + dur + .05); }
+const SFX = {
+  spark(vol, pan) { for (let i = 0; i < 4; i++) noiseHit(.05, vol, 4000, 'highpass', pan, i * rand(.03, .09)); tone(rand(80, 140), 'sawtooth', .15, vol * .4, pan); },
+  step(vol, pan) { tone(55, 'sine', .25, vol, pan, 0, 30); noiseHit(.12, vol * .6, 300, 'lowpass', pan); tone(420, 'triangle', .1, vol * .3, pan, .05, 380); },
+  click() { tone(1600, 'square', .03, .05); }, cam() { tone(900, 'square', .05, .05); noiseHit(.15, .1, 3000, 'highpass'); },
+  lure() { for (let i = 0; i < 6; i++) tone(pick([523, 659, 784]), 'square', .12, .04, 0, i * .14); },
+  whisper() { noiseHit(1.4, .12, 1800, 'bandpass', -.6, 0, 3); tone(340, 'sine', 1.2, .02, -.6, 0, 300); },
+  drain() { tone(300, 'sawtooth', 1.2, .18, 0, 0, 40); noiseHit(1, .25, 900, 'bandpass'); },
+  scare() { noiseHit(1.3, .7, 1800, 'bandpass', 0, 0, .7); tone(380, 'sawtooth', 1.2, .35, -.2, 0, 950); tone(395, 'sawtooth', 1.2, .35, .2, 0, 1000); tone(120, 'square', 1.2, .3, 0, 0, 60); },
+  chime() { for (let i = 0; i < 6; i++) tone(784, 'sine', 1.6, .2, 0, i * .85); },
+  powerDown() { tone(240, 'sawtooth', 1.8, .2, 0, 0, 25); noiseHit(1.2, .2, 200); },
+};
+// hlas pana Vojtěcha: hluboký, rozladěný, šeptavý (slabiky podle samohlásek)
+const FORM = { a: [800, 1250], e: [500, 1850], i: [320, 2300], o: [500, 900], u: [350, 750], y: [320, 2300] };
+function voice(text, o = {}) {
+  const clean = text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''), syl = [];
+  for (const m of clean.matchAll(/([^aeiouy\s.,!?…]*)([aeiouy]+)|([.,!?…]+)/g)) syl.push(m[3] ? { pause: /[.!?…]/.test(m[3]) ? .4 : .2 } : { v: m[2][0] });
+  if (!AC) return syl.reduce((a, s) => a + (s.pause || .14), 0) + .3;
+  const dest = AC.createGain(); dest.gain.value = o.vol || .5; const hp = AC.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 180; dest.connect(hp); out(hp, o.pan || 0);
+  let t = AC.currentTime + .05;
+  for (const sy of syl) {
+    if (sy.pause) { t += sy.pause; continue; }
+    const dur = rand(.12, .19), f0 = 95 * (o.pitch || 1) * rand(.85, 1.15) * (Math.random() < .15 ? .6 : 1);
+    const osc = AC.createOscillator(); osc.type = 'sawtooth'; osc.frequency.setValueAtTime(f0, t); osc.frequency.linearRampToValueAtTime(f0 * rand(.8, 1.05), t + dur);
+    const env = AC.createGain(); env.gain.setValueAtTime(.0001, t); env.gain.exponentialRampToValueAtTime(1, t + .03); env.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    const [F1, F2] = FORM[sy.v] || FORM.a;
+    for (const [F, gg] of [[F1, 1], [F2, .5]]) { const bp = AC.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = F * .85; bp.Q.value = 5; const g = AC.createGain(); g.gain.value = gg; osc.connect(bp); bp.connect(g); g.connect(env); }
+    const nz = AC.createBufferSource(); nz.buffer = noiseBuf; const nf = AC.createBiquadFilter(); nf.type = 'bandpass'; nf.frequency.value = 1500; const ng = AC.createGain(); ng.gain.setValueAtTime(.25, t); ng.gain.exponentialRampToValueAtTime(.0001, t + dur); nz.connect(nf); nf.connect(ng); ng.connect(env); nz.start(t, Math.random()); nz.stop(t + dur);
+    env.connect(dest); osc.start(t); osc.stop(t + dur + .02); t += dur * .95;
+  }
+  return t - AC.currentTime + .3;
+}
+function startAmbient() {
+  if (!AC || amb) return; const g = AC.createGain(); g.gain.value = .9; g.connect(master);
+  const n = AC.createBufferSource(); n.buffer = noiseBuf; n.loop = true; const f = AC.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 260; const ng = AC.createGain(); ng.gain.value = .09; n.connect(f); f.connect(ng); ng.connect(g); n.start();
+  const o = AC.createOscillator(); o.frequency.value = 41; const og = AC.createGain(); og.gain.value = .05; o.connect(og); og.connect(g); o.start();
+  amb = { g, nodes: [n, o] };
+}
+function heartbeat(vol) { tone(48, 'sine', .22, vol); tone(44, 'sine', .25, vol * .8, 0, .2); }
+function makeHuman(shirt, pants, hair, skin = '#e0b090', cap = null) {
+  const g = new THREE.Group(), node = (p, x, y, z) => { const n = new THREE.Group(); n.position.set(x, y, z); p.add(n); return n; };
+  const hips = node(g, 0, .9, 0), legs = [];
+  for (const s of [-1, 1]) { const l = node(hips, s * .11, 0, 0); box(.17, .45, .19, mat(pants), 0, -.22, 0, l); const k = node(l, 0, -.45, 0); box(.16, .42, .18, mat(pants), 0, -.2, 0, k); box(.18, .08, .28, mat('#1a1410'), 0, -.42, .05, k); legs.push([l, k]); }
+  const chest = node(hips, 0, .02, 0); box(.44, .58, .24, mat(shirt), 0, .3, 0, chest);
+  const arms = []; for (const s of [-1, 1]) { const a = node(chest, s * .29, .56, 0); box(.13, .32, .14, mat(shirt), 0, -.15, 0, a); const f = node(a, 0, -.32, 0); box(.12, .3, .13, mat(skin), 0, -.14, 0, f); arms.push([a, f]); }
+  const head = node(chest, 0, .62, 0); box(.3, .32, .3, mat(skin), 0, .16, 0, head); box(.32, .1, .32, mat(hair), 0, .34, -.01, head); box(.32, .2, .06, mat(hair), 0, .24, -.15, head);
+  for (const s of [-1, 1]) box(.05, .04, .02, mat('#1a1a1a'), s * .07, .19, .155, head);
+  const mouth = box(.1, .025, .02, mat('#6a2a20'), 0, .08, .155, head);
+  if (cap) { box(.34, .1, .34, mat(cap), 0, .37, 0, head); box(.34, .03, .14, mat(cap), 0, .33, .2, head); }
+  g.userData = { hips, legs, arms, chest, head, mouth }; return g;
+}
+function animHuman(h, ph, walk, t, talk = 0) {
+  const u = h.userData, s = Math.sin(ph);
+  u.legs[0][0].rotation.x = s * .5 * walk; u.legs[1][0].rotation.x = -s * .5 * walk; u.legs[0][1].rotation.x = Math.max(0, -s) * .5 * walk; u.legs[1][1].rotation.x = Math.max(0, s) * .5 * walk;
+  u.arms[0][0].rotation.x = -s * .4 * walk; u.arms[1][0].rotation.x = s * .4 * walk;
+  u.hips.position.y = .9 + Math.abs(Math.cos(ph)) * .03 * walk; u.chest.rotation.y = s * .05 * walk + Math.sin(t * .8) * .02;
+  u.head.rotation.x = Math.sin(t * 1.1) * .03; u.mouth.scale.y = talk ? 1 + Math.abs(Math.sin(t * 14)) * 3 : 1;
+}
+function buildVoxie1() {
+  const FUR = '#8a5a2b', DARK = '#5a3716', BELLY = '#d6a064';
+  const furTex = canvasTex(32, 32, (x, w, h) => { x.fillStyle = FUR; x.fillRect(0, 0, w, h); x.strokeStyle = 'rgba(0,0,0,.25)'; x.lineWidth = 2; x.strokeRect(1, 1, w - 2, h - 2); });
+  const fur = new THREE.MeshLambertMaterial({ map: furTex }), dark = mat(DARK), belly = mat(BELLY);
+  const g = new THREE.Group(); const rig = {}; g.userData.rig = rig;
+  const node = (name, parent, x, y, z) => { const n = new THREE.Group(); n.name = name; n.position.set(x, y, z); parent.add(n); return n; };
+  const hips = node('hips', g, 0, .8, 0); rig.hips = hips;
+  for (const s of [-1, 1]) {
+    const k = s < 0 ? 'R' : 'L';
+    const l1 = node('leg' + k + '1', hips, s * .2, 0, 0); box(.26, .45, .3, fur, 0, -.22, 0, l1);
+    const l2 = node('leg' + k + '2', l1, 0, -.45, 0); box(.24, .32, .28, fur, 0, -.16, 0, l2); box(.3, .1, .4, dark, 0, -.3, .05, l2);
+    rig['leg' + k + '1'] = l1; rig['leg' + k + '2'] = l2;
+  }
+  const chest = node('chest', hips, 0, .05, 0); rig.chest = rig.spine = chest;
+  box(.8, .72, .55, fur, 0, .36, 0, chest); box(.52, .5, .02, belly, 0, .32, .28, chest);
+  box(.18, .14, .06, mat('#ff2bd6'), -.11, .68, .29, chest); box(.18, .14, .06, mat('#ff2bd6'), .11, .68, .29, chest);
+  for (const s of [-1, 1]) {
+    const k = s < 0 ? 'R' : 'L';
+    const a1 = node('arm' + k + '1', chest, s * .52, .64, 0); box(.22, .4, .24, fur, 0, -.2, 0, a1);
+    const a2 = node('arm' + k + '2', a1, 0, -.4, 0); box(.2, .34, .22, fur, 0, -.17, 0, a2); box(.22, .1, .24, dark, 0, -.34, 0, a2);
+    const a3 = node('arm' + k + '3', a2, 0, -.4, 0);
+    rig['arm' + k + '1'] = a1; rig['arm' + k + '2'] = a2; rig['arm' + k + '3'] = a3;
+  }
+  const head = node('head', chest, 0, .74, 0); rig.head = head;
+  box(.82, .64, .7, fur, 0, .32, 0, head); box(.38, .2, .2, belly, 0, .17, .38, head); box(.14, .09, .06, mat('#2a1608'), 0, .24, .48, head);
+  for (const s of [-1, 1]) {
+    const e = node('ear', head, s * .3, .64, 0); box(.22, .2, .14, fur, 0, .1, 0, e); box(.12, .1, .02, mat('#e88aa0'), 0, .1, .08, e);
+    rig[s < 0 ? 'earR1' : 'earL1'] = e;
+    { const e = new THREE.Mesh(new THREE.CylinderGeometry(.095, .095, .03, 24), mat('#f2f2ea')); e.rotation.x = Math.PI / 2; e.position.set(s * .19, .44, .355); head.add(e); }
+  }
+  for (const s of [-1, 1]) { const e = new THREE.Mesh(new THREE.CylinderGeometry(.045, .045, .03, 20), new THREE.MeshBasicMaterial({ color: 0x111111 })); e.rotation.x = Math.PI / 2; e.position.set(s * .19, .43, .372); head.add(e); const hl = new THREE.Mesh(new THREE.CircleGeometry(.014, 10), new THREE.MeshBasicMaterial({ color: 0xffffff })); hl.position.set(s * .19 + .015, .445, .388); head.add(hl); }
+  g.traverse(o => { if (o.isMesh) o.frustumCulled = false; }); g.userData.head = head;
+  return g;
+}
+function walkTo(h, tx, tz, sp, dt) { const dx = tx - h.position.x, dz = tz - h.position.z, d = Math.hypot(dx, dz); h.userData.walk = d > .15 ? 1 : 0; if (d > .15) { const k = Math.min(d, sp * dt) / d; h.position.x += dx * k; h.position.z += dz * k; h.rotation.y = Math.atan2(dx, dz); h.userData.ph = (h.userData.ph || 0) + dt * 7; } return d <= .15; }
+function suitMask(cy, ry) { maskC.width = hud.width; maskC.height = hud.height; const m = maskC.getContext('2d'); m.setTransform(HK, 0, 0, HK, 0, 0); m.fillStyle = '#000'; m.fillRect(0, 0, HW, HH); m.globalCompositeOperation = 'destination-out';
+  for (const sx of [-190, 190]) { const g = m.createRadialGradient(HW / 2 + sx, cy, 20, HW / 2 + sx, cy, 170); g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(.8, 'rgba(0,0,0,1)'); g.addColorStop(1, 'rgba(0,0,0,0)'); m.fillStyle = g; m.beginPath(); m.ellipse(HW / 2 + sx, cy, 170, ry, 0, 0, 7); m.fill(); }
+  ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(maskC, 0, 0); ctx.restore(); }
+const maskC = document.createElement('canvas');
+function rr(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+// Hollow Hare: springlockový zajíc. clean = opravená (nedokončená) verze, jak ji nechal pan Vojtěch
+function makeHare(clean = false) {
+const furTex = canvasTex(32, 32, (x, w, h) => { x.fillStyle = '#5e5e2a'; x.fillRect(0, 0, w, h); for (let i = 0; i < 3; i++) { x.fillStyle = `rgba(90,10,6,${rand(.5, .8)})`; const bx = rand(0, w), by = rand(0, h); x.fillRect(bx, by, rand(3, 8), rand(2, 5)); x.fillRect(bx + 1, by, 2, rand(6, 14)); } for (let i = 0; i < 40; i++) { x.fillStyle = `rgba(${Math.random() < .5 ? '40,40,10' : '120,110,60'},${rand(.3, .7)})`; x.fillRect(rand(0, w), rand(0, h), rand(1, 4), rand(1, 4)); } for (let i = 0; i < 3; i++) { x.fillStyle = '#1a1008'; x.fillRect(rand(0, w - 6), rand(0, h - 6), rand(2, 6), rand(2, 5)); } x.strokeStyle = 'rgba(0,0,0,.35)'; x.strokeRect(.5, .5, w - 1, h - 1); });
+const mat = c => new THREE.MeshLambertMaterial({ color: c });
+const fur = new THREE.MeshLambertMaterial({ map: furTex }), dark = mat('#4a4a20'), belly = mat('#a8a070'), flesh = mat('#6a2a24'), skin = mat('#b08a78'), metal = mat('#6a6e74'), wire = [mat('#c0201a'), mat('#2050c0'), mat('#d0b020'), mat('#202020')];
+const box = (w, h, d, m, x, y, z, p) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); p.add(b); return b; };
+const node = (p, x, y, z) => { const n = new THREE.Group(); n.position.set(x, y, z); p.add(n); return n; };
+const tube = (p, pts, r, m) => p.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts.map(a => new THREE.Vector3(...a))), 12, r, 5), m));
+const H = new THREE.Group(), legs = [];
+const hips = node(H, 0, .85, 0); hips.rotation.z = .05;
+// nohy (pravá roztržená v koleni, vidět kov a maso)
+for (const s of [-1, 1]) { const l = node(hips, s * .2, 0, 0); legs.push(l); box(.26, .46, .3, fur, 0, -.23, 0, l); const k = node(l, 0, -.46, 0); k.rotation.x = s > 0 ? .12 : 0;
+  box(.24, .34, .28, fur, 0, -.17, 0, k); box(.32, .12, .46, dark, 0, -.34, .08, k);
+  if (s > 0) { box(.26, .08, .3, flesh, 0, .0, 0, k); box(.05, .2, .05, metal, .08, -.02, .1, k); tube(k, [[.05, .1, .14], [.12, -.05, .18], [.06, -.2, .16]], .012, wire[0]); } }
+// trup: díra v břiše, lidské žebra a springlocky
+const chest = node(hips, 0, .05, 0); chest.rotation.x = .42; chest.rotation.z = -.1;
+box(.84, .76, .56, fur, 0, .38, 0, chest); box(.54, .5, .02, belly, 0, .34, .29, chest);
+box(.3, .32, .06, mat('#0a0505'), .08, .3, .29, chest); for (let i = 0; i < 4; i++) box(.26, .03, .04, mat('#d8c8b0'), .08, .2 + i * .065, .3, chest); // díra a žebra
+for (const [x, y] of [[-.3, .55], [.3, .55], [-.3, .15], [.3, .15]]) { box(.07, .07, .07, metal, x, y, .29, chest); box(.03, .1, .03, metal, x, y - .06, .31, chest); }
+for (let i = 0; i < 6; i++) tube(chest, [[rand(-.1, .2), .4, .1], [rand(-.25, .3), .25, .32], [rand(-.3, .35), rand(-.1, .1), .38]], .013, wire[i % 4]);
+box(.1, .55, .02, mat('#2a1a10'), -.25, .38, .29, chest); for (let i = 0; i < 6; i++) box(.06, .015, .03, mat('#b0a080'), -.25, .14 + i * .09, .3, chest); // zašitý šev
+// ruce: levá visí, pravá ohnutá s odhalenou lidskou rukou
+const aL = node(chest, .54, .66, 0); aL.rotation.z = .25; box(.22, .42, .24, fur, 0, -.21, 0, aL); const aL2 = node(aL, 0, -.42, 0); aL2.rotation.x = -.1; box(.2, .36, .22, fur, 0, -.18, 0, aL2); box(.24, .12, .26, dark, 0, -.38, 0, aL2); for (const dx of [-.07, 0, .07]) { const c = box(.03, .16, .03, metal, dx, -.5, .04, aL2); c.rotation.x = .4; }
+const aR = node(chest, -.54, .66, 0); aR.rotation.set(-.5, 0, -.3); box(.22, .42, .24, fur, 0, -.21, 0, aR); const aR2 = node(aR, 0, -.42, 0); aR2.rotation.x = -.9; box(.2, .18, .22, fur, 0, -.09, 0, aR2);
+box(.09, .16, .09, skin, 0, -.26, .02, aR2); for (const dx of [-.04, 0, .04]) box(.025, .1, .025, skin, dx, -.38, .03, aR2); box(.12, .05, .12, flesh, 0, -.18, 0, aR2);
+// hlava: zaječí, s jedním ulomeným uchem, propadlou čelistí a lidskýma očima uvnitř
+const head = node(chest, 0, .8, .06); head.rotation.set(-.25, .3, .28);
+box(.82, .66, .7, fur, 0, .33, 0, head); box(.84, .12, .72, dark, 0, .68, 0, head); // čelo s propadlinou
+for (const s2 of [-1, 1]) box(.12, .2, .5, mat('#4a4a20'), s2 * .42, .32, 0, head);
+// rozšklebená tlama: tmavá dutina, ostré zuby kostýmu a za nimi lidské zuby
+box(.62, .3, .3, mat('#060202'), 0, .08, .3, head);
+const jaw = node(head, 0, .02, .12); jaw.rotation.x = .75; box(.6, .12, .52, fur, 0, -.06, .1, jaw); box(.5, .03, .4, mat('#3a0806'), 0, .0, .1, jaw);
+for (let i = 0; i < 7; i++) { const t1 = box(.05, .12, .04, mat('#d8cc9a'), -.24 + i * .08, .06, .32, jaw); t1.rotation.z = rand(-.3, .3); const t2 = box(.05, .13, .04, mat('#c8bc8a'), -.24 + i * .08, .17, .43, head); t2.rotation.z = rand(-.3, .3); t2.rotation.x = .2; }
+for (let i = 0; i < 6; i++) box(.045, .05, .03, mat('#f0e8d8'), -.11 + i * .045, .11, .33, head); // lidské zuby uvnitř
+box(.46, .22, .22, mat('#7a7050'), 0, .3, .38, head); box(.12, .08, .06, mat('#2a0a06'), 0, .38, .5, head); // čenich
+for (const s2 of [-1, 1]) { box(.26, .24, .05, mat('#000000'), s2 * .2, .52, .34, head); // hluboké černé důlky
+  const e = new THREE.Mesh(new THREE.SphereGeometry(.04, 12, 10), mat('#d8d0b8')); e.position.set(s2 * .2, .5, .345); head.add(e);
+  const iris = new THREE.Mesh(new THREE.SphereGeometry(.014, 10, 8), new THREE.MeshBasicMaterial({ color: 0xc8ffd0 })); iris.position.set(s2 * .2 + .006, .5, .382); head.add(iris);
+  const gl = new THREE.PointLight(0x80ffa0, .8, .6); gl.position.set(s2 * .2, .5, .42); head.add(gl);
+  box(.03, .12, .02, mat('#5a0806'), s2 * .2 + .04, .37, .375, head); } // krvavé slzy
+for (let i = 0; i < 4; i++) tube(head, [[rand(-.3, .3), .1, .3], [rand(-.3, .3), -.05, .38], [rand(-.3, .3), -.2, .36]], .01, wire[i % 4]);
+// uši: levé dlouhé a zlomené, pravé utržené s kabely
+const eL = node(head, .2, .7, -.05); eL.rotation.z = -.15; box(.14, .7, .1, fur, 0, .35, 0, eL); const eL2 = node(eL, 0, .7, 0); eL2.rotation.z = -2.0; box(.13, .45, .09, fur, 0, .22, 0, eL2); box(.14, .06, .11, flesh, 0, .0, 0, eL2); box(.07, .3, .02, mat('#8a5a50'), 0, .25, .06, eL);
+const eR = node(head, -.2, .7, -.05); box(.14, .14, .1, fur, 0, .07, 0, eR); box(.06, .06, .06, metal, 0, .16, 0, eR); tube(eR, [[0, .14, 0], [-.05, .3, .02], [-.12, .36, -.05]], .012, wire[0]); tube(eR, [[0, .14, 0], [.04, .28, -.03], [.02, .4, .02]], .012, wire[1]);
+// ocas
+box(.2, .2, .18, mat('#a8a070'), 0, .1, -.36, hips);
+
+  if (clean) { const cleanTex = canvasTex(32, 32, (x, w, h) => { x.fillStyle = '#c8a848'; x.fillRect(0, 0, w, h); for (let i = 0; i < 20; i++) { x.fillStyle = `rgba(255,240,180,${rand(.1, .3)})`; x.fillRect(rand(0, w), rand(0, h), rand(1, 3), rand(1, 3)); } x.strokeStyle = 'rgba(0,0,0,.25)'; x.strokeRect(.5, .5, w - 1, h - 1); });
+    fur.map = cleanTex; fur.needsUpdate = true; const kill = ['0a0505', '000000', '060202', '5a0806', 'd8c8b0', 'f0e8d8', '3a0806', '2a0806', '6a2a24', 'b08a78', 'd8d0b8', '2a1a10', 'b0a080', '8a5a50'];
+    H.traverse(o => { if (o.isPointLight) o.visible = false; if (!o.isMesh) return; const m = o.material; if (o.geometry.type === 'TubeGeometry' || (m.color && kill.includes(m.color.getHexString())) || (m.isMeshBasicMaterial)) o.visible = false; });
+    box(.54, .5, .03, mat('#e0c870'), 0, .34, .3, chest); for (const s2 of [-1, 1]) box(.22, .2, .05, mat('#1a1408'), s2 * .2, .52, .34, head); jaw.rotation.x = .12; chest.rotation.x = .1; head.rotation.set(0, 0, 0); }
+  H.traverse(o => { if (o.isMesh) o.frustumCulled = false; });
+  H.userData = { head, jaw, chest, aL, aR, hips, legs, clean }; return H;
+}
+
+// ====================================================================
+//  POSTAVY A EXPONÁTY
+// ====================================================================
+const OWNER = makeHuman('#5a1a4a', '#1a1a20', '#2a2a2a', '#e0b090', '#111'); scene.add(OWNER); box(.2, .05, .05, mat('#3a2a1a'), 0, .1, .16, OWNER.userData.head); // knír
+const GVOJ = makeHuman('#2a4a8a', '#2a2a30', '#5a3a20'); scene.add(GVOJ); GVOJ.visible = false;
+const ghostMat = new THREE.MeshBasicMaterial({ color: 0x9fd0ff, transparent: true, opacity: .4, depthWrite: false }); GVOJ.traverse(o => { if (o.isMesh) o.material = ghostMat; });
+const HARE = makeHare(false); scene.add(HARE); const HAREC = makeHare(true); scene.add(HAREC); HAREC.visible = false;
+// ohořelé exponáty: Voxieho hlava a tělo, Cocoina hlava a ruce
+const burnMat = m => { const n = m.clone(); if (n.color) n.color.multiplyScalar(.28).lerp(new THREE.Color('#1a1210'), .35); if (n.map) n.color.multiplyScalar(.9); return n; };
+function burnObj(o) { o.traverse(c => { if (c.isMesh) c.material = Array.isArray(c.material) ? c.material.map(burnMat) : burnMat(c.material); }); }
+const VBODY = buildVoxie1(); burnObj(VBODY); scene.add(VBODY); VBODY.position.set(9.6, 0, -12.4); VBODY.rotation.set(0, -.6, 0); VBODY.userData.head.visible = false; VBODY.userData.rig.armR1.rotation.z = -.8;
+const VHEAD = buildVoxie1(); burnObj(VHEAD); scene.add(VHEAD); { const h = VHEAD.userData.head; VHEAD.remove(h); h.removeFromParent && h.removeFromParent(); VHEAD.clear(); VHEAD.add(h); h.position.set(0, 0, 0); h.rotation.set(.1, .3, .2); } VHEAD.position.set(4.5, 1.05, -12.6);
+box(.7, 1, .7, mat('#2a2018'), 4.5, .5, -12.6); box(1, .9, .8, mat('#2a2018'), -9.5, .45, -12.6); box(2, .8, .9, mat('#3a2a1a'), -5, .4, -12.8);
+PROPS_BLOCK.push({ x0: 4.1, x1: 4.9, z0: -13, z1: -12.2 }, { x0: -10, x1: -9, z0: -13, z1: -12.2 }, { x0: -6, x1: -4, z0: -13.25, z1: -12.35 }, { x0: 9, x1: 10.2, z0: -13, z1: -11.8 });
+const cocExhibits = {};
+for (const [x, z] of [[-9.5, -12.6], [-5, -12.6], [4.5, -12.6], [9.6, -12.4]]) { const L = new THREE.SpotLight(0xffe0c0, 9, 6, .45, .5, 1.2); L.position.set(x, 2.9, z + 1.2); L.target.position.set(x, .8, z); scene.add(L, L.target); }
+function loadCocoa(only, burn, cb) { return new GLTFLoader().loadAsync('models/cocoa.glb').then(gl => { const m = gl.scene, b = new THREE.Box3().setFromObject(m), s = 1.6 / b.getSize(new THREE.Vector3()).y; m.scale.setScalar(s); m.position.set(-(b.min.x + b.max.x) / 2 * s, -b.min.y * s, -(b.min.z + b.max.z) / 2 * s);
+  const names = { Arms: 'Object_7', Body: 'Object_9', Head: 'Object_11', Legs: 'Object_13' };
+  m.traverse(o => { if (o.isMesh) { o.frustumCulled = false; [].concat(o.material).forEach(q => { q.transparent = false; q.alphaTest = .5; q.side = THREE.DoubleSide; }); if (burn) o.material = burnMat(o.material); if (only && !only.map(k => names[k]).includes(o.name)) o.visible = false; } });
+  const g = new THREE.Group(); g.add(m); scene.add(g); cb(g, m); }).catch(e => console.warn('cocoa', e)); }
+const L1 = loadCocoa(['Head'], true, (g) => { g.position.set(-9.5, -.55, -12.6); g.rotation.set(.15, .5, .1); cocExhibits.head = g; });
+const L2 = loadCocoa(['Arms'], true, (g) => { g.position.set(-5, -.6, -12.4); g.rotation.set(-Math.PI / 2 + .1, 0, .3); g.position.y = .55; g.position.z = -12.1; cocExhibits.arms = g; });
+const shadowMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: .85 });
+const GEMA = new THREE.Group(); scene.add(GEMA); GEMA.visible = false; for (const x of [-.13, .13]) { const e = new THREE.Mesh(new THREE.SphereGeometry(.05, 10, 8), new THREE.MeshBasicMaterial({ color: 0xffffff })); e.position.set(x, 1.38, .36); GEMA.add(e); }
+const L3 = new GLTFLoader().loadAsync('models/cocoa.glb').then(gl => { const m = gl.scene, b = new THREE.Box3().setFromObject(m), s = 1.6 / b.getSize(new THREE.Vector3()).y; m.scale.setScalar(s); m.position.set(-(b.min.x + b.max.x) / 2 * s, -b.min.y * s, -(b.min.z + b.max.z) / 2 * s); m.traverse(o => { if (o.isMesh) { o.material = shadowMat; o.frustumCulled = false; } }); GEMA.add(m);
+  const bs = []; m.traverse(o => { if (o.isBone) bs.push(o); }); for (const [re, base] of [[/Bone_?009_?r/, 1.15], [/Bone_?009_?l/, -1.15]]) { const x = bs.find(q => re.test(q.name)); if (x) x.quaternion.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, base))); } }).catch(() => {});
+// sklad, kam D. utekl (prolog)
+const WX = 200, WARE = new THREE.Group(); WARE.position.set(WX, 0, 0); scene.add(WARE); WARE.visible = false;
+{ const wm = mat('#3a3a40'); box(14, .1, 12, mat('#202024'), 0, 0, 0, WARE); box(14, .1, 12, mat('#101012'), 0, 4, 0, WARE); box(14, 4, .2, wm, 0, 2, -6, WARE); box(14, 4, .2, wm, 0, 2, 6, WARE); box(.2, 4, 12, wm, -7, 2, 0, WARE); box(.2, 4, 12, wm, 7, 2, 0, WARE);
+  for (let i = 0; i < 9; i++) { const x = rand(-6, 6), z = rand(-5, 5); if (Math.abs(x) < 1.5 && z > -4) continue; box(1.1, 1.1, 1.1, mat('#5a4228'), x, .55, z, WARE); }
+  const t = textPlane("VOXIE'S – MAJETEK\nZACHRÁNĚNO Z POŽÁRU", 2.4, .8, '#ffe46b', '#1a1008', 40); t.position.set(0, 2.8, -5.88); WARE.add(t);
+  box(1.4, .1, .4, mat('#555'), 0, 2.5, -5.4, WARE); for (const x of [-.6, .6]) box(.06, 2.5, .06, mat('#555'), x, 1.25, -5.4, WARE);
+  for (const x of [-4, 4]) box(1.4, .8, .05, new THREE.MeshBasicMaterial({ color: 0x101830 }), x, 2.6, 5.88, WARE); }
+const siren = [new THREE.PointLight(0xff1010, 0, 12, 1.2), new THREE.PointLight(0x1040ff, 0, 12, 1.2)]; siren.forEach((L, i) => { L.position.set(i ? 4 : -4, 2.6, 5); WARE.add(L); });
+const WLIGHT = new THREE.PointLight(0xffe0b0, 3, 10, 1.4); WLIGHT.position.set(0, 3.4, -3); WARE.add(WLIGHT);
+
+// ====================================================================
+//  DIALOGY
+// ====================================================================
+const WHO = { O: ['Pan Kroupa (majitel)', '#ffb060', .85], H: ['Ty', '#bbbbbb', 0], V: ['Duch pana Vojtěcha', '#9fd0ff', 1], E: ['Duch Emy', '#d0a0ff', 1.9], D: ['D.', '#ff8080', .7], X: ['', '#fff', 0] };
+let S = 'loading', sceneT = 0, P = null, Q = [], line = null, lineT = 0, loaded = false, PHASE = 'menu';
+function queue(lines, then) { Q.push(...lines.map(l => ({ l }))); if (then) Q.push({ then }); }
+function nextLine() { while (Q.length && Q[0].then) Q.shift().then(); const n = Q.shift(); if (!n) { line = null; return; } const [w, t] = n.l, [, , pitch] = WHO[w]; line = { w, t }; lineT = 0; line.dur = Math.max(2.6, !pitch ? t.length * .06 + 1.2 : voice(t, { vol: .55, pitch }) + .6); }
+function tickLines(dt) { if (line) { lineT += dt; if (lineT > line.dur) nextLine(); } else if (Q.length) nextLine(); }
+const load = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } };
+const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+
+// ====================================================================
+//  PROLOG: útěk a smrt D.
+// ====================================================================
+const PRO_STEPS = [
+  { x: WX - 3, z: 0, label: 'BEDNY', say: [['D', 'Sklad pana Vojtěcha. Sem odvezli všechno, co se dalo zachránit.'], ['D', 'Policie bude za pár minut tady.']] },
+  { x: WX, z: -4.6, label: 'OBLEK', say: [['D', 'Hollow Bunny. Voxieho první parťák. Vojtěch ho v roce 1980 vyřadil.'], ['D', 'Prý jsou v něm vadné zámky… Ale v tomhle mě nikdo nepozná.'], ['X', '*Soukáš se do obleku. Zámky cvakají jeden po druhém.*']], act() { startDDeath(); } },
+];
+function startPrologue() { stopMenuSong(); resetWorld(); WARE.visible = true; HAREC.visible = true; HAREC.position.set(WX, .05, -5.3); HAREC.rotation.set(0, 0, 0);
+  P = { x: WX + 2, z: 4, yaw: Math.PI * .9, pitch: 0, st: 1, bob: 0, step: 0, busy: false, steps: PRO_STEPS, flashOn: false }; MODE = 'ware'; Q = []; line = null; S = 'card'; sceneT = 0;
+  CARD = { t: 'O ŠEST TÝDNŮ DŘÍVE', s: 'Bývalý hlídač „D.“ utekl policii při převozu k soudu.', next() { S = 'play'; sceneT = 0; queue([['D', 'Utekl jsem jim. Teď se musím schovat.']]); } }; }
+function startDDeath() { S = 'ddeath'; sceneT = 0; P.busy = true; MARK.visible = false; }
+function updateDDeath(dt) { const t = sceneT;
+  if (t > 1 && t - dt <= 1) queue([['D', 'Ne… ne, ty zámky… držte!']]);
+  if (t > 3 && t < 8 && Math.random() < dt * 10) { noiseHit(.08, .7, 2500, 'bandpass', rand(-.5, .5)); tone(rand(70, 180), 'square', .06, .3); }
+  if (t > 3 && t - dt <= 3) SFX.scare(); if (t > 5 && t - dt <= 5) SFX.scare();
+  tickLines(dt);
+  if (t > 10) { WARE.visible = false; HAREC.visible = false; siren.forEach(L => L.intensity = 0); S = 'card'; sceneT = 0; CARD = { t: 'D. ZMIZEL', s: 'Policie našla jen prázdný sklad. A Hollow Bunnyho, který tam předtím seděl jinak.', next() { start1980(); } }; }
+}
+
+// ====================================================================
+//  NOC 1: prohlídka s majitelem a směna
+// ====================================================================
+const TOUR = [
+  { x: 0, z: 1.5, label: 'MAJITEL', npc: true, say: [['O', 'Vítejte ve Frights & Hides! Jsem pan Kroupa, majitel.'], ['O', 'Všechno tady jsme vykopali ze sutin té staré herny. Lidi za to platí majlant.'], ['H', 'Já tu hernu znám až moc dobře.'], ['O', 'No vida! Tak to jste ten pravý hlídač. Pojďte, provedu vás.']], ownerTo: [0, -4] },
+  { x: 0, z: -5, label: 'PLAKÁTY', say: [['O', 'Původní plakáty! Trochu ohořelé, ale to k tomu patří.'], ['V', '(šepot) Ten plakát jsem kreslil sám… pro děti.'], ['H', 'Slyšel jste to?'], ['O', 'Co? To jsou reproduktory. Efekty, příteli.']], ownerTo: [-3.5, -10] },
+  { x: -8.5, z: -11.2, label: 'HLAVA COCOY', say: [['O', 'Hlava té zaječí maskotky. Ohořelá, krásně děsivá.'], ['E', 'To je moje hlava… dal ji sem jako atrakci.'], ['H', 'Emo…?'], ['E', 'Jsme tady s tebou. Táta i já.']], ownerTo: [-5.5, -11] },
+  { x: -5, z: -11.4, label: 'RUCE COCOY', say: [['O', 'A tady její ruce. Spálené až na drát.'], ['E', 'Tyhle ruce objímaly děti. Teď je na ně lidi civí za peníze.']], ownerTo: [3.5, -10] },
+  { x: 4.5, z: -11.4, label: 'HLAVA VOXIEHO', say: [['O', 'Voxie! Hvězda herny. Teda co z něj zbylo.'], ['V', 'Můj oblek… v tomhle jsem umřel. Před očima dětí.'], ['O', 'Prý v něm kdysi někdo zemřel. Ale to jsou jen řeči, že?'], ['H', '…Jen řeči.']], ownerTo: [8, -10.5] },
+  { x: 8.6, z: -11.5, label: 'TĚLO VOXIEHO', say: [['O', 'Kostra s kusem obleku. Děti u toho brečí. Skvělé pro byznys.'], ['V', 'Ten člověk z toho dělá cirkus.']], ownerTo: [0, -17] },
+  { x: 0, z: -18.5, label: 'ZAJÍC', say: [['O', 'A tohle je náš klenot! Hollow Bunny, prý Voxieho první parťák. Našli jsme ho ve starém skladu.'], ['O', 'Je tak realistický… i ten zápach. Efekt!'], ['V', 'Bunny… vyřadil jsem tě před tolika lety.'], ['E', 'To není z herny.'], ['V', 'Je v něm ON. Ten, kdo nás zabil.'], ['H', 'D.…? Nemůže být…'], ['O', 'S kým to mluvíte? Ale no tak, pojďte do kanceláře.']], ownerTo: [8, 1] },
+  { x: 9, z: 0, label: 'KANCELÁŘ', say: [['O', 'Vaše kancelář. Směna od půlnoci do šesti.'], ['O', 'Baterku si nabijete tady u stolu. Reproduktory s dětským smíchem jsou v pokojích.'], ['O', 'A hlavně, ať se nic nerozbije! Hodně štěstí.'], ['V', 'Neboj se. Budeme ti říkat, kde je.'], ['E', 'Když se k tobě přiblíží, posviť mu do očí. Bojí se toho, co udělal.']], act() { startShift(); } },
+];
+function startTour() { resetWorld(); P = { x: 0, z: 4.6, yaw: 0, pitch: 0, st: 1, bob: 0, step: 0, busy: false, steps: TOUR, flashOn: false, bat: 100 }; MODE = 'house'; S = 'card'; sceneT = 0;
+  OWNER.visible = true; OWNER.position.set(0, 0, 1); OWNER.rotation.y = Math.PI; HARE.visible = true; HARE.position.set(0, -.1, -21); HARE.rotation.set(.3, 0, 0); HARE_AI = null;
+  CARD = { t: 'NOC 2 · O ŠEST TÝDNŮ POZDĚJI', s: 'Frights & Hides – strašidelný dům z relikvií herny Voxie\'s. Konečně práce hlídače.', next() { S = 'play'; sceneT = 0; } }; }
+// ---------- směna: Hollow Hare se probouzí ----------
+const HOUR = 30;
+const AUDIO = [{ x: -10.5, z: -7.5, room: 'COCOA' }, { x: 10.5, z: -7.5, room: 'VOXIE' }, { x: -5, z: 0, room: 'LOBBY' }];
+const NODES = { LOBBY: [0, 2], HALL: [0, -9], COCOA: [-7, -10], VOXIE: [7, -10], BACK: [0, -21], OFFICE: [9, 1] };
+const LINKS = { LOBBY: ['HALL', 'OFFICE'], HALL: ['LOBBY', 'COCOA', 'VOXIE', 'BACK'], COCOA: ['HALL'], VOXIE: ['HALL'], BACK: ['HALL'], OFFICE: ['LOBBY'] };
+const DOORPT = { 'LOBBY-HALL': [0, -2], 'HALL-COCOA': [-2, -10], 'HALL-VOXIE': [2, -10], 'HALL-BACK': [0, -16], 'LOBBY-OFFICE': [6, 1] };
+const door = (a, b) => DOORPT[a + '-' + b] || DOORPT[b + '-' + a];
+let HARE_AI = null, NIGHT = null;
+function startShift() { OWNER.visible = false; NIGHT = { t: 0, hintT: 12, lure: null, lureT: 0 }; P.bat = 100; P.flashOn = true; P.steps = null; MARK.visible = false;
+  HARE_AI = { room: 'BACK', x: 0, z: -21, path: [], wait: 20, chase: false, stun: 0, lit: 0, ph: 0 }; HARE.position.set(0, 0, -21); HARE.rotation.set(0, 0, 0);
+  for (const a of AUDIO) a.cd = 0; AUD.forEach(m => m.visible = true); queue([['X', '*00:00 – Směna začíná. Zajíc v zadním skladu se pohnul.*']]); SFX.whisper(); }
+function harePathTo(target) { const H2 = HARE_AI; const prev = { [H2.room]: null }, q = [H2.room]; while (q.length) { const c = q.shift(); if (c === target) break; for (const n of LINKS[c]) if (!(n in prev)) { prev[n] = c; q.push(n); } }
+  const pts = []; let c = target; while (prev[c]) { pts.unshift([...NODES[c], c]); pts.unshift([...door(prev[c], c), null]); c = prev[c]; } H2.path = pts; }
+function updateShift(dt) {
+  const N = NIGHT, Hh = HARE_AI; N.t += dt; const hour = Math.floor(N.t / HOUR);
+  if (Math.floor((N.t - dt) / HOUR) !== hour) { tone(880, 'sine', .4, .05); if (hour >= 6) return winNight(); }
+  // baterka
+  const nearDesk = Math.hypot(P.x - 10.5, P.z - 1) < 1.8;
+  if (nearDesk) P.bat = Math.min(100, P.bat + dt * 12); else if (P.flashOn) P.bat = Math.max(0, P.bat - dt * 1.1);
+  if (P.bat <= 0) P.flashOn = false;
+  // reproduktory
+  for (const a of AUDIO) { a.cd = Math.max(0, a.cd - dt); if (a.cd <= 0 && Math.hypot(P.x - a.x, P.z - a.z) < 1.3) { a.cd = 20; N.lure = a.room; N.lureT = 14; for (let i = 0; i < 5; i++) tone(pick([660, 880, 990]), 'triangle', .15, .05, 0, i * .18); queue([['X', '*Z reproduktoru se ozval dětský smích*']]); } }
+  if (N.lureT > 0) N.lureT -= dt; else N.lure = null;
+  // zajíc
+  const dx = P.x - Hh.x, dz = P.z - Hh.z, d = Math.hypot(dx, dz) || .01, sameRoom = roomAt(P.x, P.z) === roomAt(Hh.x, Hh.z);
+  const fwd = new THREE.Vector3(0, 0, -1).applyEuler(new THREE.Euler(P.pitch, P.yaw, 0, 'YXZ')), to = new THREE.Vector3(-dx, 1.4 - 1.6, -dz).normalize();
+  if (Hh.stun > 0) { Hh.stun -= dt; Hh.moving = false; }
+  else {
+    if (P.flashOn && d < 7 && fwd.dot(to) > .92 && sameRoom) { Hh.lit += dt; if (Hh.lit > 1.3) { Hh.lit = 0; Hh.stun = 2.5; Hh.chase = false; SFX.spark(.4, 0); queue([['E', pick(['Couvá! Bojí se světla.', 'Zahnal jsi ho!', 'Teď běž pryč!'])]]); harePathTo('BACK'); } } else Hh.lit = Math.max(0, Hh.lit - dt);
+    Hh.chase = hour >= 1 && d < 6.5 && (sameRoom || d < 3) && !N.lure;
+    let tx, tz;
+    if (Hh.chase) { tx = P.x; tz = P.z; if (Math.random() < dt * 1.5) SFX.step(.3, 0); }
+    else if (Hh.path.length) { const p0 = Hh.path[0]; tx = p0[0]; tz = p0[1]; if (Math.hypot(tx - Hh.x, tz - Hh.z) < .3) { if (p0[2]) Hh.room = p0[2]; Hh.path.shift(); } }
+    else { Hh.wait -= dt; if (Hh.wait <= 0 && hour >= 1) { Hh.wait = rand(6, 14) - hour; const tgt = N.lure || (Math.random() < .45 ? roomAt(P.x, P.z) || 'HALL' : pick(Object.keys(NODES))); if (tgt !== Hh.room) harePathTo(tgt); } }
+    if (N.lure && Hh.room !== N.lure && !Hh.path.length) harePathTo(N.lure);
+    Hh.moving = tx !== undefined && Math.hypot(tx - Hh.x, tz - Hh.z) > .2;
+    if (Hh.moving) { const sp = (Hh.chase ? 2.1 : 1.1) * (.5 + .5 * Math.abs(Math.sin(Hh.ph))), ex = tx - Hh.x, ez = tz - Hh.z, el = Math.hypot(ex, ez); Hh.x += ex / el * sp * dt; Hh.z += ez / el * sp * dt; Hh.face = Math.atan2(ex, ez); Hh.ph += dt * 5; if (Math.floor(Hh.ph / Math.PI) !== Math.floor((Hh.ph - dt * 5) / Math.PI)) SFX.step(clamp(.4 - d * .03, .02, .4), 0); }
+  }
+  if (d < 1) return jumpscare();
+  // nápovědy duchů
+  N.hintT -= dt; if (N.hintT <= 0 && !line) { N.hintT = rand(14, 22); const r = ROOMS[roomAt(Hh.x, Hh.z) || 'HALL'] || ROOMS.HALL; queue([[Math.random() < .5 ? 'E' : 'V', pick(['Je teď v místnosti: ', 'Slyším ho. ', 'Pozor, ']) + r.name.toLowerCase() + '.']]); }
+  if (Math.random() < dt * .05) SFX.whisper();
+}
+function jumpscare() { S = 'scare'; sceneT = 0; SFX.scare(); try { navigator.vibrate && navigator.vibrate([300, 80, 400]); } catch (e) {} }
+function winNight() { S = 'card'; sceneT = 0; save('v4_n1', true); CARD = { t: '6:00', s: 'Přežil jsi první noc ve Frights & Hides. Konec prototypu – pokračování příště.', next() { S = 'menu'; sceneT = 0; resetWorld(); P = null; startMenuSong(); } }; }
+function animHare(H2, ph, moving, t) { const u = H2.userData, s = Math.sin(ph);
+  if (u.legs[0]) { u.legs[0].rotation.x = s * .5 * (moving ? 1 : 0); u.legs[1].rotation.x = -s * .25 * (moving ? 1 : 0); }
+  u.aL.rotation.x = -s * .4 * (moving ? 1 : 0); u.hips.position.y = .85 - (moving && s > 0 ? s * .06 : 0); u.hips.rotation.z = .05 + (moving ? s * .08 : 0);
+  if (!u.clean) { u.jaw.rotation.x = .75 + (Math.sin(t * 9) > .9 ? .15 : 0); u.head.rotation.z = .28 + (Math.sin(t * 13) > .95 ? rand(-.3, .3) : 0); } }
+
+// ====================================================================
+//  NOC 1: ROK 1980 – herna Voxie's, hraješ za pana Vojtěcha
+// ====================================================================
+const HX = -300;
+const G1 = {
+  '1A': { x0: -6, x1: 6, z0: -30, z1: -22, open: { s: [[-4, 4]] } }, '1B': { x0: -10, x1: 10, z0: -22, z1: -12, open: { n: [[-4, 4]], w: [[-18, -14]], e: [[-18, -14]], s: [[-2, 2], [-6, -4], [4, 6]] } },
+  '2': { x0: -22, x1: -10, z0: -22, z1: -10, open: { e: [[-18, -14]], s: [[-18, -14]] } }, '3': { x0: 10, x1: 22, z0: -22, z1: -10, open: { w: [[-18, -14]], s: [[14, 18]] } },
+  '5': { x0: -22, x1: -10, z0: -10, z1: -2, open: { n: [[-18, -14]], s: [[-18, -14]] } }, '4': { x0: 10, x1: 22, z0: -10, z1: -2, open: { n: [[14, 18]], s: [[14, 18]] } },
+  '7': { x0: -22, x1: -10, z0: -2, z1: 6, open: { n: [[-18, -14]] } }, 'X': { x0: 10, x1: 22, z0: -2, z1: 6, open: { n: [[14, 18]] } }, '6': { x0: -4, x1: 4, z0: -12, z1: -3.05, open: { n: [[-2, 2]] } },
+  '8': { x0: -6, x1: -4, z0: -12, z1: 1, open: { n: [[-6, -4]], e: [[-1, 1]] } }, '9': { x0: 4, x1: 6, z0: -12, z1: 1, open: { n: [[4, 6]], w: [[-1, 1]] } }, 'OFF': { x0: -4, x1: 4, z0: -3, z1: 3, open: { w: [[-1, 1]], e: [[-1, 1]] } },
+};
+const G1N = { '1A': 'Pódium', '1B': 'Herna', '2': 'Pizzerie', '3': 'Dětský koutek', '4': 'Dílna', '5': 'Výdej lístků', '6': 'Toalety', '7': 'Vchod', 'X': 'Serverovna', '8': 'Chodba', '9': 'Chodba', 'OFF': 'Kancelář' };
+const GZ = []; for (const id in G1) { const r = G1[id]; for (const side in r.open) for (const [a, b] of r.open[side]) { const fx = side === 'n' ? r.z0 : side === 's' ? r.z1 : side === 'w' ? r.x0 : r.x1; GZ.push(side === 'n' || side === 's' ? { x0: a + .3, x1: b - .3, z0: fx - .55, z1: fx + .55 } : { x0: fx - .55, x1: fx + .55, z0: a + .3, z1: b - .3 }); } }
+const walkHerna = (x, z) => { x -= HX; return Object.values(G1).some(r => inR(r, x, z, .3)) || GZ.some(d => inR(d, x, z, 0)); };
+const roomHerna = (x, z) => { x -= HX; for (const id in G1) if (inR(G1[id], x, z, 0)) return id; return null; };
+const HERNA = new THREE.Group(); HERNA.position.x = HX; scene.add(HERNA); HERNA.visible = false;
+const hernaLoad = new GLTFLoader().loadAsync('models/building.glb').then(g => { HERNA.add(g.scene); }).catch(e => console.warn('building', e));
+const HLIGHTS = [[0, 3, -17, 0xffe0c0], [-16, 3, -16, 0xffd0a0], [16, 3, -6, 0xfff0d0], [0, 3.6, -26, 0xff60e0]].map(([x, y, z, c]) => { const L = new THREE.PointLight(c, 0, 16, 1.2); L.position.set(x, y, z); HERNA.add(L); return L; });
+const VOX80 = buildVoxie1(); HERNA.add(VOX80); VOX80.position.set(-2, .6, -27.5);
+const BUNNY = makeHare(true); HERNA.add(BUNNY); BUNNY.position.set(2.2, .6, -27.5);
+const EMA = makeHuman('#ff8ac0', '#c04080', '#7a4a20', '#f0c8a8'); EMA.scale.setScalar(.58); HERNA.add(EMA);
+const YOUNGD = makeHuman('#5a5a5a', '#2a2a2a', '#2a1a10', '#e0b8a0', '#222'); HERNA.add(YOUNGD);
+WHO.EK = ['Ema (6 let)', '#ffb0e0', 2.4]; WHO.VZ = ['Ty (pan Vojtěch)', '#7fb0ff', 1]; WHO.DM = ['Mladý hlídač D.', '#c0c0c0', .9];
+const STEPS80 = [
+  { x: 0, z: -21, label: 'EMA', npcEma: true, say: [['EK', 'Tati! Proč musí Bunny pryč? On je můj nejlepší kamarád.'], ['VZ', 'Je už starý, broučku. Zámky v jeho obleku nejsou bezpečné.'], ['EK', 'Ale Voxie bude smutný, že je sám.'], ['VZ', 'Voxie brzy dostane nového parťáka. Slibuju.']] },
+  { x: 2.2, z: -24.8, label: 'VYPNOUT', say: [['VZ', 'Tak, Bunny. Naposledy.'], ['X', '*Vypínáš Hollow Bunnyho. Oči mu pomalu zhasnou.*'], ['VZ', 'Sbohem, kamaráde. Děti tě milovaly.']], act() { BUNNY.userData.off = true; SFX.powerDown(); } },
+  { x: 14, z: -4.5, label: 'DÍLNA', say: [['X', '*Odnášíš Bunnyho do dílny a zakrýváš ho plachtou*'], ['VZ', 'Tady budeš spát. Nikdo tě už neoblékne. Nikdy.'], ['EK', 'Tati… Bunny se na mě podíval.'], ['VZ', 'To se ti jen zdálo, Emo.']], act() { BUNNY.position.set(18.5, 0, -8.6); BUNNY.rotation.set(.25, -1.2, 0); SHEET.visible = true; } },
+  { x: 5, z: -10.5, label: 'HLÍDAČ', npcD: true, say: [['DM', 'Pane Vojtěchu? Mám dílnu zamknout?'], ['VZ', 'Ano. A ten oblek nikdy nikomu nedávej. Klíč máš jen ty, D.'], ['DM', 'Samozřejmě, pane.'], ['X', '*Mladý hlídač se dívá na Emu o vteřinu déle, než by měl.*'], ['EK', 'Tati, pojedeme už domů?'], ['VZ', 'Pojedeme, broučku.']] },
+];
+const SHEET = new THREE.Mesh(new THREE.ConeGeometry(.9, 2.3, 6, 1, true), mat('#d0d0c8', { side: THREE.DoubleSide })); SHEET.position.set(18.5, 1.15, -8.6); HERNA.add(SHEET); SHEET.visible = false;
+function start1980() { resetWorld(); HERNA.visible = true; HLIGHTS.forEach(L => L.intensity = 9); hemi.intensity = 1.5; hemi.color.set(0xfff0d8); scene.fog.color.set(0x14100a); scene.background.set(0x14100a); scene.fog.far = 40;
+  BUNNY.position.set(2.2, .6, -27.5); BUNNY.rotation.set(0, 0, 0); BUNNY.userData.off = false; SHEET.visible = false; EMA.position.set(HX + 1, 0, -20); YOUNGD.position.set(HX + 5, 0, -11.6); YOUNGD.rotation.y = Math.PI;
+  P = { x: HX - 8, z: -17, yaw: -Math.PI / 2, pitch: 0, st: 1, bob: 0, step: 0, busy: false, steps: STEPS80.map(s => ({ ...s, x: s.x + HX })), flashOn: false }; MODE = 'herna';
+  S = 'card'; sceneT = 0; CARD = { t: 'NOC 1 · ROK 1980', s: 'Herna Voxie\'s. Jsi pan Vojtěch. Dnes vyřadíš z provozu Hollow Bunnyho.', next() { S = 'play'; sceneT = 0; } }; }
+function end1980() { S = 'card'; sceneT = 0; HERNA.visible = false; CARD = { t: 'O 17 LET POZDĚJI…', s: 'Ema zmizela. A klíč od dílny měl jen jeden člověk.', next() { startTour(); } }; }
+function resetWorld() { WARE.visible = false; HERNA.visible = false; HAREC.visible = false; HARE.visible = false; OWNER.visible = false; GVOJ.visible = false; GEMA.visible = false; MARK.visible = false; siren.forEach(L => L.intensity = 0); AUD.forEach(m => m.visible = false);
+  hemi.intensity = .5; hemi.color.set(0x8a7a90); scene.fog.color.set(0x050304); scene.background.set(0x050304); scene.fog.far = 22; HLIGHTS.forEach(L => L.intensity = 0); NIGHT = null; HARE_AI = null; }
+
+// ====================================================================
+//  CÍLE, POHYB
+// ====================================================================
+function labelTex(t, col) { const c = document.createElement('canvas'); c.width = 256; c.height = 64; const x = c.getContext('2d'); x.fillStyle = 'rgba(0,0,0,.6)'; x.fillRect(0, 0, 256, 64); x.fillStyle = col; x.font = 'bold 30px Courier New'; x.textAlign = 'center'; x.fillText(t, 128, 43); const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; return tx; }
+const MARK = new THREE.Group(); scene.add(MARK); const markSp = new THREE.Sprite(new THREE.SpriteMaterial({ map: labelTex('', '#fff'), depthTest: false })); markSp.scale.set(1.1, .28, 1); markSp.position.y = 1.6; MARK.add(markSp);
+{ const beam = new THREE.Mesh(new THREE.CylinderGeometry(.25, .25, 3, 12, 1, true), new THREE.MeshBasicMaterial({ color: 0xffe46b, transparent: true, opacity: .16, side: THREE.DoubleSide, depthWrite: false })); beam.position.y = 1.5; MARK.add(beam); }
+const AUD = AUDIO.map(a => { const m = box(.4, .5, .3, mat('#2a2a2a'), a.x, .25, a.z); const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: labelTex('🔊 SMÍCH', '#9fff6b'), depthTest: false })); sp.scale.set(.8, .2, 1); sp.position.y = .9; m.add(sp); m.visible = false; return m; });
+let MODE = 'house', CARD = null;
+const walkAny = (x, z) => MODE === 'herna' ? walkHerna(x, z) : MODE === 'ware' ? Math.abs(x - WX) < 6.6 && Math.abs(z) < 5.6 : walkable(x, z);
+const roomName = () => MODE === 'herna' ? G1N[roomHerna(P.x, P.z)] || 'chodba' : MODE === 'ware' ? 'Sklad' : (ROOMS[roomAt(P.x, P.z)] || { name: 'průchod' }).name;
+function stepPos(st) { if (st.npcEma) return [EMA.position.x + HX * 0, EMA.position.z]; if (st.npcD) return [YOUNGD.position.x, YOUNGD.position.z]; if (st.npc) return [OWNER.position.x, OWNER.position.z]; return [st.x, st.z]; }
+function updateSteps(dt) {
+  const st = P.steps && P.steps[P.step]; if (!st) { if (P.steps && !P.busy && !Q.length && !line) { P.busy = true; if (MODE === 'herna') setTimeout(end1980, 800); } return; }
+  if (P.busy) return;
+  let [sx, sz] = stepPos(st); if (st.npcEma || st.npcD) sx += HX; MARK.visible = true; MARK.position.set(sx, 0, sz);
+  if (markSp.userData.l !== st.label) { markSp.material.map = labelTex(st.label, '#ffe46b'); markSp.material.needsUpdate = true; markSp.userData.l = st.label; }
+  if (Math.hypot(P.x - sx, P.z - sz) < (st.npc || st.npcEma || st.npcD ? 2.2 : 1.4)) { P.busy = true; MARK.visible = false; SFX.click();
+    queue(st.say, () => { P.busy = false; P.step++; if (st.ownerTo) P.ownerTo = st.ownerTo; if (st.act) st.act(); }); }
+}
+let joy = null, drag = null; const keys = {};
+function move(dt) {
+  let mx = 0, mz = 0; if (joy) { mx = joy.dx; mz = joy.dy; }
+  if (keys.w || keys.arrowup) mz -= 1; if (keys.s || keys.arrowdown) mz += 1; if (keys.a) mx -= 1; if (keys.d) mx += 1;
+  if (keys.arrowleft) P.yaw += dt * 2; if (keys.arrowright) P.yaw -= dt * 2;
+  const m = Math.hypot(mx, mz), run = (m > .92 || keys.shift) && P.st > .02 && m > .1; P.st = clamp(P.st + (run ? -dt * .2 : dt * .12), 0, 1);
+  if (m > .05) { const sp = (run ? 4.2 : 2.4) * dt * Math.min(1, m) / m, sn = Math.sin(P.yaw), cs = Math.cos(P.yaw), dx = (mx * cs + mz * sn) * sp, dz = (-mx * sn + mz * cs) * sp;
+    if (walkAny(P.x + dx, P.z)) P.x += dx; if (walkAny(P.x, P.z + dz)) P.z += dz; const pb = P.bob; P.bob += dt * (run ? 12 : 8); if (Math.floor(pb / Math.PI) !== Math.floor(P.bob / Math.PI)) SFX.step(.04, 0); }
+}
+function update(dt) {
+  sceneT += dt;
+  if (S === 'loading') { if (loaded || sceneT > 20) { S = 'menu'; sceneT = 0; } return; }
+  if (S === 'card') { if (sceneT > 6) { const c = CARD; CARD = null; c.next(); } return; }
+  if (S === 'ddeath') { updateDDeath(dt); return; }
+  if (S === 'scare') { if (sceneT > 1.6) { S = 'dead'; sceneT = 0; } return; }
+  if (S !== 'play') return;
+  tickLines(dt); move(dt); updateSteps(dt);
+  if (MODE === 'ware') { siren.forEach((L, i) => L.intensity = Math.sin(sceneT * 6 + i * Math.PI) > 0 ? 6 : 0); }
+  if (MODE === 'herna') { const ed = Math.hypot(P.x - EMA.position.x - HX, P.z - EMA.position.z); if (P.step >= 1 && ed > 2.2) walkTo(EMA, P.x - HX - .9, P.z + .9, 2.3, dt); else { EMA.userData.walk = 0; EMA.rotation.y = Math.atan2(P.x - HX - EMA.position.x, P.z - EMA.position.z); } YOUNGD.rotation.y = Math.atan2(P.x - HX - YOUNGD.position.x, P.z - YOUNGD.position.z); }
+  if (MODE === 'house') {
+    if (OWNER.visible) { if (P.ownerTo) { if (walkTo(OWNER, P.ownerTo[0], P.ownerTo[1], 2, dt)) { P.ownerTo = null; } } else { OWNER.userData.walk = 0; OWNER.rotation.y = Math.atan2(P.x - OWNER.position.x, P.z - OWNER.position.z); } }
+    if (NIGHT) updateShift(dt);
+  }
+}
+
+// ====================================================================
+//  HUD
+// ====================================================================
+const hud = document.getElementById('hud'), ctx = hud.getContext('2d');
+let HW = 1280, HK = 1; const HH = 720;
+function resize() { const w = innerWidth, h = innerHeight, d = Math.min(devicePixelRatio || 1, 2); renderer.setSize(w, h, false); HW = Math.max(960, HH * w / h); HK = Math.min(h * d / HH, w * d / HW); hud.width = Math.round(w * d); hud.height = Math.round(h * d); cam.aspect = w / h; cam.updateProjectionMatrix(); }
+addEventListener('resize', resize); resize();
+const rect = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); };
+function txt(s, x, y, size, col, align = 'left') { ctx.font = `bold ${size}px ${FONT}`; ctx.fillStyle = col; ctx.textAlign = align; ctx.fillText(s, x, y); }
+function neon(s, x, y, size, col, blur = 18) { ctx.save(); ctx.shadowColor = col; ctx.shadowBlur = blur; txt(s, x, y, size, col, 'center'); txt(s, x, y, size, '#fff', 'center'); ctx.restore(); }
+function wrapT(str, x, y, maxW, size, col, align = 'center') { ctx.font = `bold ${size}px ${FONT}`; let l = '', yy = y; for (const w of str.split(' ')) { const t2 = l ? l + ' ' + w : w; if (ctx.measureText(t2).width > maxW && l) { txt(l, x, yy, size, col, align); l = w; yy += size * 1.35; } else l = t2; } if (l) txt(l, x, yy, size, col, align); }
+let buttons = [], hover = null;
+const addBtn = (x, y, w, h, id, cb) => buttons.push({ x, y, w, h, id, cb });
+function btn(x, y, w, h, label, id, cb, size = 20, col = '#9fff6b') { rr(x, y, w, h, 10); ctx.fillStyle = hover === id ? col : 'rgba(20,30,10,.6)'; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = col; ctx.stroke(); txt(label, x + w / 2, y + h / 2 + size * .36, size, hover === id ? '#000' : '#fff', 'center'); addBtn(x, y, w, h, id, cb); }
+function drawSub() { if (!line) return; const [nm, col] = WHO[line.w]; rr(HW / 2 - 400, 590, 800, 86, 10); ctx.fillStyle = 'rgba(0,0,0,.75)'; ctx.fill(); if (nm) txt(nm, HW / 2 - 384, 612, 15, col); wrapT(line.t, HW / 2, 642, 760, 20, line.w === 'H' || line.w === 'X' ? '#ccc' : '#fff'); }
+function drawLogo4(x, y, s) { const u = s / 20, R = (a, b, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x + a * u, y + b * u, w * u, h * u); };
+  ctx.save(); ctx.shadowColor = '#9fff6b'; ctx.shadowBlur = s * .1; ctx.strokeStyle = '#9fff6b'; ctx.lineWidth = u * .8; ctx.beginPath(); ctx.arc(x + s / 2, y + s / 2, s * .47, 0, 7); ctx.stroke(); ctx.restore();
+  R(5, 0, 2.5, 7, '#6a6a2a'); R(12.5, 1, 2.5, 4, '#6a6a2a'); R(13, 5, 4, 2, '#6a6a2a'); R(5.6, 1, 1.2, 5, '#8a5a50'); // uši (jedno zlomené)
+  R(4, 6, 12, 9, '#7a7a3a'); R(4, 6, 12, 1, '#5a5a28'); R(5.5, 8.5, 3, 2.5, '#000'); R(11.5, 8.5, 3, 2.5, '#000'); R(6.7, 9.4, .7, .7, '#c8ffd0'); R(12.6, 9.4, .7, .7, '#c8ffd0'); R(7, 10.8, .4, 1.4, '#7a0a06');
+  R(6.5, 12, 7, 2.5, '#060202'); for (let i = 0; i < 6; i++) R(6.8 + i * 1.1, 12, .7, 1, '#d8cc9a'); R(15, 9, .4, 3, '#c0201a'); }
+let menuBuf = null, menuSong = null;
+function startMenuSong() { if (!AC || menuSong || S !== 'menu') return; if (!menuBuf) { if (menuBuf === null) { menuBuf = false; fetch('audio/menu.mp3').then(r => r.arrayBuffer()).then(b => AC.decodeAudioData(b)).then(buf => { menuBuf = buf; startMenuSong(); }).catch(() => {}); } return; }
+  const g = AC.createGain(); g.gain.value = .0001; g.gain.exponentialRampToValueAtTime(.7, AC.currentTime + 1.5); g.connect(master); const src = AC.createBufferSource(); src.buffer = menuBuf; src.loop = true; src.playbackRate.value = .85; src.connect(g); src.start(); menuSong = { g, src }; }
+function stopMenuSong() { if (!menuSong) return; const m = menuSong; menuSong = null; m.g.gain.setValueAtTime(m.g.gain.value, AC.currentTime); m.g.gain.exponentialRampToValueAtTime(.0001, AC.currentTime + .5); setTimeout(() => { try { m.src.stop(); } catch (e) {} }, 600); }
+function drawMenu(t) {
+  if (!menuSong) startMenuSong();
+  rect(0, 0, HW, HH, 'rgba(0,6,0,.55)'); drawLogo4(60, 40, 150);
+  ctx.save(); ctx.shadowColor = '#9fff6b'; ctx.shadowBlur = 24; txt('NIGHT AT VOXIE\'S 4', 230, 100, 40, '#d8ff9a'); txt('FRIGHTS & HIDES', 230, 168, 60, '#9fff6b'); ctx.restore();
+  txt('Některé věci neměly přežít požár.', 234, 204, 18, '#ddd');
+  btn(60, 250, 420, 56, '▶ HRÁT (prolog + noc 1 + noc 2)', 'play', () => { initAudio(); startPrologue(); }, 18);
+  btn(60, 316, 205, 46, 'NOC 1 · 1980', 'n1', () => { initAudio(); stopMenuSong(); start1980(); }, 15); btn(275, 316, 205, 46, 'NOC 2 · DŮM', 'n2', () => { initAudio(); stopMenuSong(); startTour(); }, 15);
+  ['Prolog: bývalý hlídač D. utíká policii a schová se do obleku Hollow Bunnyho.', 'Noc 1 (1980): jako pan Vojtěch vyřadíš Bunnyho z provozu. Ema je ještě živá.', 'Noc 2: strašidelný dům z relikvií herny. Ema a Vojtěch ti pomáhají.', '🔦 Posviť zajíci do očí · 🔊 reproduktory ho odlákají · baterku nabiješ u stolu'].forEach((l, i) => txt(l, 64, 410 + i * 28, 16, '#d8ffc8'));
+  txt('v0.1.0 prototyp', HW - 20, 700, 14, '#888', 'right');
+}
+function drawPlay(t) {
+  if (MODE === 'ware' && S === 'play') { /* bez HUD baterky */ }
+  txt(roomName(), 24, 40, 20, '#d8ff9a');
+  if (NIGHT) { const h = Math.floor(NIGHT.t / HOUR); txt((h === 0 ? '12' : h) + ' AM', HW - 24, 50, 40, '#fff', 'right'); rr(24, 56, 180, 20, 6); ctx.fillStyle = '#111'; ctx.fill(); rect(27, 59, 174 * P.bat / 100, 14, P.bat < 25 ? '#ff4040' : '#fff3c4'); txt('🔦 ' + Math.ceil(P.bat) + ' %', 212, 72, 15, '#ccc');
+    btn(HW - 170, 520, 140, 90, P.flashOn ? '🔦 ZAP' : '🔦 VYP', 'fl', () => { if (P.bat > 0) P.flashOn = !P.flashOn; }, 18, '#fff3c4');
+    if (HARE_AI && HARE_AI.lit > 0) txt('Zajíc couvá…', HW / 2, 540, 18, '#d8ff9a', 'center'); if (Math.hypot(P.x - 10.5, P.z - 1) < 1.8) txt('⚡ Nabíjení baterky', HW / 2, 120, 18, '#fff3c4', 'center'); }
+  else { const st = P.steps && P.steps[P.step]; if (st && !P.busy) txt('Cíl: ' + st.label, 24, 70, 17, '#ffe46b'); }
+  if (MODE === 'house') { const sc = 5, mx = 24, my = 100; ctx.save(); ctx.globalAlpha = .8; rect(mx - 4, my - 4, 24 * sc + 8, 32 * sc + 8, 'rgba(0,0,0,.5)'); for (const id in ROOMS) { const r = ROOMS[id]; ctx.strokeStyle = '#5a8a4a'; ctx.lineWidth = 1.5; ctx.strokeRect(mx + (r.x0 + 12) * sc, my + (r.z0 + 26) * sc, (r.x1 - r.x0) * sc, (r.z1 - r.z0) * sc); }
+    ctx.fillStyle = '#5dff8a'; ctx.beginPath(); ctx.arc(mx + (P.x + 12) * sc, my + (P.z + 26) * sc, 4, 0, 7); ctx.fill(); ctx.restore(); }
+  if (joy) { ctx.save(); ctx.globalAlpha = .45; ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(joy.ox, joy.oy, 70, 0, 7); ctx.stroke(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(joy.ox + joy.dx * 70, joy.oy + joy.dy * 70, 26, 0, 7); ctx.fill(); ctx.restore(); }
+  else if (!line) txt('◀ vlevo: chůze · vpravo: rozhlížení ▶', HW / 2, 700, 14, '#aaa', 'center');
+  drawSub();
+}
+function drawVoxFace(x, y, size) { const u = size / 16, R = (a, b, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x + a * u + rand(-3, 3), y + b * u + rand(-3, 3), w * u, h * u); };
+  R(4, -2, 2, 5, '#6a6a2a'); R(10, 0, 2, 3, '#6a6a2a'); R(2, 2, 12, 11, '#6a6a30'); R(4, 5, 3, 3, '#000'); R(9, 5, 3, 3, '#000'); R(5.3, 6.2, .6, .6, '#c8ffd0'); R(10.3, 6.2, .6, .6, '#c8ffd0'); R(4, 9, 8, 4, '#060202'); for (let i = 0; i < 6; i++) { R(4.3 + i * 1.3, 9, .8, 1.2, '#d8cc9a'); R(4.6 + i * 1.3, 11.8, .8, 1.2, '#d8cc9a'); } }
+// ---------- vstup ----------
+const toL = e => { const r = hud.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * HW, y: (e.clientY - r.top) / r.height * HH }; };
+const hit = p => { for (let i = buttons.length - 1; i >= 0; i--) { const b = buttons[i]; if (p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h) return b; } return null; };
+hud.addEventListener('pointerdown', e => { e.preventDefault(); initAudio(); const p = toL(e), b = hit(p); if (b) { b.cb(); return; }
+  if (S === 'card' && sceneT > 1.5) { const c = CARD; CARD = null; c.next(); return; }
+  if (S === 'play') { if (p.x < HW * .45) joy = { id: e.pointerId, ox: p.x, oy: p.y, dx: 0, dy: 0 }; else drag = { id: e.pointerId, x: p.x, y: p.y, yaw: P.yaw, pitch: P.pitch }; } });
+hud.addEventListener('pointermove', e => { const p = toL(e), b = hit(p); hover = b ? b.id : null;
+  if (joy && joy.id === e.pointerId) { let dx = (p.x - joy.ox) / 70, dy = (p.y - joy.oy) / 70; const m = Math.hypot(dx, dy); if (m > 1) { dx /= m; dy /= m; } joy.dx = dx; joy.dy = dy; }
+  if (drag && drag.id === e.pointerId) { P.yaw = drag.yaw - (p.x - drag.x) / HW * 4; P.pitch = clamp(drag.pitch - (p.y - drag.y) / HH * 2.5, -.9, .7); } });
+const up = e => { if (joy && joy.id === e.pointerId) joy = null; if (drag && drag.id === e.pointerId) drag = null; };
+hud.addEventListener('pointerup', up); hud.addEventListener('pointercancel', up);
+addEventListener('keydown', e => { initAudio(); const k = e.key.toLowerCase(); keys[k] = true; if (k === 'f' && P && NIGHT && P.bat > 0) P.flashOn = !P.flashOn; }); addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+
+// ====================================================================
+//  SMYČKA
+// ====================================================================
+const clock = new THREE.Clock(); let manualT = null;
+function render(t, dt) {
+  // zajíc ve tmě
+  if (HARE_AI) { HARE.position.set(HARE_AI.x, 0, HARE_AI.z); HARE.rotation.set(0, HARE_AI.face || 0, HARE_AI.stun > 0 ? .3 : 0); animHare(HARE, HARE_AI.ph, HARE_AI.moving, t); }
+  else if (HARE.visible) animHare(HARE, 0, false, t);
+  if (HAREC.visible) animHare(HAREC, 0, false, t);
+  if (HERNA.visible) { animHare(BUNNY, 0, false, t); VOX80.userData.head.rotation.y = Math.sin(t * 1.5) * .3; for (const h of [EMA, YOUNGD]) animHuman(h, h.userData.ph || 0, h.userData.walk || 0, t, line && ((h === EMA && line.w === 'EK') || (h === YOUNGD && line.w === 'DM'))); HLIGHTS[3].color.setHSL((t * .1) % 1, .8, .6); }
+  if (OWNER.visible) animHuman(OWNER, OWNER.userData.ph || 0, OWNER.userData.walk || 0, t, line && line.w === 'O');
+  // duchové Emy a Vojtěcha se ukážou, když mluví
+  const ghostTalk = line && (line.w === 'V' || line.w === 'E') && MODE === 'house';
+  if (ghostTalk && P) { const g = line.w === 'V' ? GVOJ : GEMA, a = P.yaw + (line.w === 'V' ? .5 : -.5); g.visible = true; g.position.set(P.x - Math.sin(a) * 2.6, line.w === 'E' ? .1 : 0, P.z - Math.cos(a) * 2.6); g.rotation.y = Math.atan2(P.x - g.position.x, P.z - g.position.z); ghostMat.opacity = .3 + Math.sin(t * 3) * .1; if (g === GVOJ) animHuman(GVOJ, 0, 0, t, true); }
+  else { GVOJ.visible = false; GEMA.visible = false; }
+  LAMPS.forEach((L, i) => L.intensity = L.userData.base * (Math.random() < .03 ? .1 : 1) * (NIGHT ? .6 : 1));
+  if (P && S !== 'menu') { cam.position.set(P.x, 1.62 + Math.sin(P.bob) * .035, P.z); cam.rotation.set(P.pitch, P.yaw, 0, 'YXZ');
+    if (S === 'ddeath' && sceneT > 4) { cam.position.y -= Math.min(1.1, (sceneT - 4) * .7); cam.rotation.z = Math.min(1.1, (sceneT - 4) * .5); }
+    if (S === 'scare') { const k = ease(clamp(sceneT / .15, 0, 1)); HARE.position.set(P.x - Math.sin(P.yaw) * (1.6 - k * .9), -.3, P.z - Math.cos(P.yaw) * (1.6 - k * .9)); HARE.rotation.set(0, P.yaw + Math.PI, 0); HARE.visible = true; cam.position.x += rand(-.05, .05); cam.position.y += rand(-.05, .05); } }
+  else { cam.position.set(Math.sin(t * .1) * 1.2, 1.5, -15.5); cam.lookAt(0, 1.1, -21); HARE.visible = true; if (!HARE_AI) { HARE.position.set(0, 0, -21); HARE.rotation.set(0, Math.sin(t * .3) * .2, 0); } }
+  const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(cam.quaternion); flash.position.copy(cam.position); flash.position.y -= .2; flash.target.position.copy(cam.position).addScaledVector(fwd, 6);
+  flash.intensity = S === 'menu' ? 18 : P && P.flashOn ? 26 * (Math.random() < .02 ? .3 : 1) : (MODE === 'house' && P ? 10 : 0);
+  if (S === 'loading' || S === 'card' || S === 'dead') renderer.clear(); else renderer.render(scene, cam);
+  buttons = []; ctx.setTransform(HK, 0, 0, HK, 0, 0); ctx.clearRect(0, 0, HW, HH);
+  if (S === 'loading') { rect(0, 0, HW, HH, '#000'); drawLogo4(HW / 2 - 90, 190, 180); txt('Načítám strašidelný dům…', HW / 2, 440, 22, '#9fff6b', 'center'); }
+  else if (S === 'menu') drawMenu(t);
+  else if (S === 'card') { rect(0, 0, HW, HH, '#000'); ctx.save(); ctx.globalAlpha = clamp(Math.min(sceneT, 6 - sceneT) * 1.3, 0, 1); neon(CARD.t, HW / 2, 300, 54, '#9fff6b'); wrapT(CARD.s, HW / 2, 370, 900, 21, '#fff'); ctx.restore(); }
+  else if (S === 'play') drawPlay(t);
+  else if (S === 'ddeath') { const s = sceneT; suitMask(HH / 2 - 20 + Math.max(0, s - 3) * 40, Math.max(10, 120 - Math.max(0, s - 3) * 25)); if (s > 2 && s < 3.2) txt('*cvak*', HW / 2, 360, 40, '#fff', 'center');
+    if (s > 3 && s < 8) { if (Math.random() < .3) rect(0, 0, HW, HH, 'rgba(160,0,0,.6)'); for (let i = 0; i < 70; i++) rect(Math.floor(rand(0, HW) / 12) * 12, Math.floor(rand(0, HH * (s - 3) / 4) / 12) * 12, 12, 12 + rand(0, 40), pick(['#8a0000', '#b00000', '#5a0000'])); if (Math.floor(s * 7) % 4 === 0) drawVoxFace(HW / 2 - 200, 120, 400); }
+    if (s > 8) rect(0, 0, HW, HH, '#000'); drawSub(); }
+  else if (S === 'scare') { if (sceneT < .06) rect(0, 0, HW, HH, '#fff'); for (let i = 0; i < 200; i++) rect(rand(0, HW), rand(0, HH), 3, 3, `rgba(255,255,255,${rand(0, .3)})`); }
+  else if (S === 'dead') { rect(0, 0, HW, HH, '#000'); neon('CHYTIL TĚ', HW / 2, 300, 60, '#ff3030'); txt('Hollow Bunny tě dostal.', HW / 2, 360, 22, '#fff', 'center'); if (sceneT > 1) { btn(HW / 2 - 200, 430, 400, 56, 'ZNOVU NOC 2', 'again', () => { startTour(); S = 'play'; startShift(); P.x = 9; P.z = 0; }); btn(HW / 2 - 200, 500, 400, 56, 'MENU', 'menu', () => { S = 'menu'; sceneT = 0; resetWorld(); P = null; }); } }
+  hud.style.cursor = hover ? 'pointer' : 'default';
+}
+function frame() { requestAnimationFrame(frame); const dt = Math.min(.1, clock.getDelta()); if (manualT === null) { try { update(dt); render(clock.elapsedTime, dt); } catch (e) { console.error(e); } } }
+Promise.all([L1, L2, L3, hernaLoad]).then(() => { loaded = true; });
+['pointerdown', 'touchstart', 'keydown'].forEach(ev => addEventListener(ev, () => { initAudio(); if (AC && AC.state !== 'running') AC.resume(); startMenuSong(); }, { capture: true, passive: true }));
+requestAnimationFrame(frame);
+window.__v4 = { get S() { return S; }, get P() { return P; }, set T(v) { sceneT = v; }, startPrologue, start1980, startTour, startShift, manual(on) { manualT = on ? 0 : null; }, step(dt) { manualT += dt; update(dt); render(manualT, dt); }, get H() { return HARE_AI; } }; window.__v4m = () => MARK.position;
+</script>
+</body>
+</html>
