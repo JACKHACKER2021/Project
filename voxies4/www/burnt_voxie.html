@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="cs"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voxie – kostra</title>
+<style>html, body { margin: 0; height: 100%; background: #050302; overflow: hidden; } canvas { display: block; width: 100%; height: 100%; }
+#t { position: fixed; left: 20px; top: 16px; color: #ff9a50; font: bold 22px 'Courier New', monospace; } #s { position: fixed; left: 20px; top: 46px; color: #aaa; font: bold 14px 'Courier New', monospace; }</style></head>
+<body><div id="t">VOXIE – CO ZBYLO</div><div id="s">Night at Voxie's 4/5 · zničený Voxie z 2. dílu po dalším požáru</div><canvas id="gl"></canvas>
+<script type="importmap">{ "imports": { "three": "./lib/three.module.js", "three/addons/": "./lib/addons/" } }</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+const rand = (a, b) => a + Math.random() * (b - a);
+function canvasTex(w, h, draw) { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.magFilter = THREE.NearestFilter; return t; }
+const mat = (c, o = {}) => new THREE.MeshLambertMaterial({ color: c, ...o });
+function box(w, h, d, m, x, y, z, p) { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); p.add(b); return b; }
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('gl'), antialias: true }); renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x080404); scene.fog = new THREE.Fog(0x080404, 6, 16);
+const cam = new THREE.PerspectiveCamera(42, 1, .05, 50); cam.position.set(2.2, 1.7, 3.6);
+const ctl = new OrbitControls(cam, renderer.domElement); ctl.target.set(0, 1.2, 0); ctl.update();
+scene.add(new THREE.HemisphereLight(0x806050, 0x100604, .55));
+const fire1 = new THREE.PointLight(0xff6a20, 14, 7, 1.3); fire1.position.set(-1.5, .6, 1.2); scene.add(fire1);
+const key = new THREE.SpotLight(0xffd0a0, 16, 12, .6, .5, 1.3); key.position.set(1, 3.5, 3); key.target.position.set(0, 1.1, 0); scene.add(key, key.target);
+const red = new THREE.PointLight(0xff1010, 2, 2); scene.add(red);
+{ const f = new THREE.Mesh(new THREE.CircleGeometry(5, 40), mat('#120c08')); f.rotation.x = -Math.PI / 2; scene.add(f); }
+const burnTex = canvasTex(64, 64, (x, w, h) => { x.fillStyle = '#5a3818'; x.fillRect(0, 0, w, h); for (let i = 0; i < 40; i++) { x.fillStyle = `rgba(0,0,0,${rand(.3, .8)})`; x.beginPath(); x.arc(rand(0, w), rand(0, h), rand(2, 9), 0, 7); x.fill(); } });
+const fur = new THREE.MeshLambertMaterial({ map: burnTex }), metal = mat('#7a7f88'), dMetal = mat('#3a3d44');
+function makeVoxie() {
+  const g = new THREE.Group(), node = (p, x, y, z) => { const n = new THREE.Group(); n.position.set(x, y, z); p.add(n); return n; };
+  const hips = node(g, 0, .8, 0);
+  const legs = []; for (const s of [-1, 1]) { const l = node(hips, s * .2, 0, 0); box(.26, .45, .3, fur, 0, -.22, 0, l); const l2 = node(l, 0, -.45, 0); box(.24, .32, .28, fur, 0, -.16, 0, l2); box(.3, .1, .4, mat('#2a1a0a'), 0, -.3, .05, l2); legs.push([l, l2]); }
+  const chest = node(hips, 0, .05, .02); chest.rotation.x = .18;
+  box(.8, .72, .2, fur, 0, .36, -.18, chest); box(.15, .72, .55, fur, -.33, .36, 0, chest); box(.15, .72, .55, fur, .33, .36, 0, chest); box(.8, .18, .55, fur, 0, .64, 0, chest);
+  box(.5, .06, .06, metal, 0, .18, .05, chest); box(.06, .55, .06, metal, 0, .35, .02, chest); box(.36, .2, .18, dMetal, 0, .42, -.02, chest);
+  const wm = [mat('#c0201a'), mat('#2050c0'), mat('#d0b020')];
+  for (let i = 0; i < 5; i++) chest.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(rand(-.2, .2), .5, .05), new THREE.Vector3(rand(-.25, .25), .3, .3), new THREE.Vector3(rand(-.3, .3), rand(-.05, .15), .35)]), 10, .015, 5), wm[i % 3]));
+  const aL = node(chest, .52, .64, 0); box(.22, .4, .24, fur, 0, -.2, 0, aL); const aL2 = node(aL, 0, -.4, 0); box(.2, .34, .22, fur, 0, -.17, 0, aL2);
+  const aR = node(chest, -.52, .64, 0); box(.22, .2, .24, fur, 0, -.1, 0, aR); box(.06, .3, .06, metal, 0, -.32, 0, aR);
+  const aR2 = node(aR, 0, -.45, 0); box(.05, .32, .05, metal, 0, -.16, 0, aR2); for (const dx of [-.06, 0, .06]) { const c = box(.025, .14, .025, metal, dx, -.36, .02, aR2); c.rotation.x = .4; }
+  const head = node(chest, 0, .76, 0); head.rotation.set(.25, -.2, .35);
+  box(.82, .5, .7, fur, 0, .38, 0, head); box(.3, .12, .7, dMetal, -.25, .08, 0, head);
+  const jaw = node(head, 0, .12, .05); jaw.rotation.x = .55; box(.7, .14, .6, fur, 0, -.07, .05, jaw);
+  for (let i = 0; i < 6; i++) { box(.06, .08, .04, mat('#d8d0b0'), -.25 + i * .1, .02, .34, jaw); box(.06, .08, .04, mat('#d8d0b0'), -.25 + i * .1, .1, .34, head); }
+  const ear = node(head, .3, .64, 0); ear.rotation.z = -.7; box(.22, .2, .14, fur, 0, .1, 0, ear);
+  box(.18, .16, .03, mat('#111'), -.19, .44, .355, head); const redEye = box(.05, .05, .02, new THREE.MeshBasicMaterial({ color: 0xff1010 }), -.19, .44, .37, head);
+  const eyeL = new THREE.Mesh(new THREE.SphereGeometry(.07, 10, 8), mat('#e8e8e0')); eyeL.position.set(.2, .28, .42); head.add(eyeL);
+  g.userData = { head, jaw, aR2, aL, aR, redEye, chest, legs, hips };
+  return g;
+}
+const V = makeVoxie(); scene.add(V); const u = V.userData;
+// z obleku zbyly jen cáry: většina srsti zmizí a nahradí ji kovová kostra
+const metal2 = mat('#6a6e74'), dmetal2 = mat('#3a3c40'), charM = mat('#140c08'), ember = new THREE.MeshBasicMaterial({ color: 0xff6a20 });
+const furs = []; V.traverse(o => { if (o.isMesh && o.material === fur) furs.push(o); });
+furs.forEach((o, i) => { const p = o.geometry.parameters, par = o.parent, pos = o.position.clone();
+  // kovová tyč místo končetiny / rám místo trupu a hlavy
+  const big = p.width > .5 || p.depth > .5;
+  if (big) { for (const sx of [-1, 1]) box(.04, p.height, .04, metal2, pos.x + sx * p.width * .4, pos.y, pos.z + (p.depth > .3 ? p.depth * .35 : 0), par); box(p.width * .9, .04, .04, metal2, pos.x, pos.y + p.height * .45, pos.z, par); box(p.width * .9, .04, .04, metal2, pos.x, pos.y - p.height * .45, pos.z, par); }
+  else { const rod = box(.06, p.height * .95, .06, metal2, pos.x, pos.y, pos.z, par); box(.1, .08, .1, dmetal2, pos.x, pos.y + p.height * .45, pos.z, par); }
+  if (Math.random() < .28) { o.material = charM; o.scale.set(rand(.5, .9), rand(.3, .6), rand(.5, .9)); o.position.x += rand(-.05, .05); o.position.y += rand(-.1, .1); } else o.visible = false; });
+// lebka endoskeletonu
+box(.5, .36, .44, dmetal2, 0, .36, 0, u.head); box(.12, .12, .05, mat('#000'), -.17, .44, .23, u.head); box(.12, .12, .05, mat('#000'), .17, .44, .23, u.head);
+for (let i = 0; i < 6; i++) box(.05, .07, .04, mat('#d8d0b0'), -.15 + i * .06, .2, .24, u.head);
+u.redEye.position.set(-.17, .44, .26); u.redEye.scale.setScalar(1.6);
+u.head.children.forEach(o => { if (o.isMesh && o.geometry.type === 'SphereGeometry') o.position.set(.17, .3, .3); });
+box(.01, .14, .01, mat('#902020'), .17, .38, .29, u.head);
+// uhlíky
+const embers = []; for (let i = 0; i < 22; i++) { const e = box(.025, .025, .025, ember, rand(-.4, .4), rand(.2, 2), rand(-.3, .3), V); e.userData.ph = rand(0, 9); embers.push(e); }
+for (let i = 0; i < 14; i++) { const a = rand(0, 6.28), r = rand(.8, 2.4); const b = box(rand(.2, .6), rand(.05, .25), rand(.2, .6), mat('#1a120c'), Math.cos(a) * r, .08, Math.sin(a) * r, scene); b.rotation.y = rand(0, 3); }
+u.jaw.rotation.x = .8; u.head.rotation.set(.2, -.3, .4);
+function resize() { renderer.setSize(innerWidth, innerHeight, false); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); } addEventListener('resize', resize); resize();
+const clock = new THREE.Clock();
+function loop() { const t = clock.getElapsedTime(); if (!window.__still) V.rotation.y = Math.sin(t * .35) * .6; embers.forEach(e => e.scale.setScalar(.6 + Math.abs(Math.sin(t * 3 + e.userData.ph)) * .8));
+  u.redEye.getWorldPosition(red.position); red.intensity = Math.random() < .9 ? 2 : .3; fire1.intensity = 12 + Math.random() * 5; renderer.render(scene, cam); requestAnimationFrame(loop); }
+loop();
+window.__b = { set(y, cx, cy, cz, tx = 0, ty = 1.2) { window.__still = true; V.rotation.y = y; cam.position.set(cx, cy, cz); ctl.target.set(tx, ty, 0); ctl.update(); } };
+</script></body></html>
