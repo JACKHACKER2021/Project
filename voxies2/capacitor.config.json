@@ -1,0 +1,6 @@
+{
+  "appId": "cz.voxies.nightatvoxies2",
+  "appName": "Night at Voxie's 2",
+  "webDir": "www",
+  "android": { "backgroundColor": "#000000" }
+}
