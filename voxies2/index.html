@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>Night at Voxie's 2 – prototyp</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+  #hud { z-index: 2; }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<canvas id="hud"></canvas>
+<script type="importmap">
+{ "imports": { "three": "./lib/three.module.js", "three/addons/": "./lib/addons/" } }
+</script>
+<script type="module">
+// ====================================================================
+//  NIGHT AT VOXIE'S 2 – PROTOTYP (jedna noc)
+//  Vyhořelá restaurace, žádné dveře ani proud. Jen počítač na baterii.
+// ====================================================================
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+const HOUR = 60;                // reálné sekundy na herní hodinu
+const FONT = "'Courier New', monospace";
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+// ---------- renderer ----------
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('gl'), antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5)); renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x020101); scene.fog = new THREE.Fog(0x020101, 4, 18);
+const EYE = new THREE.Vector3(0, 1.35, 3.6);
+const cam = new THREE.PerspectiveCamera(70, 16 / 9, .05, 60); cam.position.copy(EYE);
+const hemi = new THREE.HemisphereLight(0x40303a, 0x080404, .22); scene.add(hemi);
+const emergency = new THREE.PointLight(0xff1a0a, 0, 12, 1.2); emergency.position.set(-5.5, 3, -3); scene.add(emergency);
+const flash = new THREE.SpotLight(0xfff0d0, 0, 16, .38, .5, 1.1); scene.add(flash, flash.target);
+const monitorLight = new THREE.PointLight(0x40ff80, 1.6, 3.5, 1.4); scene.add(monitorLight);
+const sparkLight = new THREE.PointLight(0xffc060, 0, 4); scene.add(sparkLight);
+const redLight = new THREE.PointLight(0xff1010, 0, 6); scene.add(redLight);
+
+const mat = (c, o = {}) => new THREE.MeshLambertMaterial({ color: c, ...o });
+function box(w, h, d, m, x, y, z, p = scene) { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); p.add(b); return b; }
+function canvasTex(w, h, draw) { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; }
+
+// ====================================================================
+//  KANCELÁŘ VE VYHOŘELÉ RESTAURACI
+// ====================================================================
+const soot = canvasTex(128, 128, (x, w, h) => { x.fillStyle = '#2a2230'; x.fillRect(0, 0, w, h); for (let i = 0; i < 70; i++) { const cx = rand(0, w), cy = rand(0, h), gr = x.createRadialGradient(cx, cy, 1, cx, cy, rand(8, 30)); gr.addColorStop(0, 'rgba(0,0,0,.85)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = gr; x.fillRect(0, 0, w, h); } });
+soot.wrapS = soot.wrapT = THREE.RepeatWrapping; soot.repeat.set(2, 1);
+const wall = new THREE.MeshLambertMaterial({ map: soot });
+const floorTex = canvasTex(64, 64, (x) => { for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) { x.fillStyle = (i + j) % 2 ? '#141012' : '#2a2226'; x.fillRect(i * 8, j * 8, 8, 8); } for (let i = 0; i < 25; i++) { x.fillStyle = 'rgba(0,0,0,.6)'; x.fillRect(rand(0, 64), rand(0, 64), rand(3, 12), rand(3, 12)); } });
+floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping; floorTex.repeat.set(5, 5); floorTex.magFilter = THREE.NearestFilter;
+{ const f = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), new THREE.MeshLambertMaterial({ map: floorTex })); f.rotation.x = -Math.PI / 2; f.position.z = 0; scene.add(f); }
+// zadní zeď s dírou (tudy přichází Voxie)
+box(5, 3.4, .25, wall, -3.5, 1.7, -2.5); box(5, 3.4, .25, wall, 3.5, 1.7, -2.5); box(2, .9, .25, wall, 0, 2.95, -2.5);
+for (let i = 0; i < 8; i++) { const r = box(rand(.2, .5), rand(.2, .5), .3, wall, rand(-1, 1) * 1.1, rand(.1, 2.5), -2.5); r.rotation.z = rand(0, 3); }
+box(.25, 3.4, 8, wall, -6, 1.7, 1.5); box(.25, 3.4, 8, wall, 6, 1.7, 1.5); box(12, .2, 8, mat('#0c0808'), 0, 3.4, 1.5);
+// tmavá chodba za dírou
+box(2.4, 3, .2, mat('#050304'), 0, 1.5, -9); box(.2, 3, 6.5, wall, -1.3, 1.5, -5.8); box(.2, 3, 6.5, wall, 1.3, 1.5, -5.8);
+// zřícené trámy, trosky, převrácený stůl
+for (const [x, rz, ry] of [[-3.5, .5, .2], [3.8, -.35, -.3]]) { const b = box(.3, .3, 6, mat('#1a1210'), x, 1.8, 0, scene); b.rotation.set(rz, ry, .3); }
+for (let i = 0; i < 26; i++) { const d = box(rand(.2, .7), rand(.1, .35), rand(.2, .7), mat(['#2a2020', '#1a1414', '#3a2a20'][i % 3]), rand(-5.5, 5.5), .1, rand(-2, 5)); d.rotation.set(rand(-.3, .3), rand(0, 3), rand(-.3, .3)); }
+{ const t = new THREE.Group(); const top = new THREE.Mesh(new THREE.CylinderGeometry(.8, .8, .08, 16), mat('#3a2a2a')); top.position.y = .78; t.add(top); box(.1, .75, .1, mat('#222'), 0, .38, 0, t); t.position.set(-3.6, .4, 2); t.rotation.set(1.2, 0, .3); scene.add(t); }
+for (let i = 0; i < 2; i++) { const c = new THREE.Group(); box(.8, 1.8, .7, mat('#141216'), 0, .9, 0, c); box(.6, .45, .02, mat('#050505'), 0, 1.25, .36, c); c.position.set(4.6 + i * 1.0, 0, -1.8); c.rotation.y = -.4; scene.add(c); }
+// spadlý nápis
+{ const tex = canvasTex(512, 128, (x, w, h) => { x.font = 'bold 90px Courier New'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillStyle = '#3a1a30'; x.fillText("VOXIE'S", w / 2, h / 2); });
+  const s = new THREE.Mesh(new THREE.PlaneGeometry(3, .75), new THREE.MeshBasicMaterial({ map: tex, transparent: true })); s.position.set(-3, .3, -1.6); s.rotation.set(-1.2, 0, .35); scene.add(s); }
+// stůl a počítač
+box(2.6, .08, 1, mat('#2a1e16'), 0, .78, 2.6); box(.08, .74, .9, mat('#1a1410'), -1.25, .39, 2.6); box(.08, .74, .9, mat('#1a1410'), 1.25, .39, 2.6);
+box(.7, .52, .55, mat('#2a2a30'), .8, 1.08, 2.45);
+const crtTex = canvasTex(256, 192, () => {});
+const crt = new THREE.Mesh(new THREE.PlaneGeometry(.56, .4), new THREE.MeshBasicMaterial({ map: crtTex })); crt.position.set(.8, 1.09, 2.73); scene.add(crt);
+monitorLight.position.set(.8, 1.2, 3.1);
+box(.25, .1, .18, mat('#3a3a40'), -.6, .87, 2.8); // baterie
+// popel
+const ash = new THREE.InstancedMesh(new THREE.BoxGeometry(.012, .012, .012), new THREE.MeshBasicMaterial({ color: 0x5a5050 }), 220), ashP = [];
+for (let i = 0; i < 220; i++) ashP.push([rand(-5.5, 5.5), rand(0, 3.3), rand(-2.3, 5), rand(.1, .3)]); scene.add(ash);
+const _m4 = new THREE.Matrix4();
+
+// ====================================================================
+//  POSTAVY
+// ====================================================================
+const burnTex = canvasTex(64, 64, (x, w, h) => { x.fillStyle = '#5a3818'; x.fillRect(0, 0, w, h); for (let i = 0; i < 40; i++) { x.fillStyle = `rgba(0,0,0,${rand(.3, .8)})`; x.beginPath(); x.arc(rand(0, w), rand(0, h), rand(2, 9), 0, 7); x.fill(); } });
+const fur = new THREE.MeshLambertMaterial({ map: burnTex }), metal = mat('#7a7f88'), dMetal = mat('#3a3d44');
+function makeVoxie() {
+  const g = new THREE.Group(), node = (p, x, y, z) => { const n = new THREE.Group(); n.position.set(x, y, z); p.add(n); return n; };
+  const hips = node(g, 0, .8, 0);
+  for (const s of [-1, 1]) { const l = node(hips, s * .2, 0, 0); box(.26, .45, .3, fur, 0, -.22, 0, l); const l2 = node(l, 0, -.45, 0); box(.24, .32, .28, fur, 0, -.16, 0, l2); box(.3, .1, .4, mat('#2a1a0a'), 0, -.3, .05, l2); }
+  const chest = node(hips, 0, .05, .02); chest.rotation.x = .18;
+  box(.8, .72, .2, fur, 0, .36, -.18, chest); box(.15, .72, .55, fur, -.33, .36, 0, chest); box(.15, .72, .55, fur, .33, .36, 0, chest); box(.8, .18, .55, fur, 0, .64, 0, chest);
+  box(.5, .06, .06, metal, 0, .18, .05, chest); box(.06, .55, .06, metal, 0, .35, .02, chest); box(.36, .2, .18, dMetal, 0, .42, -.02, chest);
+  const wm = [mat('#c0201a'), mat('#2050c0'), mat('#d0b020')];
+  for (let i = 0; i < 5; i++) chest.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(rand(-.2, .2), .5, .05), new THREE.Vector3(rand(-.25, .25), .3, .3), new THREE.Vector3(rand(-.3, .3), rand(-.05, .15), .35)]), 10, .015, 5), wm[i % 3]));
+  const aL = node(chest, .52, .64, 0); box(.22, .4, .24, fur, 0, -.2, 0, aL); const aL2 = node(aL, 0, -.4, 0); box(.2, .34, .22, fur, 0, -.17, 0, aL2);
+  const aR = node(chest, -.52, .64, 0); box(.22, .2, .24, fur, 0, -.1, 0, aR); box(.06, .3, .06, metal, 0, -.32, 0, aR);
+  const aR2 = node(aR, 0, -.45, 0); box(.05, .32, .05, metal, 0, -.16, 0, aR2); for (const dx of [-.06, 0, .06]) { const c = box(.025, .14, .025, metal, dx, -.36, .02, aR2); c.rotation.x = .4; }
+  const head = node(chest, 0, .76, 0); head.rotation.set(.25, -.2, .35);
+  box(.82, .5, .7, fur, 0, .38, 0, head); box(.3, .12, .7, dMetal, -.25, .08, 0, head);
+  const jaw = node(head, 0, .12, .05); jaw.rotation.x = .55; box(.7, .14, .6, fur, 0, -.07, .05, jaw);
+  for (let i = 0; i < 6; i++) { box(.06, .08, .04, mat('#d8d0b0'), -.25 + i * .1, .02, .34, jaw); box(.06, .08, .04, mat('#d8d0b0'), -.25 + i * .1, .1, .34, head); }
+  const ear = node(head, .3, .64, 0); ear.rotation.z = -.7; box(.22, .2, .14, fur, 0, .1, 0, ear);
+  box(.18, .16, .03, mat('#111'), -.19, .44, .355, head); const redEye = box(.05, .05, .02, new THREE.MeshBasicMaterial({ color: 0xff1010 }), -.19, .44, .37, head);
+  const eyeL = new THREE.Mesh(new THREE.SphereGeometry(.07, 10, 8), mat('#e8e8e0')); eyeL.position.set(.2, .28, .42); head.add(eyeL);
+  g.userData = { head, jaw, aR2, aL, aR, redEye, chest };
+  return g;
+}
+const VOX = makeVoxie(); scene.add(VOX);
+// stínová Cocoa
+const shadowMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: .9 });
+const COC = new THREE.Group(); scene.add(COC); COC.visible = false;
+const cocEyes = new THREE.Group(); COC.add(cocEyes);
+const cocEyeMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+for (const x of [-.16, .16]) { const e = new THREE.Mesh(new THREE.SphereGeometry(.055, 10, 8), cocEyeMat); e.position.set(x, 1.55, .42); cocEyes.add(e); }
+{ const fb = new THREE.Group(); COC.add(fb); box(.6, .8, .4, shadowMat, 0, .8, 0, fb); const hd = new THREE.Mesh(new THREE.SphereGeometry(.42, 16, 12), shadowMat); hd.position.set(0, 1.5, 0); fb.add(hd); for (const x of [-.12, .12]) box(.12, .7, .08, shadowMat, x, 2.15, -.1, fb);
+  new GLTFLoader().load('models/cocoa.glb', gl => { const m = gl.scene, b = new THREE.Box3().setFromObject(m), s = 1.85 / b.getSize(new THREE.Vector3()).y; m.scale.setScalar(s); m.position.set(-(b.min.x + b.max.x) / 2 * s, -b.min.y * s, -(b.min.z + b.max.z) / 2 * s); m.traverse(o => { if (o.isMesh) { o.material = shadowMat; o.frustumCulled = false; } }); COC.add(m); fb.visible = false; const nb = new THREE.Box3().setFromObject(m); cocEyes.position.set(0, nb.max.y * .78 - 1.55, nb.max.z * .9 - .42); }, undefined, () => {}); }
+const COC_SPOTS = [[-2.4, 0, 2.2, .9], [2.6, 0, 1.6, -.9], [-1.6, 0, .4, .5]];
+
+// ====================================================================
+//  ZVUK
+// ====================================================================
+let AC = null, master, noiseBuf, amb = null;
+function initAudio() {
+  if (AC) { if (AC.state !== 'running') AC.resume(); return; }
+  try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
+  master = AC.createGain(); master.gain.value = .85; master.connect(AC.destination);
+  noiseBuf = AC.createBuffer(1, AC.sampleRate * 2, AC.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+}
+function out(n, pan) { const p = AC.createStereoPanner ? AC.createStereoPanner() : AC.createGain(); if (p.pan) p.pan.value = clamp(pan || 0, -1, 1); n.connect(p); p.connect(master); }
+function tone(f, type, dur, vol, pan = 0, when = 0, slide = 0) { if (!AC) return; const t = AC.currentTime + when, o = AC.createOscillator(), g = AC.createGain(); o.type = type; o.frequency.setValueAtTime(f, t); if (slide) o.frequency.exponentialRampToValueAtTime(slide, t + dur); g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + dur); o.connect(g); out(g, pan); o.start(t); o.stop(t + dur + .05); }
+function noiseHit(dur, vol, freq, type = 'lowpass', pan = 0, when = 0, q = 1) { if (!AC) return; const t = AC.currentTime + when, s = AC.createBufferSource(), f = AC.createBiquadFilter(), g = AC.createGain(); s.buffer = noiseBuf; f.type = type; f.frequency.value = freq; f.Q.value = q; g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + dur); s.connect(f); f.connect(g); out(g, pan); s.start(t, Math.random()); s.stop(t + dur + .05); }
+const SFX = {
+  spark(vol, pan) { for (let i = 0; i < 4; i++) noiseHit(.05, vol, 4000, 'highpass', pan, i * rand(.03, .09)); tone(rand(80, 140), 'sawtooth', .15, vol * .4, pan); },
+  step(vol, pan) { tone(55, 'sine', .25, vol, pan, 0, 30); noiseHit(.12, vol * .6, 300, 'lowpass', pan); tone(420, 'triangle', .1, vol * .3, pan, .05, 380); },
+  click() { tone(1600, 'square', .03, .05); }, cam() { tone(900, 'square', .05, .05); noiseHit(.15, .1, 3000, 'highpass'); },
+  lure() { for (let i = 0; i < 6; i++) tone(pick([523, 659, 784]), 'square', .12, .04, 0, i * .14); },
+  whisper() { noiseHit(1.4, .12, 1800, 'bandpass', -.6, 0, 3); tone(340, 'sine', 1.2, .02, -.6, 0, 300); },
+  drain() { tone(300, 'sawtooth', 1.2, .18, 0, 0, 40); noiseHit(1, .25, 900, 'bandpass'); },
+  scare() { noiseHit(1.3, .7, 1800, 'bandpass', 0, 0, .7); tone(380, 'sawtooth', 1.2, .35, -.2, 0, 950); tone(395, 'sawtooth', 1.2, .35, .2, 0, 1000); tone(120, 'square', 1.2, .3, 0, 0, 60); },
+  chime() { for (let i = 0; i < 6; i++) tone(784, 'sine', 1.6, .2, 0, i * .85); },
+  powerDown() { tone(240, 'sawtooth', 1.8, .2, 0, 0, 25); noiseHit(1.2, .2, 200); },
+};
+// hlas pana Vojtěcha: hluboký, rozladěný, šeptavý (slabiky podle samohlásek)
+const FORM = { a: [800, 1250], e: [500, 1850], i: [320, 2300], o: [500, 900], u: [350, 750], y: [320, 2300] };
+function voice(text, o = {}) {
+  const clean = text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''), syl = [];
+  for (const m of clean.matchAll(/([^aeiouy\s.,!?…]*)([aeiouy]+)|([.,!?…]+)/g)) syl.push(m[3] ? { pause: /[.!?…]/.test(m[3]) ? .4 : .2 } : { v: m[2][0] });
+  if (!AC) return syl.reduce((a, s) => a + (s.pause || .14), 0) + .3;
+  const dest = AC.createGain(); dest.gain.value = o.vol || .5; const hp = AC.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 180; dest.connect(hp); out(hp, o.pan || 0);
+  let t = AC.currentTime + .05;
+  for (const sy of syl) {
+    if (sy.pause) { t += sy.pause; continue; }
+    const dur = rand(.12, .19), f0 = 95 * rand(.85, 1.15) * (Math.random() < .15 ? .6 : 1);
+    const osc = AC.createOscillator(); osc.type = 'sawtooth'; osc.frequency.setValueAtTime(f0, t); osc.frequency.linearRampToValueAtTime(f0 * rand(.8, 1.05), t + dur);
+    const env = AC.createGain(); env.gain.setValueAtTime(.0001, t); env.gain.exponentialRampToValueAtTime(1, t + .03); env.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    const [F1, F2] = FORM[sy.v] || FORM.a;
+    for (const [F, gg] of [[F1, 1], [F2, .5]]) { const bp = AC.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = F * .85; bp.Q.value = 5; const g = AC.createGain(); g.gain.value = gg; osc.connect(bp); bp.connect(g); g.connect(env); }
+    const nz = AC.createBufferSource(); nz.buffer = noiseBuf; const nf = AC.createBiquadFilter(); nf.type = 'bandpass'; nf.frequency.value = 1500; const ng = AC.createGain(); ng.gain.setValueAtTime(.25, t); ng.gain.exponentialRampToValueAtTime(.0001, t + dur); nz.connect(nf); nf.connect(ng); ng.connect(env); nz.start(t, Math.random()); nz.stop(t + dur);
+    env.connect(dest); osc.start(t); osc.stop(t + dur + .02); t += dur * .95;
+  }
+  return t - AC.currentTime + .3;
+}
+const VOJ = {
+  start: ['Vrátil ses. Věděl jsem, že se vrátíš.', 'Myslel sis, že oheň všechno skončí? Herna nespí. Já nespím.', 'Tady mám pořád proud. Svůj vlastní.'],
+  hole: ['Pusť mě blíž…', 'Vidíš mě? Já tebe ano.', 'Jen chvilku. Jen se na mě podívej.'],
+  back: ['Tma mi nevadí. Jsem v ní dvacet šest let.', 'Zase světlo… vždycky to světlo.'],
+  lure: ['Ta melodie… hrála i na mé oslavě.', 'Proč mě odháníš? Chci jen domů.'],
+  coc: ['Ona mi patří. Vždycky patřila.', 'Neposlouchej ji. Lže ti.'],
+  hour: ['Kdo zapálil hernu? Ty víš, kdo.', 'Oheň začal v kanceláři. V mé kanceláři.', 'Hasiči odešli. Já zůstal.', 'Ještě chvíli a budeš tu se mnou navždy.', 'Slyšíš to? To je moje srdce. V kovu.'],
+  out: ['Konečně tma.'],
+  win: ['Zítra. Zítra mi řekneš pravdu.'],
+};
+let speech = null;
+function vojtech(kind, o = {}) { if (speech && speech.t < speech.dur && !o.force) return; const t = pick(VOJ[kind]); speech = { text: t, t: 0, dur: Math.max(2.5, voice(t, { vol: o.vol || .55, pan: o.pan || 0 })) }; }
+function startAmbient() {
+  if (!AC || amb) return; const g = AC.createGain(); g.gain.value = .9; g.connect(master);
+  const n = AC.createBufferSource(); n.buffer = noiseBuf; n.loop = true; const f = AC.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 260; const ng = AC.createGain(); ng.gain.value = .09; n.connect(f); f.connect(ng); ng.connect(g); n.start();
+  const o = AC.createOscillator(); o.frequency.value = 41; const og = AC.createGain(); og.gain.value = .05; o.connect(og); og.connect(g); o.start();
+  amb = { g, nodes: [n, o] };
+}
+function heartbeat(vol) { tone(48, 'sine', .22, vol); tone(44, 'sine', .25, vol * .8, 0, .2); }
+function stopAmbient() { if (!amb) return; amb.nodes.forEach(x => { try { x.stop(); } catch (e) {} }); amb.g.disconnect(); amb = null; }
+
+// ====================================================================
+//  HRA
+// ====================================================================
+// trasa Voxieho ke kanceláři (index = vzdálenost); HOLE = díra ve zdi kanceláře
+const ROUTE = ['1A', '1B', '2', '5', '8', 'HOLE'];
+const CAMS = { '1A': 'Pódium (zřícené)', '1B': 'Herna (ohořelá)', '2': 'Pizzerie', '3': 'Bludiště (zatopené)', '4': 'Sklad', '5': 'Výdej lístků', '6': 'Toalety', '7': 'Vchod (zavalený)', '8': 'Chodba ke kanceláři', '9': 'Serverovna' };
+const MAP = { '1A': [150, 5, 100, 36], '1B': [140, 55, 120, 46], '2': [15, 55, 110, 58], '3': [275, 55, 110, 58], '5': [15, 130, 90, 40], '6': [150, 118, 100, 34], '4': [295, 130, 90, 40], '8': [112, 172, 44, 100], '9': [244, 172, 44, 100], '7': [15, 190, 80, 40], 'TY': [165, 228, 70, 44] };
+const LINKS = [['1A', '1B'], ['1B', '2'], ['1B', '3'], ['2', '5'], ['3', '4'], ['1B', '6'], ['5', '8'], ['8', 'TY'], ['4', '9'], ['9', 'TY'], ['5', '7']];
+const LV = [3, 5, 7, 9, 11, 14];
+const HINTS = ['Voxie se bojí světla… ale jen chvíli.', 'Zvuk v pizzerii ho odláká.', 'Šetři baterii. Kamery ji žerou.', 'Opravená kamera = víc zraku. Ale stojí čas.', 'Já tu budu s tebou. Pořád.'];
+let S = 'menu', sceneT = 0, G = null;
+function newGame() {
+  G = { t: 0, bat: 100, mon: false, monA: 0, flash: false, look: 0, cam: '8', online: new Set(['2', '5', '8']), fix: null,
+    vox: { i: 0, timer: 0, lure: null, lureT: 0, lit: 0, holeT: 0 }, coc: { on: false, t: rand(35, 55), stay: 0, spot: 0 },
+    msg: '', msgT: 0, out: false, outT: 0, killer: null, staticT: 0 };
+  placeVox(); COC.visible = false; S = 'intro'; sceneT = 0;
+}
+const hour = () => Math.min(6, Math.floor(G.t / HOUR));
+function say(m, t = 3) { G.msg = m; G.msgT = t; }
+function placeVox() {
+  const p = ROUTE[G.vox.i];
+  VOX.visible = p === 'HOLE';
+  VOX.position.set(0, 0, -3.3); VOX.rotation.y = 0;
+}
+function voxMove(to) {
+  const v = G.vox, from = v.i; v.i = clamp(to, 0, ROUTE.length - 1); placeVox();
+  const closeness = v.i / (ROUTE.length - 1), pan = rand(-.3, .3);
+  SFX.step(.08 + closeness * .35, pan); SFX.spark(.05 + closeness * .25, pan);
+  if (G.mon && (ROUTE[from] === G.cam || ROUTE[v.i] === G.cam)) G.staticT = .8;
+  if (ROUTE[v.i] === 'HOLE') { v.lit = 0; v.holeT = 0; say('…něco jiskří přímo před tebou.', 2.5); setTimeout(() => vojtech('hole', { force: true, vol: .7 }), 600); }
+}
+function update(dt) {
+  sceneT += dt;
+  if (speech) speech.t += dt;
+  if (S === 'intro' && sceneT > 6) { S = 'play'; sceneT = 0; startAmbient(); say('Baterie počítače je jediný zdroj energie. Šetři ji.', 5); setTimeout(() => vojtech('start', { force: true }), 2500); }
+  if (S === 'scare' && sceneT > 1.5) { S = 'dead'; sceneT = 0; }
+  if (S !== 'play') return;
+  const hPrev = hour(); G.t += dt; if (G.t >= 6 * HOUR) { S = 'win'; sceneT = 0; stopAmbient(); SFX.chime(); setTimeout(() => voice(pick(VOJ.win), { vol: .5 }), 3500); return; }
+  if (hour() !== hPrev) setTimeout(() => vojtech('hour'), 1200);
+  // tlukot srdce sílí, čím je Voxie blíž
+  G.hb = (G.hb || 0) - dt; if (G.hb <= 0) { const k = G.vox.i / (ROUTE.length - 1); G.hb = 1.6 - k * 1.0; if (k > .3) heartbeat(.08 + k * .2); }
+  if (Math.random() < dt * .04) SFX.whisper();
+  G.monA = clamp(G.monA + (G.mon ? dt : -dt) * 5, 0, 1); G.staticT = Math.max(0, G.staticT - dt); if (G.msgT > 0) G.msgT -= dt;
+  const v = G.vox, c = G.coc;
+  // baterie
+  if (!G.out) {
+    G.bat -= dt * (.05 + (G.mon ? .09 : 0) + (G.flash ? .16 : 0) + (G.fix ? .12 : 0));
+    if (G.bat <= 0) { G.bat = 0; G.out = true; G.mon = false; G.flash = false; G.fix = null; SFX.powerDown(); say('Baterie je prázdná…', 4); G.outT = 0; setTimeout(() => vojtech('out', { force: true, vol: .7 }), 3000); }
+  } else { G.outT += dt; if (G.outT > 9 && ROUTE[v.i] !== 'HOLE') { v.i = ROUTE.length - 1; placeVox(); } if (G.outT > 13) jumpscare('V'); return; }
+  // oprava kamery
+  if (G.fix) { if (!G.mon) G.fix = null; else { G.fix.p += dt; if (Math.random() < dt * 4) SFX.click(); if (G.fix.p >= 6) { G.online.add(G.fix.id); say('Kamera ' + G.fix.id + ' je zpět online.', 2.5); tone(1320, 'square', .12, .05); G.fix = null; } } }
+  // Voxie: blíží se, lákání zvukem, díra ve zdi
+  const lvl = LV[hour()];
+  if (ROUTE[v.i] === 'HOLE') {
+    const looking = Math.abs(G.look) < .38 && !G.mon;
+    if (G.flash && looking) { v.lit += dt; if (v.lit > 1.5) { SFX.spark(.4, 0); voxMove(pick([1, 2])); say('Couvl zpátky do tmy.', 2); vojtech('back', { force: true }); } }
+    v.holeT += dt * (G.mon ? 1.8 : 1);
+    if (v.holeT > 5.5) { if (G.mon) { G.mon = false; } jumpscare('V'); return; }
+    if (Math.random() < dt * 2) SFX.spark(.25, 0);
+  } else {
+    if (v.lureT > 0) v.lureT -= dt; else v.lure = null;
+    v.timer += dt;
+    if (v.timer > 6) { v.timer = 0;
+      if (v.lure != null && v.lure !== v.i) voxMove(v.i + Math.sign(v.lure - v.i));
+      else if (v.lure == null && Math.random() * 20 < lvl) voxMove(v.i + 1);
+    }
+    if (Math.random() < dt * .3) SFX.spark(.03 + v.i / (ROUTE.length - 1) * .15, rand(-.5, .5));
+  }
+  // stínová Cocoa
+  if (!c.on) { c.t -= dt; if (c.t <= 0) { c.on = true; c.stay = 0; c.spot = Math.floor(Math.random() * COC_SPOTS.length); const s = COC_SPOTS[c.spot]; COC.position.set(s[0], 0, s[2]); COC.rotation.y = s[3]; COC.visible = true; SFX.whisper(); } }
+  else {
+    c.stay += dt;
+    const s = COC_SPOTS[c.spot], dir = new THREE.Vector3(s[0] - EYE.x, 1.3 - EYE.y, s[2] - EYE.z).normalize(), fwd = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), G.look);
+    if (G.flash && !G.mon && fwd.dot(dir) > .85) { c.on = false; COC.visible = false; c.t = rand(35, 60); SFX.whisper(); say('Cocoa: „' + pick(HINTS) + '“', 4); }
+    else if (c.stay > 4.5) { c.on = false; COC.visible = false; c.t = rand(30, 55); G.bat = Math.max(0, G.bat - 22); SFX.drain(); G.staticT = 1; say('Cocoa vysála kus baterie! (-22 %)', 3); setTimeout(() => vojtech('coc'), 1500); }
+  }
+}
+function jumpscare(who) { if (S !== 'play') return; G.killer = who; S = 'scare'; sceneT = 0; SFX.scare(); stopAmbient(); try { navigator.vibrate && navigator.vibrate([300, 80, 400]); } catch (e) {} }
+function toggleMon() { if (S !== 'play' || G.out) return; G.mon = !G.mon; SFX.cam(); if (G.mon) G.staticT = .3; }
+function lure() { if (!G.online.has(G.cam) || G.cam === '8') { say(G.cam === '8' ? 'Na chodbě by ho to přilákalo blíž!' : 'Kamera je offline.', 2); return; } const idx = ROUTE.indexOf(G.cam); if (idx < 0) { say('Odsud ho zvuk nepřiláká.', 2); return; } G.vox.lure = idx; G.vox.lureT = 14; G.bat -= 4; SFX.lure(); say('Hraje melodie v: ' + CAMS[G.cam], 2.5); if (Math.random() < .5) setTimeout(() => vojtech('lure'), 2000); }
+function repair() { if (G.online.has(G.cam) || G.fix) return; G.fix = { id: G.cam, p: 0 }; say('Přepojuji kabely… (6 s, zůstaň u počítače)', 3); }
+
+// ====================================================================
+//  HUD
+// ====================================================================
+const hud = document.getElementById('hud'), ctx = hud.getContext('2d');
+let HW = 1280, HK = 1; const HH = 720;
+function resize() { const w = innerWidth, h = innerHeight, d = Math.min(devicePixelRatio || 1, 2); renderer.setSize(w, h, false); HW = Math.max(960, HH * w / h); HK = Math.min(h * d / HH, w * d / HW); hud.width = Math.round(w * d); hud.height = Math.round(h * d); cam.aspect = w / h; cam.updateProjectionMatrix(); }
+addEventListener('resize', resize); resize();
+const nF = []; for (let f = 0; f < 4; f++) { const c = document.createElement('canvas'); c.width = 320; c.height = 180; const x = c.getContext('2d'), id = x.createImageData(320, 180); for (let i = 0; i < id.data.length; i += 4) { const v = Math.random() * 255; id.data[i] = id.data[i + 1] = id.data[i + 2] = v; id.data[i + 3] = 255; } x.putImageData(id, 0, 0); nF.push(c); }
+const rect = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); };
+function rr(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+function txt(s, x, y, size, col, align = 'left') { ctx.font = `bold ${size}px ${FONT}`; ctx.fillStyle = col; ctx.textAlign = align; ctx.fillText(s, x, y); }
+function neon(s, x, y, size, col, blur = 18) { ctx.save(); ctx.shadowColor = col; ctx.shadowBlur = blur; txt(s, x, y, size, col, 'center'); txt(s, x, y, size, '#fff', 'center'); ctx.restore(); }
+function noise(a, x = 0, y = 0, w = HW, h = HH) { if (a <= 0) return; ctx.save(); ctx.globalAlpha = Math.min(1, a); ctx.imageSmoothingEnabled = false; ctx.drawImage(nF[(Math.random() * 4) | 0], x, y, w, h); ctx.restore(); }
+function vignette(a) { const g = ctx.createRadialGradient(HW / 2, HH / 2, 180, HW / 2, HH / 2, HW * .65); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, `rgba(0,0,0,${a})`); ctx.fillStyle = g; ctx.fillRect(0, 0, HW, HH); }
+let buttons = [], hover = null;
+const addBtn = (x, y, w, h, id, cb) => buttons.push({ x, y, w, h, id, cb });
+function btn(x, y, w, h, label, id, cb, on = true, size = 20, col = '#ff3b3b') {
+  rr(x, y, w, h, 10); ctx.fillStyle = on ? (hover === id ? col : 'rgba(120,20,20,.35)') : 'rgba(255,255,255,.05)'; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = on ? col : '#444'; ctx.stroke();
+  txt(label, x + w / 2, y + h / 2 + size * .36, size, on ? '#fff' : '#666', 'center'); if (on) addBtn(x, y, w, h, id, cb);
+}
+// obraz z kamery: tmavá místnost a silueta Voxieho
+function feed(id, x, y, w, h, t) {
+  rect(x, y, w, h, '#050806');
+  if (!G.online.has(id)) { noise(.8, x, y, w, h); rect(x, y + h / 2 - 30, w, 60, 'rgba(0,0,0,.7)'); txt('NO SIGNAL', x + w / 2, y + h / 2 + 12, 40, '#ff4040', 'center'); return; }
+  const g = ctx.createLinearGradient(0, y, 0, y + h); g.addColorStop(0, '#1a2e22'); g.addColorStop(1, '#06120e'); ctx.fillStyle = g; ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = 'rgba(93,255,138,.15)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y + h * .7); ctx.lineTo(x + w * .3, y + h * .5); ctx.lineTo(x + w * .7, y + h * .5); ctx.lineTo(x + w, y + h * .7); ctx.stroke();
+  for (let i = 0; i < 6; i++) rect(x + (i * 97 % w), y + h * .55 + (i * 31 % 60), 40 + i * 7, 14, 'rgba(20,30,24,.8)');
+  if (ROUTE[G.vox.i] === id) {
+    ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+    const cx = x + w * (.45 + Math.sin(t * .3) * .05), by = y + h * .86, u = h / 85;
+    ctx.shadowColor = '#ff3030'; ctx.shadowBlur = 10; ctx.fillStyle = '#1e1a12'; ctx.fillRect(cx - 8 * u, by - 34 * u, 16 * u, 22 * u); ctx.fillRect(cx - 9 * u, by - 46 * u, 18 * u, 13 * u); ctx.fillRect(cx + 4 * u, by - 50 * u, 5 * u, 5 * u);
+    ctx.fillRect(cx - 7 * u, by - 12 * u, 5 * u, 12 * u); ctx.fillRect(cx + 2 * u, by - 12 * u, 5 * u, 12 * u); ctx.fillRect(cx - 12 * u, by - 34 * u, 4 * u, 16 * u);
+    ctx.shadowBlur = 0; rect(cx - 5 * u, by - 41 * u, 2.5 * u, 2.5 * u, Math.random() < .85 ? '#ff2020' : '#400'); if (Math.random() < .08) rect(cx - 6 * u, by - 30 * u, 3 * u, 3 * u, '#ffd060');
+    ctx.restore();
+  }
+  ctx.fillStyle = 'rgba(93,255,138,.07)'; ctx.fillRect(x, y, w, h); noise(.12 + G.staticT, x, y, w, h);
+}
+function drawComputer(t) {
+  const x0 = 40, y0 = 96, w = HW - 80, h = HH - 170;
+  rr(x0, y0, w, h, 24); ctx.fillStyle = '#16161a'; ctx.fill(); rect(x0 + 24, y0 + 24, w - 48, h - 48, '#021006');
+  txt('VOXIE-CAM v2', x0 + 44, y0 + 60, 24, '#5dff8a'); txt('BATERIE ' + Math.ceil(G.bat) + ' %', x0 + w - 44, y0 + 60, 22, G.bat < 25 ? '#ff5050' : '#5dff8a', 'right');
+  const fx = x0 + 44, fy = y0 + 76, fw = w - 520, fh = h - 110;
+  feed(G.cam, fx, fy, fw, fh, t); ctx.strokeStyle = '#2a6a3a'; ctx.lineWidth = 2; ctx.strokeRect(fx, fy, fw, fh);
+  txt('CAM ' + G.cam + ' – ' + CAMS[G.cam], fx + 12, fy + 30, 20, '#cfe');
+  if (Math.sin(t * 4) > 0) { ctx.beginPath(); ctx.arc(fx + fw - 30, fy + 24, 8, 0, 7); ctx.fillStyle = '#ff2020'; ctx.fill(); }
+  // mapa
+  const mx = fx + fw + 30, my = fy + 10, sc = .95;
+  ctx.save(); ctx.translate(mx, my); ctx.scale(sc, sc);
+  ctx.strokeStyle = 'rgba(93,255,138,.25)'; ctx.lineWidth = 5;
+  for (const [a, b] of LINKS) { const A = MAP[a], B = MAP[b]; ctx.beginPath(); ctx.moveTo(A[0] + A[2] / 2, A[1] + A[3] / 2); ctx.lineTo(B[0] + B[2] / 2, B[1] + B[3] / 2); ctx.stroke(); }
+  for (const id in MAP) { const [x, y, ww, hh] = MAP[id], sel = G.cam === id, on = G.online.has(id);
+    rect(x, y, ww, hh, id === 'TY' ? '#3a1010' : sel ? '#1f8a3a' : on ? '#12301a' : '#1a1a1a'); ctx.strokeStyle = sel ? '#7cff6b' : on ? '#3a8a4a' : '#552222'; ctx.lineWidth = 2; ctx.strokeRect(x, y, ww, hh);
+    txt(id === 'TY' ? 'TY' : id, x + ww / 2, y + hh / 2 + 5, 14, on || id === 'TY' ? '#fff' : '#a55', 'center');
+    if (CAMS[id]) addBtn(mx + x * sc, my + y * sc, ww * sc, hh * sc, 'c' + id, () => { if (G.cam !== id) { G.cam = id; G.staticT = .3; SFX.cam(); G.fix = null; } }); }
+  ctx.restore();
+  const bx = mx, by = my + 290;
+  if (G.online.has(G.cam)) btn(bx, by, 400, 54, '🔊 PŘILÁKAT ZVUKEM (-4 %)', 'lure', lure, true, 18, '#3bb26b');
+  else if (G.fix && G.fix.id === G.cam) { rr(bx, by, 400, 54, 10); ctx.fillStyle = '#0a2a14'; ctx.fill(); rect(bx, by + 48, 400 * G.fix.p / 6, 6, '#5dff8a'); txt('🔧 PŘEPOJUJI KABELY… ' + Math.floor(G.fix.p / 6 * 100) + ' %', bx + 200, by + 34, 18, '#5dff8a', 'center'); }
+  else btn(bx, by, 400, 54, '🔧 OPRAVIT KAMERU (6 s)', 'fix', repair, true, 18, '#e0b020');
+  txt('Online: ' + [...G.online].sort().join(', '), bx, by + 90, 16, '#9fffb8');
+  ctx.fillStyle = 'rgba(0,0,0,.2)'; for (let yy = y0 + 24; yy < y0 + h - 24; yy += 3) ctx.fillRect(x0 + 24, yy, w - 48, 1);
+}
+function drawHUD(t) {
+  vignette(.65);
+  if (G.monA > 0) { ctx.save(); ctx.globalAlpha = G.monA; ctx.translate(0, (1 - G.monA) * HH); drawComputer(t); ctx.restore(); }
+  const h = hour(); txt((h === 0 ? '0' : h) + ':00', HW - 24, 54, 46, '#fff', 'right'); txt('Noc 1 · prototyp', 24, 42, 22, '#ff8b8b');
+  // baterie
+  rr(24, 60, 180, 22, 6); ctx.fillStyle = '#111'; ctx.fill(); rect(27, 63, 174 * G.bat / 100, 16, G.bat < 25 ? '#ff4040' : G.bat < 50 ? '#ffb030' : '#5dff8a'); txt('🔋 ' + Math.ceil(G.bat) + ' %', 212, 77, 16, '#ccc');
+  if (!G.out) {
+    btn(HW / 2 - 200, 650, 400, 56, G.mon ? '▼ ZAVŘÍT POČÍTAČ' : '🖥 POČÍTAČ', 'mon', toggleMon, true, 20, '#5dff8a');
+    if (!G.mon) {
+      rr(HW - 170, 520, 140, 110, 16); ctx.fillStyle = G.flash ? 'rgba(255,240,200,.85)' : 'rgba(120,20,20,.35)'; ctx.fill(); ctx.strokeStyle = '#fff3c4'; ctx.lineWidth = 2; ctx.stroke(); txt('🔦', HW - 100, 588, 40, '#fff', 'center'); txt('DRŽ', HW - 100, 618, 14, G.flash ? '#000' : '#ccc', 'center');
+      addBtn(HW - 170, 520, 140, 110, 'flash', () => {});
+      txt('◀ táhni pro rozhlížení ▶', HW / 2, 636, 14, '#777', 'center');
+    }
+  }
+  if (speech && speech.t < speech.dur) { const ls = speech.text; const sy = G.mon ? 574 : 140; rr(HW / 2 - 380, sy, 760, 66, 10); ctx.fillStyle = 'rgba(20,0,0,.8)'; ctx.fill(); txt('Vojtěch', HW / 2 - 364, sy + 22, 15, '#ff5050'); ctx.save(); ctx.translate(rand(-1, 1), rand(-1, 1)); txt(ls, HW / 2, sy + 52, 20, '#ffd8d8', 'center'); ctx.restore(); }
+  if (G.msgT > 0) { ctx.save(); ctx.globalAlpha = Math.min(1, G.msgT); txt(G.msg, HW / 2, 110, 20, '#ffd0d0', 'center'); ctx.restore(); }
+  if (G.out) { rect(0, 0, HW, HH, `rgba(0,0,0,${Math.min(.92, G.outT * .2)})`); if (G.outT > 8 && Math.random() < .5) { ctx.fillStyle = '#ff2020'; ctx.fillRect(HW / 2 - 30, 330, 10, 10); } }
+  if (G.staticT > .5 && !G.mon) noise(.15);
+}
+function drawMenu(t) {
+  rect(0, 0, HW, HH, 'rgba(0,0,0,.55)'); noise(.08 + (Math.random() < .05 ? .2 : 0)); vignette(.9);
+  ctx.save(); ctx.shadowColor = '#ff2020'; ctx.shadowBlur = 24; txt('NIGHT AT', 80, 160, 44, '#ff8080'); txt("VOXIE'S", 80, 250, 100, '#ff3030'); txt('2', 560, 250, 100, '#fff'); ctx.restore();
+  txt('Prototyp · zbylo jen to, co shořelo. A on.', 84, 292, 18, '#ccc');
+  btn(80, 340, 380, 60, '▶ HRÁT NOC 1', 'play', () => { initAudio(); newGame(); }, true, 22);
+  const lines = ['Žádné dveře ani proud. Jen počítač na baterii.', '🔦 Voxie v díře ve zdi: drž baterku, dokud necouvne.', '🖥 Kamery: 3 z 10 fungují. Rozbité oprav přepojením kabelů.', '🔊 Zvukem ho odlákáš do vzdálenější místnosti.', '👁 Stínová Cocoa: osviť ji, jinak vysaje baterii.'];
+  lines.forEach((l, i) => txt(l, 84, 450 + i * 30, 17, '#ffcfcf'));
+}
+function drawEnd(win) {
+  rect(0, 0, HW, HH, '#000'); noise(win ? .05 : Math.max(.15, .8 - sceneT));
+  if (win) { neon('6:00', HW / 2, 300, 110, '#ffe46b', 20); txt('Přežil jsi první noc ve zbytcích Voxie\'s.', HW / 2, 380, 24, '#fff', 'center'); }
+  else { txt('KONEC', HW / 2, 280, 80, '#ff3030', 'center'); txt(G.killer === 'V' ? 'Zničený Voxie tě našel.' : 'Stín tě pohltil.', HW / 2, 340, 24, '#fff', 'center'); }
+  if (sceneT > 1.5) { btn(HW / 2 - 200, 440, 400, 56, 'ZNOVU', 'again', () => newGame()); btn(HW / 2 - 200, 512, 400, 56, 'MENU', 'menu', () => { S = 'menu'; sceneT = 0; }); }
+}
+
+// ====================================================================
+//  VSTUP
+// ====================================================================
+let drag = null, flashId = null;
+const toL = e => { const r = hud.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * HW, y: (e.clientY - r.top) / r.height * HH }; };
+const hit = p => { for (let i = buttons.length - 1; i >= 0; i--) { const b = buttons[i]; if (p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h) return b; } return null; };
+hud.addEventListener('pointerdown', e => {
+  e.preventDefault(); initAudio(); const p = toL(e), b = hit(p);
+  if (b && b.id === 'flash') { if (G && !G.out) { G.flash = true; flashId = e.pointerId; SFX.click(); } return; }
+  if (b) { b.cb(); return; }
+  if (S === 'intro') { S = 'play'; sceneT = 0; startAmbient(); return; }
+  if (S === 'play' && !G.mon) drag = { id: e.pointerId, x: p.x, look: G.look };
+});
+hud.addEventListener('pointermove', e => { const p = toL(e), b = hit(p); hover = b ? b.id : null; if (drag && drag.id === e.pointerId) G.look = clamp(drag.look - (p.x - drag.x) / HW * 2.6, -1.25, 1.25); });
+const up = e => { if (drag && drag.id === e.pointerId) drag = null; if (flashId === e.pointerId && G) { G.flash = false; flashId = null; } };
+hud.addEventListener('pointerup', up); hud.addEventListener('pointercancel', up);
+const keys = {};
+addEventListener('keydown', e => { initAudio(); const k = e.key.toLowerCase(); keys[k] = true; if (S !== 'play') return; if (k === ' ' || k === 's') { e.preventDefault(); toggleMon(); } if (k === 'f' && !G.out) G.flash = true; });
+addEventListener('keyup', e => { const k = e.key.toLowerCase(); keys[k] = false; if (k === 'f' && G) G.flash = false; });
+
+// ====================================================================
+//  SMYČKA
+// ====================================================================
+const clock = new THREE.Clock(); let manualT = null;
+function render(t, dt) {
+  // počítač na stole
+  if (Math.floor(t * 4) !== Math.floor((t - dt) * 4)) { const c = crtTex.image.getContext('2d'); c.fillStyle = G && G.out ? '#010101' : '#031208'; c.fillRect(0, 0, 256, 192); if (!(G && G.out)) { c.fillStyle = '#5dff8a'; c.font = 'bold 18px Courier New'; c.fillText('VOXIE-CAM v2', 20, 40); c.fillText(G ? 'BATERIE ' + Math.ceil(G.bat) + '%' : 'STANDBY', 20, 80); c.fillText(Math.sin(t * 3) > 0 ? '_' : '', 20, 120); } crtTex.needsUpdate = true; }
+  monitorLight.intensity = G && G.out ? 0 : 1.6;
+  emergency.intensity = G && G.out ? 0 : (Math.sin(t * 2.6) > 0 ? 5 : .4);
+  for (let i = 0; i < 220; i++) { const a = ashP[i]; a[1] -= a[3] * dt; a[0] += Math.sin(t + i) * .002; if (a[1] < 0) a[1] = 3.3; _m4.makeTranslation(a[0], a[1], a[2]); ash.setMatrixAt(i, _m4); } ash.instanceMatrix.needsUpdate = true;
+  // pohled a baterka
+  if (G && S === 'play') { if (keys.arrowleft || keys.a) G.look = clamp(G.look + dt * 1.6, -1.25, 1.25); if (keys.arrowright || keys.d) G.look = clamp(G.look - dt * 1.6, -1.25, 1.25); }
+  const look = G ? G.look : Math.sin(t * .2) * .3;
+  cam.position.copy(EYE); cam.rotation.set(-.06, look, 0, 'YXZ');
+  const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(cam.quaternion);
+  flash.position.copy(cam.position).addScaledVector(fwd, .2).y -= .2; flash.target.position.copy(cam.position).addScaledVector(fwd, 6);
+  flash.intensity = G && G.flash && !G.mon && !G.out ? 30 * (Math.random() < .02 ? .3 : 1) : 0;
+  // Voxie
+  const u = VOX.userData;
+  u.head.rotation.y = -.2 + (Math.sin(t * 13) > .92 ? rand(-.4, .4) : Math.sin(t * .6) * .1); u.jaw.rotation.x = .55 + Math.sin(t * 2) * .05 + (Math.random() < .02 ? .3 : 0);
+  u.aR2.rotation.x = Math.sin(t * 1.4) * .15; u.redEye.material.color.setRGB(Math.random() < .9 ? 1 : .2, 0, 0);
+  sparkLight.intensity = VOX.visible && Math.random() < .15 ? rand(1, 4) : 0; sparkLight.position.set(VOX.position.x, 1.4, VOX.position.z + .4);
+  redLight.intensity = 0;
+  if (S === 'scare') {
+    const k = ease(clamp(sceneT / .15, 0, 1)), j = 1 - clamp((sceneT - .8) / .6, 0, 1);
+    if (G.killer === 'V') { VOX.visible = true; VOX.position.set(rand(-.04, .04) * j, -.45 * k, EYE.z - 2.4 + 1.2 * k); VOX.rotation.y = 0; u.jaw.rotation.x = .9; u.aL.rotation.x = -1.3 * k; u.aR.rotation.x = -1.3 * k; }
+    redLight.intensity = 6 * k; redLight.position.set(0, .8, EYE.z - .6);
+    cam.position.x += rand(-.05, .05) * j; cam.position.y += rand(-.04, .04) * j; cam.rotation.set(0, 0, 0);
+  } else { u.aL.rotation.x = 0; u.aR.rotation.x = 0; }
+  // Cocoa
+  if (COC.visible) { shadowMat.opacity = .75 + Math.sin(t * 6) * .12; cocEyeMat.color.setScalar(Math.random() < .06 ? .2 : 1); COC.position.y = Math.sin(t * 1.3) * .04; }
+  if (S === 'menu') { VOX.visible = true; VOX.position.set(0, 0, -3.6); cam.rotation.set(-.05, Math.sin(t * .15) * .15, 0); flash.intensity = 14; }
+  const showWorld = S === 'menu' || S === 'play' || S === 'scare';
+  if (showWorld && !(G && G.monA >= 1)) renderer.render(scene, cam); else renderer.clear();
+  buttons = []; ctx.setTransform(HK, 0, 0, HK, 0, 0); ctx.clearRect(0, 0, HW, HH);
+  if (S === 'menu') drawMenu(t);
+  else if (S === 'intro') { rect(0, 0, HW, HH, '#000'); ctx.save(); const a1 = clamp(Math.min(sceneT, 3 - sceneT) * 1.5, 0, 1), a2 = clamp(Math.min(sceneT - 3, 6 - sceneT) * 1.5, 0, 1); ctx.globalAlpha = a1; txt('O týden později.', HW / 2, 300, 34, '#fff', 'center'); txt('Herna Voxie\'s je vyhořelá. Policie hledá nočního hlídače.', HW / 2, 350, 20, '#ccc', 'center'); txt('A ty ses vrátil. Protože tě někdo zavolal jménem.', HW / 2, 382, 20, '#ff8080', 'center'); ctx.globalAlpha = a2; txt('0:00', HW / 2, 330, 90, '#fff', 'center'); txt('Noc 1', HW / 2, 400, 40, '#ff8080', 'center'); ctx.restore(); noise(.06); }
+  else if (S === 'play') drawHUD(t);
+  else if (S === 'scare') { if (sceneT < .05) rect(0, 0, HW, HH, '#fff'); noise(.15 + Math.random() * .15); }
+  else if (S === 'dead') drawEnd(false); else if (S === 'win') drawEnd(true);
+  hud.style.cursor = hover ? 'pointer' : 'default';
+}
+function frame() { const dt = Math.min(.1, clock.getDelta()); if (manualT === null) { update(dt); render(clock.elapsedTime, dt); } requestAnimationFrame(frame); }
+requestAnimationFrame(frame);
+window.__v2 = { get G() { return G; }, get S() { return S; }, newGame, toggleMon, lure, repair, voxMove, manual(on) { manualT = on ? 0 : null; }, step(dt) { manualT += dt; update(dt); render(manualT, dt); }, skip() { if (S === 'intro') { S = 'play'; sceneT = 0; } } };
+</script>
+</body>
+</html>
