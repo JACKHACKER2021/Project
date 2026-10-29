@@ -49,18 +49,14 @@ const V = makeVoxie(); scene.add(V); const u = V.userData;
 // z obleku zbyly jen cáry: většina srsti zmizí a nahradí ji kovová kostra
 const metal2 = mat('#6a6e74'), dmetal2 = mat('#3a3c40'), charM = mat('#140c08'), ember = new THREE.MeshBasicMaterial({ color: 0xff6a20 });
 const furs = []; V.traverse(o => { if (o.isMesh && o.material === fur) furs.push(o); });
+const burntFur = new THREE.MeshLambertMaterial({ map: fur.map, color: '#9a8070' });
 furs.forEach((o, i) => { const p = o.geometry.parameters, par = o.parent, pos = o.position.clone();
-  // kovová tyč místo končetiny / rám místo trupu a hlavy
-  const big = p.width > .5 || p.depth > .5;
-  if (big) { for (const sx of [-1, 1]) box(.04, p.height, .04, metal2, pos.x + sx * p.width * .4, pos.y, pos.z + (p.depth > .3 ? p.depth * .35 : 0), par); box(p.width * .9, .04, .04, metal2, pos.x, pos.y + p.height * .45, pos.z, par); box(p.width * .9, .04, .04, metal2, pos.x, pos.y - p.height * .45, pos.z, par); }
-  else { const rod = box(.06, p.height * .95, .06, metal2, pos.x, pos.y, pos.z, par); box(.1, .08, .1, dmetal2, pos.x, pos.y + p.height * .45, pos.z, par); }
-  if (Math.random() < .28) { o.material = charM; o.scale.set(rand(.5, .9), rand(.3, .6), rand(.5, .9)); o.position.x += rand(-.05, .05); o.position.y += rand(-.1, .1); } else o.visible = false; });
-// lebka endoskeletonu
-box(.5, .36, .44, dmetal2, 0, .36, 0, u.head); box(.12, .12, .05, mat('#000'), -.17, .44, .23, u.head); box(.12, .12, .05, mat('#000'), .17, .44, .23, u.head);
-for (let i = 0; i < 6; i++) box(.05, .07, .04, mat('#d8d0b0'), -.15 + i * .06, .2, .24, u.head);
-u.redEye.position.set(-.17, .44, .26); u.redEye.scale.setScalar(1.6);
-u.head.children.forEach(o => { if (o.isMesh && o.geometry.type === 'SphereGeometry') o.position.set(.17, .3, .3); });
-box(.01, .14, .01, mat('#902020'), .17, .38, .29, u.head);
+  const keep = Math.random() < .66 || p.width > .7;
+  if (keep) { o.material = burntFur; if (Math.random() < .4) { box(rand(.1, .2), rand(.1, .2), .03, mat('#050302'), pos.x + rand(-p.width * .3, p.width * .3), pos.y + rand(-p.height * .3, p.height * .3), pos.z + p.depth / 2 + .01, par); box(.04, rand(.1, .18), .04, metal2, pos.x, pos.y, pos.z + p.depth / 2 - .02, par); } return; }
+  o.visible = false; const big = p.width > .5 || p.depth > .5;
+  if (big) { for (const sx of [-1, 1]) box(.04, p.height, .04, metal2, pos.x + sx * p.width * .4, pos.y, pos.z, par); box(p.width * .9, .04, .04, metal2, pos.x, pos.y + p.height * .45, pos.z, par); }
+  else { box(.06, p.height * .95, .06, metal2, pos.x, pos.y, pos.z, par); box(.1, .08, .1, dmetal2, pos.x, pos.y + p.height * .45, pos.z, par); } });
+box(.14, .12, .05, mat('#3a3c40'), .25, .5, .3, u.head); box(.04, .2, .04, mat('#6a6e74'), -.32, .45, .2, u.head); // kov pod spálenou tváří
 // uhlíky
 const embers = []; for (let i = 0; i < 22; i++) { const e = box(.025, .025, .025, ember, rand(-.4, .4), rand(.2, 2), rand(-.3, .3), V); e.userData.ph = rand(0, 9); embers.push(e); }
 for (let i = 0; i < 14; i++) { const a = rand(0, 6.28), r = rand(.8, 2.4); const b = box(rand(.2, .6), rand(.05, .25), rand(.2, .6), mat('#1a120c'), Math.cos(a) * r, .08, Math.sin(a) * r, scene); b.rotation.y = rand(0, 3); }
