@@ -24,6 +24,7 @@
 // ====================================================================
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 let cocLoad = Promise.resolve();
 const HOUR = 60;                // reálné sekundy na herní hodinu
@@ -193,9 +194,25 @@ function stopAmbient() { if (!amb) return; amb.nodes.forEach(x => { try { x.stop
 // ====================================================================
 // trasa Voxieho ke kanceláři (index = vzdálenost); HOLE = díra ve zdi kanceláře
 const ROUTE = ['1A', '1B', '2', '5', '8', 'HOLE'];
-const CAMS = { '1A': 'Pódium (zřícené)', '1B': 'Herna (ohořelá)', '2': 'Pizzerie', '3': 'Bludiště (zatopené)', '4': 'Sklad', '5': 'Výdej lístků', '6': 'Toalety', '7': 'Vchod (zavalený)', '8': 'Chodba ke kanceláři', '9': 'Serverovna' };
-const MAP = { '1A': [150, 5, 100, 36], '1B': [140, 55, 120, 46], '2': [15, 55, 110, 58], '3': [275, 55, 110, 58], '5': [15, 130, 90, 40], '6': [150, 118, 100, 34], '4': [295, 130, 90, 40], '8': [112, 172, 44, 100], '9': [244, 172, 44, 100], '7': [15, 190, 80, 40], 'TY': [165, 228, 70, 44] };
-const LINKS = [['1A', '1B'], ['1B', '2'], ['1B', '3'], ['2', '5'], ['3', '4'], ['1B', '6'], ['5', '8'], ['8', 'TY'], ['4', '9'], ['9', 'TY'], ['5', '7']];
+const CAMS = { '1A': 'Pódium (zřícené)', '1B': 'Herna (ohořelá)', '2': 'Pizzerie', '3': 'Bludiště (zatopené)', '4': 'Sklad', '5': 'Výdej lístků', '6': 'Toalety (zasypané)', '7': 'Vchod (zavalený)', '8': 'Chodba ke kanceláři', '9': 'Serverovna' };
+// plán budovy z 1. dílu (místnosti v metrech)
+const G1 = {
+  '1A': { x0: -6, x1: 6, z0: -30, z1: -22, h: 4, open: { s: [[-4, 4]] } },
+  '1B': { x0: -10, x1: 10, z0: -22, z1: -12, open: { n: [[-4, 4]], w: [[-18, -14]], e: [[-18, -14]], s: [[-2, 2], [-6, -4], [4, 6]] } },
+  '2': { x0: -22, x1: -10, z0: -22, z1: -10, open: { e: [[-18, -14]], s: [[-18, -14]] } },
+  '3': { x0: 10, x1: 22, z0: -22, z1: -10, open: { w: [[-18, -14]], s: [[14, 18]] } },
+  '5': { x0: -22, x1: -10, z0: -10, z1: -2, open: { n: [[-18, -14]], s: [[-18, -14]] } },
+  '4': { x0: 10, x1: 22, z0: -10, z1: -2, open: { n: [[14, 18]], s: [[14, 18]] } },
+  '7': { x0: -22, x1: -10, z0: -2, z1: 6, open: { n: [[-18, -14]] } },
+  'X': { x0: 10, x1: 22, z0: -2, z1: 6, open: { n: [[14, 18]] } },
+  '6': { x0: -4, x1: 4, z0: -12, z1: -3.05, open: { n: [[-2, 2]] } },
+  '8': { x0: -6, x1: -4, z0: -12, z1: 1, open: { n: [[-6, -4]], e: [[-1, 1]] } },
+  '9': { x0: 4, x1: 6, z0: -12, z1: 1, open: { n: [[4, 6]], w: [[-1, 1]] } },
+  'OFF': { x0: -4, x1: 4, z0: -3, z1: 3, open: { w: [[-1, 1]], e: [[-1, 1]] } },
+};
+const mapX = x => (x + 22) * 9, mapY = z => (z + 30) * 7.5;
+const MAP = {}; for (const [id, k] of [['1A', '1A'], ['1B', '1B'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5'], ['6', '6'], ['7', '7'], ['8', '8'], ['9', 'X'], ['TY', 'OFF']]) { const r = G1[k]; MAP[id] = [mapX(r.x0), mapY(r.z0), (r.x1 - r.x0) * 9, (r.z1 - r.z0) * 7.5]; }
+const LINKS = [['1A', '1B'], ['1B', '2'], ['1B', '3'], ['1B', '8'], ['2', '5'], ['5', '7'], ['3', '4'], ['4', '9'], ['8', 'TY']];
 const LV = [3, 5, 7, 9, 11, 14];
 const HINTS = ['Voxie se bojí světla… ale jen chvíli.', 'Zvuk v pizzerii ho odláká.', 'Šetři baterii. Kamery ji žerou.', 'Opravená kamera = víc zraku. Ale stojí čas.', 'Já tu budu s tebou. Pořád.'];
 let S = 'loading', sceneT = 0, G = null, loaded = false;
@@ -207,8 +224,12 @@ function newGame(n = G ? G.night : 1) {
     night: n, roam: false, rp: { x: 0, z: 0, yaw: 0, pitch: 0, st: 1, bob: 0 }, task: 0, hold: 0, calm: 1, torch: 100, heartOff: false,
     vox: { i: 0, timer: 0, lure: null, lureT: 0, lit: 0, holeT: 0 }, coc: { on: false, t: rand(35, 55), stay: 0, spot: 0 },
     msg: '', msgT: 0, out: false, outT: 0, killer: null, staticT: 0 };
-  placeVox(); COC.visible = false; G.coc.t = cocT(); S = 'intro'; sceneT = 0;
+  { const r = RROOMS['1A']; G.vox.rx = r.cx; G.vox.rz = r.cz - 1; G.vox.path = []; G.vox.ph = 0; }
+  initSig(); placeVox(); COC.visible = false; G.coc.t = cocT(); S = 'intro'; sceneT = 0;
 }
+function initSig() { G.sig = {}; for (const id in CAMS) G.sig[id] = { on: Math.random() < .7, t: rand(1, 10) }; G.stable = false; updSig(0); }
+function updSig(dt) { const k = G.night - 1; for (const id in G.sig) { const c = G.sig[id]; c.t -= dt; if (c.t <= 0) { c.on = !c.on; c.t = c.on ? rand(7, 16) * (1 - k * .06) : rand(2, 5) * (1 + k * .15); if (!c.on && G.mon && G.cam === id) G.staticT = .6; } }
+  G.online = new Set(Object.keys(G.sig).filter(id => G.stable || G.sig[id].on)); }
 const cocT = () => rand(32, 55) * (1 - (G.night - 1) * .08) * G.calm;
 const hour = () => Math.min(6, Math.floor(G.t / HOUR));
 function say(m, t = 3) { G.msg = m; G.msgT = t; }
@@ -222,7 +243,8 @@ function voxMove(to) {
   const closeness = v.i / (ROUTE.length - 1), pan = rand(-.3, .3);
   SFX.step(.08 + closeness * .35, pan); SFX.spark(.05 + closeness * .25, pan);
   if (G.mon && (ROUTE[from] === G.cam || ROUTE[v.i] === G.cam)) G.staticT = .8;
-  if (G.roam) { const r = RROOMS[ROUTE[v.i] === 'HOLE' ? '8' : ROUTE[v.i]]; v.rx = r.cx; v.rz = r.cz; return; }
+  v.path = voxPath(); v.chase = false;
+  if (G.roam) return;
   if (ROUTE[v.i] === 'HOLE') { v.lit = 0; v.holeT = 0; say('…něco jiskří přímo před tebou.', 2.5); setTimeout(() => vojtech('hole', { force: true, vol: .7 }), 600); }
 }
 function update(dt) {
@@ -248,13 +270,15 @@ function update(dt) {
     G.bat -= dt * (.05 + (G.mon ? .09 : 0) + (G.flash && !G.roam ? .16 : 0) + (G.fix ? .12 : 0));
     if (G.bat <= 0) { G.bat = 0; G.out = true; G.mon = false; G.flash = false; G.fix = null; SFX.powerDown(); say('Baterie je prázdná…', 4); G.outT = 0; setTimeout(() => vojtech('out', { force: true, vol: .7 }), 3000); }
   } else { G.outT += dt; if (G.outT > 9 && ROUTE[v.i] !== 'HOLE') { v.i = ROUTE.length - 1; placeVox(); } if (G.outT > 13) jumpscare('V'); return; }
+  updSig(dt);
   // oprava kamery
   if (G.fix) { if (!G.mon) G.fix = null; else { G.fix.p += dt; if (Math.random() < dt * 4) SFX.click(); if (G.fix.p >= 6) { G.online.add(G.fix.id); say('Kamera ' + G.fix.id + ' je zpět online.', 2.5); tone(1320, 'square', .12, .05); G.fix = null; } } }
   // Voxie: blíží se, lákání zvukem, díra ve zdi
   if (G.roam) { roamPlayer(dt); G.flash = true; }
   const lvl = LV[hour()] + (G.night - 1) * 1.5;
   if (DEV.freeze) return;
-  if (G.roam && ROUTE[v.i] === 'HOLE') v.i = 4;
+  if (G.roam && ROUTE[v.i] === 'HOLE') { v.i = 4; v.path = voxPath(); }
+  voxWalk(dt);
   if (ROUTE[v.i] === 'HOLE') {
     const looking = Math.abs(G.look) < .38 && !G.mon;
     if (G.flash && looking) { v.lit += dt; if (v.lit > 1.5) { SFX.spark(.4, 0); voxMove(pick([1, 2])); say('Couvl zpátky do tmy.', 2); vojtech('back', { force: true }); } }
@@ -290,8 +314,8 @@ function repair() { if (G.online.has(G.cam) || G.fix) return; G.fix = { id: G.ca
 //  HUD
 // ====================================================================
 const hud = document.getElementById('hud'), ctx = hud.getContext('2d');
-let HW = 1280, HK = 1; const HH = 720;
-function resize() { const w = innerWidth, h = innerHeight, d = Math.min(devicePixelRatio || 1, 2); renderer.setSize(w, h, false); HW = Math.max(960, HH * w / h); HK = Math.min(h * d / HH, w * d / HW); hud.width = Math.round(w * d); hud.height = Math.round(h * d); cam.aspect = w / h; cam.updateProjectionMatrix(); try { showCam.aspect = w / h; showCam.updateProjectionMatrix(); } catch (e) {} }
+let HW = 1280, HK = 1, DPR = 1; const HH = 720;
+function resize() { const w = innerWidth, h = innerHeight, d = Math.min(devicePixelRatio || 1, 2); DPR = d; renderer.setSize(w, h, false); HW = Math.max(960, HH * w / h); HK = Math.min(h * d / HH, w * d / HW); hud.width = Math.round(w * d); hud.height = Math.round(h * d); cam.aspect = w / h; cam.updateProjectionMatrix(); try { showCam.aspect = w / h; showCam.updateProjectionMatrix(); } catch (e) {} }
 addEventListener('resize', resize); resize();
 const nF = []; for (let f = 0; f < 4; f++) { const c = document.createElement('canvas'); c.width = 320; c.height = 180; const x = c.getContext('2d'), id = x.createImageData(320, 180); for (let i = 0; i < id.data.length; i += 4) { const v = Math.random() * 255; id.data[i] = id.data[i + 1] = id.data[i + 2] = v; id.data[i + 3] = 255; } x.putImageData(id, 0, 0); nF.push(c); }
 const rect = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); };
@@ -310,19 +334,12 @@ function btn(x, y, w, h, label, id, cb, on = true, size = 20, col = '#ff3b3b') {
 function feed(id, x, y, w, h, t) {
   rect(x, y, w, h, '#050806');
   if (!G.online.has(id)) { noise(.8, x, y, w, h); rect(x, y + h / 2 - 30, w, 60, 'rgba(0,0,0,.7)'); txt('NO SIGNAL', x + w / 2, y + h / 2 + 12, 40, '#ff4040', 'center'); return; }
-  const g = ctx.createLinearGradient(0, y, 0, y + h); g.addColorStop(0, '#1a2e22'); g.addColorStop(1, '#06120e'); ctx.fillStyle = g; ctx.fillRect(x, y, w, h);
-  ctx.strokeStyle = 'rgba(93,255,138,.15)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y + h * .7); ctx.lineTo(x + w * .3, y + h * .5); ctx.lineTo(x + w * .7, y + h * .5); ctx.lineTo(x + w, y + h * .7); ctx.stroke();
-  for (let i = 0; i < 6; i++) rect(x + (i * 97 % w), y + h * .55 + (i * 31 % 60), 40 + i * 7, 14, 'rgba(20,30,24,.8)');
-  if (ROUTE[G.vox.i] === id) {
-    ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
-    const cx = x + w * (.45 + Math.sin(t * .3) * .05), by = y + h * .86, u = h / 85;
-    ctx.shadowColor = '#ff3030'; ctx.shadowBlur = 10; ctx.fillStyle = '#1e1a12'; ctx.fillRect(cx - 8 * u, by - 34 * u, 16 * u, 22 * u); ctx.fillRect(cx - 9 * u, by - 46 * u, 18 * u, 13 * u); ctx.fillRect(cx + 4 * u, by - 50 * u, 5 * u, 5 * u);
-    ctx.fillRect(cx - 7 * u, by - 12 * u, 5 * u, 12 * u); ctx.fillRect(cx + 2 * u, by - 12 * u, 5 * u, 12 * u); ctx.fillRect(cx - 12 * u, by - 34 * u, 4 * u, 16 * u);
-    ctx.shadowBlur = 0; rect(cx - 5 * u, by - 41 * u, 2.5 * u, 2.5 * u, Math.random() < .85 ? '#ff2020' : '#400'); if (Math.random() < .08) rect(cx - 6 * u, by - 30 * u, 3 * u, 3 * u, '#ffd060');
-    ctx.restore();
-  }
-  ctx.fillStyle = 'rgba(93,255,138,.07)'; ctx.fillRect(x, y, w, h); noise(.12 + G.staticT, x, y, w, h);
+  if (G.monA >= 1 && bldReady) ctx.clearRect(x, y, w, h);
+  ctx.fillStyle = 'rgba(30,255,110,.06)'; ctx.fillRect(x, y, w, h);
+  noise(.05 + G.staticT, x, y, w, h);
 }
+let bldReady = false;
+const FEED = () => { const x0 = 40, y0 = 96, w = HW - 80, h = HH - 170; return [x0 + 44, y0 + 76, w - 520, h - 110]; };
 function drawComputer(t) {
   const x0 = 40, y0 = 96, w = HW - 80, h = HH - 170;
   rr(x0, y0, w, h, 24); ctx.fillStyle = '#16161a'; ctx.fill(); rect(x0 + 24, y0 + 24, w - 48, h - 48, '#021006');
@@ -343,9 +360,8 @@ function drawComputer(t) {
   ctx.restore();
   const bx = mx, by = my + 290;
   if (G.online.has(G.cam)) btn(bx, by, 400, 54, '🔊 PŘILÁKAT ZVUKEM (-4 %)', 'lure', lure, true, 18, '#3bb26b');
-  else if (G.fix && G.fix.id === G.cam) { rr(bx, by, 400, 54, 10); ctx.fillStyle = '#0a2a14'; ctx.fill(); rect(bx, by + 48, 400 * G.fix.p / 6, 6, '#5dff8a'); txt('🔧 PŘEPOJUJI KABELY… ' + Math.floor(G.fix.p / 6 * 100) + ' %', bx + 200, by + 34, 18, '#5dff8a', 'center'); }
-  else btn(bx, by, 400, 54, '🔧 OPRAVIT KAMERU (6 s)', 'fix', repair, true, 18, '#e0b020');
-  txt('Online: ' + [...G.online].sort().join(', '), bx, by + 90, 16, '#9fffb8');
+  else txt('📡 Signál vypadl… zkus jinou kameru', bx, by + 32, 17, '#ff8080');
+  txt(G.stable ? 'Signál: STABILNÍ (rozvaděč)' : 'Signál právě mají: ' + [...G.online].sort().join(', '), bx, by + 90, 16, '#9fffb8');
   ctx.fillStyle = 'rgba(0,0,0,.2)'; for (let yy = y0 + 24; yy < y0 + h - 24; yy += 3) ctx.fillRect(x0 + 24, yy, w - 48, 1);
 }
 function drawHUD(t) {
@@ -396,7 +412,7 @@ function drawMenu(t) {
   btn(60, 360, 195, 48, '★ EXTRAS', 'ex', () => { S = 'extras'; sceneT = 0; EX.page = 'chars'; EX.scare = -1; }, true, 18);
   btn(265, 360, 195, 48, '🛠 DEV', 'dev', () => { S = 'devmenu'; sceneT = 0; }, true, 18);
   txt(load('v2_end', 0) ? '★ Dohráno · ' + (load('v2_end', 0) === 2 ? 'srdce zhaslo' : 'herna žije') : '★ Odemčeno nocí: ' + load('v2_night', 1) + ' / 7', 64, 436, 17, '#ffe46b');
-  const lines = ['Žádné dveře ani proud. Jen počítač na baterii.', '🔦 Voxie v díře ve zdi: drž baterku, dokud necouvne.', '🖥 Kamery: 3 z 10 fungují. Rozbité oprav přepojením kabelů.', '🔊 Zvukem ho odlákáš do vzdálenější místnosti.', '👁 Stínová Cocoa: osviť ji, jinak vysaje baterii.'];
+  const lines = ['Žádné dveře ani proud. Jen počítač na baterii.', '🔦 Voxie v díře ve zdi: drž baterku, dokud necouvne.', '🖥 Kamery ukazují budovu, ale signál vypadává – kontroluj všechny.', '🔊 Zvukem ho odlákáš do vzdálenější místnosti.', '👁 Stínová Cocoa: osviť ji, jinak vysaje baterii.'];
   lines.push('🚶 Odejdi od stolu a plň úkoly noci. Voxie chodí i po budově.'); lines.forEach((l, i) => txt(l, 64, 476 + i * 28, 16, '#ffcfcf'));
   txt('v0.2.0', HW - 20, 700, 14, '#666', 'right');
 }
@@ -429,7 +445,7 @@ function drawDev(t, dt) {
   L('kamery online: ' + [...G.online].sort().join(',') + ' · god ' + DEV.god + ' · freeze ' + DEV.freeze, 3, '#ffe46b');
   const B = [
     ['+1 HODINA', () => G.t = Math.min(6 * HOUR - 1, G.t + HOUR)], ['SKOK NA 6:00', () => G.t = 6 * HOUR - .1], ['BATERIE 100', () => { G.bat = 100; G.out = false; }],
-    ['GOD ' + (DEV.god ? 'ZAP' : 'VYP'), () => DEV.god = !DEV.god], ['ZMRAZIT AI ' + (DEV.freeze ? 'ZAP' : 'VYP'), () => DEV.freeze = !DEV.freeze], ['VŠE ONLINE', () => Object.keys(CAMS).forEach(id => G.online.add(id))],
+    ['GOD ' + (DEV.god ? 'ZAP' : 'VYP'), () => DEV.god = !DEV.god], ['ZMRAZIT AI ' + (DEV.freeze ? 'ZAP' : 'VYP'), () => DEV.freeze = !DEV.freeze], ['STABILNÍ SIGNÁL', () => G.stable = !G.stable],
     ['VOXIE → DÍRA', () => voxMove(ROUTE.length - 1)], ['VOXIE → PÓDIUM', () => voxMove(0)], ['COCOA TEĎ', () => { G.coc.t = 0; }],
     ['JUMPSCARE', () => { const g = DEV.god; DEV.god = false; jumpscare('V'); DEV.god = g; }], ['VYBÍT BATERII', () => G.bat = .5], ['MENU', () => { S = 'menu'; sceneT = 0; stopAmbient(); startMenuSong(); }],
     ['ÚKOL HOTOV', () => { const st = (TASKS[G.night] || [])[G.task]; if (st) taskDone(st); }], [G.roam ? 'KE STOLU' : 'ODEJÍT', () => G.roam ? backDesk() : leaveDesk()], ['NOC +1', () => newGame(Math.min(7, G.night + 1))],
@@ -516,8 +532,8 @@ const pickBat = (n) => g => { g.bat = Math.min(100, g.bat + n); say('Baterie +' 
 const TASKS = {
   1: [],
   2: ['2', '3', '4'].map((r, i) => ({ room: r, kind: 'pick', name: 'pojistku ' + (i + 1) + '/3', col: 0xffd040, on: pickBat(15) })),
-  3: ['6', '1B', '7'].map((r, i) => ({ room: r, kind: 'pick', name: 'kazetu ' + (i + 1) + '/3', col: 0xff60ff, on: () => vojSay(TAPES[i]) })),
-  4: [{ room: '9', kind: 'hold', t: 4, name: 'oprav rozvaděč (stůj u něj)', col: 0x40c0ff, on: g => { Object.keys(CAMS).forEach(id => g.online.add(id)); say('Rozvaděč opraven – všechny kamery online!', 4); } }],
+  3: ['5', '1B', '7'].map((r, i) => ({ room: r, kind: 'pick', name: 'kazetu ' + (i + 1) + '/3', col: 0xff60ff, on: () => vojSay(TAPES[i]) })),
+  4: [{ room: '9', kind: 'hold', t: 4, name: 'oprav rozvaděč (stůj u něj)', col: 0x40c0ff, on: g => { g.stable = true; say('Rozvaděč opraven – signál všech kamer je stabilní!', 4); } }],
   5: [{ room: '3', kind: 'pick', name: 'Cocoinu hlavu', col: 0xd0a0ff, on: g => { g.calm = 1.8; say('Cocoa: „Děkuju…“ Bude teď chodit méně.', 4); } }],
   6: [{ room: '1A', kind: 'pick', name: 'klíč na pódiu', col: 0xffe46b, on: () => say('Máš klíč. Teď skříňka ve skladu.', 3) },
       { room: '4', kind: 'hold', t: 3, name: 'odemkni skříňku ve skladu', col: 0xffe46b, on: pickBat(40) }],
@@ -548,33 +564,148 @@ function drawIntro() {
   ctx.globalAlpha = a2; txt('0:00', HW / 2, 330, 90, '#fff', 'center'); txt('Noc ' + G.night, HW / 2, 400, 40, '#ff8080', 'center');
   ctx.restore(); noise(.06);
 }
-// ---------- mapa budovy (ze stejného plánu jako kamery) ----------
-const RZ = -200, MU = .1;
+// ---------- vyhořelá budova (mapa z 1. dílu, models/building.glb) ----------
+const RZ = -200;
+// kamera/místnost v NaV2 → místnost v plánu 1. dílu
+const RMAP = { '1A': '1A', '1B': '1B', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': 'X', 'TY': 'OFF', 'E': '9' };
 const RROOMS = {};
-for (const id in MAP) { const [x, y, w, h] = MAP[id]; RROOMS[id] = { x0: (x - 200) * MU, x1: (x + w - 200) * MU, z0: RZ + (y - 136) * MU, z1: RZ + (y + h - 136) * MU }; const r = RROOMS[id]; r.cx = (r.x0 + r.x1) / 2; r.cz = (r.z0 + r.z1) / 2; }
-const CW = .75, CORR = [];
-for (const [a, b] of LINKS) { const A = RROOMS[a], B = RROOMS[b];
-  CORR.push({ x0: Math.min(A.cx, B.cx) - CW, x1: Math.max(A.cx, B.cx) + CW, z0: A.cz - CW, z1: A.cz + CW });
-  CORR.push({ x0: B.cx - CW, x1: B.cx + CW, z0: Math.min(A.cz, B.cz) - CW, z1: Math.max(A.cz, B.cz) + CW }); }
+for (const id in RMAP) { const r = G1[RMAP[id]]; RROOMS[id] = { x0: r.x0, x1: r.x1, z0: r.z0 + RZ, z1: r.z1 + RZ, h: r.h || 3.2, cx: (r.x0 + r.x1) / 2, cz: (r.z0 + r.z1) / 2 + RZ, open: r.open }; }
+// zasypané průchody (sutina)
+const BLOCKED = [['6', 'n', -2], ['1B', 's', -2], ['E', 'n', 4], ['1B', 's', 4]];
+const isBlocked = (id, side, a) => BLOCKED.some(b => b[0] === id && b[1] === side && b[2] === a);
+const DOORS = []; // {id, side, a, b, x, z, zone}
+for (const id in RROOMS) { const r = RROOMS[id];
+  for (const side in r.open) for (const [a, b] of r.open[side]) { if (isBlocked(id, side, a)) continue;
+    const ns = side === 'n' || side === 's', fixed = side === 'n' ? r.z0 : side === 's' ? r.z1 : side === 'w' ? r.x0 : r.x1;
+    const az = ns ? 0 : RZ; // z-ové otvory jsou v souřadnicích plánu
+    const zone = ns ? { x0: a + .3, x1: b - .3, z0: fixed - .55, z1: fixed + .55 } : { x0: fixed - .55, x1: fixed + .55, z0: a + az + .3, z1: b + az - .3 };
+    DOORS.push({ id, side, x: ns ? (a + b) / 2 : fixed, z: ns ? fixed : (a + b) / 2 + RZ, zone }); } }
 const inR = (r, x, z, m) => x > r.x0 + m && x < r.x1 - m && z > r.z0 + m && z < r.z1 - m;
-const walkable = (x, z) => Object.values(RROOMS).some(r => inR(r, x, z, .3)) || CORR.some(c => inR(c, x, z, .2));
+const walkable = (x, z) => Object.values(RROOMS).some(r => inR(r, x, z, .3)) || DOORS.some(d => inR(d.zone, x, z, 0));
 const roomAt = (x, z) => { for (const id in RROOMS) if (inR(RROOMS[id], x, z, 0)) return id; return null; };
-{
-  const ft = floorTex.clone(); ft.repeat.set(36, 26); ft.needsUpdate = true;
-  const f = new THREE.Mesh(new THREE.PlaneGeometry(46, 32), new THREE.MeshLambertMaterial({ map: ft })); f.rotation.x = -Math.PI / 2; f.position.set(0, 0, RZ); scene.add(f);
-  const cuts = (lo, hi, list) => { let segs = [[lo, hi]]; for (const [a, b] of list) segs = segs.flatMap(([s, e]) => b <= s || a >= e ? [[s, e]] : [[s, a], [b, e]].filter(([p, q]) => q - p > .05)); return segs; };
-  const H = 3;
-  for (const id in RROOMS) { const r = RROOMS[id];
-    for (const z of [r.z0, r.z1]) for (const [a, b] of cuts(r.x0, r.x1, CORR.filter(c => c.z0 < z && c.z1 > z).map(c => [c.x0, c.x1]))) box(b - a, H, .2, wall, (a + b) / 2, H / 2, z);
-    for (const x of [r.x0, r.x1]) for (const [a, b] of cuts(r.z0, r.z1, CORR.filter(c => c.x0 < x && c.x1 > x).map(c => [c.z0, c.z1]))) box(.2, H, b - a, wall, x, H / 2, (a + b) / 2);
-    // trosky
-    for (let i = 0; i < 4; i++) { const w = rand(.3, .9), d = rand(.3, .9); const px = rand(r.x0 + .5, r.x1 - .5), pz = rand(r.z0 + .5, r.z1 - .5); if (Math.hypot(px - r.cx, pz - r.cz) < 1.2) continue; const b = box(w, rand(.1, .5), d, mat(pick(['#1a1210', '#2a1a14', '#0e0a0a'])), px, .15, pz); b.rotation.y = rand(0, 3); }
-  }
-  const R1 = RROOMS['1A']; box(R1.x1 - R1.x0 - .6, .5, 1.6, mat('#2a1010'), R1.cx, .25, R1.z0 + 1.1);
-  const R2 = RROOMS['2']; for (let i = 0; i < 4; i++) box(1.1, .75, 1.1, mat('#3a2418'), R2.x0 + 2 + (i % 2) * 5, .37, R2.z0 + 1.6 + Math.floor(i / 2) * 2.6);
-  const RB = RROOMS['1B']; for (let i = 0; i < 5; i++) { const b = box(.9, 1.8, .7, mat('#151020'), RB.x0 + 1.4 + i * 2.2, .9, RB.z0 + .6); b.rotation.z = rand(-.15, .15); }
-  for (const [id, c] of [['1A', 0xff1a0a], ['9', 0x2050ff], ['3', 0x6020a0]]) { const L = new THREE.PointLight(c, 3, 9, 1.4); L.position.set(RROOMS[id].cx, 2.6, RROOMS[id].cz); scene.add(L); }
+// sousedství přes průchody (pro Voxieho cestu)
+const ADJ = {}; for (const id in RROOMS) ADJ[id] = [];
+for (const d of DOORS) { const out = { n: [0, -.8], s: [0, .8], w: [-.8, 0], e: [.8, 0] }[d.side], o = roomAt(d.x + out[0], d.z + out[1]); if (o && o !== d.id && !ADJ[d.id].some(e => e.to === o)) { ADJ[d.id].push({ to: o, p: [d.x, d.z] }); } }
+function pathTo(from, to) {
+  const T = RROOMS[to]; if (!from || from === to) return [[T.cx, T.cz]];
+  const prev = { [from]: null }, q = [from];
+  while (q.length) { const c = q.shift(); if (c === to) break; for (const e of ADJ[c]) if (!(e.to in prev)) { prev[e.to] = { c, p: e.p }; q.push(e.to); } }
+  if (!(to in prev)) return [[T.cx, T.cz]];
+  const pts = [[T.cx, T.cz]]; let c = to; while (prev[c]) { pts.unshift(prev[c].p); c = prev[c].c; } return pts;
 }
+// kamery: roh místnosti u stropu → střed
+const CAMPOS = {};
+for (const id in CAMS) { const r = RROOMS[id], narrow = r.x1 - r.x0 < 3;
+  const pos = narrow ? new THREE.Vector3(r.cx, r.h - .35, r.z1 - .4) : new THREE.Vector3(r.x1 - .5, r.h - .4, r.z1 - .5);
+  const look = narrow ? new THREE.Vector3(r.cx, .9, r.z0) : new THREE.Vector3(r.cx - (r.x1 - r.x0) * .1, .8, r.cz - (r.z1 - r.z0) * .1);
+  CAMPOS[id] = { pos, look, vox: new THREE.Vector3().lerpVectors(look, pos, .35).setY(0) }; }
+const BLD = new THREE.Group(); scene.add(BLD);
+const sr = (s => (a = 0, b = 1) => { s = (s * 16807) % 2147483647; return a + s / 2147483647 * (b - a); })(4242);
+const smokeTex = canvasTex(128, 256, (x, w, h) => { for (let i = 0; i < 26; i++) { const cx = sr(10, w - 10), gw = sr(8, 30), g = x.createLinearGradient(0, h, 0, 0); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(sr(.3, .6), 'rgba(0,0,0,.25)'); g.addColorStop(1, 'rgba(0,0,0,.6)'); x.fillStyle = g; x.beginPath(); x.ellipse(cx, h * .45, gw, h * sr(.4, .6), 0, 0, 7); x.fill(); } });
+const crackTex = canvasTex(256, 256, (x, w, h) => { const g = x.createRadialGradient(128, 128, 10, 128, 128, 120); g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(.45, 'rgba(10,6,4,.95)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.beginPath(); for (let i = 0; i < 18; i++) { const a = i / 18 * 7, r = sr(40, 100); x.lineTo(128 + Math.cos(a) * r, 128 + Math.sin(a) * r); } x.fill(); x.strokeStyle = 'rgba(0,0,0,.9)'; x.lineWidth = 2; for (let i = 0; i < 9; i++) { x.beginPath(); let px = 128, py = 128, a = sr(0, 7); x.moveTo(px, py); for (let k = 0; k < 6; k++) { a += sr(-.6, .6); px += Math.cos(a) * 20; py += Math.sin(a) * 20; x.lineTo(px, py); } x.stroke(); } });
+const glassTex = canvasTex(128, 96, (x, w, h) => { x.fillStyle = '#060807'; x.fillRect(0, 0, w, h); x.fillStyle = '#1a1210'; for (let i = 0; i < 12; i++) x.fillRect(sr(0, w), sr(0, h), sr(4, 20), sr(2, 10)); x.strokeStyle = 'rgba(200,220,220,.7)'; x.lineWidth = 1; const ox = sr(30, 90), oy = sr(20, 70); for (let i = 0; i < 12; i++) { x.beginPath(); x.moveTo(ox, oy); const a = i / 12 * 7 + sr(-.2, .2); x.lineTo(ox + Math.cos(a) * 140, oy + Math.sin(a) * 140); x.stroke(); } for (let r = 10; r < 70; r += sr(10, 22)) { x.beginPath(); x.arc(ox, oy, r, 0, 7); x.stroke(); } });
+const charMat = new THREE.MeshStandardMaterial({ color: '#141210', roughness: 1, flatShading: true });
+const cableMat = new THREE.MeshStandardMaterial({ color: '#070707', roughness: .7 }), pipeMat = new THREE.MeshStandardMaterial({ color: '#4a2e1c', roughness: .85, metalness: .3 });
+const STAGE = [], FX = { moon: [], red: [], stage: null, spark: null, sparkAt: null };
+const debris = []; // [x, y, z, sx, sy, sz, ry, color]
+function pile(x, z, r, n, tall = .35) { for (let i = 0; i < n; i++) { const a = sr(0, 7), d = Math.sqrt(sr()) * r, s = sr(.08, .3) * (1 - d / r * .5); debris.push([x + Math.cos(a) * d, s * .3, z + Math.sin(a) * d, s * sr(.8, 1.6), s * sr(.4, tall / .3), s * sr(.8, 1.6), sr(0, 6), pick(['#121010', '#1a1714', '#2a2622', '#3a3530', '#0c0a09', '#2a1410'])]); } }
+function burnMat(m, room) {
+  const glow = m.isMeshBasicMaterial || (m.emissive && (m.emissive.r + m.emissive.g + m.emissive.b) > .05);
+  const nm = new THREE.MeshStandardMaterial({ map: m.map || null, color: (m.color || new THREE.Color('#888')).clone(), roughness: .95, metalness: 0, side: m.side, alphaTest: m.alphaTest, transparent: false });
+  if (glow) {
+    const orig = nm.color.clone(); nm.color.multiplyScalar(.05).lerp(new THREE.Color('#050505'), .5); nm.roughness = .35;
+    if (room === '1B') { nm.map = glassTex; nm.color.set('#9aa'); }
+    if (room === '1A') STAGE.push({ m: nm, c: orig, ph: sr(0, 9) });
+  } else if ((m.metalness || 0) > .7) { nm.color.lerp(new THREE.Color('#3e2414'), .6).multiplyScalar(.6); nm.roughness = .85; nm.metalness = .25; }
+  else { nm.color.multiplyScalar(nm.map ? .3 : .42).lerp(new THREE.Color('#2a2622'), .3); }
+  return nm;
+}
+function tilt(root, o, ax, ang, lift = 0) { const b = new THREE.Box3().setFromObject(o), c = b.getCenter(new THREE.Vector3()); const piv = new THREE.Group(); root.worldToLocal(c); piv.position.set(c.x, b.min.y - BLD.position.y + lift, c.z); root.add(piv); piv.updateMatrixWorld(true); piv.attach(o); piv.rotation[ax] = ang; }
+function burnBuilding(g) {
+  const root = g.scene; root.position.z = RZ; BLD.add(root); root.updateMatrixWorld(true);
+  const bb = new THREE.Box3(), c = new THREE.Vector3(), sz = new THREE.Vector3(), cache = new Map(), kill = [];
+  root.traverse(o => { if (!o.isMesh) return;
+    bb.setFromObject(o); bb.getCenter(c); bb.getSize(sz);
+    if (sz.y < .03 && c.y > 2.9 && sz.x > 1.4 && sz.z > 1.4) { kill.push(o); return; } // strop – postavíme rozbitý
+    const room = roomAt(c.x, c.z);
+    const conv = m => { const k = m.uuid + room; if (!cache.has(k)) cache.set(k, burnMat(m, room)); return cache.get(k); };
+    o.material = Array.isArray(o.material) ? o.material.map(conv) : conv(o.material);
+  });
+  kill.forEach(o => o.parent.remove(o));
+  // automaty: některé padlé, některé opřené
+  let ci = 0;
+  root.children.slice().forEach(o => { bb.setFromObject(o); if (bb.isEmpty()) return; bb.getCenter(c); bb.getSize(sz);
+    if (roomAt(c.x, c.z) === '1B' && sz.y > 1.3 && sz.y < 2.8 && Math.max(sz.x, sz.z) < 1.8) { const k = ci++ % 4;
+      if (k === 0) tilt(root, o, sr() < .5 ? 'x' : 'z', (sr() < .5 ? 1 : -1) * Math.PI / 2 * .96, Math.min(sz.x, sz.z) * .45);
+      else if (k === 1) tilt(root, o, 'z', sr(.22, .35) * (sr() < .5 ? 1 : -1));
+      else if (k === 2) tilt(root, o, 'x', sr(.12, .2));
+      pile(c.x + sr(-1, 1), c.z + sr(-1, 1), .7, 10); } });
+  // sklad a dětský koutek (modely místností)
+  root.children.slice().forEach(o => { bb.setFromObject(o); if (bb.isEmpty()) return; bb.getCenter(c); const room = roomAt(c.x, c.z); if (room !== '4' && room !== '3') return;
+    let cont = o; o.traverse(n => { if (n.children.length > cont.children.length) cont = n; });
+    o.updateMatrixWorld(true);
+    cont.children.slice().forEach(it => { bb.setFromObject(it); if (bb.isEmpty()) return; bb.getSize(sz); bb.getCenter(c);
+      if (room === '4') { if (sz.y > 1.2) tilt(root, it, sr() < .5 ? 'x' : 'z', (sr() < .5 ? 1 : -1) * sr(1.1, 1.45), .2); else { tilt(root, it, 'z', sr(-.5, .5)); it.parent.rotation.y = sr(0, 6); } }
+      else { tilt(root, it, sr() < .5 ? 'x' : 'z', sr(-.35, .35), -.12); it.parent.scale.y = sr(.6, .85); } }); });
+  // rozbitý strop: panely, díry, kabely, trubky, měsíční světlo
+  const panels = [], holes = [], cables = [], pipes = [], shafts = [], smoke = [], cracks = [];
+  for (const id in RROOMS) { const r = RROOMS[id], w = r.x1 - r.x0, d = r.z1 - r.z0, nx = Math.max(1, Math.round(w / 2)), nz = Math.max(1, Math.round(d / 2)), pw = w / nx, pd = d / nz;
+    const force = id === '1B' || id === '2' ? [Math.floor(nx / 2), Math.floor(nz / 2)] : null;
+    for (let i = 0; i < nx; i++) for (let j = 0; j < nz; j++) { const x = r.x0 + (i + .5) * pw, z = r.z0 + (j + .5) * pd;
+      const hole = (force && force[0] === i && force[1] === j) || (id !== 'TY' && sr() < .2);
+      if (hole) { holes.push({ id, x, z, h: r.h, pw, pd }); continue; }
+      const m = new THREE.Matrix4().compose(new THREE.Vector3(x, r.h - .01, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI / 2 + (sr() < .08 ? sr(-.5, .5) : 0), 0, sr() < .08 ? sr(-.4, .4) : 0)), new THREE.Vector3(pw * .98, pd * .98, 1)); panels.push(m); } }
+  const pi = new THREE.InstancedMesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshStandardMaterial({ color: '#0d0b0a', roughness: 1, side: THREE.DoubleSide }), panels.length); panels.forEach((m, i) => pi.setMatrixAt(i, m)); BLD.add(pi); FX.ceil = pi;
+  for (const hl of holes) {
+    for (let k = 0; k < 2; k++) { const x = hl.x + sr(-.4, .4) * hl.pw, z = hl.z + sr(-.4, .4) * hl.pd, len = sr(.6, 1.8); const pts = [new THREE.Vector3(x, hl.h + .2, z)]; for (let s = 1; s <= 4; s++) pts.push(new THREE.Vector3(x + sr(-.15, .15), hl.h - len * s / 4, z + sr(-.15, .15))); cables.push(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 10, .015, 4)); }
+    if (sr() < .45) { const x = hl.x, z = hl.z, a = sr(0, 3); const pts = [new THREE.Vector3(x - Math.cos(a) * hl.pw * .5, hl.h + .1, z - Math.sin(a) * hl.pd * .5), new THREE.Vector3(x, hl.h - sr(.4, 1), z), new THREE.Vector3(x + Math.cos(a) * .4, hl.h - sr(1, 1.8), z + Math.sin(a) * .4)]; pipes.push(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 12, .05, 6)); }
+    if (false) { const sh = new THREE.CylinderGeometry(Math.min(hl.pw, hl.pd) * .35, Math.min(hl.pw, hl.pd) * .7, hl.h, 10, 1, true); sh.translate(hl.x, hl.h / 2, hl.z); shafts.push(sh); }
+    pile(hl.x, hl.z, .9, 14, .5);
+  }
+  const merge = (arr, m) => { if (!arr.length) return; const ms = new THREE.Mesh(mergeGeometries(arr), m); BLD.add(ms); return ms; };
+  merge(cables, cableMat); merge(pipes, pipeMat);
+  merge(shafts, new THREE.MeshBasicMaterial({ color: 0x5070b0, transparent: true, opacity: .035, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: true }));
+  for (const id of ['1B', '2']) { const hl = holes.find(h => h.id === id); if (!hl) continue; const L = new THREE.SpotLight(0x7d96ff, 18, 12, .55, .6, 1.2); L.position.set(hl.x, hl.h + 2, hl.z); L.target.position.set(hl.x + .5, 0, hl.z); BLD.add(L, L.target); FX.moon.push(L); }
+  // saze a průrazy na zdech
+  const wallPlane = (r, side, along, y, w, h, list) => { const g = new THREE.PlaneGeometry(w, h); const ns = side === 'n' || side === 's'; g.rotateY({ n: 0, s: Math.PI, w: Math.PI / 2, e: -Math.PI / 2 }[side]); g.translate(ns ? along : side === 'w' ? r.x0 + .13 : r.x1 - .13, y, ns ? (side === 'n' ? r.z0 + .13 : r.z1 - .13) : along); list.push(g); };
+  for (const id in RROOMS) { const r = RROOMS[id];
+    for (const side of ['n', 's', 'w', 'e']) { const ns = side === 'n' || side === 's', a0 = ns ? r.x0 : r.z0, a1 = ns ? r.x1 : r.z1, off = ns ? 0 : RZ;
+      wallPlane(r, side, a0 + .6, r.h / 2, 1.2, r.h, smoke); wallPlane(r, side, a1 - .6, r.h / 2, 1.2, r.h, smoke);
+      for (const [a, b] of (r.open[side] || [])) { const hh = r.h - 2.1; wallPlane(r, side, (a + b) / 2 + off, 2.1 + hh / 2, b - a + .8, hh, smoke); }
+      if (sr() < .35 && a1 - a0 > 5) { const at = sr(a0 + 1.5, a1 - 1.5), ok = !(r.open[side] || []).some(([a, b]) => at > a + off - 1.2 && at < b + off + 1.2); if (ok) { wallPlane(r, side, at, sr(.9, 1.6), sr(1.2, 1.8), sr(1.2, 1.8), cracks); const ix = ns ? at : side === 'w' ? r.x0 + .6 : r.x1 - .6, iz = ns ? (side === 'n' ? r.z0 + .6 : r.z1 - .6) : at; pile(ix, iz, .8, 16, .45); } } }
+    for (let k = 0; k < 2 + Math.floor((r.x1 - r.x0) * (r.z1 - r.z0) / 40); k++) pile(sr(r.x0 + .8, r.x1 - .8), sr(r.z0 + .8, r.z1 - .8), sr(.4, .9), 10); }
+  merge(smoke, new THREE.MeshBasicMaterial({ map: smokeTex, color: 0x000000, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }));
+  merge(cracks, new THREE.MeshBasicMaterial({ map: crackTex, color: 0xffffff, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3 }));
+  // zasypané průchody
+  for (const [id, side, a] of BLOCKED) { const r = RROOMS[id], op = r.open[side].find(o => o[0] === a), mid = (op[0] + op[1]) / 2; const x = side === 'n' || side === 's' ? mid : side === 'w' ? r.x0 : r.x1, z = side === 'n' ? r.z0 : side === 's' ? r.z1 : mid + RZ; pile(x, z, 1.4, 60, 1.6); const b = box(op[1] - op[0] + .6, .2, .3, charMat, x, 1.2, z, BLD); b.rotation.z = .5; const b2 = box(.25, 2.3, .25, charMat, x - .5, 1, z, BLD); b2.rotation.z = -.4; }
+  // střepy u výdeje lístků a automatů
+  const glass = []; for (const [id, n] of [['5', 160], ['1B', 140]]) { const r = RROOMS[id]; for (let i = 0; i < n; i++) glass.push([sr(r.x0 + .4, r.x1 - .4), sr(r.z0 + .4, r.z1 - .4)]); }
+  const gm = new THREE.InstancedMesh(new THREE.PlaneGeometry(.07, .05), new THREE.MeshStandardMaterial({ color: '#c8dde0', roughness: .05, metalness: .9, side: THREE.DoubleSide }), glass.length), q = new THREE.Quaternion(), M = new THREE.Matrix4();
+  glass.forEach(([x, z], i) => { q.setFromEuler(new THREE.Euler(-Math.PI / 2 + sr(-.3, .3), 0, sr(0, 6))); gm.setMatrixAt(i, M.compose(new THREE.Vector3(x, .012, z), q, new THREE.Vector3(1, 1, 1).multiplyScalar(sr(.5, 1.6)))); }); BLD.add(gm);
+  // ohořelé míčky v koutku
+  const R3 = RROOMS['3'], balls = new THREE.InstancedMesh(new THREE.SphereGeometry(.12, 7, 5), new THREE.MeshStandardMaterial({ roughness: 1 }), 180), col = new THREE.Color();
+  for (let i = 0; i < 180; i++) { balls.setMatrixAt(i, M.compose(new THREE.Vector3(sr(R3.x0 + 1, R3.x1 - 1), .1, sr(R3.z0 + 1, R3.z1 - 1)), q.identity(), new THREE.Vector3(1, sr(.5, 1), 1))); balls.setColorAt(i, col.set(pick(['#3a1010', '#3a3010', '#102030', '#102a10', '#151010'])).multiplyScalar(.7)); } BLD.add(balls);
+  // suť jako jedna instancovaná síť
+  const dm = new THREE.InstancedMesh(new THREE.DodecahedronGeometry(1, 0), charMat, debris.length);
+  debris.forEach(([x, y, z, a, b, cc, ry, cl], i) => { dm.setMatrixAt(i, M.compose(new THREE.Vector3(x, y, z), q.setFromEuler(new THREE.Euler(sr(-.4, .4), ry, sr(-.4, .4))), new THREE.Vector3(a, b, cc))); dm.setColorAt(i, col.set(cl)); }); BLD.add(dm);
+  // nouzová světla, blikající pódium, jiskřící kabel
+  for (const id of ['8', '1B']) { const r = RROOMS[id], L = new THREE.PointLight(0xff1a0a, 0, 9, 1.4); L.position.set(id === '8' ? r.cx : r.x0 + 1, r.h - .4, id === '8' ? r.cz : r.z1 - 1); BLD.add(L); FX.red.push(L); }
+  { const r = RROOMS['1A']; FX.stage = new THREE.PointLight(0xff2bd6, 0, 10, 1.3); FX.stage.position.set(r.cx, 2.4, r.z0 + 2); BLD.add(FX.stage); }
+  { const hl = holes.find(h => h.id === '2') || holes[0]; FX.spark = new THREE.PointLight(0xffc060, 0, 5); FX.sparkAt = new THREE.Vector3(hl.x + .3, hl.h - 1.4, hl.z); FX.spark.position.copy(FX.sparkAt); BLD.add(FX.spark); }
+}
+// popílek ve vzduchu kolem hráče
+const ASHN = 500, ashGeo = new THREE.BufferGeometry(), ashArr = new Float32Array(ASHN * 3);
+for (let i = 0; i < ASHN; i++) { ashArr[i * 3] = rand(-8, 8); ashArr[i * 3 + 1] = rand(0, 3.4); ashArr[i * 3 + 2] = rand(-8, 8); }
+ashGeo.setAttribute('position', new THREE.BufferAttribute(ashArr, 3));
+const ASH2 = new THREE.Points(ashGeo, new THREE.PointsMaterial({ color: 0x8a8580, size: .016, transparent: true, opacity: .6, depthWrite: false })); ASH2.frustumCulled = false; ASH2.visible = false; scene.add(ASH2);
+function animBuilding(t, dt, on) {
+  ASH2.visible = on;
+  if (on) { ASH2.position.set(G.rp.x, 0, G.rp.z); for (let i = 0; i < ASHN; i++) { let y = ashArr[i * 3 + 1] - dt * (.08 + (i % 7) * .02); if (y < 0) y = 3.4; ashArr[i * 3 + 1] = y; ashArr[i * 3] += Math.sin(t * .7 + i) * dt * .05; } ashGeo.attributes.position.needsUpdate = true; }
+  FX.red.forEach((L, i) => L.intensity = Math.sin(t * 2.4 + i * 2) > .2 ? 2.2 : .15);
+  if (FX.stage) { const on2 = Math.sin(t * 9) * Math.sin(t * 2.3 + 1) > .15 || Math.random() < .04; FX.stage.intensity = on2 ? 2.5 : 0; STAGE.forEach(s => s.m.color.copy(s.c).multiplyScalar(on2 && Math.sin(t * 5 + s.ph) > -.3 ? .55 : .03)); }
+  if (FX.spark) { const k = Math.random() < .12; FX.spark.intensity = k ? rand(1, 5) : 0; if (k && on && Math.random() < .2 && Math.hypot(G.rp.x - FX.sparkAt.x, G.rp.z - FX.sparkAt.z) < 8) SFX.spark(.15, 0); }
+}
+const bldLoad = new GLTFLoader().loadAsync('models/building.glb').then(burnBuilding).then(() => { bldReady = true; }).catch(e => console.warn('building', e));
 scene.add(cam);
 const TORCH = new THREE.Group(); cam.add(TORCH); TORCH.position.set(.22, -.24, -.45); TORCH.rotation.set(.08, .05, 0);
 { const body = new THREE.Mesh(new THREE.CylinderGeometry(.03, .03, .22, 12), mat('#2a2a30')); body.rotation.x = Math.PI / 2; TORCH.add(body);
@@ -596,12 +727,24 @@ function renderItem(t, roaming) {
 function leaveDesk() {
   if (!G || G.mon || G.out || G.roam) return;
   G.roam = true; G.flash = false; G.fix = null; COC.visible = false; G.coc.on = false;
-  const r = RROOMS.TY; Object.assign(G.rp, { x: r.cx, z: r.cz + 1, yaw: 0, pitch: 0, bob: 0 });
-  const v = G.vox; if (ROUTE[v.i] === 'HOLE') v.i = 4; const vr = RROOMS[ROUTE[v.i]]; v.rx = vr.cx; v.rz = vr.cz; v.lit = 0;
+  const r = RROOMS.TY; Object.assign(G.rp, { x: r.cx, z: r.cz, yaw: Math.PI / 2, pitch: 0, bob: 0 });
+  const v = G.vox; if (ROUTE[v.i] === 'HOLE') { v.i = 4; v.path = voxPath(); } v.lit = 0;
   SFX.step(.2, 0); say('Opustil jsi kancelář. Kapesní baterka svítí – namiř ji na Voxieho.', 3.5);
 }
 function backDesk() { if (!G || !G.roam) return; G.roam = false; G.flash = false; G.look = 0; G.flash = false; placeVox(); SFX.step(.2, 0); }
 function taskDone(st) { G.task++; G.hold = 0; tone(1320, 'square', .12, .05); tone(1760, 'square', .12, .05, 0, .12); st.on(G); }
+const voxTarget = i => ROUTE[i] === 'HOLE' ? 'TY' : ROUTE[i];
+function voxPath() { const v = G.vox, to = voxTarget(v.i); let pts = pathTo(roomAt(v.rx, v.rz) || to, to); if (ROUTE[v.i] === 'HOLE') { pts = pts.slice(0, -1); pts.push([RROOMS.TY.x0 - .2, RROOMS.TY.cz]); } return pts; }
+// Voxie fyzicky chodí (a kulhá) po budově – i když jsi u stolu
+function voxWalk(dt) {
+  const v = G.vox, base = .9 + (G.night - 1) * .12 + (v.chase ? .5 : 0);
+  v.ph = (v.ph || 0) + dt * 5.5; const limp = Math.sin(v.ph) > 0 ? 1 : .3, sp = base * limp;
+  let tx, tz; if (v.chase && G.roam) { tx = G.rp.x; tz = G.rp.z; } else if (v.path && v.path.length) { [tx, tz] = v.path[0]; if (Math.hypot(tx - v.rx, tz - v.rz) < .25) { v.path.shift(); } }
+  v.moving = tx !== undefined && Math.hypot(tx - v.rx, tz - v.rz) > .2;
+  if (v.moving) { const dx = tx - v.rx, dz = tz - v.rz, l = Math.hypot(dx, dz); v.rx += dx / l * sp * dt; v.rz += dz / l * sp * dt; v.face = Math.atan2(dx, dz);
+    const st = Math.floor(v.ph / Math.PI); if (st !== v.lastSt) { v.lastSt = st; if (G.roam) { const dd = Math.hypot(G.rp.x - v.rx, G.rp.z - v.rz); if (dd < 14) SFX.step(clamp(.45 - dd * .03, .02, .45) * (st % 2 ? .5 : 1), 0); } } }
+}
+function poseVox(t) { const v = G.vox, u = VOX.userData; VOX.visible = true; VOX.position.set(v.rx, v.moving ? Math.abs(Math.sin(v.ph)) * .07 : 0, v.rz); VOX.rotation.set(0, v.face || 0, v.moving ? Math.sin(v.ph) * .13 : .05); if (v.moving) u.aR2.rotation.x = Math.sin(v.ph) * .5; }
 function roamPlayer(dt) {
   const p = G.rp; let mx = 0, mz = 0;
   if (joy) { mx = joy.dx; mz = joy.dy; }
@@ -619,10 +762,8 @@ function roamPlayer(dt) {
 function roamUpdate(dt) {
   const v = G.vox, p = G.rp;
   const dx = p.x - v.rx, dz = p.z - v.rz, d = Math.hypot(dx, dz) || .01;
-  const r = RROOMS[ROUTE[v.i] === 'HOLE' ? '8' : ROUTE[v.i]], sp = 1.2 + (G.night - 1) * .15;
-  if (d < 8) { v.rx += dx / d * sp * dt; v.rz += dz / d * sp * dt; if (Math.random() < dt * 3) SFX.spark(.3, 0); }
-  else { const ex = r.cx - v.rx, ez = r.cz - v.rz, e = Math.hypot(ex, ez); if (e > .2) { v.rx += ex / e * sp * dt; v.rz += ez / e * sp * dt; } }
-  if (Math.random() < dt * 1.5) SFX.step(clamp(.4 - d * .03, .02, .4), 0);
+  const ch = d < 5.5; if (v.chase && !ch) v.path = voxPath(); v.chase = ch;
+  if (Math.random() < dt * 3 && d < 8) SFX.spark(.3, 0);
   const fwd = new THREE.Vector3(0, 0, -1).applyEuler(new THREE.Euler(p.pitch, p.yaw, 0, 'YXZ'));
   const to = new THREE.Vector3(v.rx - p.x, -.3, v.rz - p.z).normalize();
   if (G.flash && !G.out && d < 9 && fwd.dot(to) > .9) { v.lit += dt; if (v.lit > 1.5) { v.lit = 0; SFX.spark(.4, 0); voxMove(Math.max(0, v.i - 2)); say('Couvl do tmy.', 2); } }
@@ -642,10 +783,10 @@ function drawRoamHUD(t) {
   rr(24, 60, 180, 22, 6); ctx.fillStyle = '#111'; ctx.fill(); rect(27, 63, 174 * G.bat / 100, 16, G.bat < 25 ? '#ff4040' : G.bat < 50 ? '#ffb030' : '#5dff8a'); txt('🔋 ' + Math.ceil(G.bat) + ' %', 212, 77, 16, '#ccc');
   rect(24, 88, 180, 6, '#222'); rect(24, 88, 180 * G.rp.st, 6, '#6bc8ff');
   // minimapa
-  const sc = .45, mx = 24, my = 104; ctx.save(); ctx.globalAlpha = .85; rect(mx - 4, my - 4, 400 * sc + 8, 272 * sc + 8, 'rgba(0,0,0,.6)');
+  const sc = .45, mx = 24, my = 104; ctx.save(); ctx.globalAlpha = .85; rect(mx - 4, my - 4, 396 * sc + 8, 270 * sc + 8, 'rgba(0,0,0,.6)');
   const st = (TASKS[G.night] || [])[G.task];
   for (const id in MAP) { const [x, y, w, hh] = MAP[id]; ctx.strokeStyle = st && st.room === id && Math.sin(t * 6) > 0 ? '#ffe46b' : '#663333'; ctx.lineWidth = 1.5; ctx.strokeRect(mx + x * sc, my + y * sc, w * sc, hh * sc); }
-  const px = mx + (G.rp.x / MU + 200) * sc, py = my + ((G.rp.z - RZ) / MU + 136) * sc;
+  const px = mx + mapX(G.rp.x) * sc, py = my + mapY(G.rp.z - RZ) * sc;
   ctx.fillStyle = '#5dff8a'; ctx.beginPath(); ctx.arc(px, py, 4, 0, 7); ctx.fill(); ctx.strokeStyle = '#5dff8a'; ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px - Math.sin(G.rp.yaw) * 10, py - Math.cos(G.rp.yaw) * 10); ctx.stroke(); ctx.restore();
   drawTaskLine(24, my + 272 * sc + 24);
   if (st && st.kind !== 'pick' && G.hold > 0) { rr(HW / 2 - 160, 560, 320, 18, 6); ctx.fillStyle = '#111'; ctx.fill(); rect(HW / 2 - 157, 563, 314 * G.hold / st.t, 12, '#ffe46b'); }
@@ -768,8 +909,8 @@ function render(t, dt) {
   u.aR2.rotation.x = Math.sin(t * 1.4) * .15; u.redEye.material.color.setRGB(Math.random() < .9 ? 1 : .2, 0, 0);
   sparkLight.intensity = VOX.visible && Math.random() < .15 ? rand(1, 4) : 0; sparkLight.position.set(VOX.position.x, 1.4, VOX.position.z + .4);
   redLight.intensity = 0;
-  if (roaming) { VOX.visible = true; VOX.position.set(G.vox.rx, 0, G.vox.rz); VOX.rotation.y = Math.atan2(G.rp.x - G.vox.rx, G.rp.z - G.vox.rz); sparkLight.intensity = Math.random() < .15 ? rand(1, 4) : 0; sparkLight.position.set(G.vox.rx, 1.4, G.vox.rz); }
-  renderItem(t, roaming);
+  if (roaming) { poseVox(t); if (G.vox.chase) VOX.rotation.y = Math.atan2(G.rp.x - G.vox.rx, G.rp.z - G.vox.rz); sparkLight.intensity = Math.random() < .15 ? rand(1, 4) : 0; sparkLight.position.set(G.vox.rx, 1.4, G.vox.rz); }
+  renderItem(t, roaming); animBuilding(t, dt, roaming); hemi.intensity = roaming ? .38 : .22;
   TORCH.visible = !!roaming; if (roaming) { TORCH.userData.lens.material.color.setHex(G.flash ? 0xfff3c4 : 0x333333); TORCH.position.y = -.24 + Math.sin(G.rp.bob) * .01; }
   if (S === 'scare') {
     const k = ease(clamp(sceneT / .15, 0, 1)), j = 1 - clamp((sceneT - .8) / .6, 0, 1);
@@ -793,6 +934,8 @@ function render(t, dt) {
   if (S === 'menu') { COC.visible = false; VOX.visible = true; VOX.rotation.y = 0; VOX.position.set(0, 0, -3.6); cam.rotation.set(-.05, Math.sin(t * .15) * .15, 0); flash.intensity = 14; }
   const showWorld = S === 'menu' || S === 'play' || S === 'scare' || S === 'extras' || S === 'devmenu';
   if (showWorld && !(S === 'play' && G && G.monA >= 1)) renderer.render(scene, viewCam); else renderer.clear();
+  if (S === 'play' && G && G.mon && G.monA >= 1 && bldReady && G.online.has(G.cam)) renderFeed(t, dt);
+  if (VIEW) { viewAmb.intensity = VIEW.light * .5; animBuilding(t, 0, false); VOX.visible = false; hemi.intensity = VIEW.light; flash.intensity = 0; scene.fog.far = 60; renderer.render(scene, VIEW.cam); scene.fog.far = 18; ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, hud.width, hud.height); return; }
   buttons = []; ctx.setTransform(HK, 0, 0, HK, 0, 0); ctx.clearRect(0, 0, HW, HH);
   if (S === 'loading') { rect(0, 0, HW, HH, '#000'); drawLogo(ctx, HW / 2 - 90, 190, 180); txt('Načítám trosky…', HW / 2, 440, 22, '#ff8080', 'center'); }
   else if (S === 'menu') drawMenu(t);
@@ -804,13 +947,25 @@ function render(t, dt) {
   else if (S === 'dead') drawEnd(false); else if (S === 'win') drawEnd(true);
   hud.style.cursor = hover ? 'pointer' : 'default';
 }
+const feedCam = new THREE.PerspectiveCamera(62, 16 / 9, .05, 40);
+function renderFeed(t, dt) {
+  const [fx, fy, fw, fh] = FEED(), k = HK / DPR, cp = CAMPOS[G.cam];
+  feedCam.position.copy(cp.pos); feedCam.lookAt(cp.look); feedCam.rotateY(Math.sin(t * .25) * .18); feedCam.aspect = fw / fh; feedCam.updateProjectionMatrix();
+  const vis = [VOX.visible, COC.visible, ITEM.visible], hi = hemi.intensity, ff = scene.fog.far, fl = flash.intensity;
+  poseVox(t); COC.visible = false; animBuilding(t, 0, false); hemi.intensity = 2.6; scene.fog.far = 30; flash.intensity = 0;
+  const vx = Math.round(fx * k), vy = Math.round(innerHeight - (fy + fh) * k), vw = Math.round(fw * k), vh = Math.round(fh * k);
+  renderer.setScissorTest(true); renderer.setScissor(vx, vy, vw, vh); renderer.setViewport(vx, vy, vw, vh); viewAmb.color.set(0xa0ffb0); viewAmb.intensity = 1.1; renderer.render(scene, feedCam); viewAmb.intensity = 0;
+  renderer.setScissorTest(false); renderer.setViewport(0, 0, innerWidth, innerHeight);
+  [VOX.visible, COC.visible, ITEM.visible] = vis; hemi.intensity = hi; scene.fog.far = ff; flash.intensity = fl; placeVox();
+}
+let VIEW = null; const viewAmb = new THREE.AmbientLight(0xd8e0ff, 0); scene.add(viewAmb);
 function frame() { const dt = Math.min(.1, clock.getDelta()); if (manualT === null) { update(dt); render(clock.elapsedTime, dt); } requestAnimationFrame(frame); }
-cocLoad.then(() => { loaded = true; });
+Promise.all([cocLoad, bldLoad]).then(() => { loaded = true; });
 const unlock = () => { initAudio(); if (AC && AC.state !== 'running') AC.resume(); if (S === 'menu' || S === 'extras' || S === 'devmenu') startMenuSong(); };
 ['pointerdown', 'touchstart', 'keydown'].forEach(ev => addEventListener(ev, unlock, { capture: true, passive: true }));
 try { initAudio(); } catch (e) {}
 requestAnimationFrame(frame);
-window.__v2 = { icon(size) { const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d'); const g = x.createRadialGradient(size / 2, size / 2, size * .1, size / 2, size / 2, size * .7); g.addColorStop(0, '#3a0a0a'); g.addColorStop(1, '#050101'); x.fillStyle = g; x.fillRect(0, 0, size, size); drawLogo(x, size * .1, size * .1, size * .8); return c.toDataURL('image/png'); }, get G() { return G; }, startNight, leaveDesk, backDesk, taskDone, RROOMS, get MG() { return MG; }, get S() { return S; }, newGame, toggleMon, lure, repair, voxMove, manual(on) { manualT = on ? 0 : null; }, step(dt) { manualT += dt; update(dt); render(manualT, dt); }, skip() { if (S === 'intro') { S = 'play'; sceneT = 0; } } };
+window.__v2 = { icon(size) { const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d'); const g = x.createRadialGradient(size / 2, size / 2, size * .1, size / 2, size / 2, size * .7); g.addColorStop(0, '#3a0a0a'); g.addColorStop(1, '#050101'); x.fillStyle = g; x.fillRect(0, 0, size, size); drawLogo(x, size * .1, size * .1, size * .8); return c.toDataURL('image/png'); }, get G() { return G; }, view(p, l, light = 1.6) { if (!p) { VIEW = null; return; } const c = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, .05, 120); c.position.set(p[0], p[1], p[2] + RZ); c.lookAt(l[0], l[1], l[2] + RZ); VIEW = { cam: c, light }; if (FX.ceil) FX.ceil.visible = p[1] < 8; }, startNight, leaveDesk, backDesk, taskDone, RROOMS, get MG() { return MG; }, get S() { return S; }, newGame, toggleMon, lure, repair, voxMove, manual(on) { manualT = on ? 0 : null; }, step(dt) { manualT += dt; update(dt); render(manualT, dt); }, skip() { if (S === 'intro') { S = 'play'; sceneT = 0; } } };
 </script>
 </body>
 </html>
