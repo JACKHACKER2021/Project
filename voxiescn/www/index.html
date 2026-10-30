@@ -2165,8 +2165,8 @@ function cnRender(t) {
     if (o.userData.headR) { u.exhibit = false; CNM.animHare(o, x.ph || 0, mv, t); }
     else if (u.legs) { const s = Math.sin(x.ph || 0); u.legs.forEach((l, i) => { l[0].rotation.x = (i ? -1 : 1) * s * .45 * (mv ? 1 : 0); }); if (u.jaw) u.jaw.rotation.x = .55 + Math.abs(Math.sin(t * 3)) * .08; if (u.redEye) u.redEye.material.color.setRGB(Math.random() < .08 ? .3 : 1, 0, 0); }
     if (x.id === 'sc' && x.at) { o.position.y = .1 + Math.sin(t * 1.5) * .05; o.rotation.y = Math.atan2(OFFICE_EYE.x - o.position.x, OFFICE_EYE.z - o.position.z); }
-    if (x.id === 'hh' && x.route[x.step] === 'VENT' && !x.path) { const k = G.vent ? 0 : clamp(x.atT / Math.max(4.5, 12 - x.lv * .35), 0, 1); o.position.set(HOLE.position.x, -.2, HOLE.position.z - .9 + k * 1.1); o.rotation.set(.5, Math.PI, 0); }
-    if (x.id === 'bv' && x.route[x.step] === 'VENT' && !x.path) { const k = G.vent ? 0 : clamp(x.atT / Math.max(4.5, 12 - x.lv * .35), 0, 1); o.position.set(HOLE.position.x + Math.sin(t * 2) * .05, .1, HOLE.position.z - 1 + k * 1.6); o.rotation.set(1.25, Math.PI, 0); if (u.aL) { u.aL.rotation.x = Math.sin(t * 5) * .8; u.aR.rotation.x = -Math.sin(t * 5) * .8; } }
+    if (x.id === 'hh' && x.route[x.step] === 'VENT' && !x.path) { const k = G.vent ? 0 : clamp(x.atT / Math.max(4.5, 12 - x.lv * .35), 0, 1); o.position.set(HOLE.position.x, -.2, HOLE.position.z - .9 + k * 1.1); o.rotation.set(.5, 0, 0); }
+    if (x.id === 'bv' && x.route[x.step] === 'VENT' && !x.path) { const k = G.vent ? 0 : clamp(x.atT / Math.max(4.5, 12 - x.lv * .35), 0, 1); o.position.set(HOLE.position.x + Math.sin(t * 2) * .05, .1, HOLE.position.z - 1 + k * 1.6); o.rotation.set(1.25, 0, 0); if (u.aL) { u.aL.rotation.x = Math.sin(t * 5) * .8; u.aR.rotation.x = -Math.sin(t * 5) * .8; } }
     else if (x.id === 'bv') o.rotation.x = 0;
   }
   // přední baterka
