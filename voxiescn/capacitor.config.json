@@ -1,0 +1,8 @@
+{
+  "appId": "cz.voxies.voxiescustomnight",
+  "appName": "Voxie's Custom Night",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#000000"
+  }
+}
