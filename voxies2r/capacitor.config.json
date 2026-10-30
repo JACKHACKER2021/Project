@@ -1,0 +1,6 @@
+{
+  "appId": "cz.voxies.nightatvoxies2r",
+  "appName": "Night at Voxie's 2 Remastered",
+  "webDir": "www",
+  "android": { "backgroundColor": "#000000" }
+}
