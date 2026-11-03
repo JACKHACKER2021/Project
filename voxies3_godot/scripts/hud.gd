@@ -275,7 +275,7 @@ func draw_menu(t: float) -> void:
 		"☕ Káva z kávovaru a 💊 prášky vrátí příčetnost. Psaní hlášení tě uklidňuje."]
 	for i in lines.size():
 		txt(lines[i], 64, 450 + i * 30, 16, "#cfeed4")
-	txt("v0.2.0 · Godot", HW - 20, 700, 14, "#666666", "right")
+	txt("v1.0.0 · Godot", HW - 20, 700, 14, "#666666", "right")
 
 # ---------------------------------------------------------------- titulky
 func subs() -> void:
@@ -390,6 +390,7 @@ func draw_play(t: float) -> void:
 			G.dl = not G.dl
 			if G.dl:
 				G.lookT = game.LOOK_DOOR
+				game.blink("DOOR")
 			game.audio.sfx("click"), true, 24, "#ffe46b" if G.dl else "#5dff8a")
 		btn(HW - 174, by, 150, 64, ("🌀 OTEVŘÍT" if G.vent else "🌀 ZAVŘÍT"), "vent", func():
 			G.vent = not G.vent
@@ -398,6 +399,7 @@ func draw_play(t: float) -> void:
 			G.vl = not G.vl
 			if G.vl:
 				G.lookT = game.LOOK_VENT
+				game.blink("VENTDOOR")
 			game.audio.sfx("click"), true, 24, "#ffe46b" if G.vl else "#5dff8a")
 		btn(HW / 2 - 130, by, 260, 64, "🖥 POČÍTAČ", "pc", game.toggle_mon, not G.kroupa and not G.blackout, 20)
 		btn(HW / 2 - 130, by - 58, 126, 48, "💊 PRÁŠKY " + str(G.pills), "pill", game.take_pill, G.pills > 0 and G.pillT <= 0, 15, "#b0d0ff")
@@ -449,6 +451,7 @@ func draw_roam(t: float) -> void:
 	var al = game.sys.act_label()
 	if al != "":
 		btn(HW - 330, HH - 190, 300, 64, al, "act", game.sys.act, true, 18, "#ffe46b")
+	btn(HW - 330, HH - 270, 300, 60, "🔦 BLIKNOUT", "blink", func(): game.blink("ROAM"), true, 17, "#ffe46b")
 	if game.sys.near_chair():
 		btn(HW - 330, HH - 110, 300, 60, "🪑 SEDNOUT KE STOLU", "sit", game.sys.sit_down, true, 17)
 	if G.scareFace:
@@ -721,11 +724,12 @@ func dev_toggle(x: float, y: float, label: String, key: String) -> void:
 func draw_devmenu(t: float) -> void:
 	rect(0, 0, HW, HH, Color(0, 0.03, 0.01, 0.9))
 	txt("🛠 DEV", 60, 80, 40, "#ffb030")
-	dev_toggle(60, 120, "Nesmrtelnost (sanity se neztrácí)", "god")
+	dev_toggle(60, 120, "😇 GOD MODE (nesmrtelnost, plná energie)", "god")
 	dev_toggle(60, 180, "Zmrazit Hollow Hare", "freeze")
 	dev_toggle(60, 240, "Zobrazit FPS a pozici zajíce", "fps")
-	btn(60, 300, 360, 50, "🔓 Odemknout všech 5 nocí", "unl", func():
-		game.st_set("v3_night", 5)
+	btn(60, 300, 360, 50, "🔓 Odemknout všech 7 nocí + Custom", "unl", func():
+		game.st_set("v3_night", 7)
+		game.st_set("v3_end", true)
 		game.audio.sfx("task"), true, 17)
 	txt("Ve hře: tlačítko 🛠 vpravo nahoře otevře rychlý panel.", 60, 400, 16, "#cccccc")
 	btn(60, 630, 200, 48, "◀ MENU", "back", game.to_menu, true, 16)
@@ -738,8 +742,10 @@ func draw_dev_panel() -> void:
 		txt("FPS " + str(Engine.get_frames_per_second()) + " · zajíc: " + G.hare.node + " → " + G.hare.goal + " · čeká " + str(snappedf(G.hare.wait, 0.1)), HW - 90, 128, 13, "#ffb030", "right")
 	if not D.panel:
 		return
-	rr(HW - 330, 150, 306, 300, 10, Color(0, 0, 0, 0.85), "#ffb030", 2)
+	rr(HW - 330, 150, 306, 346, 10, Color(0, 0, 0, 0.85), "#ffb030", 2)
 	var y = 162
+	btn(HW - 318, y, 282, 40, ("😇 GOD: ZAP" if D.god else "😇 GOD: VYP"), "dpgod", func(): D.god = not D.god, true, 15, "#ffe46b" if D.god else "#ffb030")
+	y += 46
 	for a in [["⏩ +1 hodina", func(): G.t = minf(G.t + game.HOUR, game.HOUR * 6 - 1)], ["📄 Dopsat hlášení", func(): G.typed = game.REPORTS[G.night].length()], ["🧠 Sanity 100 %", func(): G.san = 100.0], ["🧠 Sanity 10 %", func(): G.san = 10.0], ["🐰 Zajíc ke dveřím", func(): game.hare_go("DOOR")], ["💀 Jumpscare", game.jumpscare]]:
 		btn(HW - 318, y, 282, 40, a[0], "dp" + str(y), a[1], true, 15, "#ffb030")
 		y += 46
@@ -928,6 +934,8 @@ func _key(e: InputEventKey) -> void:
 	if G.roam:
 		if k == "f":
 			game.sys.act()
+		elif k == "r":
+			game.blink("ROAM")
 		return
 	if G.mon and G.app == "word" and k != " ":
 		game.type_chars(2)

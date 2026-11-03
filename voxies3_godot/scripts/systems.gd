@@ -14,6 +14,7 @@ var vox_node: Node3D
 var vox_base := Vector3.ZERO
 var hare_fire: CPUParticles3D
 var canister: Node3D
+var flash_blink := 0.0
 
 const CHECKS := [["Broken Voxie", Vector3(0, 0, -4.2)], ["Hlava Cocoy", Vector3(6.9, 0, 3.6)], ["Kresba", Vector3(0, 0, -12.9)], ["Automaty", Vector3(-10, 0, -5.4)], ["Stoly z pizzerie", Vector3(6.2, 0, -3.6)], ["Hollow Hare", Vector3(0, 0, -16.0)]]
 const BOXES := [Vector3(-1.5, 0, -17), Vector3(1.4, 0, -16.4), Vector3(-2.2, 0, -20.6), Vector3(2.1, 0, -20.9)]
@@ -296,10 +297,11 @@ func roam_tick(dt: float) -> void:
 		p.bob += dt * 8
 		if floor(pb / PI) != floor(p.bob / PI):
 			game.audio.sfx("step", 0.12)
-	flash.light_energy = 3.0
+	flash_blink = maxf(0, flash_blink - dt)
+	flash.light_energy = 9.0 if flash_blink > 0 else 3.0
 	# zajíc tě chytil
 	var hp = game.hare.position
-	if Vector2(hp.x, hp.z).distance_to(Vector2(p.x, p.z)) < 1.25 and absf(hp.y) < 0.5 and not game.G.hare.get("dead", false) and not game.DEV.god:
+	if Vector2(hp.x, hp.z).distance_to(Vector2(p.x, p.z)) < 1.25 and absf(hp.y) < 0.5 and not game.G.hare.get("dead", false) and not game.DEV.god and game.G.hare.get("flee", 0.0) <= 0:
 		game.jumpscare()
 
 func roam_cam(dt: float) -> void:

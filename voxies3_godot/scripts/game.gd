@@ -756,6 +756,7 @@ func play_tick(dt: float) -> void:
 	sanity_tick(dt)
 	if DEV.god:
 		G.san = 100.0
+		G.pow = 100.0
 
 # ------------------------------------------------------------------ Hollow Hare
 func _via(a: String, b: String) -> Array:
@@ -800,8 +801,9 @@ func hare_ai(dt: float) -> void:
 	H.lureT = maxf(0, H.lureT - dt)
 	if H.atk:
 		return
+	H.flee = maxf(0, H.get("flee", 0.0) - dt)
 	# při chůzi po budově tě zajíc pronásleduje, když je blízko
-	if G.roam and hare.position.y > -0.5:
+	if G.roam and hare.position.y > -0.5 and H.flee <= 0:
 		var pp = Vector3(G.rp.x, 0, G.rp.z)
 		var d = hare.position.distance_to(pp)
 		if d < 6.5:
@@ -883,6 +885,8 @@ func hare_ai(dt: float) -> void:
 			if H.lure != "" and H.lureT > 0:
 				target = H.lure
 				H.lure = ""
+			elif H.get("flee", 0.0) > 0:
+				target = pick(["BACK", "ARCH", "PIZ"])
 			elif randf() < 0.25 + harder() * 0.35 and hour() >= 1 - int(G.night >= 3):
 				target = "DOOR" if randf() < 0.55 else "VENTDOOR"
 			else:
@@ -937,6 +941,40 @@ func _hare_pose(dt: float, walking: bool) -> void:
 		open = absf(sin(t_now * 12)) * 0.35
 	hare_parts.jaw.rotation = hare_base.jaw + Vector3(open, 0, 0)
 	hare_parts.chest.rotation = hare_base.chest + Vector3(0, 0, sin(ph * 0.5) * 0.05 if walking else 0.0)
+
+## 3× bliknutí světlem na zajíce = uteče od hráče na 30 s
+func blink(where: String) -> void:
+	var H = G.hare
+	var hit = false
+	if where == "ROAM":
+		sys.flash_blink = 0.15
+		audio.sfx("click", 0.6)
+		var p = Vector3(G.rp.x, 0, G.rp.z)
+		var to = hare.position - p
+		to.y = 0
+		var fwd = Vector3(-sin(G.rp.yaw), 0, -cos(G.rp.yaw))
+		hit = to.length() < 9 and fwd.dot(to.normalized()) > 0.8
+	else:
+		hit = H.node == where and H.path.is_empty()
+	if not hit:
+		return
+	if t_now - H.get("blinkT", -99.0) > 4.0:
+		H.blinks = 0
+	H.blinkT = t_now
+	H.blinks = H.get("blinks", 0) + 1
+	if H.blinks >= 3:
+		H.blinks = 0
+		H.flee = 30.0
+		H.at = 0.0
+		H.node = "WC" if where == "DOOR" else ("VENT" if where == "VENTDOOR" else H.node)
+		if where == "ROAM":
+			var far = "BACK" if G.rp.z > -8 else "LOBBY"
+			hare_go(far)
+		else:
+			hare.position = NODES[H.node]
+			hare_go("BACK")
+		audio.sfx("servo", 0.8, _hare_pan())
+		say("H", pick(["Zhasni to!", "Oči… pálí mě oči…"]) if audio.AUD.voice.has("Zhasni to!") else "Pusť mě ven. Bolí to.")
 
 func lure() -> void:
 	if G.lureCd > 0:
