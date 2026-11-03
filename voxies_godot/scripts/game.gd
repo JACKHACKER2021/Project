@@ -2461,6 +2461,14 @@ func _shots() -> void:
 	scene_ = "extras"
 	await _wait(1.0)
 	await _shot("extras")
+	store["voxies_secret"] = true
+	hud.EX.page = "song"
+	await _wait(0.5)
+	await _shot("song")
+	hud.EX.song = 7
+	await _wait(0.3)
+	await _shot("song_end")
+	store.erase("voxies_secret")
 	hud.start_mini(2)
 	await _wait(1.0)
 	await _shot("mini")

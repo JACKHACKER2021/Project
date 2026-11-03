@@ -14,7 +14,7 @@ var xf_stack = []
 var noise_frames = []
 var scan_tex: ImageTexture
 var vig_tex: GradientTexture2D
-var EX = {"page": "chars", "idx": 0, "rot": 0.0, "scare": -1.0, "room": null}
+var EX = {"song": 0, "page": "chars", "idx": 0, "rot": 0.0, "scare": -1.0, "room": null}
 var M = null
 var news_secret = false
 var tint_k = 0.0
@@ -929,7 +929,7 @@ func draw_dev_menu(t: float) -> void:
 
 # ---------- EXTRAS ----------
 func draw_extras(t: float) -> void:
-	var tabs = [["chars", "POSTAVY"], ["map", "MAPA"], ["mini", "MINIHRY"], ["ends", "KONCE"]]
+	var tabs = [["chars", "POSTAVY"], ["map", "MAPA"], ["mini", "MINIHRY"], ["ends", "KONCE"], ["song", "PÍSNIČKA"]]
 	if EX.page != "chars":
 		rect(0, 0, HW, HH, Color(0.03, 0.016, 0.055, 0.9))
 		scanlines()
@@ -1018,6 +1018,8 @@ func draw_extras(t: float) -> void:
 			big_btn(HW - 330, y + 22, 180, 52, "▶ HRÁT", "exm" + str(n), func():
 				start_mini(n)
 				M.extras = true, true, 18)
+	elif EX.page == "song":
+		draw_song(t)
 	elif EX.page == "ends":
 		var sec: bool = game.st_get("voxies_secret", false)
 		var fire: bool = game.st_get("voxies_fire", false)
@@ -1495,3 +1497,32 @@ func _key(e: InputEventKey) -> void:
 		var mp = {"1": "1A", "2": "1B", "3": "2", "4": "3", "5": "4", "6": "5", "7": "6", "8": "7", "9": "8", "0": "9"}
 		if mp.has(k):
 			game.select_cam(mp[k])
+
+# ---------- odměna: písnička od fanouška ----------
+var song_parts = []
+func draw_song(t: float) -> void:
+	if not game.st_get("voxies_secret", false):
+		rr(160, 200, HW - 320, 220, 12, Color(0, 0, 0, 0.6))
+		txt("🔒 PÍSNIČKA ZAMČENA", HW / 2, 280, 32, "#666666", "center")
+		txt("Odemkne se po tajném konci: Osvobození (3 rány sekerou v noci 7).", HW / 2, 330, 18, "#aaaaaa", "center")
+		return
+	if song_parts.is_empty():
+		for blk in FileAccess.get_file_as_string("res://data/song.txt").strip_edges().split("\n\n"):
+			song_parts.append(blk.split("\n"))
+	var n = song_parts.size()
+	EX.song = clampi(EX.song, 0, n - 1)
+	var cx = HW / 2
+	neon("PĚT NOCÍ U VOXIEHO", cx, 140, 40, "#ff2bd6", 18)
+	txt("písnička od fanouška · odměna za Osvobození", cx, 170, 15, "#ffd9f6", "center")
+	var part: Array = song_parts[EX.song]
+	rr(cx - 400, 190, 800, 420, 14, Color(0.04, 0.02, 0.07, 0.8), "#ff2bd6", 2)
+	txt(part[0], cx, 228, 20, "#ffe46b", "center")
+	for i in range(1, part.size()):
+		var col = "#ffffff" if not part[i].begins_with("(") else "#ff8bea"
+		txt(part[i], cx, 228 + i * 34 + 6 * sin(t * 2 + i) * 0.0, 21, col, "center")
+	for i in 5:
+		var c = hsl(fmod(t * 60 + i * 72, 360), 0.9, 0.6)
+		circle(cx - 360 + i * 180, 600 + sin(t * 4 + i) * 6, 5, c)
+	big_btn(cx - 400, 630, 180, 50, "◀ ZPĚT", "sgp", func(): EX.song -= 1, EX.song > 0, 18)
+	txt(str(EX.song + 1) + " / " + str(n), cx, 662, 20, "#cccccc", "center")
+	big_btn(cx + 220, 630, 180, 50, "DÁL ▶", "sgn", func(): EX.song += 1, EX.song < n - 1, 18)
