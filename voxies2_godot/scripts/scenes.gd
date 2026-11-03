@@ -25,7 +25,7 @@ const ARREST_SUB := [
 	[23.0, "", "Cvak. Pouta."],
 ]
 const PRISON_SUB := [
-	[1.0, "", "Cela číslo tři. Tři dny."],
+	[1.0, "", "Vazební věznice. Cela číslo tři. Tři dny po zatčení."],
 	[4.5, "Náčelník Král", "Hlídači. Máme výsledky z laboratoře."],
 	[8.0, "Náčelník Král", "Na kanystru nejsou vaše otisky. Jsou tam otisky bývalého nočního hlídače. Toho, kterému říkají D."],
 	[13.0, "Náčelník Král", "Záznam z kamery sedm nebyl smazaný celý. Je na něm on. S kanystrem."],
