@@ -120,14 +120,30 @@ func _person(nm: String, shirt: Color, pants: Color, skin: Color, hair: Color, h
 		var vis = _box(Vector3(0.3, 0.03, 0.08), hair)
 		vis.position = Vector3(0, 0.37, 0.19)
 		headn.add_child(vis)
+	var lids = []
 	for s in [-1, 1]:
 		var e = _box(Vector3(0.05, 0.05, 0.02), Color("#111111"))
 		e.position = Vector3(0.08 * s, 0.24, 0.165)
 		headn.add_child(e)
-	var mouth = _box(Vector3(0.12, 0.025, 0.02), Color("#7a3a2a"))
-	mouth.position = Vector3(0, 0.1, 0.165)
+		# víčko: při mrknutí překryje oko
+		var lid = _box(Vector3(0.062, 0.062, 0.02), skin)
+		lid.position = Vector3(0.08 * s, 0.24, 0.172)
+		lid.visible = false
+		headn.add_child(lid)
+		lids.append(lid)
+	# pusa: tmavá dutina, která se při mluvení otevírá
+	var mouth = Node3D.new()
+	mouth.position = Vector3(0, 0.1, 0.168)
+	var mo = _box(Vector3(0.12, 0.03, 0.02), Color("#3a1010"))
+	mouth.add_child(mo)
+	var lip = _box(Vector3(0.13, 0.012, 0.022), Color("#8a4a3a"))
+	lip.position = Vector3(0, 0.017, 0)
+	mouth.add_child(lip)
 	headn.add_child(mouth)
 	parts.head = headn
+	parts.mouth = mo
+	parts.lids = lids
+	parts.body = body
 	if cap:
 		var c1 = _box(Vector3(0.38, 0.1, 0.36), Color("#1a2a5a"))
 		c1.position = Vector3(0, 0.44, 0)
@@ -141,7 +157,7 @@ func _person(nm: String, shirt: Color, pants: Color, skin: Color, hair: Color, h
 		var mus = _box(Vector3(0.18, 0.04, 0.02), Color("#4a4a4a"))
 		mus.position = Vector3(0, 0.14, 0.17)
 		headn.add_child(mus)
-	return {"rig": rig, "parts": parts, "walkT": 0.0, "a": {"path": null, "seg": 0, "speed": 1.6, "endYaw": 0.0}}
+	return {"rig": rig, "parts": parts, "blink": randf_range(1, 4), "look": 0.0, "lookT": 0.0, "hop": 0.0, "kid": h < 1.5, "pose": "", "walkT": 0.0, "a": {"path": null, "seg": 0, "speed": 1.6, "endYaw": 0.0}}
 
 func make_cake() -> Node3D:
 	var c = Node3D.new()
@@ -269,6 +285,7 @@ func _setup_people(n: int) -> void:
 
 func _place(nm: String, p: Vector3, yaw: float) -> void:
 	var r: Rig = npcs[nm].rig
+	npcs[nm].pose = ""
 	r.root.visible = true
 	r.root.position = p
 	r.root.rotation.y = yaw
@@ -480,14 +497,17 @@ func _fx(fx: String, st: Dictionary) -> void:
 					p.position = Vector3(21.3, 0.28 + 0.56 * int(st.id.right(1)), -2.9)
 		"argue_setup":
 			game.COC.root.visible = true
-			game.COC.root.position = Vector3(14.6, 0, -5.4)
-			game.COC.root.rotation.y = -PI / 2
-			_place("D.", Vector3(16.2, 0, -5.4), PI / 2)
+			game.COC.root.position = Vector3(14.9, 0, -5.4)
+			game.COC.root.rotation.y = PI / 2
+			_place("D.", Vector3(15.75, 0, -5.4), -PI / 2)
+			npcs["D."].pose = "argue"
 			game.hint("Ze skladu je slyšet hádka…")
 		"zap":
 			game.spark_burst(game.COC.root.position + Vector3(0, 1.0, 0), 50, 1.3)
 			game.glitch_flash(0.6)
 			S.zap = 2.5
+			npcs["D."].pose = "grab"
+			game.say_later(1.2, func(): npcs["D."].pose = "argue")
 		"dirt":
 			var i = 0
 			for p in st.pts:
@@ -544,27 +564,85 @@ func update(dt: float) -> void:
 	_npc_update(dt)
 
 func _npc_update(dt: float) -> void:
+	var tt: float = game.t_now
 	for nm in npcs:
 		var N: Dictionary = npcs[nm]
 		var r: Rig = N.rig
 		if not r.root.visible:
 			continue
+		var P: Dictionary = N.parts
 		var moving: bool = N.a.path != null
 		if moving:
 			game.walk_step(N.a, r, dt)
-			N.walkT += dt * 7
+			N.walkT += dt * (9.0 if N.kid else 7.0)
 		var sw = sin(N.walkT) * 0.5 if moving else 0.0
-		N.parts["leg-1"].rotation.x = sw
-		N.parts["leg1"].rotation.x = -sw
-		N.parts["arm-1"].rotation.x = -sw * 0.8
-		N.parts["arm1"].rotation.x = sw * 0.8
-		# když mluví, kývá hlavou a otáčí se k hráči
 		var talking: bool = game.speech != null and game.speech.who == nm and game.speech.t < game.speech.dur
-		N.parts.head.rotation.x = sin(game.t_now * 9) * 0.06 if talking else 0.0
-		if talking and not moving:
-			var to: Vector3 = game.roam_cam.global_position - r.root.position
-			var want = atan2(to.x, to.z)
-			r.root.rotation.y = lerp_angle(r.root.rotation.y, want, minf(1, dt * 4))
+		var ph: float = float(nm.hash() % 100) * 0.37
+		# dýchání a lehké přešlapování, aby nestáli jako sochy
+		P.body.position.y = sin(tt * 1.8 + ph) * 0.012 + (absf(sin(N.walkT)) * 0.03 if moving else 0.0)
+		P.body.rotation.z = sin(tt * 0.9 + ph) * 0.02
+		P["leg-1"].rotation.x = sw
+		P["leg1"].rotation.x = -sw
+		var gest = 0.0
+		if talking:
+			gest = sin(tt * 3.1 + ph) * 0.35
+		var aL: float = -sw * 0.8 + sin(tt * 1.8 + ph) * 0.04
+		var aR: float = sw * 0.8 - sin(tt * 1.8 + ph) * 0.04
+		if not moving and talking:
+			aL = -0.5 - absf(gest) * 0.8
+			aR = -0.2 + gest * 0.5
+		P["arm-1"].rotation.x = aL
+		P["arm1"].rotation.x = aR
+		P["arm-1"].rotation.z = -0.06
+		P["arm1"].rotation.z = 0.06
+		match N.pose:
+			"grab":
+				P["arm-1"].rotation.x = -1.5
+				P["arm1"].rotation.x = -1.5
+				P["arm-1"].rotation.z = 0.25
+				P["arm1"].rotation.z = -0.25
+			"rip":
+				P["arm-1"].rotation.x = -1.9 + sin(tt * 30) * 0.1
+				P["arm1"].rotation.x = -1.9 - sin(tt * 30) * 0.1
+				P["arm-1"].rotation.z = 0.35
+				P["arm1"].rotation.z = -0.35
+			"pour":
+				P["arm1"].rotation.x = -1.1
+				P["arm-1"].rotation.x = -0.9
+		# děti poskakují radostí
+		if N.kid and not moving:
+			N.hop -= dt
+			if N.hop <= 0:
+				N.hop = randf_range(2.5, 6.0)
+			if N.hop > 0 and N.hop < 0.35:
+				P.body.position.y += sin(N.hop / 0.35 * PI) * 0.12
+		# pusa: otevírá se podle slabik
+		var open_k = 0.0
+		if talking:
+			open_k = absf(sin(tt * 13.0 + ph)) * (0.6 + 0.4 * absf(sin(tt * 5.3)))
+		P.mouth.scale = Vector3(1.0 - open_k * 0.2, 1.0 + open_k * 3.0, 1.0)
+		P.mouth.position.y = -open_k * 0.03
+		# mrkání
+		N.blink -= dt
+		var closed: bool = N.blink < 0.12
+		if N.blink <= 0:
+			N.blink = randf_range(2.0, 5.0)
+		for l in P.lids:
+			l.visible = closed
+		# hlava: rozhlížení, při mluvení kývání a otočení k hráči
+		N.lookT -= dt
+		if N.lookT <= 0:
+			N.lookT = randf_range(1.5, 4.0)
+			N.look = randf_range(-0.5, 0.5)
+		var to: Vector3 = game.roam_cam.global_position - r.root.global_position
+		var near: bool = to.length() < 6.0
+		var want_head = N.look
+		if near or talking:
+			want_head = clampf(wrapf(atan2(to.x, to.z) - r.root.rotation.y, -PI, PI), -0.9, 0.9)
+		P.head.rotation.y = lerp_angle(P.head.rotation.y, want_head, minf(1, dt * 5))
+		P.head.rotation.x = (sin(tt * 9) * 0.06 if talking else 0.0) + sin(tt * 0.7 + ph) * 0.03
+		if talking and not moving and N.pose == "":
+			r.root.rotation.y = lerp_angle(r.root.rotation.y, atan2(to.x, to.z), minf(1, dt * 3))
 
 ## tanec při testu show + svítící oči Cocoy (volá game.render)
 func render_extra(t: float) -> void:

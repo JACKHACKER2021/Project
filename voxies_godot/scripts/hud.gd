@@ -17,6 +17,7 @@ var vig_tex: GradientTexture2D
 var EX = {"song": 0, "page": "chars", "idx": 0, "rot": 0.0, "scare": -1.0, "room": null}
 var M = null
 var news_secret = false
+var bsod = {"kind": "voxie", "t": 0.0}
 var tint_k = 0.0
 var drag = null
 var touches = {}
@@ -228,7 +229,7 @@ func _draw() -> void:
 	var g = game
 	var t: float = g.t_now
 	var sc: String = g.scene_
-	if sc in ["dayend", "loading", "intro", "dead", "win", "ending", "mini", "secret", "news"]:
+	if sc in ["bsod", "eggend", "dayend", "loading", "intro", "dead", "win", "ending", "mini", "secret", "news"]:
 		rect(0, 0, HW, HH, "#000000")
 	if sc == "loading":
 		draw_logo(HW / 2 - 90, 180, 180)
@@ -272,6 +273,10 @@ func _draw() -> void:
 		draw_dev_menu(t)
 	elif sc == "secret":
 		draw_secret()
+	elif sc == "bsod":
+		draw_bsod()
+	elif sc == "eggend":
+		draw_eggend(t)
 	elif sc == "dayend":
 		draw_dayend()
 	elif sc == "dead":
@@ -282,6 +287,8 @@ func _draw() -> void:
 		draw_ending()
 
 func clock_str(h: int) -> String:
+	if game.G.get("egg", "") != "":
+		return "6:" + ("%02d" % mini(59, 5 + int(game.G.t / 20.0)))
 	if game.G.get("day"):
 		return str(9 + int(game.G.t / 60.0)) + ":" + ("%02d" % (int(game.G.t) % 60))
 	if game.G.night == 4:
@@ -289,6 +296,8 @@ func clock_str(h: int) -> String:
 	return ("0" if h == 0 else str(h)) + ":00"
 
 func night_name() -> String:
+	if game.G.get("egg", "") != "":
+		return "Po zavíračce · " + ("Voxie" if game.G.egg == "voxie" else "Cocoa")
 	if game.G.get("day"):
 		return "Den " + str(game.G.day)
 	return "Vlastní noc" if game.G.night == 8 else "Noc " + str(game.G.night)
@@ -436,7 +445,7 @@ func draw_roam_hud(t: float) -> void:
 		big_btn(HW / 2 - 210, 580, 420, 56, "💬 MLUVIT S COCOU", "talk", game.open_dialog, true, 19)
 	txt(night_name(), 24, 42, 26, "#ffffff")
 	txt(clock_str(game.hour_of()), HW - 24, 54, 46, "#ffffff", "right")
-	if not G.out and not G.get("day"):
+	if not G.out and not G.get("day") and G.get("egg", "") == "":
 		txt("Proud: " + str(maxi(0, ceili(G.power))) + " %", 24, 80, 22, "#ff6b6b" if G.power < 20 else "#ffffff")
 	var rid = game.room_at(roam.pos.x, roam.pos.z)
 	txt("Kancelář" if rid == "OFF" else (game.CAMS[rid].name if rid != null and game.CAMS.has(rid) else ""), HW / 2, 40, 22, "#ccffee", "center")
@@ -465,6 +474,10 @@ func rep_clock(h: int) -> String:
 
 func draw_task() -> void:
 	var G = game.G
+	if G.get("egg", "") != "":
+		bar_y = 52.0
+		bar("🛑 Zastav D. v kanceláři" if G.egg == "voxie" else "👂 Za tebou někdo je…", null, "#ff6b6b")
+		return
 	if G.get("day"):
 		bar_y = 52.0
 		if G.work and String(G.work.id).begins_with("d_"):
@@ -615,7 +628,7 @@ func draw_menu(t: float) -> void:
 		txt("★ Přežil jsi 5 nocí" + (" · noci 6–7 odemčeny" if pr >= 7 else ""), 64, 560, 18, "#ffe46b")
 	if game.st_get("voxies_secret", false):
 		txt("🪓 Tajný konec: Osvobození", 64, 584, 18, "#ff6b6b")
-	txt("v2.7.0 Remastered · Godot", HW - 20, 700, 14, "#888888", "right")
+	txt("v3.0.0 Remastered · Godot", HW - 20, 700, 14, "#888888", "right")
 	txt("Táhni prstem = rozhlížení · Joystick = chůze mimo stůl · Q/E světla, A/D dveře, mezerník kamery, F baterka", 64, 700, 13, "#777777")
 
 func draw_intro() -> void:
@@ -727,7 +740,11 @@ func draw_news(t: float) -> void:
 		rect(sx, sy, 6, 6, Color(0.35, 0.31, 0.35, 0.6))
 	draw_rect(Rect2(ix, iy, iw, ih), C("#111111"), false, 2)
 	txt("Foto: hasiči na místě v 6:12", ix, iy + ih + 20, 13, "#444444")
-	var col: String = "Hasiči v troskách našli rozbitý oblek maskota Voxieho. Podle nich byl prázdný. Vedle něj seděla nepoškozená figurína králíka. U obleku ležela zrezivělá jmenovka s nápisem „Vojtěch – majitel“. Případ z roku 1997 bude znovu otevřen. Noční hlídač je nezvěstný." if news_secret else "Hasiči v troskách našli obleky dvou maskotů. Jeden z nich byl podle svědků ještě teplý. Pracovníci tvrdí, že slyšeli z trosek hrací skříňku. Policie hledá nočního hlídače, který podle záznamů opustil budovu v 6:00. Majitel herny je nezvěstný od roku 1997."
+	var col: String = "Hasiči v troskách našli obleky dvou maskotů. Jeden z nich byl podle svědků ještě teplý. Pracovníci tvrdí, že slyšeli z trosek hrací skříňku. Policie hledá nočního hlídače, který podle záznamů opustil budovu v 6:00. Majitel herny je nezvěstný od roku 1997."
+	if news_secret is String:
+		col = "Hasiči v troskách našli dva rozbité obleky maskotů. U kanceláře ležel prázdný kanystr od benzínu s otisky prstů nového nočního hlídače. Bývalý hlídač, který herně přes den pomáhal, policii řekl, že ho nový hlídač ráno prosil o další směnu. Policie po hlídači pátrá."
+	elif news_secret:
+		col = "Hasiči v troskách našli rozbitý oblek maskota Voxieho. Podle nich byl prázdný. Vedle něj seděla nepoškozená figurína králíka. U obleku ležela zrezivělá jmenovka s nápisem „Vojtěch – majitel“. Případ z roku 1997 bude znovu otevřen. Noční hlídač je nezvěstný."
 	var ls = wrapt(col, w - iw - 90, 16)
 	for i in ls.size():
 		txt(ls[i], ix + iw + 30, iy + 14 + i * 22, 16, "#222222")
@@ -736,6 +753,8 @@ func draw_news(t: float) -> void:
 	restore_()
 	noise(0.05)
 	vignette(0.75)
+	if news_secret is String:
+		return
 	if game.scene_t > 4:
 		save_()
 		alpha = clampf((game.scene_t - 4) / 1.5, 0, 1)
@@ -788,11 +807,11 @@ func draw_ending() -> void:
 		txt(rows[i][0], cx - 210, 230 + i * 36, 20, "#222222")
 		txt(rows[i][1], cx + 210, 230 + i * 36, 20, "#222222", "right")
 	if game.scene_t > 2:
-		txt("Normální konec. Voxie zůstal uvnitř. Zkus to příště se sekerou…" if G.night == 7 else "Normální konec. Ale kdo je vlastně uvnitř kostýmu? (Odemčena noc 6)", cx, 520, 22, "#ff8bea", "center")
+		txt("D. tě v pět odvedl ven. Ale herna Voxie's se ještě nezavřela…" if G.night == 7 else "Normální konec. Ale kdo je vlastně uvnitř kostýmu? (Odemčena noc 6)", cx, 520, 22, "#ff8bea", "center")
 	if game.scene_t > 3:
 		big_btn(cx - 200, 570, 400, 56, "POKRAČOVAT" if G.night == 7 else "MENU", "menu", func():
 			if game.G.night == 7:
-				game.go_news(false)
+				game.egg.start()
 			else:
 				game.to_menu())
 
@@ -903,7 +922,7 @@ func draw_dev_menu(t: float) -> void:
 	scanlines()
 	var cx = HW / 2
 	txt("🛠 DEV NÁSTROJE", cx, 80, 44, "#5dff8a", "center")
-	txt("Night at Voxie's v2.7.0 Remastered · pro tvůrce a testování", cx, 110, 16, "#9fffb8", "center")
+	txt("Night at Voxie's v3.0.0 Remastered · pro tvůrce a testování", cx, 110, 16, "#9fffb8", "center")
 	big_btn(cx - 420, 140, 400, 50, "DEV PANEL VE HŘE: " + ("ZAP" if DEV.on else "VYP"), "dvon", func():
 		DEV.on = not DEV.on
 		game.st_set("voxies_dev", DEV.on), true, 18)
@@ -1066,9 +1085,7 @@ func draw_extras(t: float) -> void:
 					game.G = {"night": 5}
 				game.scene_ = "ending"
 				game.scene_t = 0.0],
-			[280.0, "Tajný konec – Osvobození", "Tři rány sekerou v noci 7. Pan Vojtěch je volný.", sec, func():
-				game.scene_ = "secret"
-				game.scene_t = 0.0],
+			[280.0, "Easter egg – Po zavíračce", "Po 7. noci: Vojtěch ve Voxiem, Ema v Cocoe a pravda o D.", game.st_get("voxies_egg", false), func(): game.egg.start()],
 			[420.0, "Požár – Večerní zpravodaj", "Po 7. noci herna Voxie's lehla popelem…", fire, func(): game.go_news(false)],
 		]
 		for cd in cards:
@@ -1572,3 +1589,65 @@ func draw_dayend() -> void:
 		big_btn(HW / 2 - 220, 380, 440, 60, "🌙 NASTOUPIT NA NOC " + str(n), "dayn", func(): game.day.after_day(n), true, 22)
 		big_btn(HW / 2 - 220, 460, 440, 52, "MENU", "menu", game.to_menu, true, 20)
 	noise(0.05)
+
+func draw_bsod() -> void:
+	var t: float = game.scene_t
+	var who: String = bsod.kind
+	if t < 1.6:
+		rect(0, 0, HW, HH, "#000000")
+		noise(0.5)
+		for i in 9:
+			rect(0, randf() * HH, HW, 3 + randf() * 26, Color(1, 0, 0, 0.45) if randf() < 0.5 else Color(0, 0, 0, 0.8))
+		if int(t * 12) % 2 == 0:
+			txt("ERROR", HW / 2 + randf_range(-8, 8), HH / 2 - 20, 90, "#ff2020", "center")
+			txt(("VOJTECH.SYS NEODPOVÍDÁ" if who == "voxie" else "EMA.SYS – SPOJENÍ S HLAVOU PŘERUŠENO"), HW / 2, HH / 2 + 40, 24, "#ffffff", "center")
+		return
+	# retro modrá obrazovka ve stylu starých Windows 9x
+	rect(0, 0, HW, HH, "#0000aa")
+	var cx = HW / 2
+	var title = " VOXIE-OS " if who == "voxie" else " COCOA-OS "
+	var tw0 = tw(title, 26)
+	rect(cx - tw0 / 2 - 6, 150, tw0 + 12, 34, "#aaaaaa")
+	txt(title, cx, 176, 26, "#0000aa", "center")
+	var lines = [
+		"Došlo k závažné výjimce 0E na adrese 0028:C0019970",
+		("ve VXD VOJTECH(01) + 00001997. Operátor obleku neodpovídá." if who == "voxie" else "ve VXD EMA(02) + 00001997. Spojení hlavy s tělem přerušeno."),
+		"Aktuální aplikace bude ukončena.",
+		"",
+		"*  Stiskněte libovolnou klávesu pro ukončení aplikace.",
+		"*  Stiskněte CTRL+ALT+DEL pro restart animatronika.",
+		"   Ztratíte veškeré neuložené vzpomínky.",
+	]
+	for i in lines.size():
+		txt(lines[i], 150, 250 + i * 34, 22, "#ffffff")
+	var blink = "_" if int(t * 2) % 2 == 0 else " "
+	txt("Pokračujte stisknutím libovolné klávesy " + blink, cx, 560, 22, "#ffffff", "center")
+	txt(("STOP: VOXIE_SPRINGLOCK_OPERATOR_LOST" if who == "voxie" else "STOP: COCOA_HEAD_DETACHED_EMA_NOT_FOUND"), cx, 620, 18, "#aaaaff", "center")
+	scanlines()
+	noise(0.04)
+
+func draw_eggend(t: float) -> void:
+	var st: float = game.scene_t
+	if st < 9.0:
+		draw_news(t)
+		return
+	rect(0, 0, HW, HH, "#050206")
+	noise(0.06)
+	var L = [
+		"6:30 ráno. Zazvonil ti telefon.",
+		"D.: „Hej, díky za dnešek. Zítra přijď zase na denní směnu, jo? Počítám s tebou.“",
+		"Žádná zítřejší směna už nebyla. Ani herna. Jen kanystr s tvými otisky a tvoje jméno v docházce.",
+		"D. chtěl, abys tam další den přišel. Aby to vypadalo, že se pachatel vrátil na místo činu.",
+		"EASTER EGG: PO ZAVÍRAČCE",
+	]
+	for i in L.size():
+		if st > 9.5 + i * 3.0:
+			var last = i == L.size() - 1
+			var ws = wrapt(L[i], 980, 34 if last else 22)
+			for k in ws.size():
+				if last:
+					neon(ws[k], HW / 2, 560 + k * 30, 34, "#ff2bd6", 18)
+				else:
+					txt(ws[k], HW / 2, 150 + i * 95 + k * 28, 22, "#9fd0ff" if i == 1 else "#ffffff", "center")
+	if st > 9.5 + L.size() * 3.0:
+		big_btn(HW / 2 - 200, 620, 400, 56, "MENU", "menu", game.to_menu)

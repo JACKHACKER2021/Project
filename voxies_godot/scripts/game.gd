@@ -80,6 +80,7 @@ var blink_t = 4.0
 
 var hud: Control
 var day: Node
+var egg: Node
 var audio: Node
 
 # ====================================================================
@@ -107,6 +108,11 @@ func _ready() -> void:
 	day.game = self
 	add_child(day)
 	day.setup()
+	egg = preload("res://scripts/egg.gd").new()
+	egg.game = self
+	egg.day = day
+	add_child(egg)
+	egg.setup()
 	hud = preload("res://scripts/hud.gd").new()
 	hud.game = self
 	var layer = CanvasLayer.new()
@@ -116,7 +122,9 @@ func _ready() -> void:
 	scene_ = "menu"
 	scene_t = 0.0
 	audio.start_menu_song()
-	if "--day" in OS.get_cmdline_user_args():
+	if "--egg" in OS.get_cmdline_user_args():
+		_shots_egg()
+	elif "--day" in OS.get_cmdline_user_args():
 		_shots_day()
 	elif "--cocoa" in OS.get_cmdline_user_args():
 		_shots_cocoa()
@@ -1004,6 +1012,10 @@ func go_news(secret: bool) -> void:
 	st_set("voxies_fire", true)
 
 func to_menu() -> void:
+	egg.reset_bodies()
+	roam.eye = 1.6
+	for nm in day.npcs:
+		day.npcs[nm].rig.root.visible = false
 	say_later(0.4, func(): audio.start_menu_song())
 	audio.set_buzz(false)
 	audio.stop_music_box()
@@ -1052,7 +1064,13 @@ func update(dt: float) -> void:
 			scene_ = "dead"
 			scene_t = 0.0
 		return
+	if scene_ == "bsod" and scene_t > 6.5:
+		egg.after_bsod(hud.bsod.kind)
+		return
 	if scene_ != "play":
+		return
+	if G.get("egg", "") != "":
+		egg.update(dt)
 		return
 	if G.get("day"):
 		day.update(dt)
@@ -1244,7 +1262,7 @@ func near_desk() -> bool:
 func toggle_roam() -> void:
 	if scene_ != "play" or G.cams:
 		return
-	if G.get("day") and roam.on:
+	if (G.get("day") or G.get("egg", "") != "") and roam.on:
 		return
 	if not roam.on:
 		if G.light != null:
@@ -1425,7 +1443,7 @@ func near_inter():
 	if INTER.is_empty():
 		INTER = T.INTER
 		WORK = T.WORK.duplicate(true)
-	if G.get("day"):
+	if G.get("day") or G.get("egg", "") != "":
 		for i in G.dinter:
 			if Vector2(roam.pos.x - i.x, roam.pos.z - i.z).length() < i.r and not (G.work and G.work.id == i.id):
 				return i
@@ -1443,6 +1461,9 @@ func interact() -> void:
 	audio.sfx("click")
 	if String(i.id).begins_with("d_"):
 		day.on_inter(i)
+		return
+	if String(i.id).begins_with("e_"):
+		egg.on_inter(i)
 		return
 	if String(i.id).begins_with("rep_"):
 		rep_interact(i)
@@ -1647,7 +1668,7 @@ func roam_update(dt: float) -> void:
 
 func update_roam_cam() -> void:
 	var bob_y = sin(roam.bob) * 0.04
-	roam_cam.position = Vector3(roam.pos.x, 1.6 + (0.0 if roam.y > 0 else bob_y) + roam.y, roam.pos.z)
+	roam_cam.position = Vector3(roam.pos.x, roam.get("eye", 1.6) + (0.0 if roam.y > 0 else bob_y) + roam.y, roam.pos.z)
 	roam_cam.rotation = Vector3(roam.pitch, roam.yaw, 0)
 	var fwd = -roam_cam.global_transform.basis.z
 	flash.global_position = roam_cam.position + fwd * 0.2 - Vector3(0, 0.15, 0)
@@ -2484,6 +2505,7 @@ func render(t: float) -> void:
 		office_cam.rotation = Vector3(-0.05, G.look if G else 0.0, (randf() - 0.5) * sh * 0.6)
 	stage_rgb(t)
 	day.render_extra(t)
+	egg.render_extra(t)
 	var se: Camera3D = roam_cam if roam.on else office_cam
 	var f = (60.0 if scare_t < 0.1 else 45.0) if scene_ == "scare" else 72.0
 	office_cam.fov = f if se == office_cam else 72.0
@@ -2765,4 +2787,61 @@ func _shots_day() -> void:
 	G.dinter = []
 	await _wait(0.5)
 	await _shot("vojtech")
+	get_tree().quit()
+
+func _shots_egg() -> void:
+	await _wait(1.0)
+	day.start_day(2)
+	await _wait(0.5)
+	roam.pos = Vector3(-14, 1.6, -10.5)
+	roam.yaw = 0.2
+	await _wait(1.2)
+	await _shot("e_kids")
+	day.start_day(4)
+	await _wait(0.3)
+	day._fx("argue_setup", {})
+	speech = {"who": "D.", "text": "Cocoo, nech toho.", "t": 0.0, "dur": 9.0, "col": Color.WHITE, "heard": true}
+	roam.pos = Vector3(15.3, 1.6, -3.2)
+	roam.yaw = 0.0
+	roam.pitch = -0.15
+	await _wait(0.8)
+	await _shot("e_argue")
+	egg.start()
+	await _wait(0.5)
+	roam.pitch = -1.0
+	await _wait(0.4)
+	await _shot("e_vox_body")
+	roam.pos = Vector3(-1.5, 1.6, -0.2)
+	roam.yaw = -1.3
+	roam.pitch = -0.1
+	egg.E.t = 30
+	await _wait(0.6)
+	await _shot("e_vox_d")
+	egg.on_inter({"id": "e_stop"})
+	await _wait(2.3)
+	await _shot("e_vox_slam")
+	await _wait(1.5)
+	await _shot("e_err")
+	await _wait(2.5)
+	await _shot("e_bsod")
+	await _wait(3.5)
+	roam.yaw = 0.0
+	roam.pitch = -0.3
+	await _wait(0.5)
+	await _shot("e_coc_voxie")
+	egg.E.phT = 3.5
+	roam.yaw = PI
+	roam.pitch = 0.1
+	await _wait(1.2)
+	await _shot("e_coc_d")
+	egg.E.lines = []
+	egg.E.lt = 0.0
+	await _wait(1.6)
+	await _shot("e_coc_rip")
+	await _wait(9.0)
+	await _shot("e_bsod2")
+	await _wait(10.0)
+	await _shot("e_news")
+	await _wait(13.0)
+	await _shot("e_end")
 	get_tree().quit()
