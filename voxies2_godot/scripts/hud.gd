@@ -364,16 +364,45 @@ func draw_computer(t: float) -> void:
 	var h = HH - 120
 	rr(x0 - 6, y0 - 6, w + 12, h + 12, 26, "#151515")
 	rect(x0, y0, w, h, "#008080")
-	# plocha: ikony
-	for i in 3:
-		var ic = [["🖥", "Tento počítač"], ["🗑", "Koš"], ["📁", "Záznamy 97"]][i]
-		txt(ic[0], x0 + 40, y0 + 46 + i * 78, 30, "#ffffff", "center")
-		txt(ic[1], x0 + 40, y0 + 70 + i * 78, 11, "#ffffff", "center")
-	# okno aplikace
+	# ikony na ploše (klikací aplikace)
+	var icons = [["cam", "📹", "VOXIE-CAM"], ["web", "🌐", "Internet"], ["tapes", "📼", "Nahrávky D."], ["fire", "🎞", "POZAR_CAM7.AVI"], ["bin", "🗑", "Koš"]]
+	for i in icons.size():
+		var ic = icons[i]
+		var iy = y0 + 14 + i * 82
+		if pc.app == ic[0]:
+			rect(x0 + 6, iy, 72, 70, Color(0, 0, 0.5, 0.6))
+		txt(ic[1], x0 + 42, iy + 38, 30, "#ffffff", "center")
+		txt(ic[2], x0 + 42, iy + 62, 10, "#ffffff", "center")
+		var app: String = ic[0]
+		add_btn(x0 + 6, iy, 72, 70, "ic" + app, func():
+			pc.app = app
+			pc.art = null
+			game.audio.sfx("click"))
 	var wx = x0 + 90
 	var wy = y0 + 14
 	var ww = w - 110
 	var wh = h - 64
+	if pc.app == "cam":
+		cam_window(G, wx, wy, ww, wh, t)
+	else:
+		app_window(G, wx, wy, ww, wh, t)
+	# hlavní panel Windows
+	bevel(x0, y0 + h - 34, w, 34)
+	bevel(x0 + 4, y0 + h - 30, 86, 26)
+	txt("⊞ Start", x0 + 47, y0 + h - 11, 15, "#000000", "center")
+	bevel(x0 + 98, y0 + h - 30, 230, 26, true)
+	txt({"cam": "📹 VOXIE-CAM v2.0", "web": "🌐 Internet Explorer", "tapes": "📼 Nahrávky D.", "fire": "🎞 Přehrávač médií", "bin": "🗑 Koš"}[pc.app], x0 + 110, y0 + h - 11, 13, "#000000")
+	bevel(x0 + w - 120, y0 + h - 30, 116, 26, true)
+	txt("🔋 " + clock_s(), x0 + w - 62, y0 + h - 11, 13, "#000000", "center")
+	# zakřivení a prokládání CRT
+	var yy = y0
+	while yy < y0 + h:
+		rect(x0, yy, w, 1, Color(0, 0, 0, 0.16))
+		yy += 3
+	vignette(0.35)
+
+func cam_window(G, wx: float, wy: float, ww: float, wh: float, t: float) -> void:
+	# okno aplikace
 	bevel(wx, wy, ww, wh)
 	for i in 40:
 		var k = i / 40.0
@@ -441,20 +470,190 @@ func draw_computer(t: float) -> void:
 	# stavový řádek
 	bevel(wx + 6, wy + wh - 30, ww - 12, 24, true)
 	txt("Baterie: " + str(ceili(G.bat)) + " %   |   " + ("Opravuji kameru…" if G.fix else "Připraveno"), wx + 14, wy + wh - 12, 13, "#000000")
-	# hlavní panel Windows
-	bevel(x0, y0 + h - 34, w, 34)
-	bevel(x0 + 4, y0 + h - 30, 86, 26)
-	txt("⊞ Start", x0 + 47, y0 + h - 11, 15, "#000000", "center")
-	bevel(x0 + 98, y0 + h - 30, 230, 26, true)
-	txt("📹 VOXIE-CAM v2.0", x0 + 110, y0 + h - 11, 13, "#000000")
-	bevel(x0 + w - 120, y0 + h - 30, 116, 26, true)
-	txt("🔋 " + clock_s(), x0 + w - 62, y0 + h - 11, 13, "#000000", "center")
-	# zakřivení a prokládání CRT
-	var yy = y0
-	while yy < y0 + h:
-		rect(x0, yy, w, 1, Color(0, 0, 0, 0.16))
-		yy += 3
-	vignette(0.35)
+
+
+# ---------------------------------------------------------------- další aplikace v počítači
+var pc = {"app": "cam", "q": "", "art": null, "tape": -1, "tapeT": 0.0, "fireT": 0.0, "fireOn": false}
+var tape_player = null
+const TAPES_D := [
+	["12. 5. 1997", "Páska jedna. Dvanáctého května devadesát sedm. Tady D., noční směna. Ve skladu je pod plachtou starý oblek. Říkají mu Glitch. Má pružinové zámky. Pan Vojtěch tvrdí, že je bezpečný."],
+	["20. 5. 1997", "Páska dvě. Našel jsem v kanceláři složku. První Voxie. Deaktivován v roce osmdesát. Prý se v noci hýbal sám, i když byl vypnutý. Proto ho rozebrali. Hlava chybí dodnes."],
+	["2. 6. 1997", "Páska tři. Hollow Bunny. Dutý králík. Kostým bez kostry, do kterého se leze. Žádná elektronika, jen látka a tma uvnitř. Pan Vojtěch ho chce na oslavu čtrnáctého června. Pro Emu."],
+	["9. 6. 1997", "Páska čtyři. Springlocky cvakají, když je vlhko. Říkal jsem to panu Vojtěchovi. Nechce poslouchat. Chce na oslavě vystupovat sám, v obleku Voxieho."],
+	["13. 6. 1997", "Páska pět. Třináctého června, večer před oslavou. Klíč od kanceláře mám já. Kdyby se něco stalo… nevím, jestli budu mít odvahu odemknout."],
+]
+const SEARCH := ["požár Voxie's", "náčelník Král žhář", "Vojtěch nezvěstný", "Ema 1997", "Voxie historie 1980", "Hollow Bunny"]
+const ARTICLES := [
+	{"q": [0, 1], "t": "Herna Voxie's lehla popelem", "d": "15. 7. 2023 · Večerní zpravodaj", "b": "Požár vypukl jen pár minut poté, co noční hlídač v 6:00 odešel z práce. Plameny se podle hasičů rozšířily ze skladu do herny a na pódium. Střecha nad hernou se propadla v 6:11. Uvnitř byly nalezeny obleky dvou maskotů. Majitel je nezvěstný od roku 1997."},
+	{"q": [1, 0], "t": "Náčelník Král: Byl to úmysl. Hledáme žháře", "d": "17. 7. 2023 · Policie ČR", "b": "Policejní náčelník Král potvrdil, že požár herny Voxie's byl založen úmyslně. „Ve skladu jsme našli kanystr od benzínu a stopy hořlaviny po celé podlaze. Záznam z kamery 7 někdo smazal ještě před požárem,“ uvedl Král. Policie hledá nočního hlídače, který budovu opustil v 6:00."},
+	{"q": [1], "t": "Král: Žhář se vrací na místo činu", "d": "21. 7. 2023 · Regionální zprávy", "b": "„Hlídač je pořád někde v okolí. Svědci ho viděli u vyhořelé herny v noci, s baterkou,“ řekl náčelník Král. Policie vypsala odměnu za informace. Bývalý noční hlídač z roku 1997, známý jen jako D., policii řekl, že nového hlídače „nikdy neviděl“."},
+	{"q": [2, 0], "t": "1997: Majitel herny po oslavě zmizel", "d": "16. 6. 1997 · Archiv", "b": "Majitel Voxie's Fun Factory pan Vojtěch se nevrátil domů po narozeninové oslavě 14. června. Policie našla jen jeho auto na parkovišti. Herna byla uzavřena, animatronici zůstali uvnitř. Klíč od kanceláře se nenašel."},
+	{"q": [3, 2], "t": "Pátrání po devítileté Emě ukončeno", "d": "30. 6. 1997 · Archiv", "b": "Policie ukončila pátrání po devítileté Emě, která se ztratila během oslavy v herně Voxie's. Svědci tvrdí, že ji naposledy viděli u animatronické králice Cocoy. Otec dívky, majitel herny, je rovněž nezvěstný."},
+	{"q": [4, 5], "t": "Voxie's Fun Factory: historie (1980–2023)", "d": "Encyklopedie herních sálů", "b": "1980 – první Voxie, robotický medvěd, byl po stížnostech deaktivován (prý se v noci hýbal sám). 1993 – herna znovu otevřena, Voxie jako kostým s pružinovými zámky (springlock); prototyp s přezdívkou Glitch skončil ve skladu. 1997 – přibyla Cocoa a dutý kostým Hollow Bunny. 14. 6. 1997 – oslava, zmizení majitele. 2023 – požár."},
+	{"q": [5, 4], "t": "Hollow Bunny: kostým, který nikdo nechtěl nosit", "d": "Fórum fanoušků · příspěvek uživatele ema_fan", "b": "Hollow Bunny byl dutý králičí kostým bez kostry. Měl se na oslavě v roce 1997 objevit poprvé. Na fotkách z té noci ale stojí v rohu herny sám – a nikdo si nepamatuje, kdo v něm byl."},
+]
+const FIRE_LOG := [[0.0, "6:00", "Hlídač odchází z budovy.", ""], [2.5, "6:02", "Sklad: zážeh. Kanystr od benzínu.", "4"], [5.0, "6:04", "Oheň se šíří do bludiště.", "3"], [7.5, "6:06", "Herna s automaty v plamenech.", "1B"], [10.0, "6:08", "Pódium hoří. Voxie stojí uprostřed.", "1A"], [12.0, "6:09", "Pizzerie a výdej lístků.", "2"], [14.0, "6:10", "Chodby a toalety.", "8"], [16.0, "6:11", "Propadá se strop nad hernou.", "5"], [18.0, "6:12", "Hasiči na místě. Kamera 7 vypadla.", "7"]]
+const FIRE_ROOMS := {"4": 2.5, "9": 3.5, "3": 5.0, "1B": 7.5, "1A": 10.0, "2": 12.0, "6": 13.0, "8": 14.0, "5": 15.0, "TY": 16.5, "7": 18.0}
+
+func win98_frame(x: float, y: float, w: float, h: float, title: String) -> void:
+	bevel(x, y, w, h)
+	for i in 40:
+		var k = i / 40.0
+		rect(x + 4 + (w - 8) * k, y + 4, (w - 8) / 40.0 + 1, 24, Color(0, 0, 0.5).lerp(Color(0.06, 0.52, 0.82), k))
+	txt(title, x + 12, y + 22, 15, "#ffffff")
+	for i in 3:
+		bevel(x + w - 70 + i * 22, y + 7, 20, 18)
+		txt(["_", "□", "×"][i], x + w - 60 + i * 22, y + 21, 13, "#000000", "center")
+	add_btn(x + w - 26, y + 7, 20, 18, "wclose", func():
+		pc.app = "cam"
+		_stop_tape())
+
+func app_window(G, wx: float, wy: float, ww: float, wh: float, t: float) -> void:
+	match pc.app:
+		"web": web_app(wx, wy, ww, wh)
+		"tapes": tapes_app(wx, wy, ww, wh)
+		"fire": fire_app(wx, wy, ww, wh)
+		"bin": bin_app(wx, wy, ww, wh)
+
+func web_app(x: float, y: float, w: float, h: float) -> void:
+	win98_frame(x, y, w, h, "🌐 Internet Explorer – Hledat")
+	txt("Soubor   Úpravy   Zobrazit   Oblíbené", x + 10, y + 46, 13, "#000000")
+	bevel(x + 8, y + 54, w - 16, 26, true, "#ffffff")
+	var url = "http://www.hledej.cz/" + ("clanek" if pc.art != null else "?q=" + pc.q.replace(" ", "+"))
+	txt("Adresa: " + url, x + 14, y + 72, 13, "#000000")
+	var cx = x + 10
+	var cy = y + 88
+	var cw = w - 20
+	var ch = h - 100
+	rect(cx, cy, cw, ch, "#ffffff")
+	if pc.art != null:
+		var A = ARTICLES[pc.art]
+		w98_btn(cx + 10, cy + 10, 110, 28, "◀ Zpět", "wback", func(): pc.art = null)
+		txt(A.t, cx + 20, cy + 76, 24, "#000080")
+		txt(A.d, cx + 20, cy + 100, 13, "#666666")
+		wrap_txt(A.b, cx + 20, cy + 134, cw - 40, 17, "#000000")
+		return
+	txt("hledej.cz", cx + cw / 2, cy + 50, 34, "#0000aa", "center")
+	bevel(cx + cw / 2 - 240, cy + 66, 480, 30, true, "#ffffff")
+	txt(pc.q if pc.q != "" else "Vyber hledaný výraz…", cx + cw / 2 - 230, cy + 87, 15, "#000000" if pc.q != "" else "#888888")
+	for i in SEARCH.size():
+		var qi = i
+		w98_btn(cx + 20 + (i % 3) * ((cw - 40) / 3.0), cy + 106 + floor(i / 3.0) * 36, (cw - 40) / 3.0 - 8, 30, "🔎 " + SEARCH[i], "q" + str(i), func():
+			pc.q = SEARCH[qi]
+			game.audio.sfx("click"), true, 13)
+	if pc.q == "":
+		return
+	var qi = SEARCH.find(pc.q)
+	var yy = cy + 196
+	txt("Výsledky hledání „" + pc.q + "“:", cx + 20, yy, 15, "#000000")
+	yy += 14
+	for i in ARTICLES.size():
+		var A = ARTICLES[i]
+		if not A.q.has(qi):
+			continue
+		var ai = i
+		txt(A.t, cx + 24, yy + 22, 17, "#0000ee")
+		draw_line(Vector2(cx + 24, yy + 25), Vector2(cx + 24 + tw(A.t, 17), yy + 25), C("#0000ee"), 1)
+		txt(A.d, cx + 24, yy + 42, 12, "#008000")
+		add_btn(cx + 20, yy + 4, cw - 40, 42, "art" + str(i), func():
+			pc.art = ai
+			game.audio.sfx("click"))
+		yy += 52
+
+func tapes_app(x: float, y: float, w: float, h: float) -> void:
+	win98_frame(x, y, w, h, "📼 Nahrávky D. – diktafon (1997)")
+	bevel(x + 8, y + 40, w - 16, h - 50, true, "#ffffff")
+	txt("Nalezeno na disku: D_NAHRAVKY\\ (5 souborů)", x + 20, y + 66, 14, "#000000")
+	for i in TAPES_D.size():
+		var yy = y + 80 + i * 44
+		var ti = i
+		w98_btn(x + 20, yy, 44, 34, "■" if pc.tape == i else "▶", "tp" + str(i), func():
+			if pc.tape == ti:
+				_stop_tape()
+			else:
+				_play_tape(ti), true, 16)
+		txt("PASKA_" + str(i + 1) + ".WAV   " + TAPES_D[i][0], x + 76, yy + 23, 15, "#000080" if pc.tape == i else "#000000")
+	if pc.tape >= 0:
+		var len_ = 11.5
+		pc.tapeT += game.frame_dt
+		var k = clampf(pc.tapeT / len_, 0, 1)
+		bevel(x + 20, y + 310, w - 40, 22, true)
+		rect(x + 24, y + 314, (w - 48) * k, 14, "#000080")
+		wrap_txt("D.: „" + TAPES_D[pc.tape][1] + "“", x + 24, y + 360, w - 48, 16, "#000000")
+		if k >= 1:
+			pc.tape = -1
+
+func _play_tape(i: int) -> void:
+	_stop_tape()
+	pc.tape = i
+	pc.tapeT = 0.0
+	tape_player = game.audio._play(load("res://voice/tape_d" + str(i) + ".wav"), 1.0, 0.0)
+func _stop_tape() -> void:
+	if tape_player and is_instance_valid(tape_player):
+		tape_player.queue_free()
+	tape_player = null
+	pc.tape = -1
+
+func fire_app(x: float, y: float, w: float, h: float) -> void:
+	win98_frame(x, y, w, h, "🎞 Přehrávač médií – POZAR_CAM7.AVI")
+	if pc.fireOn:
+		pc.fireT = minf(20.0, pc.fireT + game.frame_dt)
+		if pc.fireT >= 20.0:
+			pc.fireOn = false
+	var vx = x + 12
+	var vy = y + 38
+	var vw = w - 300
+	var vh = h - 110
+	rect(vx, vy, vw, vh, "#000000")
+	# půdorys herny a šíření ohně
+	var sc = minf(vw / 410.0, vh / 290.0)
+	save_()
+	translate(vx + (vw - 396 * sc) / 2, vy + 8)
+	scale_(sc, sc)
+	for id in game.D.MAP:
+		var r = game.D.MAP[id]
+		var ft = FIRE_ROOMS.get(id, 99.0)
+		var burn = clampf((pc.fireT - ft) / 2.0, 0, 1)
+		rect(r[0], r[1], r[2], r[3], Color(0.15, 0.15, 0.15).lerp(Color(0.9, 0.3 + randf() * 0.25, 0.05), burn * (0.75 + randf() * 0.25)))
+		draw_rect(Rect2(r[0], r[1], r[2], r[3]), C("#555555"), false, 1)
+		txt(id, r[0] + r[2] / 2, r[1] + r[3] / 2 + 5, 12, "#ffffff", "center")
+		if burn > 0:
+			for k in int(burn * 6):
+				rect(r[0] + randf() * r[2], r[1] + randf() * r[3], 5, 5, ["#ffe46b", "#ff8a1a", "#c0200a"][randi() % 3])
+	restore_()
+	noise_rect(0.12, vx, vy, vw, vh)
+	txt("CAM 7 · REC", vx + 10, vy + 20, 14, "#ffffff")
+	var cur = FIRE_LOG[0]
+	for e in FIRE_LOG:
+		if pc.fireT >= e[0]:
+			cur = e
+	txt("6:" + "%02d" % int(pc.fireT * 0.6) + "  " + cur[2], vx + 10, vy + vh - 12, 15, "#ffe46b")
+	# ovládání přehrávače
+	bevel(vx, vy + vh + 8, vw, 22, true)
+	rect(vx + 4, vy + vh + 12, (vw - 8) * pc.fireT / 20.0, 14, "#000080")
+	w98_btn(vx, vy + vh + 36, 90, 30, "❚❚" if pc.fireOn else "▶", "fplay", func():
+		if pc.fireT >= 20.0:
+			pc.fireT = 0.0
+		pc.fireOn = not pc.fireOn, true, 15)
+	w98_btn(vx + 100, vy + vh + 36, 90, 30, "⏮", "frew", func(): pc.fireT = 0.0, true, 15)
+	# protokol
+	var lx = x + w - 280
+	bevel(lx, vy, 268, vh + 66, true, "#ffffff")
+	txt("Časová osa požáru:", lx + 10, vy + 22, 14, "#000000")
+	for i in FIRE_LOG.size():
+		var e = FIRE_LOG[i]
+		var on = pc.fireT >= e[0]
+		txt(e[1] + " " + e[2], lx + 10, vy + 46 + i * 34, 11, "#000000" if on else "#aaaaaa")
+	txt("Policie ČR · náčelník Král: záznam zajištěn", lx + 10, vy + vh + 56, 10, "#800000")
+
+func bin_app(x: float, y: float, w: float, h: float) -> void:
+	win98_frame(x, y, w, h, "🗑 Koš")
+	bevel(x + 8, y + 40, w - 16, h - 50, true, "#ffffff")
+	var items = [["📄", "zaznam_cam7_14-07-2023.avi", "Nelze obnovit: soubor byl přepsán."], ["📄", "smena_d_1997.txt", "„Klíč od kanceláře vrátit majiteli.“ – nikdy neodesláno"], ["📄", "pojistka_herna.doc", "Pojistná smlouva na budovu. Navýšena týden před požárem. Podpis nečitelný."]]
+	for i in items.size():
+		txt(items[i][0], x + 30, y + 86 + i * 70, 26, "#000000")
+		txt(items[i][1], x + 70, y + 76 + i * 70, 15, "#000080")
+		txt(items[i][2], x + 70, y + 98 + i * 70, 13, "#444444")
 
 func noise_rect(a: float, x: float, y: float, w: float, h: float) -> void:
 	if a > 0:

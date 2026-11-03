@@ -44,6 +44,26 @@ static func run(g) -> void:
 	g.G.cam = "1B"
 	await w(g, 1.0)
 	await shot(g, "cams")
+	g.hud.pc.app = "web"
+	g.hud.pc.q = "náčelník Král žhář"
+	await w(g, 0.3)
+	await shot(g, "pc_web")
+	g.hud.pc.art = 1
+	await w(g, 0.3)
+	await shot(g, "pc_art")
+	g.hud.pc.app = "tapes"
+	g.hud._play_tape(1)
+	await w(g, 2.0)
+	await shot(g, "pc_tapes")
+	g.hud._stop_tape()
+	g.hud.pc.app = "fire"
+	g.hud.pc.fireT = 9.0
+	await w(g, 0.3)
+	await shot(g, "pc_fire")
+	g.hud.pc.app = "bin"
+	await w(g, 0.3)
+	await shot(g, "pc_bin")
+	g.hud.pc.app = "cam"
 	g.toggle_mon()
 	await w(g, 0.4)
 	g.leave_desk()

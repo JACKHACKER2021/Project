@@ -1128,6 +1128,8 @@ func toggle_mon() -> void:
 		return
 	G.mon = not G.mon
 	audio.sfx("cam")
+	if not G.mon:
+		hud._stop_tape()
 	if G.mon:
 		G.staticT = 0.3
 func lure() -> void:
