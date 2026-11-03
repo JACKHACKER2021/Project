@@ -10,11 +10,32 @@ func m(c: String, rough := 0.95, metal := 0.0) -> StandardMaterial3D:
 	x.metallic = metal
 	return x
 
+func box(p: Node3D, sz: Vector3, pos: Vector3, mat: Material) -> MeshInstance3D:
+	var mi = MeshInstance3D.new()
+	var b = BoxMesh.new()
+	b.size = sz
+	mi.mesh = b
+	mi.position = pos
+	mi.material_override = mat
+	p.add_child(mi)
+	return mi
+func cyl(p: Node3D, r: float, h: float, pos: Vector3, mat: Material) -> MeshInstance3D:
+	var mi = MeshInstance3D.new()
+	var c = CylinderMesh.new()
+	c.top_radius = r
+	c.bottom_radius = r
+	c.height = h
+	mi.mesh = c
+	mi.position = pos
+	mi.material_override = mat
+	p.add_child(mi)
+	return mi
+
 func make_hare() -> Node3D:
 	seed(1987)
 	var g = H.make(false)
 	g.name = "HollowHare"
-	var fur = m("#8f7d34")
+	var fur = m("#6a7030")
 	var fur_d = m("#6a5a22")
 	var rot = m("#2a2214")
 	var shirt = m("#77777d")          # šedé tričko D.
@@ -26,7 +47,7 @@ func make_hare() -> Node3D:
 		var mm: StandardMaterial3D = mi.material_override
 		var c = mm.albedo_color
 		var nm = mm.duplicate()
-		nm.albedo_color = c.lerp(Color("#4a4418"), 0.62).darkened(0.18)
+		nm.albedo_color = c.lerp(Color("#4a5a20"), 0.7).darkened(0.15)
 		mi.material_override = nm
 	var chest: Node3D = g.get_node("chest")
 	var head: Node3D = g.get_node("head")
@@ -100,59 +121,100 @@ func make_hare() -> Node3D:
 	hd.material_override = skin
 	hd.position = Vector3(0, -0.36, 0.02)
 	fore.add_child(hd)
-	# hlava: utržené ucho, propadlý čumák, lidské oči uvnitř důlků
-	var earR: Node3D = head.get_node("ear_R")
-	earR.get_node("tip").visible = false
-	earR.rotation.z = 0.55
-	var earL: Node3D = head.get_node("ear_L")
-	earL.rotation = Vector3(-0.35, 0, 0.25)
+	var blood = m("#4a0606", 0.6)
+	var blood2 = m("#2a0303", 0.5)
+	var bone = m("#b8b0a0", 0.7)
+	var glow = m("#20ff60", 0.2)
+	glow.emission_enabled = true
+	glow.emission = Color("#30ff70")
+	glow.emission_energy_multiplier = 2.5
+	# hlava nakloněná, rozpadlá
 	head.rotation = Vector3(0.28, 0.22, 0.2)
-	for s in [-1, 1]:
-		var eye = MeshInstance3D.new()
-		var sp = SphereMesh.new()
-		sp.radius = 0.04
-		sp.height = 0.08
-		eye.mesh = sp
-		eye.material_override = m("#d8d0c0", 0.3)
-		eye.position = Vector3(0.15 * s, 0.32, 0.29)
-		head.add_child(eye)
-		var iris = MeshInstance3D.new()
-		var sp2 = SphereMesh.new()
-		sp2.radius = 0.017
-		sp2.height = 0.034
-		iris.mesh = sp2
-		var ir = m("#4a6a80", 0.2)
-		ir.emission_enabled = true
-		ir.emission = Color("#9fd0ff")
-		ir.emission_energy_multiplier = 0.25
-		iris.material_override = ir
-		iris.position = Vector3(0.15 * s + 0.005 * s, 0.32, 0.325)
-		head.add_child(iris)
-	# díra ve tváři: pod látkou šedá kůže D.
-	var face = MeshInstance3D.new()
-	var bf = BoxMesh.new()
-	bf.size = Vector3(0.18, 0.16, 0.03)
-	face.mesh = bf
-	face.material_override = rot
-	face.position = Vector3(-0.2, 0.12, 0.3)
-	head.add_child(face)
-	var fs = MeshInstance3D.new()
-	var bfs = BoxMesh.new()
-	bfs.size = Vector3(0.12, 0.1, 0.035)
-	fs.mesh = bfs
-	fs.material_override = skin
-	fs.position = Vector3(-0.2, 0.12, 0.302)
-	head.add_child(fs)
-	# skvrny, spáleniny, roztrhané švy
-	for i in 26:
-		var st = MeshInstance3D.new()
-		var b3 = BoxMesh.new()
-		b3.size = Vector3(randf_range(0.04, 0.12), randf_range(0.04, 0.12), 0.012)
-		st.mesh = b3
-		st.material_override = rot if i % 3 else fur_d
-		var y = randf_range(0.15, 2.05)
-		st.position = Vector3(randf_range(-0.33, 0.33), y, 0.26 if y < 1.62 else 0.31)
-		g.add_child(st)
+	# pravé ucho chybí – z hlavy trčí kabely a kovový pahýl
+	head.get_node("ear_R").visible = false
+	box(head, Vector3(0.08, 0.06, 0.08), Vector3(0.18, 0.58, -0.04), metal)
+	for i in 5:
+		var w = cyl(head, 0.01, randf_range(0.2, 0.42), Vector3(0.18 + randf_range(-0.04, 0.04), 0.66, -0.04), m(["#a01010", "#1a3a90", "#c0a020", "#111111", "#a01010"][i], 0.4))
+		w.rotation = Vector3(randf_range(-0.7, 0.7), 0, randf_range(-1.0, 0.2))
+		w.position.y += 0.1
+	var earL: Node3D = head.get_node("ear_L")
+	earL.rotation = Vector3(-0.35, 0, 0.45)
+	# původní čumák a zuby pryč: tlama ve dvou částech
+	for c in head.get_children():
+		if c is MeshInstance3D and c.position.z > 0.32 and c.position.y < 0.25:
+			c.visible = false
+	box(head, Vector3(0.4, 0.1, 0.16), Vector3(0, 0.17, 0.33), m("#8a7a50"))          # horní čelist
+	box(head, Vector3(0.1, 0.06, 0.04), Vector3(0, 0.21, 0.42), m("#6a4a40"))          # nos
+	for i in 6:
+		box(head, Vector3(0.04, 0.05, 0.03), Vector3(-0.15 + i * 0.06, 0.1, 0.39), bone)
+	var jaw = Node3D.new()
+	jaw.name = "jaw"
+	jaw.position = Vector3(0, 0.08, 0.26)
+	jaw.rotation.x = 0.6
+	head.add_child(jaw)
+	box(jaw, Vector3(0.38, 0.08, 0.2), Vector3(0, -0.04, 0.09), m("#7a6a40"))
+	for i in 5:
+		box(jaw, Vector3(0.04, 0.05, 0.03), Vector3(-0.12 + i * 0.06, 0.02, 0.17), bone)
+	box(jaw, Vector3(0.2, 0.02, 0.1), Vector3(0.05, -0.085, 0.1), blood)
+	# uvnitř tlamy: dutina a zbytek hlavy D. (kůže, zuby, oko)
+	box(head, Vector3(0.34, 0.2, 0.06), Vector3(0, 0.02, 0.27), m("#0a0505"))
+	box(head, Vector3(0.24, 0.14, 0.04), Vector3(0, 0.03, 0.3), skin)
+	box(head, Vector3(0.16, 0.03, 0.02), Vector3(0, -0.02, 0.322), bone)
+	box(head, Vector3(0.04, 0.04, 0.02), Vector3(-0.06, 0.07, 0.322), m("#1a1010"))
+	box(head, Vector3(0.05, 0.03, 0.02), Vector3(0.05, 0.075, 0.322), blood2)
+	# oči: zelené, svítí z hlubokých důlků
+	for sx in [-1, 1]:
+		box(head, Vector3(0.15, 0.15, 0.04), Vector3(0.15 * sx, 0.33, 0.3), m("#050303"))
+		box(head, Vector3(0.05, 0.05, 0.03), Vector3(0.15 * sx, 0.33, 0.32), glow)
+		var eg = OmniLight3D.new()
+		eg.light_color = Color("#30ff70")
+		eg.light_energy = 0.12
+		eg.omni_range = 0.5
+		eg.position = Vector3(0.15 * sx, 0.33, 0.4)
+		head.add_child(eg)
+	# nohy: z části holý endoskelet
+	for nm in ["leg_L", "leg_R"]:
+		var leg: Node3D = g.get_node(nm)
+		var shin: Node3D = leg.get_node("shin")
+		var lower = nm == "leg_L"
+		var tgt: Node3D = shin if lower else leg
+		var fur_box: MeshInstance3D = tgt.get_child(0)
+		fur_box.visible = false
+		var y0 = 0.0
+		var hh = 0.3 if lower else 0.44
+		for dx in [-0.05, 0.05]:
+			cyl(tgt, 0.022, hh, Vector3(dx, -hh / 2, 0), metal if dx < 0 else rust)
+		for k in 3:
+			var sp = MeshInstance3D.new()
+			var t = TorusMesh.new()
+			t.inner_radius = 0.02
+			t.outer_radius = 0.045
+			sp.mesh = t
+			sp.material_override = metal
+			sp.position = Vector3(0, -0.06 - k * hh / 3.2, 0)
+			tgt.add_child(sp)
+		var kn = MeshInstance3D.new()
+		var ks = SphereMesh.new()
+		ks.radius = 0.06
+		ks.height = 0.12
+		kn.mesh = ks
+		kn.material_override = rust
+		kn.position = Vector3(0, -hh, 0)
+		tgt.add_child(kn)
+		# cáry látky visí kolem kostry
+		box(tgt, Vector3(0.24, 0.1, 0.26), Vector3(0, -0.04, 0), fur)
+		box(tgt, Vector3(0.1, 0.12, 0.03), Vector3(0.06, -hh * 0.6, 0.12), blood2)
+	# krev: stékající pruhy a skvrny
+	for i in 22:
+		var y = randf_range(0.2, 1.95)
+		var st = box(g, Vector3(randf_range(0.03, 0.09), randf_range(0.06, 0.26), 0.012), Vector3(randf_range(-0.32, 0.32), y, 0.262 if y < 1.62 else 0.312), blood if i % 2 else blood2)
+		st.rotation.z = randf_range(-0.15, 0.15)
+	for c in [Vector3(0.12, 0.55, 0.27), Vector3(-0.2, 0.3, 0.27), Vector3(0.0, 0.05, 0.27)]:
+		box(chest, Vector3(0.12, 0.2, 0.014), c, blood)
+	# další díry v látce (rozpad)
+	for i in 8:
+		var y = randf_range(0.4, 1.5)
+		box(g, Vector3(randf_range(0.06, 0.12), randf_range(0.06, 0.12), 0.014), Vector3(randf_range(-0.3, 0.3), y, -0.262), m("#0a0505"))
 	# shrbený postoj
 	chest.rotation.x = 0.16
 	chest.rotation.z = -0.06
@@ -178,7 +240,7 @@ func _init() -> void:
 	we.environment = env
 	root3.add_child(we)
 	var key = SpotLight3D.new()
-	key.light_energy = 6
+	key.light_energy = 4
 	key.spot_range = 12
 	key.spot_angle = 35
 	key.shadow_enabled = true
@@ -199,6 +261,8 @@ func _init() -> void:
 	cam.fov = 40
 	root3.add_child(cam)
 	cam.current = true
+	env.glow_enabled = true
+	env.glow_intensity = 1.0
 	var views = [[0.0, 5.4, 1.3], [0.9, 5.4, 1.3], [PI, 5.4, 1.3], [-0.5, 1.6, 1.75]]
 	for i in views.size():
 		var v = views[i]
