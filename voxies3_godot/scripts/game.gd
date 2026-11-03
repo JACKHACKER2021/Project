@@ -43,15 +43,17 @@ var screen_mat: StandardMaterial3D
 var red_light: OmniLight3D
 var coffee_led: MeshInstance3D
 var DEV := {"god": false, "freeze": false, "fps": false, "panel": false}
+var CUST := {"hare": 10, "sv": 5, "sd": 5, "vx": 5}
+var sys
 
 # ------------------------------------------------------------------ graf místností pro zajíce
 const NODES := {
 	"BACK": Vector3(0, 0, -20), "ARCH": Vector3(0.5, 0, -11), "HALL": Vector3(-1.2, 0, -1.5), "WC": Vector3(-4.5, 0, 0),
 	"LOBBY": Vector3(-10, 0, 6), "ARC": Vector3(-10, 0, -3), "PIZ": Vector3(7, 0, -4.5), "COC": Vector3(5.5, 0, 3.8),
-	"VENT": Vector3(12.5, 0, -5), "DOOR": Vector3(-4.1, 0, 7.8), "VENTDOOR": Vector3(3.9, 0, 7.6),
+	"VENT": Vector3(12.5, 0, -5), "DOOR": Vector3(-4.1, 0, 7.8), "VENTDOOR": Vector3(3.9, 0, 7.6), "VOXIE": Vector3(1.0, 0, -4.1),
 }
 const LINKS := {
-	"BACK": ["ARCH", "VENT"], "ARCH": ["BACK", "HALL"], "HALL": ["ARCH", "WC", "PIZ", "COC"], "WC": ["HALL", "LOBBY", "ARC", "DOOR"],
+	"BACK": ["ARCH", "VENT"], "ARCH": ["BACK", "HALL"], "HALL": ["ARCH", "WC", "PIZ", "COC", "VOXIE"], "VOXIE": ["HALL"], "WC": ["HALL", "LOBBY", "ARC", "DOOR"],
 	"LOBBY": ["WC", "ARC"], "ARC": ["WC", "LOBBY"], "PIZ": ["HALL"], "COC": ["HALL"], "VENT": ["BACK", "VENTDOOR"],
 	"DOOR": ["WC"], "VENTDOOR": ["VENT"],
 }
@@ -67,14 +69,20 @@ const REPORTS := {
 	2: "Hlášení, noc 2. Ve 2:00 zajíc nebyl v zákulisí. Na kameře 4 stál u Voxieho. Netuším, kdo ho přenesl. Dveře kanceláře jsem musel zavřít. Je tu vedro a smrad.",
 	3: "Hlášení, noc 3. Zajíc chodí. Ne, nikdo ho nepřenáší, CHODÍ. Slyšel jsem, jak cvakají zámky. Z šachty šel hlas. Říkal, že ho to bolí. Prosím, pošlete sem někoho.",
 	4: "Hlášení, noc 4. Točí se mi hlava, kdykoliv se na něj podívám na kameře. Ten hlas zná moje jméno. Uvnitř obleku je člověk. Vidím mu oči. Muzeum ho nesmí dostat.",
-	5: "Hlášení, noc 5. Poslední noc. Pokud tohle čtete, tak víte, že v tom zajíci je D. Springlocky ho tam zavřely navždy. Neprodávejte ho. Spalte ho. A mě už nehledejte.",
+	6: "Hlášení, noc 6. Zkontroloval jsem exponáty. Všechny jsou na místě. Kromě zajíce, ten nikdy není tam, kde ho nechám. Zítra ho odvezou. To nedovolím.",
+	7: "Hlášení, noc 7. Nebude žádné ráno pro tohle místo.",
+	8: "Custom Night. Žádné hlášení, jen přežít.",
+	5: "Hlášení, noc 5. Předposlední noc. Pokud tohle čtete, tak víte, že v tom zajíci je D. Springlocky ho tam zavřely navždy. Neprodávejte ho. Spalte ho. A mě už nehledejte.",
 }
 const MAILS := {
 	1: [["Kroupa", "Vítejte!", "Vítejte ve Frights & Hides. Hlášení pište do Hlášení.doc na ploše. Kamery najdete v aplikaci F&H Kamery. Dveře zavírejte jen v nouzi, klimatizace nefunguje. — K."]],
 	2: [["Kroupa", "Stížnosti", "Návštěvníci psali, že je zajíc sledoval očima. Svítí mu oči zeleně, to je skvělý efekt, zapomněl jsem, že jsme ho tam dali. Asi. — K."], ["neznámý", "(bez předmětu)", "nedívej se na něj dlouho"]],
 	3: [["Kroupa", "MUZEUM!", "Muzeum nabízí za zajíce víc než za celou budovu. Hlavně ať se nic nerozbije. A jestli vám je zle, je to únava. — K."], ["Policie ČR – náčelník Král", "Pátrání", "Hledáme bývalého hlídače D., který před šesti týdny zmizel z převozu. Pokud uvidíte cokoliv podezřelého, volejte 158."]],
 	4: [["Kroupa", "Prášky", "Brigádník omdlel. V šuplíku stolu máte prášky na uklidnění. Nepřehánějte to. — K."], ["neznámý", "otevři", "otevři dveře otevři dveře otevři dveře otevři"]],
-	5: [["Kroupa", "Poslední noc", "Ráno si zajíce odvezou. Budete mít volno. Hlášení prosím pečlivě, muzeum ho bude chtít vidět. — K."], ["D.", "...", "zámky povolily když jsem utíkal. jsem tu pořád. bolí to. nepouštěj je ke mně"]],
+	6: [["Kroupa", "Exponáty", "Projděte všechny exponáty, muzeum chce seznam. A nesahejte na Voxieho, prý se hýbe. Haha. — K."], ["D.", "...", "nedovol jim aby mě odvezli. spal to. spal mě."]],
+	7: [["Kroupa", "Poslední noc", "Ráno přijede muzeum. Je to poslední noc, pak máte volno. — K."], ["neznámý", "benzín", "ve skladu za zákulisím stojí kanystr. ve 4 hodiny."]],
+	8: [],
+	5: [["Kroupa", "Zítra", "Ráno si zajíce odvezou. Budete mít volno. Hlášení prosím pečlivě, muzeum ho bude chtít vidět. — K."], ["D.", "...", "zámky povolily když jsem utíkal. jsem tu pořád. bolí to. nepouštěj je ke mně"]],
 }
 
 # ==================================================================
@@ -87,6 +95,11 @@ func _ready() -> void:
 	audio.game = self
 	add_child(audio)
 	_build()
+	sys = preload("res://scripts/systems.gd").new()
+	sys.game = self
+	add_child(sys)
+	sys.build()
+	CUST = st_get("v3_cust", CUST)
 	hud = preload("res://scripts/hud.gd").new()
 	hud.game = self
 	var pl = CanvasLayer.new()
@@ -104,6 +117,22 @@ func _ready() -> void:
 	hl.add_child(hud)
 	S = "menu"
 	audio.start_menu_song()
+	if "--burntglb" in OS.get_cmdline_user_args():
+		var hb = preload("res://scripts/hare.gd").make_hare()
+		add_child(hb)
+		var keep = hare
+		hare = hb
+		hare_mats = {}
+		seed(404)
+		hare_burnt(true)
+		hare = keep
+		var doc = GLTFDocument.new()
+		var st = GLTFState.new()
+		doc.append_from_scene(hb, st)
+		print("BURNT ", doc.write_to_filesystem(st, "res://models/hollow_hare_burnt.glb"))
+		hare_mats = {}
+		get_tree().quit()
+		return
 	if "--shots" in OS.get_cmdline_user_args():
 		preload("res://scripts/shots.gd").run(self)
 
@@ -342,8 +371,11 @@ func arrive_tick(dt: float) -> void:
 		cam.look_at(Vector3(-10, 2.6 + (1 - e) * 0.6, 10.3))
 	if t > 7.0 and t - dt <= 7.0:
 		audio.sfx("clunk", 0.6)
-	if t > 9.0 and t - dt <= 9.0:
-		say("P", "Konečně normální práce. A ne nějaký animatronik.")
+	if t > 8.5 and t - dt <= 8.5:
+		for l in L.arrive:
+			say("P", l)
+	if t > 8.5 and (line != null or Q.size()):
+		scene_t = minf(scene_t, 12.9)
 	if t > 14.0:
 		S = "tour"
 		scene_t = 0.0
@@ -545,8 +577,8 @@ func tick_lines(dt: float) -> void:
 		var n = Q.pop_front()
 		var who: String = n[0]
 		var d: float
-		if who == "O" or who == "H" or who == "P":
-			d = audio.voice(n[1], 0.85 if who == "O" else 0.75, _hare_pan() if who == "H" else 0.0)
+		if who in ["O", "H", "P", "V", "S"] and audio.AUD.voice.has(n[1]):
+			d = audio.voice(n[1], {"O": 0.85, "H": 0.75, "P": 0.8, "V": 0.7, "S": 0.8}[who], _hare_pan() if who == "H" else (-0.1 if who == "V" else 0.0))
 		else:
 			d = clampf(n[1].length() * 0.06, 2.0, 6.0)
 		line = {"who": who, "t": n[1], "dur": d + 0.45, "age": 0.0}
@@ -592,6 +624,8 @@ func _tour_next() -> void:
 	G.tour_cut = 0.0
 	for l in st.o:
 		say("O", l)
+	if L.tour_p.has(st.at):
+		say("P", L.tour_p[st.at])
 func tour_tick(dt: float) -> void:
 	G.tour_cut += dt
 	var st = L.tour[tour_i]
@@ -621,6 +655,8 @@ func new_night(n: int) -> void:
 		"cam": "08", "staticT": 0.0, "typed": 0, "pills": 2 if n >= 3 else 1, "pillT": 0.0,
 		"hare": {"node": "BACK", "path": [], "wait": 25.0 - n * 3, "at": 0.0, "bang": 0.0, "goal": "", "ph": 0.0, "moving": false, "lure": "", "lureT": 0.0, "talkT": 14.0, "atk": false},
 		"lureCd": 0.0, "hall": 0.0, "hallT": 6.0, "heartT": 0.0, "kroupa": n > 1, "kt": 0.0, "mail": 0, "app": "desk",
+		"pow": 100.0, "bangs": 0, "powFlash": 0.0, "blackout": false, "blackT": 0.0, "roam": false, "rp": {"x": 0.0, "z": 9.2, "yaw": 0.0, "pitch": 0.0, "bob": 0.0},
+		"shadows": [], "scareFace": null, "vox": {"hp": 100.0, "callT": 25.0, "called": false, "twitch": 0.0, "beat": false, "hitT": 0.0}, "fire": false, "fireT": 0.0, "debT": 0.0, "shake": 0.0, "task": {},
 		"mailsRead": {}, "brew": 0.0, "coffeeCd": 0.0, "cups": 0, "tour_cut": 0.0, "nausea": 0.0, "hurtT": 0.0, "dead_by": "",
 	}
 	hare.position = NODES.BACK
@@ -630,12 +666,18 @@ func new_night(n: int) -> void:
 	line = null
 	door_n.position.y = 2.36
 	vent_n.position.y = -0.95
+	desk_lamp.visible = true
+	env.ambient_light_color = Color("#4a4458")
+	G.kroupa = n > 1 and n < 8
+	sys.setup(n)
 func start_night(n: int) -> void:
 	audio.stop_menu_song()
 	if n == 1:
 		start_arrive()
 		return
 	new_night(n)
+	if n == 8:
+		st_set("v3_cust", CUST)
 	S = "intro"
 	scene_t = 0.0
 func begin_play() -> void:
@@ -648,6 +690,8 @@ func begin_play() -> void:
 		kroupa.walk_to = kroupa.root.position
 		for l in L.nights[str(G.night)]:
 			say("O", l)
+		for l in L.talk.get(str(G.night), []):
+			say(l[0], l[1])
 	else:
 		kroupa.root.visible = false
 
@@ -655,12 +699,16 @@ func hour() -> int:
 	return int(G.t / HOUR) if G else 0
 
 func harder() -> float:
-	return (G.night - 1) * 0.22 + hour() * 0.08
+	if G.night == 8:
+		return CUST.hare / 10.0 + hour() * 0.05
+	return (minf(G.night, 6) - 1) * 0.2 + hour() * 0.08
 
 func play_tick(dt: float) -> void:
 	G.t += dt
 	if G.t >= HOUR * 6:
 		return win_night()
+	if G.task.kind == "fire" and G.t >= HOUR * 4 and G.task.done < 2:
+		G.t = minf(G.t, HOUR * 4 + 0.5)
 	tick_lines(dt)
 	# Kroupa na začátku noci mluví ve dveřích, pak odejde
 	if G.kroupa:
@@ -680,6 +728,8 @@ func play_tick(dt: float) -> void:
 			kr.visible = false
 			audio.sfx("doorcreak", 0.4, -0.8)
 		G.t = minf(G.t, 2.0)
+	if G.roam:
+		sys.roam_tick(dt)
 	# pohled a monitor
 	G.monA = move_toward(G.monA, 1.0 if G.mon else 0.0, dt * 4)
 	if keys.get("left") or keys.get("a"):
@@ -698,7 +748,10 @@ func play_tick(dt: float) -> void:
 	G.lureCd = maxf(0, G.lureCd - dt)
 	G.pillT = maxf(0, G.pillT - dt)
 	coffee_tick(dt)
-	if not G.kroupa and not DEV.freeze:
+	sys.tick(dt)
+	if S != "play":
+		return
+	if not G.kroupa and not DEV.freeze and not G.hare.get("dead", false):
 		hare_ai(dt)
 	sanity_tick(dt)
 	if DEV.god:
@@ -747,6 +800,21 @@ func hare_ai(dt: float) -> void:
 	H.lureT = maxf(0, H.lureT - dt)
 	if H.atk:
 		return
+	# při chůzi po budově tě zajíc pronásleduje, když je blízko
+	if G.roam and hare.position.y > -0.5:
+		var pp = Vector3(G.rp.x, 0, G.rp.z)
+		var d = hare.position.distance_to(pp)
+		if d < 6.5:
+			var dir = (pp - hare.position).normalized()
+			var sp = (1.3 + harder() * 0.5) * (0.6 if G.fire else 1.0)
+			hare.position += dir * sp * dt
+			hare.rotation.y = lerp_angle(hare.rotation.y, atan2(dir.x, dir.z), dt * 6)
+			H.ph += dt * 6
+			H.path = []
+			_hare_pose(dt, true)
+			if fmod(H.ph, PI) < dt * 6:
+				audio.sfx("step", 0.4, 0.0)
+			return
 	var at_office = H.node == "DOOR" or H.node == "VENTDOOR"
 	if at_office and H.path.is_empty():
 		H.at += dt
@@ -759,6 +827,7 @@ func hare_ai(dt: float) -> void:
 			if H.bang <= 0:
 				H.bang = randf_range(0.9, 1.6)
 				audio.sfx("clunk", 0.9, -0.8 if H.node == "DOOR" else 0.8)
+				sys.on_bang()
 				G.san -= 2.5
 				G.staticT = 0.15
 			if H.at > 9.0 - harder() * 2:
@@ -767,7 +836,7 @@ func hare_ai(dt: float) -> void:
 				hare.position = NODES[H.node]
 				H.wait = randf_range(4, 8)
 				hare_go(pick(["BACK", "ARCH", "LOBBY", "PIZ"]) if H.node == "WC" else "BACK")
-		elif H.at > maxf(1.4, 3.6 - harder()) and not DEV.god:
+		elif (H.at > maxf(1.4, 3.6 - harder()) or (G.blackout and H.at > randf_range(4.0, 7.0))) and not DEV.god and not G.roam:
 			jumpscare()
 		return
 	if H.path.size():
@@ -821,11 +890,34 @@ func hare_ai(dt: float) -> void:
 				if target in ["DOOR", "VENTDOOR"] and hour() < 1:
 					target = "BACK"
 			hare_go(target)
+	if G.mon:
+		hare_stare(dt)
 	# promluva
 	H.talkT -= dt
 	if H.talkT <= 0 and line == null and Q.is_empty():
 		H.talkT = randf_range(16, 28) - G.night * 1.5
-		say("H", pick(L.hare.slice(0, 7)))
+		var pool = L.hare.slice(0, 7)
+		for k in L.hare_n:
+			if int(k) <= G.night and int(k) < 7:
+				pool += L.hare_n[k]
+				if int(k) == G.night:
+					pool += L.hare_n[k] + L.hare_n[k]
+		say("H", pick(pool))
+
+## Hollow Hare se na rozdíl od ostatních vždycky dívá přímo do kamery
+func hare_stare(dt: float) -> void:
+	if not hare_on_cam():
+		return
+	var c = MAP.cams[G.cam]
+	var cp = Vector3(c.pos[0], c.pos[1], c.pos[2])
+	var to = cp - hare.position
+	var yaw = atan2(to.x, to.z)
+	if G.hare.path.is_empty():
+		hare.rotation.y = lerp_angle(hare.rotation.y, yaw, dt * 3)
+	var rel = wrapf(yaw - hare.rotation.y, -PI, PI)
+	var head: Node3D = hare_parts.head
+	head.rotation.y = hare_base.head.y + clampf(rel, -1.2, 1.2)
+	head.rotation.x = hare_base.head.x - atan2(to.y - 1.9, Vector2(to.x, to.z).length()) * 0.8
 
 func _hare_pose(dt: float, walking: bool) -> void:
 	var H = G.hare if G else {"ph": 0.0}
@@ -979,7 +1071,17 @@ func collapse() -> void:
 	audio.sfx("powerdown", 0.6)
 func win_night() -> void:
 	audio.stop_ambient()
-	if not report_done():
+	if G.night == 7:
+		st_set("v3_end", true)
+		audio.sfx("burnlong", 1.0)
+		start_end7()
+		return
+	if G.night == 8:
+		S = "win"
+		scene_t = 0.0
+		audio.sfx("chime")
+		return
+	if not report_done() or not sys.task_done():
 		S = "fired"
 		scene_t = 0.0
 		audio.sfx("hangup")
@@ -988,39 +1090,77 @@ func win_night() -> void:
 	scene_t = 0.0
 	audio.sfx("chime")
 	var n: int = G.night
-	if n >= 5:
-		st_set("v3_end", true)
-	st_set("v3_night", maxi(st_get("v3_night", 1), mini(5, n + 1)))
-	menu_night = mini(5, n + 1)
+	st_set("v3_night", maxi(st_get("v3_night", 1), mini(7, n + 1)))
+	menu_night = mini(7, n + 1)
 var ex_i := 0
 const EXTRAS := [
-	["HOLLOW HARE", "springlock · 1980 / 2004", "Žlutý Hollow Bunny z roku 1980, Voxieho první parťák. Odstaven kvůli nestabilním pružinovým zámkům. Šest týdnů před otevřením Frights & Hides se do něj schoval bývalý hlídač D., když utekl policii. Zámky povolily. D. je uvnitř dodnes – a oblek chodí."],
-	["PAN KROUPA", "majitel Frights & Hides", "Podnikatel, který skoupil všechno, co přežilo požár herny Voxie's, a udělal z toho strašidelný dům. Fialové sako, zlatý knoflík, svazek klíčů. Na zajíce dostal nabídku od muzea. Tvrdí, že všechno jsou jen efekty."],
-	["VOXIE BEAR", "exponát · hlavní chodba", "Co zbylo z Voxieho po požáru v roce 2023. Stojí na ohořelém pódiu za sametovým provazem. Je vypnutý. Asi."],
+	["HOLLOW HARE", "springlock · 1980 / 2004", "Žlutý Hollow Bunny z roku 1980, Voxieho první parťák. Odstaven kvůli nestabilním pružinovým zámkům. Šest týdnů před otevřením Frights & Hides se do něj schoval bývalý hlídač D., když utekl policii. Zámky povolily. D. je uvnitř dodnes – a oblek chodí. Vždycky se dívá přímo do kamery."],
+	["PAN KROUPA", "majitel Frights & Hides", "Podnikatel, který skoupil všechno, co přežilo požár herny Voxie's, a udělal z toho strašidelný dům. Fialové sako, zlatý knoflík, svazek klíčů. Na zajíce dostal nabídku od muzea. Na všechno, co mu řekneš, odpoví: haha, myslete si svoje."],
+	["BROKEN VOXIE", "exponát · hlavní chodba", "Co zbylo z Voxieho po požáru v roce 2023. V sedmé noci se v něm pohne duše pana Vojtěcha a zavolá. Hollow Hare to slyší a jde do něj mlátit. Nedovol mu Voxieho zničit."],
+	["SHADOW VOXIE", "duše, která není Vojtěch", "Černý opravený klasický Voxie z kostiček. Objevuje se v kanceláři nebo na kamerách. Nedívej se na něj dlouho – vyděsí tě a sebere ti kus příčetnosti."],
+	["SHADOW D.", "duch bývalého hlídače", "Černá postava s bílýma očima. Duch D., který zemřel uvnitř Hollow Bunnyho. Stojí v rohu kanceláře nebo na kameře a dívá se na tebe."],
+	["HOLLOW HARE (SHOŘELÝ)", "po požáru 7. noci", "Co zbylo z Hollow Hare, když Frights & Hides lehlo popelem. Zuhelnatělá látka, zčernalá kostra springlocku, zhaslé zelené oči. Uvnitř hasiči našli ostatky člověka. D. konečně odpočívá."],
+	["COCOA", "exponát · vitrína", "Ohořelá hlava Cocoy ve skleněné vitríně. V roce 1997 v ní byla uvězněná duše malé Emy. Hlídač ji tehdy viděl."],
 ]
+var ex_light: OmniLight3D
 func start_extras() -> void:
 	S = "extras"
 	scene_t = 0.0
 	ex_i = 0
 func extras_tick(dt: float) -> void:
-	var spot = Vector3(0, 0, -6.0)
-	hare.visible = ex_i == 0
+	var spot = Vector3(0, 1.2, -11.6)
+	var r = 3.2
+	hare.visible = ex_i == 0 or ex_i == 5
+	hare_burnt(ex_i == 5)
+	sys.hare_fire.emitting = false
 	kroupa.root.visible = ex_i == 1
-	if ex_i == 0:
-		hare.position = Vector3(0, 0, -11.6)
-		hare.rotation = Vector3(0, t_now * 0.4, 0)
-		_hare_pose(dt, fmod(t_now, 6.0) < 3.0)
-		spot = Vector3(0, 1.4, -11.6)
-	elif ex_i == 1:
-		kroupa.root.position = Vector3(0, 0, -11.6)
-		kroupa.root.rotation.y = t_now * 0.4
-		preload("res://scripts/people.gd").animate(kroupa, t_now, dt, false, fmod(t_now, 4.0) < 2.0)
-		spot = Vector3(0, 1.1, -11.6)
-	else:
-		spot = Vector3(0, 1.2, -6.0)
-	var r = 3.2 if ex_i < 2 else 3.6
-	cam.position = spot + Vector3(sin(0.5) * r, 0.5, cos(0.5) * r) + (Vector3(0, 0, 0.5) if ex_i < 2 else Vector3.ZERO)
+	sys.shadow_vox.visible = ex_i == 3
+	sys.shadow_d.visible = ex_i == 4
+	var rot = t_now * 0.4
+	match ex_i:
+		0:
+			hare.position = Vector3(0, 0, -11.6)
+			hare.rotation = Vector3(0, rot, 0)
+			_hare_pose(dt, fmod(t_now, 6.0) < 3.0)
+			spot = Vector3(0, 1.4, -11.6)
+		1:
+			kroupa.root.position = Vector3(0, 0, -11.6)
+			kroupa.root.rotation.y = rot
+			preload("res://scripts/people.gd").animate(kroupa, t_now, dt, false, fmod(t_now, 4.0) < 2.0)
+			spot = Vector3(0, 1.1, -11.6)
+		2:
+			spot = Vector3(0, 1.2, -6.0)
+			r = 3.6
+		3:
+			sys.shadow_vox.position = Vector3(0, 0, -11.6)
+			sys.shadow_vox.rotation.y = rot
+			spot = Vector3(0, 1.3, -11.6)
+		4:
+			sys.shadow_d.position = Vector3(0, 0, -11.6)
+			sys.shadow_d.rotation.y = rot
+			spot = Vector3(0, 1.1, -11.6)
+		5:
+			hare.position = Vector3(0, 0, -11.6)
+			hare.rotation = Vector3(0, rot, 0)
+			_hare_pose(dt, false)
+			spot = Vector3(0, 1.4, -11.6)
+		6:
+			spot = Vector3(8, 1.3, 3)
+			r = 1.6
+	cam.position = spot + Vector3(sin(0.5) * r, 0.45, cos(0.5) * r)
 	cam.look_at(spot)
+	if ex_light == null:
+		ex_light = OmniLight3D.new()
+		ex_light.light_color = Color("#d0ffd8")
+		ex_light.omni_range = 6
+		add_child(ex_light)
+	ex_light.visible = true
+	ex_light.light_energy = 2.2
+	ex_light.position = cam.position + Vector3(0.3, 0.8, -0.4)
+
+func start_custom() -> void:
+	S = "custom"
+	scene_t = 0.0
 
 func to_menu() -> void:
 	S = "menu"
@@ -1030,6 +1170,23 @@ func to_menu() -> void:
 	Q.clear()
 	line = null
 	kroupa.root.visible = false
+	sys.shadow_vox.visible = false
+	sys.shadow_d.visible = false
+	sys.flash.light_energy = 0.0
+	if ex_light:
+		ex_light.visible = false
+	sys.hare_fire.emitting = false
+	hare_burnt(false)
+	hare.rotation = Vector3.ZERO
+	for ep in end_parts:
+		ep[0].queue_free()
+	end_parts = []
+	if sys.vox_node:
+		sys.vox_node.rotation = sys.vox_base
+	for c in sys.fire_root.get_children():
+		c.queue_free()
+	sys.fire_lights = []
+	env.ambient_light_color = Color("#4a4458")
 	audio.stop_ambient()
 	audio.start_menu_song()
 
@@ -1044,6 +1201,7 @@ func _process(delta: float) -> void:
 		"play": play_tick(dt)
 		"scare", "collapse": tick_lines(dt)
 		"extras": extras_tick(dt)
+		"end7": end7_tick(dt)
 	render(dt)
 	hud.queue_redraw()
 
@@ -1074,7 +1232,20 @@ func render(dt: float) -> void:
 		"intro", "win", "fired", "dead":
 			cam.position = EYE
 			cam.rotation = Vector3.ZERO
+		"end7":
+			vig = 0.9
+		"play" when G.roam:
+			sys.roam_cam(dt)
+			var s2: float = G.nausea
+			sway = pow(s2, 2.0) * 0.012
+			dbl = maxf(0, s2 - 0.45) * 0.03
+			tint = maxf(0, s2 - 0.55) * 0.9
+			vig = 0.85 + s2 * 0.5
+			glitch = G.hall * 0.6
+			if G.shake > 0:
+				cam.position += Vector3(randf_range(-1, 1), randf_range(-1, 1), 0) * G.shake * 0.15
 		"play":
+			sys.flash.light_energy = 0.0
 			var s: float = G.nausea
 			cam.position = EYE + Vector3(sin(t_now * 0.9) * 0.03 * s, sin(t_now * 1.3) * 0.02 * s, 0)
 			cam.rotation = Vector3(-0.08 * G.monA + sin(t_now * 0.6) * 0.03 * s * s, G.look * (1 - G.monA), sin(t_now * 0.7) * 0.09 * pow(s, 1.5))
@@ -1096,6 +1267,10 @@ func render(dt: float) -> void:
 				feed_cam.rotate_y(sin(t_now * 0.25) * 0.12)
 				feed_vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 			red_light.light_energy = 0.0
+			if G.shake > 0:
+				cam.position += Vector3(randf_range(-1, 1), randf_range(-1, 1), 0) * G.shake * 0.12
+			if G.blackout:
+				screen_mat.emission_energy_multiplier = 0.0
 		"scare":
 			_render_scare(dt)
 			glitch = 0.4 if scene_t < 0.7 else 0.0
@@ -1117,47 +1292,54 @@ func render(dt: float) -> void:
 	pm.set_shader_parameter("uSick", tint)
 	pm.set_shader_parameter("uGrain", 0.05)
 
-## zajíc vtrhne dveřmi, srazí hlídače na zem a mlátí ho
+## zajíc vyrazí, srazí hlídače na zem a mlátí ho (v kanceláři i při chůzi po budově)
+var SO := Vector3.ZERO
+var SF := Vector3.FORWARD
+func _scare_setup() -> void:
+	if G.roam:
+		SO = Vector3(G.rp.x, 1.6, G.rp.z)
+		var d = hare.position - SO
+		d.y = 0
+		SF = d.normalized() if d.length() > 0.1 else Vector3(-sin(G.rp.yaw), 0, -cos(G.rp.yaw))
+	else:
+		SO = EYE
+		SF = (Vector3(-1, 0, -0.2) if G.hare.node != "VENTDOOR" else Vector3(1, 0, -0.3)).normalized()
 func _render_scare(dt: float) -> void:
 	var t = scene_t
-	var from_door = G.hare.node == "DOOR"
-	var side = 1.0 if from_door else -1.0
+	if t < dt * 1.5:
+		_scare_setup()
+	var side = Vector3(SF.z, 0, -SF.x)
+	var ground = Vector3(SO.x, 0, SO.z)
+	var floor_p = ground - SF * 0.8 + Vector3(0, 0.22, 0)
 	hare.visible = true
+	hare.rotation.x = 0
 	if t < 0.55:
-		# výpad k hlídači
 		var k = ease_io(t / 0.55)
-		var start = Vector3(-3.6 * side, 0, 7.8) if from_door else Vector3(3.4, 0, 7.6)
-		hare.position = start.lerp(EYE + Vector3(-1.25 * side, -1.3, -0.2), k)
-		hare.rotation = Vector3(0, PI / 2 * side, 0)
-		cam.position = EYE
-		cam.rotation = Vector3(0, LOOK_DOOR if from_door else LOOK_VENT, 0)
+		hare.position = (ground + SF * 2.6).lerp(ground + SF * 1.05, k)
+		hare.look_at(ground, Vector3.UP, true)
+		cam.position = SO
 		cam.look_at(hare.position + Vector3(0, 1.9, 0))
 		hare_parts.jaw.rotation = hare_base.jaw + Vector3(0.6, 0, 0)
 		hare_parts.arm_L.rotation = hare_base.arm_L + Vector3(-1.8, 0, 0)
 		hare_parts.arm_R.rotation = hare_base.arm_R + Vector3(-1.8, 0, 0)
 	elif t < 1.4:
-		# náraz – pád na záda
 		var k = ease_io((t - 0.55) / 0.85)
-		var floor_p = Vector3(0.6 * side, 0.22, 9.4)
-		cam.position = EYE.lerp(floor_p, k) + Vector3(randf_range(-1, 1), randf_range(-1, 1), 0) * 0.06 * (1 - k)
-		hare.position = Vector3(-0.4 * side, 0, 8.0).lerp(Vector3(0.6 * side, 0, 8.15), k)
+		cam.position = SO.lerp(floor_p, k) + Vector3(randf_range(-1, 1), randf_range(-1, 1), 0) * 0.06 * (1 - k)
+		hare.position = (ground + SF * 1.05).lerp(ground + SF * 0.45, k)
 		hare.look_at(Vector3(cam.position.x, 0, cam.position.z), Vector3.UP, true)
 		cam.look_at(hare.position + Vector3(0, 1.8, 0))
-		cam.rotate_object_local(Vector3.FORWARD, k * 0.5 * side)
+		cam.rotate_object_local(Vector3.FORWARD, k * 0.5)
 		if t - dt < 1.2 and t >= 1.2:
 			audio.sfx("hurt", 1.0)
 			audio.sfx("clunk", 1.0)
 	else:
-		# mlácení
 		var bt = t - 1.4
 		var cyc = fmod(bt, 0.55) / 0.55
 		var n = int(bt / 0.55)
-		var floor_p = Vector3(0.6 * side, 0.22, 9.4)
-		hare.position = Vector3(0.6 * side, 0, 8.2)
+		hare.position = ground + SF * 0.45
 		hare.look_at(Vector3(floor_p.x, 0, floor_p.z), Vector3.UP, true)
 		hare_parts.chest.rotation = hare_base.chest + Vector3(0.55, 0, 0)
 		hare_parts.head.rotation = hare_base.head + Vector3(0.5, randf_range(-0.1, 0.1), 0)
-		var swing = -2.6 + (sin(cyc * PI) if cyc < 0.6 else 0.0) * 0.0
 		var hit_arm = "arm_R" if n % 2 == 0 else "arm_L"
 		var other = "arm_L" if hit_arm == "arm_R" else "arm_R"
 		var a = -2.8 + ease_io(clampf(cyc / 0.35, 0, 1)) * 2.4
@@ -1167,7 +1349,7 @@ func _render_scare(dt: float) -> void:
 		var shake = maxf(0, 0.3 - absf(cyc - 0.35)) * 0.6
 		cam.position = floor_p + Vector3(randf_range(-1, 1), randf_range(-1, 1), randf_range(-1, 1)) * shake * 0.4
 		cam.look_at(hare.position + Vector3(0, 1.75, 0))
-		cam.rotate_object_local(Vector3.FORWARD, 0.5 * side + randf_range(-1, 1) * shake)
+		cam.rotate_object_local(Vector3.FORWARD, 0.5 + randf_range(-1, 1) * shake)
 		if bt < 4.4 and fmod(bt - dt, 0.55) / 0.55 < 0.35 and cyc >= 0.35:
 			G.hits += 1
 			G.hurtT = 0.25
@@ -1182,3 +1364,160 @@ func _render_scare(dt: float) -> void:
 		S = "dead"
 		scene_t = 0.0
 		hare.visible = false
+
+## ohořelá verze Hollow Hare (uhel, popraskaná látka, zhaslé oči)
+var hare_mats := {}
+func hare_burnt(on: bool, k := 1.0) -> void:
+	for mi in hare.find_children("*", "MeshInstance3D", true, false):
+		if not hare_mats.has(mi):
+			hare_mats[mi] = mi.material_override
+		var orig: StandardMaterial3D = hare_mats[mi]
+		if not on:
+			mi.material_override = orig
+			continue
+		var m: StandardMaterial3D = orig.duplicate()
+		var c = orig.albedo_color
+		var burnt = Color("#0e0b09").lerp(Color("#3a2a1c"), randf() * 0.35)
+		if orig.metallic > 0.5:
+			burnt = Color("#2a2622")
+		m.albedo_color = c.lerp(burnt, k)
+		m.roughness = 1.0
+		m.metallic = orig.metallic * 0.3
+		if orig.emission_enabled:
+			m.emission = Color("#40ff60").lerp(Color("#000000"), k)
+			m.emission_energy_multiplier = orig.emission_energy_multiplier * (1.0 - k)
+		elif randf() < 0.12 * k:
+			# doutnající uhlíky
+			m.emission_enabled = true
+			m.emission = Color("#ff5010")
+			m.emission_energy_multiplier = 1.2
+		mi.material_override = m
+
+## 7. noc – konec: Voxie poděkuje a rozpadne se, Hollow Hare shoří, budova se hroutí
+var end_parts := []
+func _end7_fire_at(c: Vector3, ext: Vector3) -> void:
+	var f = sys._fire(ext, 90)
+	f.position = c
+	sys.fire_root.add_child(f)
+	var l = OmniLight3D.new()
+	l.light_color = Color("#ff6a1a")
+	l.light_energy = 3
+	l.omni_range = 10
+	l.position = c + Vector3(0, 1.5, 0)
+	sys.fire_root.add_child(l)
+	sys.fire_lights.append(l)
+func start_end7() -> void:
+	S = "end7"
+	scene_t = 0.0
+	Q.clear()
+	line = null
+	G.mon = false
+	G.roam = false
+	for c in sys.fire_root.get_children():
+		c.queue_free()
+	sys.fire_lights = []
+	_end7_fire_at(Vector3(-2.2, 0.3, -3.5), Vector3(0.6, 0.2, 2.0))
+	_end7_fire_at(Vector3(2.3, 0.3, -1.0), Vector3(0.5, 0.2, 2.0))
+	sys.hare_fire.emitting = true
+	hare.visible = true
+	hare.rotation = Vector3(0, PI * 0.85, 0)
+	hare.position = Vector3(-1.1, 0, -1.2)
+	hare_burnt(false)
+	end_parts = []
+	G.task.kind = ""
+func end7_tick(dt: float) -> void:
+	var t = scene_t
+	tick_lines(dt)
+	for l in sys.fire_lights:
+		l.light_energy = 2.6 + sin(t_now * 17 + l.position.x) * 0.7 + randf() * 0.6
+	var vn: Node3D = sys.vox_node
+	if t < 9.0:
+		# Broken Voxie: duše pana Vojtěcha děkuje a oblek se rozpadá
+		cam.position = Vector3(1.7, 1.55, -1.9) + Vector3(sin(t * 0.3) * 0.1, 0, 0)
+		cam.look_at(Vector3(0, 1.3, -6.0))
+		hare.visible = false
+		if t > 0.8 and t - dt <= 0.8:
+			say("V", "Děkuji, žes mě nenechal jako duši v tomhle obleku.")
+		if vn and t < 4.4:
+			vn.rotation = sys.vox_base + Vector3(sin(t * 13) * 0.02, sin(t * 7) * 0.05, 0)
+		if vn and t > 4.6 and t - dt <= 4.6:
+			var k = 0
+			for nm in ["head", "arm_upper_L", "arm_upper_R_stump", "jaw_hanging", "ear_L", "candle_bracket"]:
+				var part: Node3D = vn.find_child(nm, true, false)
+				if part == null:
+					continue
+				var gt = part.global_transform
+				part.get_parent().remove_child(part)
+				add_child(part)
+				part.global_transform = gt
+				end_parts.append([part, gt])
+				var tw = create_tween()
+				tw.tween_interval(k * 0.35)
+				var dest = part.global_position + Vector3(randf_range(-0.7, 0.7), 0, randf_range(0.3, 1.2))
+				dest.y = 0.36 if absf(dest.x) < 1.3 and dest.z < -5.0 else 0.08
+				tw.tween_property(part, "global_position", dest, 0.55).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+				tw.parallel().tween_property(part, "rotation", part.rotation + Vector3(randf_range(-1.5, 1.5), randf_range(-1, 1), randf_range(-1.5, 1.5)), 0.55)
+				tw.tween_callback(func(): audio.sfx("clunk", 0.6))
+				k += 1
+			audio.sfx("servo", 0.8)
+		if vn and t > 7.0:
+			var e = ease_io(clampf((t - 7.0) / 1.2, 0, 1))
+			vn.rotation = sys.vox_base + Vector3(-e * 1.45, 0, e * 0.2)
+			if t - dt <= 8.2 and t > 8.2:
+				audio.sfx("clunk", 1.0)
+				G.shake = 0.8
+	elif t < 18.0:
+		# Hollow Hare hoří, potácí se, padá a umírá
+		var ht = t - 9.0
+		hare.visible = true
+		cam.position = Vector3(0.6, 1.5, 3.2)
+		cam.look_at(Vector3(-1.0, 1.1 - clampf((ht - 4.5) / 1.5, 0, 1) * 0.6, -1.4))
+		if ht < 4.5:
+			hare.position = Vector3(-1.1 + sin(ht * 2) * 0.25, 0, -1.2 + ht * 0.12)
+			hare.rotation = Vector3(sin(ht * 5) * 0.08, PI * 0.85 + sin(ht * 3) * 0.4, sin(ht * 4) * 0.1)
+			hare_parts.arm_L.rotation = hare_base.arm_L + Vector3(-1.6 + sin(ht * 9) * 0.8, 0, 0)
+			hare_parts.arm_R.rotation = hare_base.arm_R + Vector3(-1.8 + cos(ht * 8) * 0.8, 0, 0)
+			hare_parts.jaw.rotation = hare_base.jaw + Vector3(0.5 + sin(ht * 15) * 0.15, 0, 0)
+			hare_parts.head.rotation = hare_base.head + Vector3(-0.3 + sin(ht * 6) * 0.2, sin(ht * 4) * 0.4, 0)
+			if ht > 0.6 and ht - dt <= 0.6:
+				say("H", "Hoří to! Ne! Ne!")
+			if fmod(ht, 0.7) < dt:
+				audio.sfx("hurt", 0.5)
+		else:
+			var e = ease_io(clampf((ht - 4.5) / 1.3, 0, 1))
+			hare.rotation = Vector3(-e * PI / 2, PI * 0.85, 0)
+			hare.position.y = e * 0.3
+			if ht - dt < 5.8 and ht >= 5.8:
+				audio.sfx("clunk", 1.0)
+				audio.sfx("powerdown", 0.7)
+				G.shake = 0.9
+			hare_burnt(true, clampf((ht - 5.0) / 3.0, 0, 1))
+			if ht > 7.5:
+				sys.hare_fire.emitting = false
+	else:
+		if t - dt <= 18.0:
+			for c in sys.fire_root.get_children():
+				c.queue_free()
+			sys.fire_lights = []
+			hare.visible = false
+		_render_end7_out(t - 18.0)
+	if G.shake > 0:
+		G.shake = maxf(0, G.shake - dt)
+		cam.position += Vector3(randf_range(-1, 1), randf_range(-1, 1), 0) * G.shake * 0.1
+func _render_end7_out(t: float) -> void:
+	cam.position = Vector3(-6.0 + t * 0.05, 1.7, 21.5)
+	cam.look_at(Vector3(-8, 2.8, 9.0))
+	if sys.fire_root.get_child_count() < 8:
+		for i in 6:
+			var f = sys._fire(Vector3(2.5, 0.6, 0.4), 80)
+			f.position = Vector3(-16 + i * 5.0, 4.6, 10.4)
+			sys.fire_root.add_child(f)
+		var l = OmniLight3D.new()
+		l.light_color = Color("#ff6a1a")
+		l.light_energy = 4
+		l.omni_range = 22
+		l.position = Vector3(-6, 6, 13)
+		sys.fire_root.add_child(l)
+		sys.fire_lights.append(l)
+	for l in sys.fire_lights:
+		l.light_energy = 3.0 + randf() * 1.5

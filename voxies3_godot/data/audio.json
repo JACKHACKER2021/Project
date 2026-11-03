@@ -154,6 +154,146 @@
   "Konečně normální práce. A ne nějaký animatronik.": {
    "f": "p0.wav",
    "dur": 3.17
+  },
+  "A dneska v zákulisí poskládejte krabice. Zajíc tam musí mít místo.": {
+   "f": "k2_0.wav",
+   "dur": 3.92
+  },
+  "A vytřete podlahu, je celá od bláta. V šuplíku máte prášky.": {
+   "f": "k2_1.wav",
+   "dur": 43.07
+  },
+  "Zajíc má zase jinak hlavu. Asi ho otočili návštěvníci.": {
+   "f": "k2_2.wav",
+   "dur": 3.65
+  },
+  "Nekoukejte na něj moc dlouho. Prý se z toho lidem dělá zle.": {
+   "f": "k2_3.wav",
+   "dur": 3.43
+  },
+  "Zítra přijede muzeum. Projděte dnes všechny exponáty, ať je všechno na místě.": {
+   "f": "k2_4.wav",
+   "dur": 4.49
+  },
+  "Poslední noc. Ráno si zajíce odvezou a budete mít klid.": {
+   "f": "k2_5.wav",
+   "dur": 3.54
+  },
+  "No vida! Tak to jste ten pravý člověk na tuhle práci.": {
+   "f": "k2_6.wav",
+   "dur": 2.91
+  },
+  "Haha! Duchové. To prodáme návštěvníkům.": {
+   "f": "k2_7.wav",
+   "dur": 3.03
+  },
+  "Myslete si svoje. Je to jen oblek se zámky.": {
+   "f": "k2_8.wav",
+   "dur": 2.76
+  },
+  "Haha, a já jsem papež. Pište hlášení a nebojte se.": {
+   "f": "k2_9.wav",
+   "dur": 3.52
+  },
+  "Haha. Myslete si svoje. Zítra je poslední noc.": {
+   "f": "k2_10.wav",
+   "dur": 3.51
+  },
+  "Hlavně ať se nic nerozbije, ano? Dobrou noc.": {
+   "f": "k2_11.wav",
+   "dur": 2.89
+  },
+  "Frights and Hides. Strašidelný dům z věcí po herně Voxie's.": {
+   "f": "p2_0.wav",
+   "dur": 2.85
+  },
+  "Tam, kde jsem kdysi hlídal, je teď jen popel. A tady jsou jeho zbytky.": {
+   "f": "p2_1.wav",
+   "dur": 4.03
+  },
+  "Voxie. Pamatuju si ho, když ještě stál na pódiu.": {
+   "f": "p2_2.wav",
+   "dur": 2.96
+  },
+  "Cocoa. Viděl jsem ji tu noc hořet.": {
+   "f": "p2_3.wav",
+   "dur": 1.95
+  },
+  "Ten zajíc. Má v sobě něco. Cítím to.": {
+   "f": "p2_4.wav",
+   "dur": 2.64
+  },
+  "Tady to někde musí být. Kanystr.": {
+   "f": "p2_5.wav",
+   "dur": 1.98
+  },
+  "Shoř. Shoř i s ním.": {
+   "f": "p2_6.wav",
+   "dur": 1.11
+  },
+  "Pane Kroupo, já tu hernu znám. Hlídal jsem tam, když vyhořela.": {
+   "f": "p2_7.wav",
+   "dur": 3.52
+  },
+  "V té herně jsem viděl ducha Cocoy. Malou holku. Emu.": {
+   "f": "p2_8.wav",
+   "dur": 3.19
+  },
+  "Ten zajíc. Uvnitř je člověk. Myslím, že je to D., ten hlídač, co utekl.": {
+   "f": "p2_9.wav",
+   "dur": 4.78
+  },
+  "D. je mrtvý. Zámky ho rozdrtily, když si ten oblek oblékl. Je pořád uvnitř.": {
+   "f": "p2_10.wav",
+   "dur": 4.6
+  },
+  "Bojím se o život, pane Kroupo. Každou noc chodí blíž.": {
+   "f": "p2_11.wav",
+   "dur": 2.96
+  },
+  "Dnes to skončí. Tak či onak.": {
+   "f": "p2_12.wav",
+   "dur": 1.73
+  },
+  "Emo. Emo, kde jsi?": {
+   "f": "v2_0.wav",
+   "dur": 2.06
+  },
+  "Já jsem Vojtěch. Pomozte mi.": {
+   "f": "v2_1.wav",
+   "dur": 2.28
+  },
+  "Neubližuj mu. On za to nemůže.": {
+   "f": "v2_2.wav",
+   "dur": 48.98
+  },
+  "Já nejsem zajíc.": {
+   "f": "h2_0.wav",
+   "dur": 1.14
+  },
+  "Jmenuju se D. Pamatuješ si mě?": {
+   "f": "h2_1.wav",
+   "dur": 2.66
+  },
+  "Zámky mě rozdrtily.": {
+   "f": "h2_2.wav",
+   "dur": 51.62
+  },
+  "Jsem mrtvý. A pořád tu jsem.": {
+   "f": "h2_3.wav",
+   "dur": 1.99
+  },
+  "Hoří to! Ne! Ne!": {
+   "f": "h2_4.wav",
+   "dur": 2.19
+  },
+  "Já nejsem Vojtěch.": {
+   "f": "s2_0.wav",
+   "dur": 1.71
+  },
+  "Děkuji, žes mě nenechal jako duši v tomhle obleku.": {
+   "f": "v3_0.wav",
+   "dur": 3.58
   }
  }
 }

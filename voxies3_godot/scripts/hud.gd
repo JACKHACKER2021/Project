@@ -222,6 +222,8 @@ func _draw() -> void:
 		"menu": draw_menu(t)
 		"tour": draw_tour(t)
 		"extras": draw_extras(t)
+		"custom": draw_custom(t)
+		"end7": draw_end7(t)
 		"devmenu": draw_devmenu(t)
 		"arrive": draw_arrive(t)
 		"intro": draw_intro()
@@ -254,32 +256,33 @@ func draw_menu(t: float) -> void:
 	var un: int = game.st_get("v3_night", 1)
 	game.menu_night = mini(game.menu_night, un)
 	btn(60, 240, 400, 56, "▶ HRÁT NOC " + str(game.menu_night), "play", func(): game.start_night(game.menu_night), true, 22)
-	for i in range(1, 6):
+	for i in range(1, 8):
 		var n = i
-		btn(60 + (i - 1) * 81, 306, 74, 44, str(i) if i <= un else "🔒", "n" + str(i), func():
+		btn(60 + (i - 1) * 57.5, 306, 51, 44, str(i) if i <= un else "🔒", "n" + str(i), func():
 			game.menu_night = n
 			game.audio.sfx("click"), i <= un, 18, "#ffe46b" if i == game.menu_night else "#5dff8a")
 	btn(60, 360, 195, 48, "★ EXTRAS", "ex", game.start_extras, true, 18)
 	btn(265, 360, 195, 48, "🛠 DEV", "dev", func():
 		game.S = "devmenu"
 		game.scene_t = 0.0, true, 18, "#ffb030")
+	btn(470, 360, 230, 48, "⚙ CUSTOM NIGHT", "cust", game.start_custom, game.st_get("v3_end", false) or game.st_get("v3_night", 1) >= 7, 18, "#ffb030")
 	if game.st_get("v3_end", false):
-		txt("★ Přežil jsi všech 5 nocí.", 480, 390, 17, "#ffe46b")
-	var lines = ["🖥 Windows XP: piš hlášení (Hlášení.doc). Bez hlášení v 6:00 tě pan Kroupa vyhodí.",
+		txt("★ Frights & Hides lehlo popelem.", 720, 390, 17, "#ffe46b")
+	var lines = ["🖥 Windows XP: piš hlášení. 🚶 Ve 3., 4. a 6. noci musíš vstát a splnit úkol v budově.",
 		"📹 Kamery F&H: sleduj, kudy chodí Hollow Hare. 🔊 Dětským smíchem ho odlákáš.",
-		"🚪 Dveře vlevo a 🌀 šachta vpravo se dají zavřít – ale v kanceláři pak není čím dýchat.",
+		"🚪 Dveře a 🌀 šachta berou ⚡ energii. Tři bouchnutí zajíce = -5 %. Bez proudu jsi bez ochrany.",
 		"🧠 Sanity: pohled na zajíce tě ničí. Točí se hlava, je ti zle… až zkolabuješ.",
 		"☕ Káva z kávovaru a 💊 prášky vrátí příčetnost. Psaní hlášení tě uklidňuje."]
 	for i in lines.size():
 		txt(lines[i], 64, 450 + i * 30, 16, "#cfeed4")
-	txt("v0.1.0 · Godot", HW - 20, 700, 14, "#666666", "right")
+	txt("v0.2.0 · Godot", HW - 20, 700, 14, "#666666", "right")
 
 # ---------------------------------------------------------------- titulky
 func subs() -> void:
 	var l = game.line
 	if l == null:
 		return
-	var who = {"P": ["Ty", "#bbbbbb"], "O": ["Pan Kroupa", "#ffb060"], "H": ["???", "#7dff8a"], "X": ["", "#ffffff"]}[l.who]
+	var who = {"V": ["Broken Voxie (Vojtěch)", "#9fd0ff"], "S": ["???", "#ffffff"], "P": ["Ty", "#bbbbbb"], "O": ["Pan Kroupa", "#ffb060"], "H": ["???", "#7dff8a"], "X": ["", "#ffffff"]}[l.who]
 	var ls = wrapt(l.t, 760, 21)
 	var h = 30 + ls.size() * 28
 	var base = HH - (175 if game.S == "play" and not game.G.mon else 40)
@@ -324,12 +327,12 @@ func draw_intro() -> void:
 	rect(0, 0, HW, HH, "#000000")
 	save_()
 	alpha = clampf(minf(st, 3.2 - st) * 1.5, 0, 1)
-	var T = {1: ["Frights & Hides.", "Atrakce z věcí, které přežily požár herny Voxie's."], 2: ["Zajíc stál ráno jinde.", "Pan Kroupa tvrdí, že to jsou efekty."], 3: ["Ze zákulisí je slyšet cvakání.", "Muzeum chce zajíce koupit."], 4: ["Brigádník omdlel u zákulisí.", "Slyšel, jak zajíc mluví."], 5: ["Poslední noc.", "Ráno si zajíce odvezou."]}[G.night]
+	var T = {6: ["Zítra přijede muzeum.", "Projdi všechny exponáty."], 7: ["Poslední noc.", "Ve skladu stojí kanystr benzínu."], 8: ["Custom Night", "Zajíc %d · Shadow Voxie %d · Shadow D. %d · Broken Voxie %d" % [game.CUST.hare, game.CUST.sv, game.CUST.sd, game.CUST.vx]], 1: ["Frights & Hides.", "Atrakce z věcí, které přežily požár herny Voxie's."], 2: ["Zajíc stál ráno jinde.", "Pan Kroupa tvrdí, že to jsou efekty."], 3: ["Ze zákulisí je slyšet cvakání.", "Muzeum chce zajíce koupit."], 4: ["Brigádník omdlel u zákulisí.", "Slyšel, jak zajíc mluví."], 5: ["Zajíc má zase jinak hlavu.", "Uvnitř obleku je někdo. Víš kdo."]}[G.night]
 	txt(T[0], HW / 2, 310, 32, "#9fffb0", "center")
 	txt(T[1], HW / 2, 356, 20, "#cccccc", "center")
 	alpha = clampf(minf(st - 3.2, 6.4 - st) * 1.5, 0, 1)
 	txt("0:00", HW / 2, 330, 90, "#ffffff", "center")
-	txt("Noc " + str(G.night), HW / 2, 400, 40, "#7dff8a", "center")
+	txt("Custom Night" if G.night == 8 else "Noc " + str(G.night), HW / 2, 400, 40, "#7dff8a", "center")
 	restore_()
 	noise(0.06)
 	if st > 6.4:
@@ -361,11 +364,23 @@ func draw_play(t: float) -> void:
 		alpha = G.monA
 		draw_xp(t)
 		restore_()
-	if G.monA < 0.5:
+	if G.roam:
+		draw_roam(t)
+	elif G.monA < 0.5:
 		txt(clock_s(), HW - 24, 54, 42, "#ffffff", "right")
 		txt("Noc " + str(G.night), HW - 24, 82, 20, "#7dff8a", "right")
 		sanity_bar(24, 24)
-		txt("📄 Hlášení: " + str(int(100.0 * G.typed / game.REPORTS[G.night].length())) + " %", 24, 104, 16, "#ffffff" if not game.report_done() else "#5dff8a")
+		power_bar(24, 66)
+		if G.night < 7:
+			txt("📄 Hlášení: " + str(int(100.0 * G.typed / game.REPORTS[G.night].length())) + " %", 24, 124, 16, "#ffffff" if not game.report_done() else "#5dff8a")
+		var tl = game.sys.task_label()
+		if tl != "":
+			txt(tl + ("  ✔" if game.sys.task_done() and G.task.kind != "fire" else ""), 24, 150, 16, "#ffe46b" if not game.sys.task_done() else "#5dff8a")
+		if G.vox.beat:
+			txt("⚠ Z hlavní chodby jsou slyšet rány! VOXIE " + str(ceili(G.vox.hp)) + " %", HW / 2, 140, 20, "#ff5050" if sin(t * 8) > 0 else "#ffb0b0", "center")
+		if G.blackout:
+			txt("⚡ VÝPADEK PROUDU", HW / 2, 200, 30, "#ff4040", "center")
+		btn(HW - 210, 100, 126, 40, "🚶 VSTÁT", "stand", game.sys.stand_up, not G.kroupa and not G.blackout, 15, "#9fd0ff")
 		# ovládání dveří a šachty
 		var by = HH - 92
 		btn(24, by, 150, 64, ("🚪 OTEVŘÍT" if G.door else "🚪 ZAVŘÍT"), "door", func():
@@ -384,7 +399,7 @@ func draw_play(t: float) -> void:
 			if G.vl:
 				G.lookT = game.LOOK_VENT
 			game.audio.sfx("click"), true, 24, "#ffe46b" if G.vl else "#5dff8a")
-		btn(HW / 2 - 130, by, 260, 64, "🖥 POČÍTAČ", "pc", game.toggle_mon, not G.kroupa, 20)
+		btn(HW / 2 - 130, by, 260, 64, "🖥 POČÍTAČ", "pc", game.toggle_mon, not G.kroupa and not G.blackout, 20)
 		btn(HW / 2 - 130, by - 58, 126, 48, "💊 PRÁŠKY " + str(G.pills), "pill", game.take_pill, G.pills > 0 and G.pillT <= 0, 15, "#b0d0ff")
 		var ctext = "☕ VAŘÍ SE…" if G.brew > 0 else ("☕ KÁVA" if G.coffeeCd <= 0 else "☕ " + str(ceili(G.coffeeCd)) + " s")
 		btn(HW / 2 + 4, by - 58, 126, 48, ctext, "coffee", game.make_coffee, G.brew <= 0 and G.coffeeCd <= 0, 15, "#ffb060")
@@ -395,8 +410,66 @@ func draw_play(t: float) -> void:
 		rect(0, 0, HW, HH, Color(0.2, 0.35, 0.05, (s - 0.6) * 0.25 * (0.5 + 0.5 * sin(t * 2.3))))
 	if G.hall > 0 and randf() < 0.5:
 		noise(0.15)
-	subs()
+	if G.blackout:
+		rect(0, 0, HW, HH, Color(0, 0, 0, 0.55))
+	if G.fire:
+		rect(0, 0, HW, HH, Color(0.6, 0.15, 0.0, 0.12 + 0.05 * sin(t * 13)))
+	if G.scareFace and not G.roam:
+		draw_shadow_face(G.scareFace)
+	if not G.roam:
+		subs()
 	draw_dev_panel()
+
+func power_bar(x: float, y: float) -> void:
+	var G = game.G
+	var p: float = G.pow
+	var col = "#ffe46b" if p > 30 else "#ff6040"
+	if G.powFlash > 0 and sin(game.t_now * 30) > 0:
+		col = "#ffffff"
+	rr(x, y, 230, 22, 6, "#111111")
+	rect(x + 3, y + 3, 224 * p / 100.0, 16, col)
+	txt("⚡ ENERGIE " + str(ceili(p)) + " %", x + 240, y + 17, 15, col)
+	if G.bangs > 0:
+		txt("🚪 bouchnutí: " + str(G.bangs) + " (každé 3. = -5 %)", x, y + 108, 13, "#aaaaaa")
+
+func draw_roam(t: float) -> void:
+	var G = game.G
+	txt(clock_s(), HW - 24, 54, 36, "#ffffff", "right")
+	sanity_bar(24, 24)
+	var tl = game.sys.task_label()
+	if tl != "":
+		txt(tl, 24, 90, 18, "#ffe46b" if not game.sys.task_done() else "#5dff8a")
+	var jx = 150.0
+	var jy = HH - 150.0
+	ring(jx, jy, 80, Color(1, 1, 1, 0.25), 3)
+	if joy:
+		circle(jx + joy.dx * 60, jy + joy.dy * 60, 30, Color(0.4, 1, 0.5, 0.35))
+	else:
+		circle(jx, jy, 30, Color(1, 1, 1, 0.12))
+	var al = game.sys.act_label()
+	if al != "":
+		btn(HW - 330, HH - 190, 300, 64, al, "act", game.sys.act, true, 18, "#ffe46b")
+	if game.sys.near_chair():
+		btn(HW - 330, HH - 110, 300, 60, "🪑 SEDNOUT KE STOLU", "sit", game.sys.sit_down, true, 17)
+	if G.scareFace:
+		draw_shadow_face(G.scareFace)
+	subs()
+
+## stín se zjeví přes celou obrazovku
+func draw_shadow_face(f) -> void:
+	var a = clampf(f.t / 0.9, 0, 1)
+	rect(0, 0, HW, HH, Color(0, 0, 0, 0.85 * a))
+	var cx = HW / 2 + randf_range(-6, 6)
+	var cy = HH / 2 + randf_range(-6, 6)
+	var s = 300.0
+	rect(cx - s / 2, cy - s / 2, s, s * 0.9, Color(0.02, 0.01, 0.03, a))
+	if f.who == "vox":
+		rect(cx - s / 2 - 10, cy - s / 2 - 70, 110, 90, Color(0.02, 0.01, 0.03, a))
+		rect(cx + s / 2 - 100, cy - s / 2 - 70, 110, 90, Color(0.02, 0.01, 0.03, a))
+	for k in [-1, 1]:
+		rect(cx + k * 70 - 14, cy - 40, 28, 28, Color(1, 1, 1, a))
+	rect(cx - 80, cy + 60, 160, 16, Color(1, 1, 1, a * 0.6))
+	noise(0.3 * a)
 
 # ---------------------------------------------------------------- Windows XP
 func xp_title(x: float, y: float, w: float, title: String, icon: String) -> void:
@@ -517,9 +590,9 @@ func cam_app(wx: float, wy: float, ww: float, wh: float, t: float) -> void:
 	var my = fy
 	rect(mx, my, 344, 330, "#ffffff")
 	draw_rect(Rect2(mx, my, 344, 330), C("#7a96df"), false, 1)
-	var sc = 11.5
-	var ox = mx + 172 + 1.5 * sc
-	var oy = my + 330 - 12 * sc
+	var sc = 9.4
+	var ox = mx + 172 - 0.5 * sc
+	var oy = my + 330 - 10.8 * sc
 	for id in game.MAP.rooms:
 		var r = game.MAP.rooms[id]
 		var rx = ox + r.x0 * sc
@@ -546,11 +619,27 @@ func cam_app(wx: float, wy: float, ww: float, wh: float, t: float) -> void:
 				G.cam = id2
 				G.staticT = 0.25
 				game.audio.sfx("cam", 0.5))
-	var by = my + 344
+	var gy = my + 338
+	var ids = game.MAP.cams.keys()
+	ids.sort()
+	for i in ids.size():
+		var cid2: String = ids[i]
+		var bx = mx + (i % 5) * 69
+		var byy = gy + int(i / 5) * 40
+		rr(bx, byy, 64, 34, 4, "#0a52dd" if cid2 == G.cam else "#f4f3ee", "#003c74", 1)
+		txt("CAM " + cid2, bx + 32, byy + 22, 12, "#ffffff" if cid2 == G.cam else "#000000", "center")
+		add_btn(bx, byy, 64, 34, "cb" + cid2, func():
+			if G.cam != cid2:
+				G.cam = cid2
+				G.staticT = 0.25
+				game.audio.sfx("cam", 0.5))
+	var by = gy + 86
 	xp_btn(mx, by, 344, 34, "🔊 Pustit dětský smích" + ("" if G.lureCd <= 0 else " (" + str(ceili(G.lureCd)) + " s)"), "lure", game.lure, G.lureCd <= 0 and G.cam != "09")
-	txt("Smích přiláká zajíce do místnosti na kameře.", mx, by + 54, 12, "#333333")
+	txt("Smích přiláká zajíce do místnosti na kameře.", mx, by + 52, 12, "#333333")
 	if game.hare_on_cam():
-		txt("⚠ Nedívej se na něj dlouho!", mx, by + 80, 15, "#c00000")
+		txt("⚠ Dívá se do kamery. Nedívej se dlouho!", mx, by + 74, 14, "#c00000")
+	if G.vox.beat and G.cam == "04":
+		txt("⚠ Mlátí do Voxieho! Odlákej ho smíchem jinam.", mx, by + 94, 13, "#c00000")
 
 func word_app(wx: float, wy: float, ww: float, wh: float, t: float) -> void:
 	var G = game.G
@@ -618,10 +707,10 @@ func draw_extras(t: float) -> void:
 	wrap_txt(E[2], 40, 210, 440, 17, "#dddddd", 1.5)
 	for i in game.EXTRAS.size():
 		var k = i
-		btn(40 + i * 150, 560, 140, 48, game.EXTRAS[i][0].split(" ")[-1], "e" + str(i), func():
+		btn(40 + (i % 4) * 112, 540 + int(i / 4) * 52, 106, 46, ["HARE", "KROUPA", "BROKEN V.", "SHADOW V.", "SHADOW D.", "SHOŘELÝ", "COCOA"][i], "e" + str(i), func():
 			game.ex_i = k
 			game.audio.sfx("click"), true, 15, "#ffe46b" if i == game.ex_i else "#5dff8a")
-	btn(40, 630, 200, 48, "◀ MENU", "back", game.to_menu, true, 16)
+	btn(40, 652, 200, 48, "◀ MENU", "back", game.to_menu, true, 16)
 
 func dev_toggle(x: float, y: float, label: String, key: String) -> void:
 	var on: bool = game.DEV[key]
@@ -684,21 +773,68 @@ func draw_collapse(t: float) -> void:
 		game.S = "dead"
 		game.scene_t = 0.0
 
+func draw_custom(t: float) -> void:
+	rect(0, 0, HW, HH, Color(0, 0.04, 0.01, 0.88))
+	txt("⚙ CUSTOM NIGHT", 60, 80, 40, "#ffb030")
+	var rows = [["hare", "Hollow Hare"], ["sv", "Shadow Voxie"], ["sd", "Shadow D."], ["vx", "Broken Voxie (duše Vojtěcha)"]]
+	for i in rows.size():
+		var k: String = rows[i][0]
+		var y = 140 + i * 80
+		txt(rows[i][1], 60, y + 34, 22, "#ffffff")
+		btn(480, y, 60, 50, "−", "m" + k, func():
+			game.CUST[k] = maxi(0, game.CUST[k] - 1)
+			game.audio.sfx("click"), true, 24)
+		txt(str(game.CUST[k]), 590, y + 36, 30, "#7dff8a", "center")
+		btn(640, y, 60, 50, "+", "p" + k, func():
+			game.CUST[k] = mini(20, game.CUST[k] + 1)
+			game.audio.sfx("click"), true, 24)
+	btn(60, 480, 320, 60, "▶ SPUSTIT", "cgo", func(): game.start_night(8), true, 22)
+	btn(60, 630, 200, 48, "◀ MENU", "back", game.to_menu, true, 16)
+
+func draw_end7(t: float) -> void:
+	var st0: float = game.scene_t
+	vignette(0.8)
+	rect(0, 0, HW, HH, Color(0.5, 0.12, 0.0, 0.08 + 0.04 * sin(t * 11)))
+	if st0 < 1.5:
+		rect(0, 0, HW, HH, Color(0, 0, 0, 1 - st0 / 1.5))
+	for f in [8.6, 17.6]:
+		if absf(st0 - f - 0.4) < 0.4:
+			rect(0, 0, HW, HH, Color(0, 0, 0, 1 - absf(st0 - f - 0.4) / 0.4))
+	if st0 < 18.0:
+		subs()
+		btn(HW - 220, 24, 196, 44, "PŘESKOČIT ▶", "e7skip", func(): game.scene_t = 41.5, true, 16)
+		return
+	var st = st0 - 18.0
+	var L = [[2.0, "6:00 AM. Frights & Hides hoří."], [6.0, "Strop se propadl. Zbyly jen sutiny."], [10.0, "V popelu našli hasiči ohořelou kostru springlocku. A uvnitř… člověka."], [15.0, "Pan Kroupa tvrdil, že to byly jen efekty."], [19.0, "D. konečně odpočívá."]]
+	var y = 120.0
+	for l in L:
+		if st > l[0]:
+			save_()
+			alpha = clampf(st - l[0], 0, 1)
+			txt(l[1], HW / 2, y, 24, "#ffd0a0", "center")
+			restore_()
+		y += 46
+	if st > 23:
+		neon("KONEC", HW / 2, 480, 70, "#ff5020", 20)
+		btn(HW / 2 - 160, 560, 320, 56, "MENU", "menu", game.to_menu, true, 20)
+	else:
+		btn(HW - 220, 24, 196, 44, "PŘESKOČIT ▶", "e7skip", func(): game.scene_t = 41.5, true, 16)
+
 func draw_end(kind: String) -> void:
 	var G = game.G
 	rect(0, 0, HW, HH, "#000000")
 	noise(0.05)
 	if kind == "win":
 		txt("6:00 AM", HW / 2, 280, 96, "#ffffff", "center")
-		txt("Přežil jsi noc " + str(G.night) + ". Hlášení odesláno panu Kroupovi.", HW / 2, 340, 22, "#7dff8a", "center")
-		if G.night >= 5:
-			txt("Ráno si pro zajíce přijelo muzeum. Bedna byla prázdná.", HW / 2, 390, 20, "#ff8080", "center")
+		txt(("Přežil jsi noc " + str(G.night) + ". Hlášení odesláno panu Kroupovi.") if G.night < 8 else "Přežil jsi.", HW / 2, 340, 22, "#7dff8a", "center")
+		if G.night >= 8:
+			txt("Custom Night dokončena.", HW / 2, 390, 20, "#ffe46b", "center")
 			btn(HW / 2 - 160, 460, 320, 56, "MENU", "menu", game.to_menu, true, 20)
 		else:
 			btn(HW / 2 - 160, 440, 320, 56, "▶ NOC " + str(G.night + 1), "next", func(): game.start_night(G.night + 1), true, 22)
 			btn(HW / 2 - 160, 508, 320, 48, "MENU", "menu", game.to_menu, true, 18)
 	else:
-		var T = {"dead": ["KONEC", "Hollow Hare tě srazil na zem a umlátil." if G.dead_by == "hare" else "Zkolaboval jsi. Mysl to nevydržela."], "fired": ["6:00 AM", "Hlášení není hotové. Pan Kroupa: „Bez hlášení žádná výplata. Jste propuštěn.“"]}[kind]
+		var T = {"dead": ["KONEC", {"hare": "Hollow Hare tě srazil na zem a umlátil.", "sanity": "Zkolaboval jsi. Mysl to nevydržela.", "voxie": "Hollow Hare roztloukl Broken Voxieho na kusy. Duše pana Vojtěcha zmizela… a pak přišel pro tebe."}.get(G.dead_by, "Konec.")], "fired": ["6:00 AM", "Nesplnil jsi práci (hlášení nebo úkol). Pan Kroupa: „Bez toho žádná výplata. Jste propuštěn.“"]}[kind]
 		txt(T[0], HW / 2, 290, 90, "#ff3030" if kind == "dead" else "#ffb060", "center")
 		wrap_txt(T[1], HW / 2 - 380, 350, 760, 21, "#dddddd")
 		btn(HW / 2 - 160, 450, 320, 56, "↻ ZKUSIT ZNOVU", "retry", func(): game.start_night(G.night), true, 20)
@@ -741,14 +877,36 @@ func _down(id: int, p: Vector2) -> void:
 	if game.S == "intro" and game.scene_t > 1.0:
 		game.scene_t = maxf(game.scene_t, 6.4)
 		return
+	if game.S == "play" and G.roam:
+		if p.x < HW * 0.45:
+			joy = {"id": id, "ox": p.x, "oy": p.y, "dx": 0.0, "dy": 0.0}
+		else:
+			drag = {"id": id, "x": p.x, "y": p.y, "yaw": G.rp.yaw, "pitch": G.rp.pitch, "roam": true}
+		return
 	if game.S == "play" and not G.mon:
 		drag = {"id": id, "x": p.x, "look": G.look}
 func _move(id: int, p: Vector2) -> void:
 	var G = game.G
+	if joy and joy.id == id:
+		var dx = (p.x - joy.ox) / 70
+		var dy = (p.y - joy.oy) / 70
+		var m = Vector2(dx, dy).length()
+		if m > 1:
+			dx /= m
+			dy /= m
+		joy.dx = dx
+		joy.dy = dy
+		return
+	if drag and drag.id == id and G and drag.get("roam"):
+		G.rp.yaw = drag.yaw - (p.x - drag.x) / HW * 4
+		G.rp.pitch = clampf(drag.pitch - (p.y - drag.y) / HH * 2.5, -0.9, 0.7)
+		return
 	if drag and drag.id == id and G:
 		G.lookT = 0.0
 		G.look = clampf(drag.look - (p.x - drag.x) / HW * 2.8, game.LOOK_VENT, game.LOOK_DOOR)
 func _up(id: int) -> void:
+	if joy and joy.id == id:
+		joy = null
 	if drag and drag.id == id:
 		drag = null
 func _key(e: InputEventKey) -> void:
@@ -767,10 +925,14 @@ func _key(e: InputEventKey) -> void:
 	if game.S != "play":
 		return
 	# při otevřeném Wordu každá klávesa píše hlášení
+	if G.roam:
+		if k == "f":
+			game.sys.act()
+		return
 	if G.mon and G.app == "word" and k != " ":
 		game.type_chars(2)
 		return
-	if k == " ":
+	if k == " " and not G.blackout:
 		game.toggle_mon()
 	elif k == "q":
 		G.door = not G.door
