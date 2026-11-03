@@ -3,9 +3,9 @@
 Port Remasteru 1. dílu z webové verze (three.js) do Godotu 4.3.
 
 ## Co je hotové
-- Mapa herny (`models/building.glb`), kancelář s rozhlížením, dvoje dveře (rolety) a světla do chodeb.
+- Budova Remasteru (`models/remaster_world.glb`), kancelář s rozhlížením, dvoje dveře (rolety) a světla do chodeb.
 - 10 kamer se šumem a scanlines, proud a spotřeba, výpadek proudu.
-- Voxie (levé dveře, stavěný v `scripts/voxie.gd`) a Cocoa (pravé dveře, `models/cocoa.glb`) se stejnou AI a obtížností nocí jako originál.
+- Voxie (levé dveře, `models/voxie.glb`) a Cocoa (pravé dveře, `models/cocoa.glb`) se stejnou AI a obtížností nocí jako originál.
 - Noci 1–5, vlastní noc (0–20), lekačka, smrt, výhra v 6:00, ukládání postupu.
 - Hudba v menu (`audio/menu.mp3`), zvuky v `sfx/`.
 
