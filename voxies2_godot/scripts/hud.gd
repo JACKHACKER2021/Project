@@ -478,7 +478,7 @@ var tape_player = null
 const TAPES_D := [
 	["12. 5. 1997", "Páska jedna. Dvanáctého května devadesát sedm. Tady D., noční směna. Ve skladu je pod plachtou starý oblek. Říkají mu Glitch. Má pružinové zámky. Pan Vojtěch tvrdí, že je bezpečný."],
 	["20. 5. 1997", "Páska dvě. Našel jsem v kanceláři složku. První Voxie. Deaktivován v roce osmdesát. Prý se v noci hýbal sám, i když byl vypnutý. Proto ho rozebrali. Hlava chybí dodnes."],
-	["2. 6. 1997", "Páska tři. Hollow Bunny. Dutý králík. Kostým bez kostry, do kterého se leze. Žádná elektronika, jen látka a tma uvnitř. Pan Vojtěch ho chce na oslavu čtrnáctého června. Pro Emu."],
+	["2. 6. 1997", "Páska tři. Ve skladu stojí žlutý králík. Hollow Bunny. Springlock jako Voxie. Odstavili ho v roce osmdesát, zámky povolovaly samy od sebe. Pan Vojtěch ho chce na oslavu čtrnáctého června vyndat. Pro Emu."],
 	["9. 6. 1997", "Páska čtyři. Springlocky cvakají, když je vlhko. Říkal jsem to panu Vojtěchovi. Nechce poslouchat. Chce na oslavě vystupovat sám, v obleku Voxieho."],
 	["13. 6. 1997", "Páska pět. Třináctého června, večer před oslavou. Klíč od kanceláře mám já. Kdyby se něco stalo… nevím, jestli budu mít odvahu odemknout."],
 ]
@@ -489,8 +489,8 @@ const ARTICLES := [
 	{"q": [1], "t": "Král: Žhář se vrací na místo činu", "d": "21. 7. 2023 · Regionální zprávy", "b": "„Hlídač je pořád někde v okolí. Svědci ho viděli u vyhořelé herny v noci, s baterkou,“ řekl náčelník Král. Policie vypsala odměnu za informace. Bývalý noční hlídač z roku 1997, známý jen jako D., policii řekl, že nového hlídače „nikdy neviděl“."},
 	{"q": [2, 0], "t": "1997: Majitel herny po oslavě zmizel", "d": "16. 6. 1997 · Archiv", "b": "Majitel Voxie's Fun Factory pan Vojtěch se nevrátil domů po narozeninové oslavě 14. června. Policie našla jen jeho auto na parkovišti. Herna byla uzavřena, animatronici zůstali uvnitř. Klíč od kanceláře se nenašel."},
 	{"q": [3, 2], "t": "Pátrání po devítileté Emě ukončeno", "d": "30. 6. 1997 · Archiv", "b": "Policie ukončila pátrání po devítileté Emě, která se ztratila během oslavy v herně Voxie's. Svědci tvrdí, že ji naposledy viděli u animatronické králice Cocoy. Otec dívky, majitel herny, je rovněž nezvěstný."},
-	{"q": [4, 5], "t": "Voxie's Fun Factory: historie (1980–2023)", "d": "Encyklopedie herních sálů", "b": "1980 – první Voxie, robotický medvěd, byl po stížnostech deaktivován (prý se v noci hýbal sám). 1993 – herna znovu otevřena, Voxie jako kostým s pružinovými zámky (springlock); prototyp s přezdívkou Glitch skončil ve skladu. 1997 – přibyla Cocoa a dutý kostým Hollow Bunny. 14. 6. 1997 – oslava, zmizení majitele. 2023 – požár."},
-	{"q": [5, 4], "t": "Hollow Bunny: kostým, který nikdo nechtěl nosit", "d": "Fórum fanoušků · příspěvek uživatele ema_fan", "b": "Hollow Bunny byl dutý králičí kostým bez kostry. Měl se na oslavě v roce 1997 objevit poprvé. Na fotkách z té noci ale stojí v rohu herny sám – a nikdo si nepamatuje, kdo v něm byl."},
+	{"q": [4, 5], "t": "Voxie's Fun Factory: historie (1980–2023)", "d": "Encyklopedie herních sálů", "b": "1980 – první Voxie a žlutý králík Hollow Bunny, oba springlock animatronici, byli odstaveni kvůli nestabilním pružinovým zámkům (Voxie se prý v noci hýbal sám). 1993 – herna znovu otevřena, Voxie jako kostým s pružinovými zámky (springlock); prototyp s přezdívkou Glitch skončil ve skladu. 1997 – přibyla Cocoa a dutý kostým Hollow Bunny. 14. 6. 1997 – oslava, zmizení majitele. 2023 – požár."},
+	{"q": [5, 4], "t": "Hollow Bunny: žlutý springlock z roku 1980", "d": "Fórum fanoušků · příspěvek uživatele ema_fan", "b": "Hollow Bunny byl žlutý springlock animatronik, stejný typ jako Voxie. V roce 1980 ho odstavili, protože pružinové zámky povolovaly samy od sebe. Pak roky stál ve skladu. Na fotkách z oslavy v roce 1997 ale stojí v rohu herny – a nikdo si nepamatuje, kdo ho tam přenesl."},
 ]
 const FIRE_LOG := [[0.0, "6:00", "Hlídač odchází z budovy.", ""], [2.5, "6:02", "Sklad: zážeh. Kanystr od benzínu.", "4"], [5.0, "6:04", "Oheň se šíří do bludiště.", "3"], [7.5, "6:06", "Herna s automaty v plamenech.", "1B"], [10.0, "6:08", "Pódium hoří. Voxie stojí uprostřed.", "1A"], [12.0, "6:09", "Pizzerie a výdej lístků.", "2"], [14.0, "6:10", "Chodby a toalety.", "8"], [16.0, "6:11", "Propadá se strop nad hernou.", "5"], [18.0, "6:12", "Hasiči na místě. Kamera 7 vypadla.", "7"]]
 const FIRE_ROOMS := {"4": 2.5, "9": 3.5, "3": 5.0, "1B": 7.5, "1A": 10.0, "2": 12.0, "6": 13.0, "8": 14.0, "5": 15.0, "TY": 16.5, "7": 18.0}
@@ -574,7 +574,7 @@ func tapes_app(x: float, y: float, w: float, h: float) -> void:
 				_play_tape(ti), true, 16)
 		txt("PASKA_" + str(i + 1) + ".WAV   " + TAPES_D[i][0], x + 76, yy + 23, 15, "#000080" if pc.tape == i else "#000000")
 	if pc.tape >= 0:
-		var len_ = 11.5
+		var len_ = 13.0 if pc.tape == 2 else 11.5
 		pc.tapeT += game.frame_dt
 		var k = clampf(pc.tapeT / len_, 0, 1)
 		bevel(x + 20, y + 310, w - 40, 22, true)
@@ -764,7 +764,7 @@ func draw_inventory(t: float) -> void:
 		txt(info[1], x + 105, y + 86, 14, "#ffd8ff", "center")
 		var iid = id
 		btn(x + 30, y + 100, 150, 36, "🔍 PROHLÉDNOUT", "insp" + id, func():
-			inspect = {"id": iid, "rx": 0.2, "ry": 0.0}
+			inspect = {"id": iid, "rx": 0.1, "ry": 0.0}
 			game.audio.sfx("click"), true, 14, "#c0a0ff")
 	btn(HW / 2 - 100, 530, 200, 40, "ZAVŘÍT", "invx", func(): inv_open = false, true, 16, "#c0a0ff")
 
@@ -776,13 +776,7 @@ func draw_inspect(t: float) -> void:
 	rr(HW - 470, 150, 440, 380, 14, Color(0.06, 0.02, 0.08, 0.92), "#c0a0ff", 2)
 	txt(info[1], HW - 250, 196, 24, "#c0a0ff", "center")
 	wrap_txt(info[2], HW - 450, 240, 400, 17, "#ffffff")
-	if id.begins_with("photo"):
-		var n: Node3D = game.photo_nodes[int(id.right(1))]
-		draw_texture_rect(n.get_meta("tex"), Rect2(140, 140, 320, 400), false)
-	elif id == "draw":
-		draw_texture_rect(load("res://models/kresba.png"), Rect2(80, 200, 500, 330), false)
-	else:
-		txt("táhni prstem pro otáčení", 330, 600, 16, "#aaaaaa", "center")
+	txt("◀ táhni prstem pro otáčení ▶", 330, 620, 16, "#cccccc", "center")
 	btn(HW - 350, 460, 200, 48, "← ZPĚT", "inspx", func(): inspect = null, true, 16, "#c0a0ff")
 
 # ---------------------------------------------------------------- menu a obrazovky
@@ -823,7 +817,7 @@ func draw_menu(t: float) -> void:
 	var lines = ["Žádné dveře ani proud. Jen počítač na baterii.", "🔦 Voxie v díře ve zdi: drž baterku, dokud necouvne.", "🖥 Kamery ukazují budovu, ale signál vypadává – kontroluj všechny.", "🔊 Zvukem ho odlákáš do vzdálenější místnosti.", "👁 Stínová Cocoa: osviť ji, jinak vysaje baterii.", "🚶 Odejdi od stolu (díra přes toalety). 🎒 Inventář, ▲ skok, 📷 fotky pro Voxieho."]
 	for i in lines.size():
 		txt(lines[i], 64, 476 + i * 28, 16, "#ffcfcf")
-	txt("v2.0.0 · Godot", HW - 20, 700, 14, "#666666", "right")
+	txt("v2.5.0 · Godot", HW - 20, 700, 14, "#666666", "right")
 
 func draw_intro() -> void:
 	var G = game.G
@@ -971,7 +965,7 @@ func draw_dev_menu(t: float) -> void:
 	rect(0, 0, HW, HH, Color(0, 0.03, 0.016, 0.9))
 	var cx = HW / 2
 	txt("🛠 DEV NÁSTROJE", cx, 110, 44, "#5dff8a", "center")
-	txt("Night at Voxie's 2 v2.0.0 (Godot) · pro tvůrce a testování", cx, 142, 16, "#9fffb8", "center")
+	txt("Night at Voxie's 2 v2.5.0 (Godot) · pro tvůrce a testování", cx, 142, 16, "#9fffb8", "center")
 	btn(cx - 300, 190, 600, 54, "DEV PANEL VE HŘE: " + ("ZAP" if DEV.on else "VYP"), "dvon", func():
 		DEV.on = not DEV.on
 		game.st_set("v2_dev", DEV.on), true, 20, "#5dff8a")
@@ -1011,8 +1005,8 @@ func draw_extras(t: float) -> void:
 		txt(b.sub, x + 245, 190, 15, "#cccccc", "center")
 		wrap_txt(b.text, x + 20, 230, 450, 17, "#ffffff")
 		var anims = [["IDLE", "Idle"], ["POHYB", "Walk"], ["KULHÁNÍ", "Limp"]] if EX.idx == 0 else [["IDLE", "Idle"], ["POHYB", "Float"], ["ZMIZENÍ", "Vanish"]]
-		txt("Animace:", x + 20, 432, 15, "#cccccc")
-		for i in 3:
+		txt("Animace:" if EX.idx < 2 else "", x + 20, 432, 15, "#cccccc")
+		for i in (3 if EX.idx < 2 else 0):
 			var nm: String = anims[i][1]
 			var cur: String = EX.vAnim if EX.idx == 0 else EX.cAnim
 			btn(x + 20 + i * 156, 442, 146, 46, anims[i][0], "exa" + str(i), func():
@@ -1025,8 +1019,8 @@ func draw_extras(t: float) -> void:
 		btn(x + 20, 500, 220, 56, "😱 JUMPSCARE" if EX.idx == 0 else "😱 LUNGE", "exj", func():
 			EX.scare = 0.0
 			game.scare_sound("V" if EX.idx == 0 else "C"), EX.scare < 0, 18)
-		btn(x + 250, 500, 220, 56, "COCOA ▶" if EX.idx == 0 else "◀ VOXIE", "exn", func():
-			EX.idx = 1 - EX.idx
+		btn(x + 250, 500, 220, 56, ["COCOA ▶", "HOLLOW BUNNY ▶", "◀ VOXIE"][EX.idx], "exn", func():
+			EX.idx = (EX.idx + 1) % 3
 			EX.scare = -1.0, true, 18)
 		if EX.scare >= 0 and EX.scare < 0.05:
 			rect(0, 0, HW, HH, "#ffffff")
@@ -1518,8 +1512,8 @@ func _move(id: int, p: Vector2) -> void:
 		joy.dy = dy
 	if drag and drag.id == id:
 		if drag.get("insp"):
-			game.egg_head.rotation.y += (p.x - drag.x) / HW * 6
-			game.egg_head.rotation.x += (p.y - drag.y) / HH * 4
+			inspect.ry = inspect.get("ry", 0.0) + (p.x - drag.x) / HW * 6
+			inspect.rx = clampf(inspect.get("rx", 0.1) + (p.y - drag.y) / HH * 4, -1.4, 1.4)
 			drag.x = p.x
 			drag.y = p.y
 		elif drag.get("roam"):

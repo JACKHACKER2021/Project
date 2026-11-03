@@ -16,6 +16,7 @@ var CAMS: Dictionary
 var ROUTE_L := ["1A", "1B", "2", "5", "8", "HOLE"]
 var ROUTE_R := ["1A", "1B", "3", "4", "HOLE"]
 var ROUTE: Array = ROUTE_L
+var baked := false
 var EYE := Vector3.ZERO
 var MON := Vector3.ZERO
 
@@ -67,6 +68,9 @@ var item_light: OmniLight3D
 var post: ColorRect
 
 # postavy
+var HB: Node3D
+var HB_show: Node3D
+var coc_light: OmniLight3D
 var VOX: Node3D
 var vox_model: Node3D
 var vox_anim: AnimationPlayer
@@ -103,6 +107,14 @@ func _ready() -> void:
 	BZ = D.BZ
 	PROPS = D.PROPS
 	CAMS = D.CAMS
+	# finále: kamera jde dírou přes toalety (boční vchody jsou zasypané), cestou Hollow Bunny
+	D.FIN_CAM[0] = [0, [0, 1.6, -0.9], [0, 1.5, -6]]
+	D.FIN_CAM[1] = [3, [0, 1.6, -4.2], [0, 1.5, -10]]
+	D.FIN_CAM[2] = [8, [0, 1.6, -11.4], [-3, 1.4, -15]]
+	D.FIN_SUB.append([36.4, "", "V rohu pizzerie stál žlutý králík. Hollow Bunny."])
+	D.FIN_SUB.append([38.6, "", "Springlock z roku osmdesát, odstavený kvůli zámkům… a přesto za tebou otočil hlavu."])
+	D.FIN_SUB.sort_custom(func(a, b): return a[0] < b[0])
+	D.BIOS.append({"name": "HOLLOW BUNNY", "sub": "springlock animatronik · 1980 · kostičkový remodel (nepoškozený)", "col": "#ffe46b", "text": "Žlutý králík z kostiček. Springlock animatronik stejně jako Voxie: chodil sám, ale dal se i obléknout jako kostým. V roce 1980 ho odstavili kvůli nestabilním pružinovým zámkům a zavřeli do skladu. Pan Vojtěch ho chtěl v roce 1997 vyndat na Eminu oslavu. Na fotkách z té noci stojí sám v rohu herny. Po požáru ho hasiči nenašli."})
 	_load_store()
 	menu_night = st_get("v2_night", 1)
 	CUST = st_get("v2r_cust", CUST)
@@ -131,6 +143,17 @@ func _ready() -> void:
 	S = "menu"
 	scene_t = 0.0
 	audio.start_menu_song()
+	if "--makebunny" in OS.get_cmdline_user_args():
+		var doc = GLTFDocument.new()
+		var st = GLTFState.new()
+		HB_show.visible = true
+		doc.append_from_scene(HB_show, st)
+		print("BUNNY ", doc.write_to_filesystem(st, "res://models/hollow_bunny_unwithered.glb"))
+		get_tree().quit()
+		return
+	if "--makemap" in OS.get_cmdline_user_args():
+		make_map()
+		return
 	if "--shots" in OS.get_cmdline_user_args():
 		preload("res://scripts/shots.gd").run(self)
 
@@ -304,7 +327,9 @@ func _build() -> void:
 	we.environment = env
 	add_child(we)
 	# vyhořelá budova (export z Remasteru, včetně suti, stropu, kabelů a kouře)
-	building = load("res://models/building.glb").instantiate()
+	# celá zbořená mapa jako jeden GLB (vyrobený nástrojem --makemap z exportu Remasteru + úpravy kanceláře)
+	baked = ResourceLoader.exists("res://models/broken_map.glb") and not ("--makemap" in OS.get_cmdline_user_args())
+	building = load("res://models/broken_map.glb" if baked else "res://models/building.glb").instantiate()
 	add_child(building)
 	for mi in building.find_children("StageGlow*", "MeshInstance3D", true, false):
 		var m = (mi as MeshInstance3D).get_active_material(0)
@@ -312,7 +337,8 @@ func _build() -> void:
 			var own: StandardMaterial3D = m.duplicate()
 			(mi as MeshInstance3D).material_override = own
 			stage_mats.append([own, own.albedo_color * 18.0, randf() * 9])
-	_cut_office_walls()
+	if not baked:
+		_cut_office_walls()
 	for L in D.lights:
 		var l: Light3D
 		if L.type == "spot":
@@ -413,6 +439,14 @@ func _build() -> void:
 		if absf(L.p[0] - 1.7) < 0.01 and absf(L.p[2] + 1.8) < 0.01:
 			home_pl = l
 	_build_chars()
+	HB = preload("res://scripts/hollow.gd").make(true)
+	add_child(HB)
+	HB.visible = false
+	HB_show = preload("res://scripts/hollow.gd").make(false)
+	add_child(HB_show)
+	HB_show.visible = false
+	coc_light = _omni("#b080ff", 0, 4, Vector3(0, 1.4, 0.6), COC)
+	_omni("#ffe8a0", 2.5, 3.5, Vector3(0, 2.2, 1.2), HB)
 	_build_items()
 
 ## díra ve zdi kanceláře do toalet; boční vchody kanceláře jsou zasypané (suť je z exportu)
@@ -440,6 +474,11 @@ func _cut_office_walls() -> void:
 		_box(Vector3(0.3, 2.2, 2.2), _mat("#141210", 1.0), Vector3(x, 1.1, T.cz), building)
 
 func _build_office() -> void:
+	if not baked:
+		_office_shell()
+	_office_screen()
+
+func _office_shell() -> void:
 	# starý monitor z 1. dílu na stole nahradí nový (ten se zapínací animací)
 	for mi in building.find_children("*", "MeshInstance3D", true, false):
 		var aa: AABB = (mi as MeshInstance3D).global_transform * (mi as MeshInstance3D).get_aabb()
@@ -447,10 +486,12 @@ func _build_office() -> void:
 		if absf(cc.x) < 0.3 and cc.y > 0.95 and cc.y < 1.3 and absf(cc.z - (EYE.z - 1.5)) < 0.3 and aa.size.x < 0.9:
 			(mi as MeshInstance3D).visible = false
 	var shell = _mat("#d8d0b8", 0.6)
-	_box(Vector3(0.72, 0.56, 0.5), shell, MON + Vector3(0, -0.01, -0.3))
-	_box(Vector3(0.5, 0.42, 0.25), shell, MON + Vector3(0, 0.0, -0.62))
-	_box(Vector3(0.3, 0.05, 0.28), shell, MON + Vector3(0, -0.29, -0.3))
-	_box(Vector3(0.05, 0.03, 0.01), _mat("#40ff60"), MON + Vector3(0.27, -0.24, -0.04))
+	_box(Vector3(0.72, 0.56, 0.5), shell, MON + Vector3(0, -0.01, -0.3), building)
+	_box(Vector3(0.5, 0.42, 0.25), shell, MON + Vector3(0, 0.0, -0.62), building)
+	_box(Vector3(0.3, 0.05, 0.28), shell, MON + Vector3(0, -0.29, -0.3), building)
+	_box(Vector3(0.05, 0.03, 0.01), _mat("#40ff60"), MON + Vector3(0.27, -0.24, -0.04), building)
+
+func _office_screen() -> void:
 	var sv = SubViewport.new()
 	sv.size = Vector2i(256, 192)
 	sv.render_target_update_mode = SubViewport.UPDATE_ALWAYS
@@ -1968,16 +2009,11 @@ func render(t: float, dt: float) -> void:
 		torch.position.y = -0.24 + sin(G.rp.bob) * 0.01
 	if egg_head.get_parent() == cam:
 		egg_head.visible = roaming and (G.peace or G.egg != null)
-		# prohlídka Cocoiny hlavy z inventáře
-		if hud.inspect != null and hud.inspect.id == "head":
-			egg_head.visible = true
-			egg_head.position = Vector3(-0.18, 0.0, -0.55)
-			egg_head.scale = Vector3.ONE * 1.6
-			insp_light.light_energy = 2.5
-		elif G and G.egg == null:
-			insp_light.light_energy = 0.0
+		if G and G.egg == null and hud.inspect == null:
 			egg_head.scale = Vector3.ONE
 			egg_head.position = Vector3(-0.22, -0.3, -0.5)
+			egg_head.rotation = Vector3(0.2, -0.4, 0)
+	_render_inspect()
 	if S == "scare":
 		var k = ease_io(clampf(scene_t / 0.15, 0, 1))
 		var j = 1 - clampf((scene_t - 0.8) / 0.6, 0, 1)
@@ -2024,8 +2060,15 @@ func render(t: float, dt: float) -> void:
 		flash.light_energy = 0
 		var isV = hud.EX.idx == 0
 		VOX.visible = isV
-		COC.visible = not isV
-		var ch: Node3D = VOX if isV else COC
+		COC.visible = hud.EX.idx == 1
+		HB_show.visible = hud.EX.idx == 2
+		if hud.EX.idx == 2:
+			var kb = ease_io(clampf(hud.EX.scare / 0.12, 0, 1)) if hud.EX.scare >= 0 else 0.0
+			HB_show.position = Vector3(0, 0.3 - 0.3 * kb, 40 + 2.4 * kb)
+			HB_show.scale = Vector3.ONE * 0.82
+			HB_show.rotation = Vector3(0, 0.0 if hud.EX.scare >= 0 else hud.EX.rot, 0)
+			HB_show.get_node("head").rotation = Vector3(0.12 + sin(t * 0.8) * 0.05, sin(t * 0.5) * 0.3, 0.06 + sin(t * 0.7) * 0.08)
+		var ch: Node3D = VOX if isV else (COC if hud.EX.idx == 1 else HB_show)
 		var k = ease_io(clampf(hud.EX.scare / 0.12, 0, 1)) if hud.EX.scare >= 0 else 0.0
 		ch.position = Vector3(0, 0.3 - 0.3 * k, 40 + 2.4 * k)
 		ch.rotation = Vector3(0, 0.0 if hud.EX.scare >= 0 else hud.EX.rot, 0)
@@ -2037,6 +2080,10 @@ func render(t: float, dt: float) -> void:
 		if hud.EX.scare >= 0:
 			red_light.light_energy = 6 * k * LK
 			red_light.position = Vector3(0, 0.8, 43.6)
+	else:
+		HB_show.visible = false
+	if S == "extras" and hud.EX.page == "chars":
+		pass
 	elif S in ["menu", "custom", "extras", "devmenu", "loading"]:
 		VOX.visible = true
 		COC.visible = false
@@ -2055,7 +2102,7 @@ func render(t: float, dt: float) -> void:
 		home_cam(scene_t)
 		VOX.visible = false
 	if S == "finale":
-		finale_scene(t)
+		finale_scene(scene_t)
 	if COC.visible:
 		coc_clip(t, dt)
 	if G and G.cut and S == "play":
@@ -2084,6 +2131,47 @@ func render(t: float, dt: float) -> void:
 		feed_light.light_energy = 0.0
 		feed_vp.render_target_update_mode = SubViewport.UPDATE_DISABLED
 	hud.queue_redraw()
+
+## prohlídka předmětu z inventáře: předmět ve 3D před kamerou, otáčí se tažením prstu
+var insp_prev = null
+func _render_inspect() -> void:
+	var I = hud.inspect
+	if insp_prev != null and (I == null or I.id != insp_prev):
+		var old = _insp_node(insp_prev)
+		if old:
+			old.scale = Vector3.ONE * (1.2 if insp_prev == "can" else 1.0)
+			old.visible = false
+		insp_light.light_energy = 0.0
+		if insp_prev == "head":
+			egg_head.position = Vector3(-0.22, -0.3, -0.5)
+			egg_head.rotation = Vector3(0.2, -0.4, 0)
+			egg_head.scale = Vector3.ONE
+	insp_prev = I.id if I != null else null
+	if I == null:
+		return
+	var n = _insp_node(I.id)
+	if n == null:
+		return
+	n.visible = true
+	insp_light.light_energy = 2.5
+	var dist = 0.55
+	var sc = {"head": 1.6, "can": 0.7, "draw": 1.0}.get(I.id, 1.4)
+	var rot = Basis.from_euler(Vector3(I.get("rx", 0.1), I.get("ry", 0.0), 0))
+	if n.get_parent() == cam:
+		n.position = Vector3(-0.15, -0.02, -dist)
+		n.basis = rot.scaled(Vector3.ONE * sc)
+	else:
+		var b = cam.global_transform.basis
+		var off = Vector3(0, -0.15, 0) if I.id == "can" else Vector3.ZERO
+		n.global_transform = Transform3D(b * rot.scaled(Vector3.ONE * sc), cam.global_position + b * (Vector3(-0.15, -0.02, -dist) + off))
+func _insp_node(id):
+	match id:
+		"head": return egg_head
+		"can": return can_m
+		"draw": return draw3d
+	if String(id).begins_with("photo"):
+		return photo_nodes[int(String(id).right(1))]
+	return null
 
 func _render_item(t: float, roaming: bool) -> void:
 	var st = cur_task() if G else null
@@ -2115,7 +2203,16 @@ func finale_scene(t: float) -> void:
 	cam.position = Vector3(p.x, p.y + (sin(t * 10) * 0.03 if walking else 0.0), p.z + RZ)
 	cam.look_at(Vector3(l.x, l.y, l.z + RZ))
 	COC.visible = t > 9 and t < 22.5
+	coc_light.light_energy = 2.0 * LK if COC.visible else 0.0
 	COC.position = Vector3(-7, 0, -17 + RZ)
+	# Hollow Bunny v rohu pizzerie, otáčí hlavu za kamerou a pak zmizí
+	HB.visible = t > 34.5 and t < 40.6 and not (t > 39.8 and randf() < 0.5)
+	if HB.visible:
+		HB.position = Vector3(-14.4, 0, -12.6 + RZ)
+		HB.rotation.y = PI * 0.45
+		var hd = HB.get_node("head")
+		var to = cam.global_position - HB.global_position
+		hd.rotation.y = clampf(wrapf(atan2(to.x, to.z) - HB.rotation.y, -PI, PI), -1.0, 1.0) * clampf((t - 37) / 1.5, 0, 1)
 	COC.rotation.y = atan2(cam.position.x - COC.position.x, cam.position.z - COC.position.z)
 	coc_mat.set_shader_parameter("uOp", clampf(0.85 - maxf(0, t - 19.5) * 0.3, 0, 0.85) + sin(t * 6) * 0.05)
 	coc_vis.force = ["Vanish", 1.05 + clampf((t - 19.5) / 2.5, 0, 1) * 0.6] if t > 19.5 else ["Idle", t]
@@ -2272,3 +2369,17 @@ func cut_pose(t: float, dt: float) -> void:
 				g.rotation.y = PI * (1 - turn)
 				var gm: StandardMaterial3D = g.get_meta("mat")
 				gm.albedo_color.a = 0.5 * gk * fade
+
+## nástroj: uloží celou zbořenou mapu (budova + díra + suť + kancelář s novým monitorem) do jednoho GLB
+func make_map() -> void:
+	for mi in building.find_children("*", "MeshInstance3D", true, false):
+		if not (mi as MeshInstance3D).visible:
+			mi.get_parent().remove_child(mi)
+			mi.free()
+	var doc = GLTFDocument.new()
+	var st = GLTFState.new()
+	var err = doc.append_from_scene(building, st)
+	if err == OK:
+		err = doc.write_to_filesystem(st, "res://models/broken_map.glb")
+	print("MAKEMAP ", err)
+	get_tree().quit()

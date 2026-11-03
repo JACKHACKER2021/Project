@@ -107,4 +107,30 @@ static func run(g) -> void:
 	g.hud.EX.idx = 1
 	await w(g, 1.0)
 	await shot(g, "extras_c")
+	g.hud.EX.idx = 2
+	g.hud.EX.rot = 0.4
+	await w(g, 0.6)
+	await shot(g, "bunny_a")
+	g.hud.EX.rot = 2.6
+	await w(g, 0.1)
+	await shot(g, "bunny_b")
+	g.new_game(7)
+	g.begin_play()
+	g.G.heartOff = false
+	g.start_finale()
+	for tt in [2.0, 6.0, 13.0, 37.5, 39.0]:
+		g.scene_t = tt
+		g.fin_said = 99
+		await w(g, 0.25)
+		await shot(g, "fin_" + str(int(tt)))
+	g.new_game(5)
+	g.begin_play()
+	g.G.inv = ["photo1", "draw"]
+	g.hud.inv_open = true
+	g.hud.inspect = {"id": "photo1", "rx": 0.3, "ry": 0.7}
+	await w(g, 0.5)
+	await shot(g, "insp_photo")
+	g.hud.inspect = {"id": "draw", "rx": -0.4, "ry": -0.5}
+	await w(g, 0.5)
+	await shot(g, "insp_draw")
 	g.get_tree().quit()
