@@ -111,7 +111,9 @@ func _ready() -> void:
 	scene_ = "menu"
 	scene_t = 0.0
 	audio.start_menu_song()
-	if "--shots" in OS.get_cmdline_user_args():
+	if "--cocoa" in OS.get_cmdline_user_args():
+		_shots_cocoa()
+	elif "--shots" in OS.get_cmdline_user_args():
 		_shots()
 
 # ---------- ukládání (jako localStorage) ----------
@@ -415,6 +417,9 @@ func _polish(n: Node) -> void:
 				p.clearcoat = 1.0
 				p.clearcoat_roughness = 0.1
 				p.cull_mode = BaseMaterial3D.CULL_DISABLED
+				# Cocoa má v GLB průhledný (BLEND) materiál – na mobilech se pak díly kreslí v blbém pořadí
+				p.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
+				p.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_ALWAYS
 				m.set_surface_override_material(s, p)
 
 func _build_chars() -> void:
@@ -900,7 +905,7 @@ func power_out() -> void:
 	hang_up()
 	G.outPhase = 0
 	G.outT = 0.0
-	G.outDur = [randf_range(3, 7), randf_range(14, 24), randf_range(2, 4)]
+	G.outDur = [randf_range(3, 7), audio.song_len() + 0.5, randf_range(2, 4)]
 	G.vox.pos = "DOOR"
 	set_spot(VOX, "DOOR")
 
@@ -1913,6 +1918,7 @@ func _build_n4() -> void:
 		for s in m.mesh.get_surface_count():
 			var src = m.get_active_material(s)
 			var own: StandardMaterial3D = src.duplicate() if src is StandardMaterial3D else StandardMaterial3D.new()
+			own.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
 			if REPO.seat_own == null:
 				REPO.seat_own = own.albedo_texture
 			m.set_surface_override_material(s, own)
@@ -2561,3 +2567,19 @@ static func make_font() -> Font:
 		x.allow_system_fallback = false
 	f.fallbacks = [sy, em]
 	return f
+
+func _shots_cocoa() -> void:
+	await _wait(1.0)
+	new_game(1)
+	scene_ = "play"
+	toggle_roam()
+	DEV.noclip = true
+	roam.pos = Vector3(15.3, 1.6, -9.6)
+	roam.yaw = 0.0
+	roam.pitch = -0.15
+	await _wait(1.5)
+	await _shot("coc_a")
+	roam.pos = Vector3(15.0, 1.6, -11.0)
+	await _wait(1.0)
+	await _shot("coc_b")
+	get_tree().quit()

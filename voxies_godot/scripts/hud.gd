@@ -599,7 +599,7 @@ func draw_menu(t: float) -> void:
 		txt("★ Přežil jsi 5 nocí" + (" · noci 6–7 odemčeny" if pr >= 7 else ""), 64, 560, 18, "#ffe46b")
 	if game.st_get("voxies_secret", false):
 		txt("🪓 Tajný konec: Osvobození", 64, 584, 18, "#ff6b6b")
-	txt("v2.5.0 Remastered · Godot", HW - 20, 700, 14, "#888888", "right")
+	txt("v2.6.0 Remastered · Godot", HW - 20, 700, 14, "#888888", "right")
 	txt("Táhni prstem = rozhlížení · Joystick = chůze mimo stůl · Q/E světla, A/D dveře, mezerník kamery, F baterka", 64, 700, 13, "#777777")
 
 func draw_intro() -> void:
@@ -887,7 +887,7 @@ func draw_dev_menu(t: float) -> void:
 	scanlines()
 	var cx = HW / 2
 	txt("🛠 DEV NÁSTROJE", cx, 80, 44, "#5dff8a", "center")
-	txt("Night at Voxie's v2.5.0 Remastered · pro tvůrce a testování", cx, 110, 16, "#9fffb8", "center")
+	txt("Night at Voxie's v2.6.0 Remastered · pro tvůrce a testování", cx, 110, 16, "#9fffb8", "center")
 	big_btn(cx - 420, 140, 400, 50, "DEV PANEL VE HŘE: " + ("ZAP" if DEV.on else "VYP"), "dvon", func():
 		DEV.on = not DEV.on
 		game.st_set("voxies_dev", DEV.on), true, 18)

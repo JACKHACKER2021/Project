@@ -160,3 +160,6 @@ func stop_menu_song() -> void:
 		var t := create_tween()
 		t.tween_property(menu, "volume_db", -40.0, 0.6)
 		t.tween_callback(menu.stop)
+
+func song_len() -> float:
+	return music_box.stream.get_length() if music_box.stream else 20.0
