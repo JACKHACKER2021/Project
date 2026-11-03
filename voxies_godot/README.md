@@ -1,6 +1,6 @@
-# Night at Voxie's – Godot 4 port
+# Night at Voxie's Remastered – Godot 4
 
-Port 1. dílu z webové verze (three.js, `voxies/`) do Godotu 4.3.
+Port Remasteru 1. dílu z webové verze (three.js) do Godotu 4.3.
 
 ## Co je hotové
 - Mapa herny (`models/building.glb`), kancelář s rozhlížením, dvoje dveře (rolety) a světla do chodeb.
@@ -10,9 +10,12 @@ Port 1. dílu z webové verze (three.js, `voxies/`) do Godotu 4.3.
 - Hudba v menu (`audio/menu.mp3`), zvuky v `sfx/`.
 
 ## Modely (nejsou v gitu)
-Před otevřením zkopíruj do `models/`:
-- `building.glb` z `voxies2r/www/models/building.glb`
-- `cocoa.glb` z `voxies/www/models/cocoa.glb`
+Scéna budovy a Voxie jsou exportované přímo z webového Remasteru (`tools/export_remaster_scene.js`, Playwright + GLTFExporter, instancované meshe se slučují):
+- `models/remaster_world.glb` – celá budova Remasteru (místnosti, neony, automaty, pódium, rolety `ShutL`/`ShutR`)
+- `models/voxie.glb` – Voxie s klouby `hips`, `chest`, `head`, `legR1`…
+- `models/cocoa.glb` – Cocoa z Remasteru
+
+Nové vybavení (nahrané modely): `psaci_stul.glb`, `kancelarska_zidle.glb`, `knihovna.glb`, `trezor.glb`, `kartoteka.glb` (kancelář pana Vojtěcha v místnosti X), `pizza_pec.glb`, `pokladna_bouda.glb`, `pizza_cela.glb`, `pizza_kousek.glb` (kuchyně pizzerie).
 
 ## Otevření a spuštění
 1. Stáhni Godot 4.3 (standard): https://godotengine.org/download

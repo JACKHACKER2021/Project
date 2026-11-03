@@ -59,6 +59,8 @@ var shut := {}
 var vox: Node3D
 var coc: Node3D
 var chars := {}
+var world: Node3D
+const LIGHT_SCALE := 0.05
 var sfx := {}
 var music: AudioStreamPlayer
 var ambient: AudioStreamPlayer
@@ -101,9 +103,13 @@ func _build_world() -> void:
 	env.glow_intensity = 0.8
 	we.environment = env
 	add_child(we)
-	var bld: Node3D = load("res://models/building.glb").instantiate()
+	var bld: Node3D = load("res://models/remaster_world.glb").instantiate()
 	add_child(bld)
-	_hide_glb_shutters(bld)
+	world = bld
+	for l in bld.find_children("*", "Light3D", true, false):
+		(l as Light3D).light_energy *= LIGHT_SCALE
+		(l as Light3D).shadow_enabled = false
+	_build_furniture()
 	office_cam = Camera3D.new()
 	office_cam.fov = 72
 	office_cam.position = OFFICE_EYE
@@ -144,15 +150,20 @@ func _build_world() -> void:
 		m.roughness = 0.5
 		sh.material_override = m
 		sh.position = Vector3(-4.0 if s == "L" else 4.0, DOOR_H * 1.5, 0)
-		add_child(sh)
-		shut[s] = sh
+		var gs: Node3D = bld.find_child("Shut" + s, true, false)
+		if gs:
+			shut[s] = gs
+			sh.queue_free()
+		else:
+			add_child(sh)
+			shut[s] = sh
 	red_light = OmniLight3D.new()
 	red_light.light_color = Color(1, 0.06, 0.06)
 	red_light.omni_range = 6
 	red_light.light_energy = 0
 	add_child(red_light)
 	# animatronici
-	vox = VoxieBuilder.build()
+	vox = _load_voxie()
 	add_child(vox)
 	coc = Node3D.new()
 	coc.name = "Cocoa"
@@ -467,11 +478,13 @@ func _unhandled_input(e: InputEvent) -> void:
 			KEY_SPACE: toggle_cams()
 
 func _update_view(dt: float) -> void:
+	if state == "debug":
+		return
 	var t := Time.get_ticks_msec() / 1000.0
 	var playing: bool = not G.is_empty() and state in ["play", "scare", "intro"]
 	for s in ["L", "R"]:
 		var a: float = G.a[s] if playing else 0.0
-		shut[s].position.y = DOOR_H * (1.0 - a) + DOOR_H / 2.0
+		shut[s].position.y = DOOR_H * (1.0 - a) + (0.0 if shut[s].get_parent() != self else DOOR_H / 2.0)
 		hall[s].light_energy = 6.0 if playing and G.light == s and not G.out else 0.0
 	office_lamp.light_energy = 0.0 if playing and G.out else 2.2 * (0.95 + randf() * 0.05)
 	# animatronici: krátká chůze mezi zastávkami, stání na pódiu
@@ -651,7 +664,7 @@ func _show_menu() -> void:
 	var cb := _button("⚙ VLASTNÍ NOC  (Voxie " + str(custom.v) + " · Cocoa " + str(custom.c) + ")", Vector2(60, 436), Vector2(420, 48), func(): _show_custom(), Color("#ffe46b"), 17)
 	cb.disabled = progress < 6
 	_label("Táhni prstem = rozhlížení · A/D dveře · Q/E světla · mezerník kamery", Vector2(64, 690), 13, Color(0.5, 0.5, 0.5))
-	_label("Godot verze · v2.1.0", Vector2(_vw() - 260, 690), 13, Color(0.45, 0.45, 0.45))
+	_label("Remastered · Godot · v2.2.0", Vector2(_vw() - 260, 690), 13, Color(0.45, 0.45, 0.45))
 
 func _show_custom() -> void:
 	_clear_ui()
@@ -821,4 +834,101 @@ func _run_shots() -> void:
 	await _shot("scare")
 	await _wait(2.0)
 	await _shot("dead")
+	_show_menu()
+	_clear_ui()
+	state = "debug"
+	cam_cam.current = true
+	cam_cam.position = Vector3(12.5, 1.9, -1.0)
+	cam_cam.look_at(Vector3(19, 0.8, 4))
+	room_light.position = Vector3(16, 2.6, 2)
+	room_light.light_energy = 2.0
+	await _wait(0.5)
+	await _shot("kancelar_vojtech")
+	cam_cam.position = Vector3(-13, 1.8, -13)
+	cam_cam.look_at(Vector3(-19, 0.8, -17.5))
+	room_light.position = Vector3(-16, 2.6, -16)
+	await _wait(0.5)
+	await _shot("kuchyne")
 	get_tree().quit()
+
+# ====================================================================
+#  VOXIE Z REMASTERU (export z webové verze, klouby podle jmen)
+# ====================================================================
+func _load_voxie() -> Node3D:
+	var g := Node3D.new()
+	g.name = "Voxie"
+	var m: Node3D = load("res://models/voxie.glb").instantiate()
+	g.add_child(m)
+	var rig := {}
+	for n in ["hips", "chest", "head", "legR1", "legL1", "legR2", "legL2", "armR1", "armL1", "armR2", "armL2"]:
+		rig[n] = m.find_child(n, true, false)
+	var red := StandardMaterial3D.new()
+	red.albedo_color = Color(1, 0.05, 0.05)
+	red.emission_enabled = true
+	red.emission = Color(1, 0, 0)
+	red.emission_energy_multiplier = 4.0
+	red.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	var eyes := Node3D.new()
+	eyes.name = "RedEyes"
+	rig.head.add_child(eyes)
+	for sx in [-1, 1]:
+		var mi := MeshInstance3D.new()
+		var sm := SphereMesh.new()
+		sm.radius = 0.035
+		sm.height = 0.07
+		mi.mesh = sm
+		mi.material_override = red
+		mi.position = Vector3(sx * 0.19, 0.43, 0.39)
+		eyes.add_child(mi)
+	eyes.visible = false
+	g.set_meta("rig", rig)
+	return g
+
+# ====================================================================
+#  NOVÉ VYBAVENÍ: kancelář pana Vojtěcha (místnost X) a kuchyně pizzerie
+# ====================================================================
+func _place_model(file: String, pos: Vector3, rot_y: float, height: float, parent: Node3D = null) -> Node3D:
+	var holder := Node3D.new()
+	(parent if parent else self).add_child(holder)
+	var m: Node3D = load("res://models/" + file).instantiate()
+	holder.add_child(m)
+	var a := _aabb(m)
+	var k: float = height / max(a.size.y, 0.001)
+	m.scale = Vector3.ONE * k
+	m.position = Vector3(-(a.position.x + a.size.x / 2.0) * k, -a.position.y * k, -(a.position.z + a.size.z / 2.0) * k)
+	holder.position = pos
+	holder.rotation.y = rot_y
+	return holder
+
+func _build_furniture() -> void:
+	# kancelář pana Vojtěcha – zamčená místnost X za skladem (x 10..22, z -2..6), dveře na severu
+	_place_model("psaci_stul.glb", Vector3(17.5, 0, 3.4), PI, 0.82)
+	_place_model("kancelarska_zidle.glb", Vector3(17.5, 0, 4.5), PI, 1.05)
+	_place_model("knihovna.glb", Vector3(21.55, 0, 1.6), -PI / 2, 2.1)
+	_place_model("trezor.glb", Vector3(21.3, 0, 5.3), -PI * 0.75, 0.95)
+	_place_model("kartoteka.glb", Vector3(10.6, 0, 4.4), PI / 2, 1.35)
+	_place_model("kartoteka.glb", Vector3(10.6, 0, 3.4), PI / 2, 1.35)
+	var lamp := OmniLight3D.new()
+	lamp.light_color = Color("#ffcf8a")
+	lamp.omni_range = 7.0
+	lamp.light_energy = 1.4
+	lamp.shadow_enabled = true
+	lamp.position = Vector3(17.5, 2.6, 2.6)
+	add_child(lamp)
+	# kuchyně pizzerie (místnost 2): pec s lopatou, pokladna, pizzy na stolech
+	_place_model("pizza_pec.glb", Vector3(-20.8, 0, -17.0), PI / 2, 2.0)
+	_place_model("pokladna_bouda.glb", Vector3(-12.6, 0, -20.6), -PI * 0.25, 2.2)
+	var tables := [Vector2(-19, -18), Vector2(-15, -18), Vector2(-19, -13), Vector2(-15, -13), Vector2(-12, -15.5)]
+	for i in tables.size():
+		var p: Vector2 = tables[i]
+		if i % 2 == 0:
+			_place_model("pizza_cela.glb", Vector3(p.x, 0.83, p.y), randf() * TAU, 0.06)
+		else:
+			for j in 2:
+				_place_model("pizza_kousek.glb", Vector3(p.x + (j - 0.5) * 0.4, 0.83, p.y + 0.15), randf() * TAU, 0.04)
+	var oven_glow := OmniLight3D.new()
+	oven_glow.light_color = Color("#ff7a2a")
+	oven_glow.omni_range = 5.0
+	oven_glow.light_energy = 1.6
+	oven_glow.position = Vector3(-20.0, 1.0, -17.0)
+	add_child(oven_glow)
