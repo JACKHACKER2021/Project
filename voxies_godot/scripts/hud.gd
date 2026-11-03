@@ -5,7 +5,7 @@ var game
 const HH := 720.0
 var HW = 1280.0
 var HK = 1.0
-var font: SystemFont
+var font: Font
 var buttons = []
 var hover_btn = null
 var alpha = 1.0
@@ -28,9 +28,7 @@ var NEWS_WIN = []
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	font = SystemFont.new()
-	font.font_names = PackedStringArray(["Courier New", "Liberation Mono", "DejaVu Sans Mono", "Noto Sans Mono", "monospace"])
-	font.font_weight = 700
+	font = game.make_font()
 	texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 	for f in 5:
 		var img = Image.create(320, 180, false, Image.FORMAT_RGBA8)

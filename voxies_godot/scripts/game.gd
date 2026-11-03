@@ -176,15 +176,13 @@ func _build_scene() -> void:
 	# CRT monitor: živá textura
 	crt_img = Image.create(256, 192, false, Image.FORMAT_RGBA8)
 	crt_tex = ImageTexture.create_from_image(crt_img)
-	crt_font = SystemFont.new()
-	(crt_font as SystemFont).font_names = PackedStringArray(["Courier New", "Liberation Mono", "DejaVu Sans Mono", "monospace"])
-	(crt_font as SystemFont).font_weight = 700
+	crt_font = make_font()
 	var crt_m = _first_mesh(office.crt)
 	if crt_m:
 		var cm = StandardMaterial3D.new()
 		cm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 		cm.albedo_texture = _crt_viewport_tex()
-		cm.uv1_scale = Vector3(-1, 1, 1)
+		cm.uv1_scale = Vector3(1, -1, 1)
 		crt_m.material_override = cm
 	# světla jako v Remasteru
 	office_cam = Camera3D.new()
@@ -477,10 +475,13 @@ func _build_chars() -> void:
 		heads = COC.model.find_children("*", "MeshInstance3D", true, false)
 	for mi in heads:
 		var m: MeshInstance3D = mi
-		var src = m.get_active_material(0)
-		var own: StandardMaterial3D = src.duplicate() if src else StandardMaterial3D.new()
-		m.material_override = own
-		coco_heads.append(own)
+		for si in m.mesh.get_surface_count():
+			var src = m.get_active_material(si)
+			if src is StandardMaterial3D and src.albedo_texture != null:
+				var own: StandardMaterial3D = src.duplicate()
+				m.set_surface_override_material(si, own)
+				coco_heads.append(own)
+	cocoa_set_eyes(false)
 	COC.root.visible = false
 
 func _measure_side(ch: Rig) -> void:
@@ -2461,6 +2462,10 @@ func _shots() -> void:
 	scene_ = "extras"
 	await _wait(1.0)
 	await _shot("extras")
+	hud.EX.idx = 1
+	await _wait(0.6)
+	await _shot("extras_cocoa")
+	hud.EX.idx = 0
 	store["voxies_secret"] = true
 	hud.EX.page = "song"
 	await _wait(0.5)
@@ -2473,3 +2478,8 @@ func _shots() -> void:
 	await _wait(1.0)
 	await _shot("mini")
 	get_tree().quit()
+
+static func make_font() -> Font:
+	var f: FontFile = load("res://fonts/mono.ttf")
+	f.fallbacks = [load("res://fonts/symbols.ttf"), load("res://fonts/emoji.ttf")]
+	return f
