@@ -21,7 +21,13 @@ func _ready() -> void:
 		_bus("radio" + str(p), p, true)
 	ambient = _loop("ambient", 0.0)
 	buzz = _loop("buzz", 0.0)
-	music_box = _loop("musicbox", -0.8)
+	music_box = AudioStreamPlayer.new()
+	var song = load("res://audio/powerout_song.ogg")
+	if song is AudioStreamOggVorbis:
+		song.loop = false
+	music_box.stream = song
+	music_box.bus = _bus_for(-0.6, false)
+	add_child(music_box)
 	chip = _loop("chiptune", 0.0)
 	menu = AudioStreamPlayer.new()
 	var ms = load("res://audio/menu.mp3")
@@ -129,11 +135,16 @@ func set_buzz(on: bool, pan := 0.0) -> void:
 	if on:
 		buzz.bus = _bus_for(pan, false)
 		buzz.play()
-func start_music_box() -> void:
+## při 0 % proudu hraje narozeninová písnička od Voxieho
+func start_music_box(from := 0.0) -> void:
 	if not music_box.playing:
-		music_box.play()
+		music_box.volume_db = 0.0
+		music_box.play(from)
 func stop_music_box() -> void:
-	music_box.stop()
+	if music_box.playing:
+		var t := create_tween()
+		t.tween_property(music_box, "volume_db", -40.0, 0.4)
+		t.tween_callback(music_box.stop)
 func start_chip() -> void:
 	chip.play()
 func stop_chip() -> void:

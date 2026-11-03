@@ -252,6 +252,10 @@ func _draw() -> void:
 		draw_dev(t)
 	elif sc == "mini":
 		draw_mini(t)
+	elif sc == "scare" and g.scare_kind == "dark":
+		noise(0.2 + randf() * 0.2)
+		if g.scare_t > 1.0:
+			rect(0, 0, HW, HH, Color(0, 0.35, 0.08, 0.55) if int(floor(g.scare_t * 14)) % 2 else Color(0, 0, 0, 0.95))
 	elif sc == "scare":
 		if g.scare_t < 0.05:
 			rect(0, 0, HW, HH, "#ffffff")
@@ -954,7 +958,15 @@ func draw_extras(t: float) -> void:
 		var ls = wrapt(b.text, 450, 17)
 		for i in ls.size():
 			txt(ls[i], x + 20, 230 + i * 24, 17, "#ffffff")
+		if EX.idx == 0:
+			big_btn(x + 20, 436, 450, 52, "🔌 JUMPSCARE PŘI 0 % PROUDU", "exj0", func():
+				EX.scare = 0.0
+				game.scare_kind = "dark"
+				game.audio.start_music_box(14.0)
+				game.say_later(1.0, game.audio.stop_music_box)
+				game.say_later(1.0, func(): game.audio.sfx("scare")), EX.scare < 0, 17)
 		big_btn(x + 20, 500, 220, 56, "😱 JUMPSCARE", "exj", func():
+			game.scare_kind = "classic"
 			EX.scare = 0.0
 			game.audio.sfx("scare")
 			var who = "V" if EX.idx == 0 else "C"
@@ -962,7 +974,11 @@ func draw_extras(t: float) -> void:
 		big_btn(x + 250, 500, 220, 56, "COCOA ▶" if EX.idx == 0 else "◀ VOXIE", "exn", func():
 			EX.idx = 1 - EX.idx
 			EX.scare = -1.0, true, 18)
-		if EX.scare >= 0 and EX.scare < 0.05:
+		if game.scare_kind == "dark" and EX.scare >= 0:
+			if EX.scare > 1.0:
+				rect(0, 0, HW, HH, Color(0, 0.35, 0.08, 0.5) if int(floor(EX.scare * 14)) % 2 else Color(0, 0, 0, 0.9))
+			noise(0.15)
+		elif EX.scare >= 0 and EX.scare < 0.05:
 			rect(0, 0, HW, HH, "#ffffff")
 	elif EX.page == "map":
 		var sc = 1.55

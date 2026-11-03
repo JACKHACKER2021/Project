@@ -70,6 +70,9 @@ var glitch_t = 0.0
 var VOX: Rig
 var COC: Rig
 var vox_eyes = []
+const EYE_GREEN := Color("#39ff6a")
+var eye_light: OmniLight3D
+var scare_kind := "classic"
 var coco_heads = []
 var COCO_TEX = {}
 var cocoa_hold = 0
@@ -438,7 +441,15 @@ func _build_chars() -> void:
 	for e in VOX.model.find_children("VoxEye*", "Node3D", true, false):
 		vox_eyes.append(_own_unshaded(_first_mesh(e)))
 	for m in vox_eyes:
-		m.albedo_color = Color("#111111")
+		m.albedo_color = EYE_GREEN
+	# zelená záře očí (světlo u hlavy)
+	eye_light = OmniLight3D.new()
+	eye_light.light_color = EYE_GREEN
+	eye_light.omni_range = 0.9
+	eye_light.light_energy = 0.0
+	if VOX.joints.has("head"):
+		VOX.joints.head.n.add_child(eye_light)
+		eye_light.position = Vector3(0, 0.25, 0.35)
 	VOX.capture_rest()
 	_measure_side(VOX)
 	# Cocoa (GLB s kostrou)
@@ -889,7 +900,7 @@ func power_out() -> void:
 	hang_up()
 	G.outPhase = 0
 	G.outT = 0.0
-	G.outDur = [randf_range(3, 7), randf_range(6, 13), randf_range(2, 4)]
+	G.outDur = [randf_range(3, 7), randf_range(14, 24), randf_range(2, 4)]
 	G.vox.pos = "DOOR"
 	set_spot(VOX, "DOOR")
 
@@ -925,6 +936,7 @@ func jumpscare(a: Dictionary) -> void:
 	audio.sfx("scare")
 	audio.voice(("Cscare|" if a.id == "C" else "Vscare|") + pick(_ai_def(a.id).lines.scare), 0.8, 0.0, false)
 	scare_t = 0.0
+	scare_kind = "dark" if G.out else "classic"
 	G.cams = false
 	G.camA = 0.0
 	glitch_flash(1.5)
@@ -2293,7 +2305,8 @@ func render(t: float) -> void:
 				var k = ease_io(clampf(EX.scare / 0.12, 0, 1))
 				ch.root.position = Vector3(0, -0.25 * k, SHOW_Z + 2.3 * k)
 				ch.root.rotation = Vector3.ZERO
-				red_light.light_energy = 6 * k * LK
+				red_light.light_energy = 6 * k * LK * (0.08 if scare_kind == "dark" else 1.0)
+				red_light.light_color = Color(0.1, 1, 0.3) if scare_kind == "dark" else Color(1, 0.06, 0.06)
 				red_light.position = Vector3(0, 0.8, SHOW_Z + 3.6)
 			else:
 				ch.root.position = Vector3(0, 0.3, SHOW_Z)
@@ -2313,7 +2326,8 @@ func render(t: float) -> void:
 			ch.root.position = eye.global_position + fwd * [2.7, 2.0, 1.45][stp]
 			ch.root.position.y = eye.global_position.y - 1.75 - 0.12 * stp
 			ch.root.rotation = Vector3(0, atan2(-fwd.x, -fwd.z), 0)
-			red_light.light_energy = 6 * k * (0.3 if randf() < 0.15 else 1.0) * LK
+			red_light.light_energy = 6 * k * (0.3 if randf() < 0.15 else 1.0) * LK * (0.08 if scare_kind == "dark" else 1.0)
+			red_light.light_color = Color(0.1, 1, 0.3) if scare_kind == "dark" else Color(1, 0.06, 0.06)
 			red_light.position = ch.root.position - fwd * 0.9
 			red_light.position.y = eye.global_position.y - 0.6
 		elif a:
@@ -2354,15 +2368,30 @@ func render(t: float) -> void:
 			mode = "broken"
 		ch.pose(t, mode, scare_t)
 		if ch == VOX:
-			var red: bool = G != null and G.damaged
+			var red: bool = G != null and G.damaged and scene_ != "extras"
+			var col := EYE_GREEN
+			var glow := 1.0
+			var dark_scare: bool = mode == "scare" and scare_kind == "dark"
+			if red:
+				col = Color("#ff1010") if randf() < 0.85 else Color("#330000")
+			elif dark_scare:
+				glow = 2.5 if randf() < 0.8 else 0.3
+			elif G != null and G.out and scene_ == "play":
+				# při výpadku proudu oči blikají do rytmu písničky
+				var on: bool = G.outPhase == 1 and sin(t * 7.5) > -0.2 and randf() > 0.05
+				glow = 2.0 if on else 0.0
+			col = Color(col.r * minf(glow, 1.0), col.g * minf(glow, 1.0), col.b * minf(glow, 1.0))
 			for m in vox_eyes:
-				m.albedo_color = (Color("#ff1010") if randf() < 0.85 else Color("#330000")) if red else Color("#111111")
+				m.albedo_color = col
+			eye_light.light_color = col if not red else Color("#ff1010")
+			eye_light.light_energy = glow * (0.3 if (G != null and G.out) or dark_scare else 0.1)
 	# kamera
 	if scene_ == "extras" and EX.page == "chars":
 		cam = show_cam
 		room_light.position = Vector3(0, 4, SHOW_Z + 2)
-		room_light.light_energy = 22 * LK
-		env.ambient_light_energy = 0.9
+		var dk: bool = EX.scare >= 0 and scare_kind == "dark"
+		room_light.light_energy = (0.0 if dk else 22.0) * LK
+		env.ambient_light_energy = 0.04 if dk else 0.9
 	elif scene_ in ["menu", "custom", "devmenu", "extras"]:
 		cam = cams3d["1A"].cam
 		room_light.position = v3(CAMS["1A"].light)
@@ -2483,6 +2512,42 @@ func _shots() -> void:
 	await _wait(0.3)
 	await _shot("song_end")
 	store.erase("voxies_secret")
+	scene_ = "extras"
+	hud.EX.page = "chars"
+	hud.EX.idx = 0
+	await _wait(0.5)
+	await _shot("js_idle")
+	for kind in ["classic", "dark"]:
+		scare_kind = kind
+		hud.EX.scare = 0.0
+		var marks := [0.02, 0.14, 0.3, 0.7, 1.15]
+		var last := 0.0
+		for i in marks.size():
+			await _wait(marks[i] - last)
+			last = marks[i]
+			await _shot("js_" + kind + str(i))
+		await _wait(0.8)
+	# výpadek proudu v kanceláři: Voxie ve dveřích, oči blikají
+	new_game(1)
+	scene_ = "play"
+	G.t = 40
+	power_out()
+	G.outPhase = 1
+	G.outT = 0.0
+	G.outDur[1] = 999
+	G.look = 0.9
+	await _wait(0.4)
+	await _shot("powerout_a")
+	await _wait(0.13)
+	await _shot("powerout_b")
+	G.outPhase = 2
+	G.outT = 0.0
+	G.outDur[2] = 0.1
+	await _wait(0.5)
+	await _shot("powerout_scare")
+	await _wait(0.4)
+	await _shot("powerout_scare2")
+	to_menu()
 	hud.start_mini(2)
 	await _wait(1.0)
 	await _shot("mini")
