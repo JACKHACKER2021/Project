@@ -219,6 +219,31 @@ func build() -> void:
 	omni(hall, Vector3(0, 2.8, 3.0), "#ff9070", 0.6, 6)
 	for z in [-5.0, 0.0, 4.0]:
 		box(hall, Vector3(0.05, 0.9, 0.7), Vector3(-2.88, 1.6, z), mat(["#3b1d6e", "#14313d", "#4a1438"][int(z + 5) % 3]))
+	# zbytky Voxieho – jen výstavní kus na pódiu za provazy
+	var vx = Node3D.new()
+	vx.name = "VoxieRemainsExhibit"
+	vx.position = Vector3(0, 0, -6.0)
+	hall.add_child(vx)
+	box(vx, Vector3(2.6, 0.3, 1.8), Vector3(0, 0.15, 0), mat("#2a1410"))
+	box(vx, Vector3(2.7, 0.04, 1.9), Vector3(0, 0.31, 0), mat("#4a2418", 0.7))
+	var vm_ = load("res://models/znicen_voxie.glb").instantiate()
+	vm_.scale = Vector3.ONE * 0.85
+	vm_.position = Vector3(0, 0.32, 0)
+	vx.add_child(vm_)
+	for ap in vm_.find_children("*", "AnimationPlayer", true, false):
+		ap.queue_free()
+	for s in [-1, 1]:
+		box(vx, Vector3(0.08, 0.9, 0.08), Vector3(1.0 * s, 0.45, 1.3), mat("#c0a040", 0.3, 0.8))
+	box(vx, Vector3(2.0, 0.05, 0.05), Vector3(0, 0.75, 1.3), mat("#8a1020"))
+	box(vx, Vector3(0.7, 0.4, 0.05), Vector3(0, 0.55, 1.45), mat("#d8c890", 0.4, 0.6))
+	label(vx, "VOXIE BEAR\nco zbylo po požáru", Vector3(0, 0.55, 1.48), "#1a1410", 16)
+	var sp3 = SpotLight3D.new()
+	sp3.light_color = Color("#ffd8b0")
+	sp3.light_energy = 5
+	sp3.spot_range = 6
+	sp3.spot_angle = 28
+	vx.add_child(sp3)
+	sp3.look_at_from_position(Vector3(0, 3.0, -4.2), Vector3(0, 1.0, -6.0))
 	# západní koridor (k recepci a herně)
 	room("WC", "Západní koridor", -6, -8, -3, 10, wall_d, "#201818", "#181212", {"e": [[3.0, 4.6], [-3.6, -2.0], [7.0, 8.6]], "w": [[-3.0, -1.0], [5.0, 7.0]]})
 	# recepce / vchod s pokladnou
@@ -401,7 +426,7 @@ func _init() -> void:
 	cam.far = 120
 	root3.add_child(cam)
 	cam.current = true
-	var shots = [["top", Vector3(-1.5, 46, -6), Vector3(-1.5, 0, -6.01)], ["office", Vector3(0, 1.4, 9.2), Vector3(0, 1.3, 0)], ["cocoa", Vector3(5.2, 1.6, 4.6), Vector3(8, 1.2, 3)], ["archiv", Vector3(0, 1.6, -9.0), Vector3(0, 1.5, -14)], ["herna", Vector3(-7.0, 1.7, 1.2), Vector3(-12, 0.8, -5)], ["pizzerie", Vector3(10, 1.8, -0.6), Vector3(5, 0.6, -6)], ["lobby", Vector3(-7, 1.7, 3), Vector3(-13, 1.0, 8)], ["back", Vector3(0, 1.7, -14.6), Vector3(0, 0.6, -21)]]
+	var shots = [["top", Vector3(-1.5, 46, -6), Vector3(-1.5, 0, -6.01)], ["voxie", Vector3(1.2, 1.7, -2.5), Vector3(0, 1.1, -6)], ["cocoa", Vector3(5.2, 1.6, 4.6), Vector3(8, 1.2, 3)], ["archiv", Vector3(0, 1.6, -9.0), Vector3(0, 1.5, -14)], ["herna", Vector3(-7.0, 1.7, 1.2), Vector3(-12, 0.8, -5)], ["pizzerie", Vector3(10, 1.8, -0.6), Vector3(5, 0.6, -6)], ["lobby", Vector3(-7, 1.7, 3), Vector3(-13, 1.0, 8)], ["back", Vector3(0, 1.7, -14.6), Vector3(0, 0.6, -21)]]
 	for s in shots:
 		if s[0] == "top":
 			# ze shora bez stropů
