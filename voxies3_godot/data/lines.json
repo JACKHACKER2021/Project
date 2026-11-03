@@ -1,0 +1,19 @@
+{
+ "tour": [
+  {"at": "LOBBY", "o": ["Vítejte ve Frights and Hides! Já jsem Kroupa, majitel.", "Všechno, co tady vidíte, jsme vykopali ze sutin té staré herny Voxie's."]},
+  {"at": "ARC", "o": ["Tady je herna. Automaty jsou ohořelé, ale lidi je milujou."]},
+  {"at": "HALL", "o": ["A tohle je naše hvězda. Voxie Bear. Teda, co z něj zbylo. Nesahat!"]},
+  {"at": "COC", "o": ["Hlava Cocoy. Je ve vitríně, protože ji lidi chtěli odnášet domů."]},
+  {"at": "PIZ", "o": ["Pizzerie. Stoly jsou originál, i ty kloboučky."]},
+  {"at": "ARCH", "o": ["Archiv. Tahle kresba se našla v bludišti. Někdo na ni napsal táta."]},
+  {"at": "BACK", "o": ["A vzadu je zákulisí. Včera sem přivezli toho zajíce.", "Říkáme mu Hollow Hare. Ten smrad jsou prý efekty. Nechoďte k němu."]},
+  {"at": "OFF", "o": ["Tohle je vaše kancelář. Počítač je nový, Windows XP.", "Každou noc mi napíšete hlášení. Bez hlášení žádná výplata.", "Dveře i šachta se dají zavřít, ale pak se tu nedá dýchat. Hodně štěstí."]}
+ ],
+ "nights": {
+  "2": ["Tak co, zvládl jste první noc? Výborně.", "Návštěvníci tvrdí, že zajíc stál jinde, než jsme ho nechali. To jsou ty efekty.", "Hlášení do šesti. Dobrou noc."],
+  "3": ["Volali mi z muzea. Chtějí toho zajíce koupit! Za majlant.", "Jen na něj nekoukejte moc dlouho. Prý se z toho lidem dělá zle."],
+  "4": ["Jeden brigádník dneska omdlel u zákulisí. Prý slyšel, jak zajíc mluví.", "Nesmysl. Ale kdyby vám bylo zle, v šuplíku máte prášky."],
+  "5": ["Zítra si pro zajíce přijedou. Poslední noc, pak budete mít klid.", "A kdyby vám v hlavě něco šeptalo, nevšímejte si toho. Mně taky šeptá."]
+ },
+ "hare": ["Vidím tě, hlídači.", "Pusť mě ven. Bolí to.", "Zámky pořád cvakají.", "Proč se díváš? Pojď blíž.", "Tady tě nikdo neuslyší.", "Otevři dveře.", "Jsem uvnitř. Pořád jsem uvnitř.", "Mám tě."]
+}
