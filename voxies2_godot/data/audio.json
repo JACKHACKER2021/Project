@@ -1,0 +1,263 @@
+{
+ "sfx": {
+  "spark": 0.3087528344671202,
+  "step": 0.2836281179138322,
+  "click": 0.07811791383219954,
+  "cam": 0.2276643990929705,
+  "lure": 0.8600453514739229,
+  "whisper": 1.299501133786848,
+  "drain": 1.1501814058956916,
+  "scare": 1.299546485260771,
+  "chime": 3.2,
+  "powerdown": 1.7173696145124717,
+  "scare_v": 1.229954648526077,
+  "scare_c": 1.5,
+  "heart": 0.4821541950113379,
+  "drip": 0.4731972789115646,
+  "vent": 0.4331972789115646,
+  "servo": 0.3710430839002268,
+  "task": 0.2801814058956916,
+  "fixed": 0.1606575963718821,
+  "pick": 0.24219954648526076,
+  "can": 0.24229024943310656,
+  "draw": 0.3264625850340136,
+  "hs": 0.7083446712018141,
+  "ring": 0.29086167800453516,
+  "hangup": 0.6392290249433107,
+  "doorcreak": 0.6352154195011338,
+  "crackle": 0.19104308390022676,
+  "whoosh": 1.0512698412698414,
+  "burnlong": 1.5908390022675738,
+  "hurt": 0.3760997732426304,
+  "clunk": 0.3291609977324263,
+  "egg": 0.5125396825396825,
+  "jump": 0.28328798185941045,
+  "ambient": 4
+ },
+ "voice": {
+  "Vrátil ses. Hlídači v uniformě se vždycky vracejí.": {
+   "f": "v0000.wav",
+   "dur": 3.5803361423754096
+  },
+  "Tu uniformu znám. Nosil ji ten, kdo mi vzal Emu.": {
+   "f": "v0001.wav",
+   "dur": 3.6088913145525705
+  },
+  "Herna nespí. Já nespím. Od roku devadesát sedm.": {
+   "f": "v0002.wav",
+   "dur": 3.676451262320469
+  },
+  "Pusť mě blíž… chci vidět tvůj obličej.": {
+   "f": "v0003.wav",
+   "dur": 2.670369623328719
+  },
+  "Jsi to ty, D.? Podívej se na mě!": {
+   "f": "v0004.wav",
+   "dur": 2.7335815480188765
+  },
+  "Jen chvilku. Jen se na mě podívej.": {
+   "f": "v0005.wav",
+   "dur": 2.5899051490555953
+  },
+  "Tma mi nevadí. Jsem v ní od devadesát sedm.": {
+   "f": "v0006.wav",
+   "dur": 3.1309084272091194
+  },
+  "Zase světlo… stejné jako na té oslavě.": {
+   "f": "v0007.wav",
+   "dur": 3.0866214526366127
+  },
+  "Ta melodie… hrála na Eminých narozeninách.": {
+   "f": "v0008.wav",
+   "dur": 3.3485578608021913
+  },
+  "Proč mě odháníš? Chci jen svou dceru.": {
+   "f": "v0009.wav",
+   "dur": 2.599199657566996
+  },
+  "Ona je moje. Moje dcera. Moje Ema.": {
+   "f": "v0010.wav",
+   "dur": 3.454031284893254
+  },
+  "Nesahej na ni! Jednou mi ji už hlídač vzal.": {
+   "f": "v0011.wav",
+   "dur": 3.1096544485310127
+  },
+  "Cocoa není kostým. Je to Ema. Pořád jí je devět.": {
+   "f": "v0012.wav",
+   "dur": 3.9207877356315017
+  },
+  "Kdo zapálil hernu? Hlídač. Jenže který?": {
+   "f": "v0013.wav",
+   "dur": 3.333107384178363
+  },
+  "Springlocky cvakly. Pamatuju si ten zvuk.": {
+   "f": "v0014.wav",
+   "dur": 3.028700590797523
+  },
+  "D.… to písmeno pálí víc než oheň.": {
+   "f": "v0015.wav",
+   "dur": 2.6349930883068726
+  },
+  "Hasiči odešli. Já zůstal. Ona zůstala.": {
+   "f": "v0016.wav",
+   "dur": 3.573262786726409
+  },
+  "Slyšíš to? To je moje srdce. V kovu.": {
+   "f": "v0017.wav",
+   "dur": 3.0417055882576807
+  },
+  "Konečně tma. Teď uvidíme, kdo jsi.": {
+   "f": "v0018.wav",
+   "dur": 3.042527808901316
+  },
+  "Zítra. Zítra mi řekneš, co jsi s ní udělal.": {
+   "f": "v0019.wav",
+   "dur": 3.3770086505051182
+  },
+  "Ty nejsi on… nebo ano?": {
+   "f": "v0020.wav",
+   "dur": 2.366282946184188
+  },
+  "Zase jsi tady. Pojistky jsou v pizzerii, v bludišti a ve skladu. Najdi je.": {
+   "f": "v0021.wav",
+   "dur": 5.057208320208314
+  },
+  "Nechal jsem tu pro tebe nahrávky. Poslechni si, kým jsem byl.": {
+   "f": "v0022.wav",
+   "dur": 3.877389525392228
+  },
+  "Serverovna. Rozvaděč. Oprav ho a uvidíš všechno.": {
+   "f": "v0023.wav",
+   "dur": 3.899431997640809
+  },
+  "Cocoa hledá svou hlavu. Je v bludišti. Vrať jí ji.": {
+   "f": "v0024.wav",
+   "dur": 3.6638498375947575
+  },
+  "Na pódiu leží klíč. Ve skladu je skříňka. Uvidíme, co v ní najdeš.": {
+   "f": "v0025.wav",
+   "dur": 4.710978621155121
+  },
+  "Srdce tluče v herně. Zhasni ho baterkou… jestli se odvážíš.": {
+   "f": "v0026.wav",
+   "dur": 4.02465361770935
+  },
+  "Nahrávka jedna. Ema se ztratila v herně. Policie nic nenašla. Ale Cocoa se na mě dívá jejíma očima.": {
+   "f": "v0027.wav",
+   "dur": 7.180801458149445
+  },
+  "Nahrávka dvě. Nový hlídač D. se usmívá, když mluvím o Emě. Nelíbí se mi to.": {
+   "f": "v0028.wav",
+   "dur": 5.676141513136814
+  },
+  "Nahrávka tři. Jestli se mi něco stane, Cocoa nesmí odejít. Ona je moje holčička.": {
+   "f": "v0029.wav",
+   "dur": 5.748496101839843
+  },
+  "„Běž domů. Dnes zamknu já.“": {
+   "f": "v0030.wav",
+   "dur": 2.1967010406584704
+  },
+  "„Nesahej na to. Ona potřebuje proud.“": {
+   "f": "v0031.wav",
+   "dur": 2.9420105389788906
+  },
+  "„Dokud tluče, herna žije. A my s ní.“": {
+   "f": "v0032.wav",
+   "dur": 2.914658148693872
+  },
+  "Haló?! Jsi to ty? Ten hlídač z Voxie's?": {
+   "f": "v0033.wav",
+   "dur": 2.923259940083111
+  },
+  "Prosím… potřebuju pomoc. Hned.": {
+   "f": "v0034.wav",
+   "dur": 2.8538314588290405
+  },
+  "Jsem v herně. Myslel jsem, že je prázdná…": {
+   "f": "v0035.wav",
+   "dur": 2.81766411908323
+  },
+  "On tu je. Voxie. Chytil mě za nohu—": {
+   "f": "v0036.wav",
+   "dur": 2.798569748861171
+  },
+  "NE! PUSŤ MĚ—": {
+   "f": "v0037.wav",
+   "dur": 1.228638521504126
+  },
+  "To je… moje Ema.": {
+   "f": "v0038.wav",
+   "dur": 2.0449057656076075
+  },
+  "Dnes v noci… tě nechám být.": {
+   "f": "v0039.wav",
+   "dur": 2.089178892683803
+  },
+  "Tohle… nakreslila Ema. Pro mě.": {
+   "f": "v0040.wav",
+   "dur": 2.9865918014637454
+  },
+  "Tati…": {
+   "f": "v0041.wav",
+   "dur": 0.9922261964919716
+  },
+  "Děkuju ti.": {
+   "f": "v0042.wav",
+   "dur": 1.3771078034077482
+  },
+  "Děkujeme.": {
+   "f": "v0043.wav",
+   "dur": 1.3284812512542592
+  },
+  "Oheň je očista…": {
+   "f": "v0044.wav",
+   "dur": 1.6675664348770016
+  },
+  "Děkuju, že jsi nás pustil.": {
+   "f": "v0045.wav",
+   "dur": 2.1527897298067473
+  },
+  "Přišel jsi až sem… kvůli mně.": {
+   "f": "v0046.wav",
+   "dur": 2.317425842360752
+  },
+  "Srdce už netluče. Jsem volná.": {
+   "f": "v0047.wav",
+   "dur": 2.3522516864454324
+  },
+  "Sbohem. A děkuju.": {
+   "f": "v0048.wav",
+   "dur": 2.0211769544204836
+  },
+  "Herna žije… Vrátíš se.": {
+   "f": "v0049.wav",
+   "dur": 2.20469441503968
+  },
+  "Pomůžu ti. Už jedu!": {
+   "f": "v0050.wav",
+   "dur": 2.1619871216460997
+  },
+  "Co se stalo? Kde jsi?": {
+   "f": "v0051.wav",
+   "dur": 2.0348132246099566
+  },
+  "Zavolám policii.": {
+   "f": "v0052.wav",
+   "dur": 1.6251148387556882
+  },
+  "Herna tě zavolá… až bude zase noc.": {
+   "f": "v0053.wav",
+   "dur": 2.8717179067204723
+  },
+  "Ema neshořela. Ona v ní zůstala. A já s ní.": {
+   "f": "v0054.wav",
+   "dur": 3.601967250086803
+  },
+  "Ema! Ne, ne, ne…": {
+   "f": "v0055.wav",
+   "dur": 2.325953833592991
+  }
+ }
+}
