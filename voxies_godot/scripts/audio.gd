@@ -163,3 +163,8 @@ func stop_menu_song() -> void:
 
 func song_len() -> float:
 	return music_box.stream.get_length() if music_box.stream else 20.0
+
+## jumpscare zvuky postav (vlastní nahrávky)
+func scare(id: String) -> void:
+	var path := "res://audio/scare_cocoa.mp3" if id == "C" else "res://audio/scare_voxie.mp3"
+	_play(_stream(path), 1.0, 0.0)

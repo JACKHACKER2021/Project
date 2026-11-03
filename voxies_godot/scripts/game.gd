@@ -72,13 +72,14 @@ var COC: Rig
 var vox_eyes = []
 const EYE_GREEN := Color("#39ff6a")
 var eye_light: OmniLight3D
-var scare_kind := "classic"
+var scare_kind = "classic"
 var coco_heads = []
 var COCO_TEX = {}
 var cocoa_hold = 0
 var blink_t = 4.0
 
 var hud: Control
+var day: Node
 var audio: Node
 
 # ====================================================================
@@ -102,6 +103,10 @@ func _ready() -> void:
 	add_child(audio)
 	_build_scene()
 	_build_nav()
+	day = preload("res://scripts/day.gd").new()
+	day.game = self
+	add_child(day)
+	day.setup()
 	hud = preload("res://scripts/hud.gd").new()
 	hud.game = self
 	var layer = CanvasLayer.new()
@@ -111,7 +116,9 @@ func _ready() -> void:
 	scene_ = "menu"
 	scene_t = 0.0
 	audio.start_menu_song()
-	if "--cocoa" in OS.get_cmdline_user_args():
+	if "--day" in OS.get_cmdline_user_args():
+		_shots_day()
+	elif "--cocoa" in OS.get_cmdline_user_args():
 		_shots_cocoa()
 	elif "--shots" in OS.get_cmdline_user_args():
 		_shots()
@@ -330,14 +337,13 @@ func _build_props() -> void:
 	var a = _aabb(pk)
 	OBST.append({"x0": a.position.x, "z0": a.position.z, "x1": a.end.x, "z1": a.end.z, "ai": true, "hop": false})
 	# --- kancelář pana Vojtěcha (zamčená místnost X za skladem) ---
-	place_model("res://models/nove/psaci_stul.glb", 0.82, Vector3(16.0, 0, 3.6), PI)
-	place_model("res://models/nove/zidle.glb", 1.05, Vector3(16.0, 0, 4.7), PI)
+	place_model("res://models/nove/psaci_stul.glb", 1.5, Vector3(16.0, 0, 3.6), PI)
+	place_model("res://models/nove/zidle.glb", 1.25, Vector3(16.0, 0, 4.7), PI)
 	place_model("res://models/nove/knihovna.glb", 2.1, Vector3(21.55, 0, 1.4), -PI / 2)
 	place_model("res://models/nove/trezor.glb", 0.95, Vector3(21.2, 0, 5.2), -PI * 0.75)
 	place_model("res://models/nove/kartoteka.glb", 1.35, Vector3(10.55, 0, 4.6), PI / 2)
 	place_model("res://models/nove/kartoteka.glb", 1.35, Vector3(10.55, 0, 3.6), PI / 2)
 	var vl = _omni(Color("#ffcf8a"), 6, 7, Vector3(16, 2.6, 2.8))
-	vl.shadow_enabled = true
 	# --- sekera (noc 7) a sekera v ruce ---
 	axe_mesh = place_model("res://models/axe.glb", 1.0, Vector3(21.2, 0, -6.5), 0)
 	axe_mesh.rotation.z = 0.25
@@ -581,8 +587,11 @@ func usage() -> int:
 		return 0
 	return 1 + int(G.doorL) + int(G.doorR) + int(G.light != null) + int(G.cams) + int(roam.on and roam.flash)
 
+## každý den: nejdřív denní směna, pak noc
 func start_night(n: int) -> void:
-	if T.MINIS.has(str(n)):
+	if n >= 1 and n <= 7:
+		day.start_day(n)
+	elif T.MINIS.has(str(n)):
 		hud.start_mini(n)
 	else:
 		new_game(n)
@@ -593,6 +602,8 @@ func new_game(n: int) -> void:
 	if randf() < 0.5:
 		pz_times.append(HOUR * (3.6 + randf() * 1.5))
 	var lines: Array = T.CALLS[n - 1] if n - 1 < T.CALLS.size() else []
+	if n == 7:
+		lines = [lines[0]]   # bez sekery: v noci 7 přijde v 5 AM D.
 	G = {
 		"night": n, "t": 0.0, "power": 100.0, "pz": null, "pzCalm": 0.0, "pzMsgT": 0.0, "pzMsg": "", "pzTimes": pz_times, "doorL": false, "doorR": false, "aL": 0.0, "aR": 0.0, "light": null, "cams": false, "camA": 0.0, "cam": "1A", "camStatic": 0.0,
 		"vox": mk_ai("V"), "coc": mk_ai("C"), "met": false, "loreT": randf_range(90, 150),
@@ -615,7 +626,7 @@ func new_game(n: int) -> void:
 		G.coc.broken = true
 		G.coc.pos = "c4"
 	rep_init(n)
-	axe_mesh.visible = n == 7
+	axe_mesh.visible = false
 	speech = null
 	scare_t = -1.0
 	killer = null
@@ -938,7 +949,7 @@ func jumpscare(a: Dictionary) -> void:
 	audio.set_buzz(false)
 	audio.stop_music_box()
 	audio.stop_ambient()
-	audio.sfx("scare")
+	audio.scare(a.id)
 	audio.voice(("Cscare|" if a.id == "C" else "Vscare|") + pick(_ai_def(a.id).lines.scare), 0.8, 0.0, false)
 	scare_t = 0.0
 	scare_kind = "dark" if G.out else "classic"
@@ -1043,7 +1054,16 @@ func update(dt: float) -> void:
 		return
 	if scene_ != "play":
 		return
+	if G.get("day"):
+		day.update(dt)
+		return
 	G.t += dt
+	# noc 7: v 5 AM přijde D. a odvede tě ven
+	if G.night == 7 and hour_of() >= 5 and not G.get("dv"):
+		d_visit_start()
+	if G.get("dv"):
+		d_visit_update(dt)
+		return
 	if G.t >= 6 * HOUR and not fin_hold():
 		win()
 		return
@@ -1224,6 +1244,8 @@ func near_desk() -> bool:
 func toggle_roam() -> void:
 	if scene_ != "play" or G.cams:
 		return
+	if G.get("day") and roam.on:
+		return
 	if not roam.on:
 		if G.light != null:
 			set_light(null)
@@ -1386,7 +1408,7 @@ func _inter_ok(id: String) -> bool:
 		"deliver": return G.task != null and G.task.step == 4
 		"repair": return G.coc.broken and not G.work and not G.rep
 		"server": return G.sys != null and G.sys.broken and not G.work
-		"axe": return G.night == 7 and not G.axe
+		"axe": return false
 		"rep_inspect": return rep_ok(0)
 		"rep_open": return rep_ok(1)
 		"rep_boxS": return rep_ok(2) and not G.rep.searched.has("S")
@@ -1403,6 +1425,11 @@ func near_inter():
 	if INTER.is_empty():
 		INTER = T.INTER
 		WORK = T.WORK.duplicate(true)
+	if G.get("day"):
+		for i in G.dinter:
+			if Vector2(roam.pos.x - i.x, roam.pos.z - i.z).length() < i.r and not (G.work and G.work.id == i.id):
+				return i
+		return null
 	for i in INTER:
 		if _inter_ok(i.id) and Vector2(roam.pos.x - i.x, roam.pos.z - i.z).length() < i.r:
 			return i
@@ -1414,6 +1441,9 @@ func interact() -> void:
 		return
 	var Tk = G.task
 	audio.sfx("click")
+	if String(i.id).begins_with("d_"):
+		day.on_inter(i)
+		return
 	if String(i.id).begins_with("rep_"):
 		rep_interact(i)
 		return
@@ -1447,6 +1477,9 @@ func interact() -> void:
 			say_later(1.5, func(): if G: say_a(G.coc, "meet", {"speaker": true, "force": true}))
 
 func work_done(id: String) -> void:
+	if id.begins_with("d_"):
+		day.on_work_done(id)
+		return
 	audio.sfx("work_done")
 	if id.begins_with("rep_"):
 		rep_work_done(id)
@@ -1919,11 +1952,24 @@ func _build_n4() -> void:
 			var src = m.get_active_material(s)
 			var own: StandardMaterial3D = src.duplicate() if src is StandardMaterial3D else StandardMaterial3D.new()
 			own.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
+			# stejný lesklý materiál jako stojící Cocoa
+			own.roughness = 0.2
+			own.metallic = 0.25
+			own.clearcoat_enabled = true
+			own.clearcoat = 1.0
+			own.clearcoat_roughness = 0.1
 			if REPO.seat_own == null:
 				REPO.seat_own = own.albedo_texture
 			m.set_surface_override_material(s, own)
 			REPO.seat_mats.append(own)
 	REPO.seat.visible = false
+	var sks = REPO.seat.find_children("*", "Skeleton3D", true, false)
+	if sks.size():
+		var sk: Skeleton3D = sks[0]
+		for i in sk.get_bone_count():
+			if sk.get_bone_name(i).to_lower().begins_with("head"):
+				REPO.head = {"sk": sk, "i": i, "q": sk.get_bone_pose_rotation(i)}
+				break
 	REPO.chip = place_model("res://models/n4/polovodic.glb", 0.09, Vector3(REP_BENCH.x + 0.35, 0.86, REP_BENCH.y + 0.35), 0)
 	REPO.chip.visible = false
 
@@ -2209,6 +2255,17 @@ func spark_tick(dt: float) -> void:
 
 func rep_tick(dt: float) -> void:
 	spark_tick(dt)
+	# rozbitá sedící Cocoa: hlava visí na stranu a cuká (animace „broken")
+	if REPO.get("head") and REPO.seat.visible:
+		var H0: Dictionary = REPO.head
+		var sitting_ok: bool = G != null and G.rep != null and G.rep.done
+		var tw = randf_range(-0.3, 0.3) if sin(t_now * 17) > 0.93 else 0.0
+		var q: Quaternion = H0.q
+		if not sitting_ok:
+			q = H0.q * Quaternion.from_euler(Vector3(0.55 + tw, tw, 0.4 + sin(t_now * 0.7) * 0.05))
+		else:
+			q = H0.q * Quaternion.from_euler(Vector3(0.12, sin(t_now * 0.5) * 0.15, 0))
+		H0.sk.set_bone_pose_rotation(H0.i, q)
 	if G and G.rep and not G.rep.done:
 		var hot = rep_flash > 0
 		for m in REPO.seat_mats:
@@ -2375,8 +2432,8 @@ func render(t: float) -> void:
 		ch.pose(t, mode, scare_t)
 		if ch == VOX:
 			var red: bool = G != null and G.damaged and scene_ != "extras"
-			var col := EYE_GREEN
-			var glow := 1.0
+			var col = EYE_GREEN
+			var glow = 1.0
 			var dark_scare: bool = mode == "scare" and scare_kind == "dark"
 			if red:
 				col = Color("#ff1010") if randf() < 0.85 else Color("#330000")
@@ -2426,6 +2483,7 @@ func render(t: float) -> void:
 				look_target = null
 		office_cam.rotation = Vector3(-0.05, G.look if G else 0.0, (randf() - 0.5) * sh * 0.6)
 	stage_rgb(t)
+	day.render_extra(t)
 	var se: Camera3D = roam_cam if roam.on else office_cam
 	var f = (60.0 if scare_t < 0.1 else 45.0) if scene_ == "scare" else 72.0
 	office_cam.fov = f if se == office_cam else 72.0
@@ -2526,8 +2584,8 @@ func _shots() -> void:
 	for kind in ["classic", "dark"]:
 		scare_kind = kind
 		hud.EX.scare = 0.0
-		var marks := [0.02, 0.14, 0.3, 0.7, 1.15]
-		var last := 0.0
+		var marks = [0.02, 0.14, 0.3, 0.7, 1.15]
+		var last = 0.0
 		for i in marks.size():
 			await _wait(marks[i] - last)
 			last = marks[i]
@@ -2582,4 +2640,129 @@ func _shots_cocoa() -> void:
 	roam.pos = Vector3(15.0, 1.6, -11.0)
 	await _wait(1.0)
 	await _shot("coc_b")
+	get_tree().quit()
+
+# ---------- noc 7: D. přijde v 5 AM ----------
+func d_visit_start() -> void:
+	G.dv = true
+	G.dvT = 0.0
+	G.dvL = [
+		"Hej! To jsem já, D. Neboj, mám klíč.",
+		"Je pět. Animatronici se v tuhle dobu vždycky vrací na pódium. Máme chvíli.",
+		"Tenkrát jsem utekl a nechal tu všechny. Dneska to bude jinak.",
+		"Pojď. Odvedu tě ven dřív, než bude šest. Tuhle noc už nikdo nezůstane uvnitř.",
+	]
+	G.dvNext = 2.5
+	for a in ai_list():
+		a.attack = false
+		a.chase = false
+		a.retreatT = 0.0
+		var from = _ai_def(a.id).ch.root.position
+		a.pos = _ai_def(a.id).start
+		set_spot(_ai_def(a.id).ch, a.pos)
+		start_walk(a, from)
+		a.off = true
+	G.cams = false
+	if G.light != null:
+		set_light(null)
+	if G.doorR:
+		G.doorR = false
+		audio.sfx("door", 0.8)
+	audio.sfx("knock", 0.9)
+	var N: Dictionary = day.npcs["D."]
+	day._place("D.", Vector3(5, 0, -3.5), 0)
+	day.walk_npc("D.", Vector3(2.0, 0, 1.4))
+
+func d_visit_update(dt: float) -> void:
+	G.dvT += dt
+	G.aL += ((1.0 if G.doorL else 0.0) - G.aL) * minf(1, dt * 12)
+	G.aR += ((1.0 if G.doorR else 0.0) - G.aR) * minf(1, dt * 12)
+	G.camA = clampf(G.camA - dt * 5, 0, 1)
+	day._npc_update(dt)
+	G.dvNext -= dt
+	if G.dvNext <= 0:
+		if G.dvL.is_empty():
+			day.npcs["D."].rig.root.visible = false
+			win()
+			return
+		var text: String = G.dvL.pop_front()
+		var dur = clampf(text.length() * 0.065 + 1.6, 3.0, 9.0)
+		speech = {"who": "D.", "text": text, "t": 0.0, "dur": dur, "col": Color("#9fd0ff"), "heard": true}
+		G.dvNext = dur + 0.3
+
+func _shots_day() -> void:
+	await _wait(1.0)
+	day.start_day(1)
+	await _wait(1.0)
+	roam.pos = Vector3(-13, 1.6, -18.5)
+	roam.yaw = PI * 0.6
+	await _wait(0.6)
+	await _shot("d1_kitchen")
+	day.start_day(2)
+	await _wait(0.6)
+	roam.pos = Vector3(-14, 1.6, -9.5)
+	roam.yaw = 0.3
+	await _wait(0.6)
+	await _shot("d2_kids")
+	day.start_day(3)
+	await _wait(0.3)
+	day.S.lines = []
+	day.S.lt = 0.01
+	await _wait(0.2)
+	day.on_work_done("d_panel")
+	roam.pos = Vector3(0, 1.6, -19.5)
+	roam.yaw = 0.0
+	roam.pitch = 0.05
+	await _wait(1.0)
+	await _shot("d3_show")
+	audio.stop_music_box()
+	day.start_day(4)
+	await _wait(0.3)
+	day._fx("argue_setup", {})
+	roam.pos = Vector3(15.4, 1.6, -2.8)
+	roam.yaw = 0.2
+	roam.pitch = -0.1
+	await _wait(0.6)
+	await _shot("d4_argue")
+	day.start_day(5)
+	await _wait(0.5)
+	roam.pos = Vector3(-0.5, 1.6, 2.2)
+	roam.yaw = -1.0
+	await _wait(0.5)
+	await _shot("d5_office")
+	day.start_day(7)
+	await _wait(0.5)
+	day.S.lines = []
+	day.S.lt = 0.01
+	await _wait(0.3)
+	roam.pos = Vector3(-5, 1.6, -1.5)
+	roam.yaw = 0.0
+	roam.pitch = -0.3
+	await _wait(0.5)
+	await _shot("d7_mop")
+	day._finish()
+	await _wait(1.5)
+	await _shot("dayend")
+	new_game(7)
+	scene_ = "play"
+	G.t = 5 * HOUR + 1
+	G.look = -0.9
+	await _wait(5.0)
+	await _shot("n7_dvisit")
+	new_game(4)
+	scene_ = "play"
+	toggle_roam()
+	roam.pos = Vector3(14.6, 1.6, -5.0)
+	roam.yaw = PI / 2 + 0.3
+	await _wait(0.8)
+	await _shot("n4_seat")
+	to_menu()
+	DEV.noclip = true
+	start_night(1)
+	await _wait(0.3)
+	roam.pos = Vector3(16.0, 1.6, 6.5)
+	roam.yaw = 0.0
+	G.dinter = []
+	await _wait(0.5)
+	await _shot("vojtech")
 	get_tree().quit()

@@ -228,7 +228,7 @@ func _draw() -> void:
 	var g = game
 	var t: float = g.t_now
 	var sc: String = g.scene_
-	if sc in ["loading", "intro", "dead", "win", "ending", "mini", "secret", "news"]:
+	if sc in ["dayend", "loading", "intro", "dead", "win", "ending", "mini", "secret", "news"]:
 		rect(0, 0, HW, HH, "#000000")
 	if sc == "loading":
 		draw_logo(HW / 2 - 90, 180, 180)
@@ -272,6 +272,8 @@ func _draw() -> void:
 		draw_dev_menu(t)
 	elif sc == "secret":
 		draw_secret()
+	elif sc == "dayend":
+		draw_dayend()
 	elif sc == "dead":
 		draw_dead()
 	elif sc == "win":
@@ -280,11 +282,15 @@ func _draw() -> void:
 		draw_ending()
 
 func clock_str(h: int) -> String:
+	if game.G.get("day"):
+		return str(9 + int(game.G.t / 60.0)) + ":" + ("%02d" % (int(game.G.t) % 60))
 	if game.G.night == 4:
 		return str(12 if h == 0 else h) + " AM"
 	return ("0" if h == 0 else str(h)) + ":00"
 
 func night_name() -> String:
+	if game.G.get("day"):
+		return "Den " + str(game.G.day)
 	return "Vlastní noc" if game.G.night == 8 else "Noc " + str(game.G.night)
 
 func draw_map() -> void:
@@ -419,7 +425,7 @@ func draw_roam_hud(t: float) -> void:
 		if not game.G.out:
 			game.roam.flash = not game.roam.flash
 			game.audio.sfx("click"), not G.out, 18)
-	if game.near_desk():
+	if game.near_desk() and not G.get("day"):
 		big_btn(HW - 230, 590, 200, 50, "🪑 KE STOLU", "desk", game.toggle_roam, true, 18)
 	if game.can_hit():
 		big_btn(HW / 2 - 210, 500, 420, 64, "🪓 ÚDER (" + str(G.hits) + "/3)", "hit", game.hit_voxie, true, 24)
@@ -430,7 +436,7 @@ func draw_roam_hud(t: float) -> void:
 		big_btn(HW / 2 - 210, 580, 420, 56, "💬 MLUVIT S COCOU", "talk", game.open_dialog, true, 19)
 	txt(night_name(), 24, 42, 26, "#ffffff")
 	txt(clock_str(game.hour_of()), HW - 24, 54, 46, "#ffffff", "right")
-	if not G.out:
+	if not G.out and not G.get("day"):
 		txt("Proud: " + str(maxi(0, ceili(G.power))) + " %", 24, 80, 22, "#ff6b6b" if G.power < 20 else "#ffffff")
 	var rid = game.room_at(roam.pos.x, roam.pos.z)
 	txt("Kancelář" if rid == "OFF" else (game.CAMS[rid].name if rid != null and game.CAMS.has(rid) else ""), HW / 2, 40, 22, "#ccffee", "center")
@@ -459,6 +465,16 @@ func rep_clock(h: int) -> String:
 
 func draw_task() -> void:
 	var G = game.G
+	if G.get("day"):
+		bar_y = 52.0
+		if G.work and String(G.work.id).begins_with("d_"):
+			var Wd: Dictionary = game.WORK[G.work.id]
+			bar("🔧 " + Wd.label + ": " + str(int(G.work.prog / Wd.need * 100)) + " %", G.work.prog / Wd.need, "#7ff4ff")
+		else:
+			var tt: String = game.day.task_text()
+			if tt != "":
+				bar(tt, null, "#ffd28a")
+		return
 	if G.rep:
 		rep_hud()
 	bar_y = 52.0
@@ -471,7 +487,7 @@ func draw_task() -> void:
 	if G.sys and G.sys.broken:
 		var on: bool = G.work != null and G.work.id == "server"
 		bar("🖥 Restart serveru: " + str(int(G.work.prog / W.server.need * 100)) + " %" if on else "⚠ KAMERY OFFLINE – restartuj server ve vchodu (CAM 7)", G.work.prog / W.server.need if on else null, "#ff6b6b")
-	if G.night == 7 and not G.axe:
+	if false:
 		bar("🪓 Ve skladu (CAM 4) je sekera… nebo jen vydrž do 6:00", null, "#ffb0b0")
 	if G.axe:
 		bar("🪓 Sekera: " + str(G.hits) + "/3 zásahů", G.hits / 3.0, "#ff6b6b")
@@ -599,7 +615,7 @@ func draw_menu(t: float) -> void:
 		txt("★ Přežil jsi 5 nocí" + (" · noci 6–7 odemčeny" if pr >= 7 else ""), 64, 560, 18, "#ffe46b")
 	if game.st_get("voxies_secret", false):
 		txt("🪓 Tajný konec: Osvobození", 64, 584, 18, "#ff6b6b")
-	txt("v2.6.0 Remastered · Godot", HW - 20, 700, 14, "#888888", "right")
+	txt("v2.7.0 Remastered · Godot", HW - 20, 700, 14, "#888888", "right")
 	txt("Táhni prstem = rozhlížení · Joystick = chůze mimo stůl · Q/E světla, A/D dveře, mezerník kamery, F baterka", 64, 700, 13, "#777777")
 
 func draw_intro() -> void:
@@ -887,7 +903,7 @@ func draw_dev_menu(t: float) -> void:
 	scanlines()
 	var cx = HW / 2
 	txt("🛠 DEV NÁSTROJE", cx, 80, 44, "#5dff8a", "center")
-	txt("Night at Voxie's v2.6.0 Remastered · pro tvůrce a testování", cx, 110, 16, "#9fffb8", "center")
+	txt("Night at Voxie's v2.7.0 Remastered · pro tvůrce a testování", cx, 110, 16, "#9fffb8", "center")
 	big_btn(cx - 420, 140, 400, 50, "DEV PANEL VE HŘE: " + ("ZAP" if DEV.on else "VYP"), "dvon", func():
 		DEV.on = not DEV.on
 		game.st_set("voxies_dev", DEV.on), true, 18)
@@ -923,7 +939,12 @@ func draw_dev_menu(t: float) -> void:
 		game.st_set("voxies_dev", DEV.on)
 		game.progress = 1
 		game.beaten = false, "resetováno"), true, 16)
-	txt("Ve hře: tlačítko DEV vpravo nahoře nebo klávesa ` / F1", cx, 540, 16, "#9fffb8", "center")
+	for n in range(1, 8):
+		var dn = n
+		big_btn(cx - 420 + (n - 1) * 120, 494, 112, 40, "DEN " + str(n), "dvd" + str(n), func():
+			DEV.on = true
+			game.day.start_day(dn), true, 15)
+	txt("Ve hře: tlačítko DEV vpravo nahoře nebo klávesa ` / F1", cx, 556, 16, "#9fffb8", "center")
 	if DEV.msgT > 0:
 		DEV.msgT -= game.frame_dt
 		txt("✓ " + DEV.msg, cx, 580, 18, "#5dff8a", "center")
@@ -964,12 +985,12 @@ func draw_extras(t: float) -> void:
 				game.scare_kind = "dark"
 				game.audio.start_music_box(14.0)
 				game.say_later(1.0, game.audio.stop_music_box)
-				game.say_later(1.0, func(): game.audio.sfx("scare")), EX.scare < 0, 17)
+				game.say_later(1.0, func(): game.audio.scare("V")), EX.scare < 0, 17)
 		big_btn(x + 20, 500, 220, 56, "😱 JUMPSCARE", "exj", func():
 			game.scare_kind = "classic"
 			EX.scare = 0.0
-			game.audio.sfx("scare")
 			var who = "V" if EX.idx == 0 else "C"
+			game.audio.scare(who)
 			game.audio.voice(("Vex|" if who == "V" else "Cex|") + game.pick(game._ai_def(who).lines.scare), 0.8, 0.0, false), EX.scare < 0, 18)
 		big_btn(x + 250, 500, 220, 56, "COCOA ▶" if EX.idx == 0 else "◀ VOXIE", "exn", func():
 			EX.idx = 1 - EX.idx
@@ -1517,10 +1538,10 @@ func _key(e: InputEventKey) -> void:
 # ---------- odměna: písnička od fanouška ----------
 var song_parts = []
 func draw_song(t: float) -> void:
-	if not game.st_get("voxies_secret", false):
+	if not game.st_get("voxies_secret", false) and not game.st_get("voxies_n7", false):
 		rr(160, 200, HW - 320, 220, 12, Color(0, 0, 0, 0.6))
 		txt("🔒 PÍSNIČKA ZAMČENA", HW / 2, 280, 32, "#666666", "center")
-		txt("Odemkne se po tajném konci: Osvobození (3 rány sekerou v noci 7).", HW / 2, 330, 18, "#aaaaaa", "center")
+		txt("Odemkne se po přežití 7. noci.", HW / 2, 330, 18, "#aaaaaa", "center")
 		return
 	if song_parts.is_empty():
 		for blk in FileAccess.get_file_as_string("res://data/song.txt").strip_edges().split("\n\n"):
@@ -1529,7 +1550,7 @@ func draw_song(t: float) -> void:
 	EX.song = clampi(EX.song, 0, n - 1)
 	var cx = HW / 2
 	neon("PĚT NOCÍ U VOXIEHO", cx, 140, 40, "#ff2bd6", 18)
-	txt("písnička od fanouška · odměna za Osvobození", cx, 170, 15, "#ffd9f6", "center")
+	txt("písnička od fanouška · odměna za 7. noc", cx, 170, 15, "#ffd9f6", "center")
 	var part: Array = song_parts[EX.song]
 	rr(cx - 400, 190, 800, 420, 14, Color(0.04, 0.02, 0.07, 0.8), "#ff2bd6", 2)
 	txt(part[0], cx, 228, 20, "#ffe46b", "center")
@@ -1542,3 +1563,12 @@ func draw_song(t: float) -> void:
 	big_btn(cx - 400, 630, 180, 50, "◀ ZPĚT", "sgp", func(): EX.song -= 1, EX.song > 0, 18)
 	txt(str(EX.song + 1) + " / " + str(n), cx, 662, 20, "#cccccc", "center")
 	big_btn(cx + 220, 630, 180, 50, "DÁL ▶", "sgn", func(): EX.song += 1, EX.song < n - 1, 18)
+
+func draw_dayend() -> void:
+	var n: int = game.G.day if game.G else 1
+	neon("KONEC DENNÍ SMĚNY", HW / 2, 240, 52, "#ffe46b", 18)
+	txt("Den " + str(n) + " hotový. Herna se zavírá… a začíná noc.", HW / 2, 300, 22, "#ffffff", "center")
+	if game.scene_t > 1.2:
+		big_btn(HW / 2 - 220, 380, 440, 60, "🌙 NASTOUPIT NA NOC " + str(n), "dayn", func(): game.day.after_day(n), true, 22)
+		big_btn(HW / 2 - 220, 460, 440, 52, "MENU", "menu", game.to_menu, true, 20)
+	noise(0.05)
