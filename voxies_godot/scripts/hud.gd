@@ -182,6 +182,8 @@ func big_btn(x: float, y: float, w: float, h: float, label: String, id: String, 
 	var hov = hover_btn == id and enabled
 	var fill: Color = (Color("#ff2bd6") if hov else Color(1, 0.17, 0.84, 0.2)) if enabled else Color(1, 1, 1, 0.05)
 	rr(x, y, w, h, 12, fill, Color("#ff2bd6") if enabled else Color("#444444"), 2)
+	while size > 9 and tw(label, size) > w - 16:
+		size -= 1
 	txt(label, x + w / 2, y + h / 2 + size * 0.36, size, "#ffffff" if enabled else "#666666", "center")
 	if enabled:
 		add_btn(x, y, w, h, id, cb)
@@ -408,7 +410,7 @@ func draw_roam_hud(t: float) -> void:
 	rr(HW - 230, 380, 95, 70, 12, "#ff2bd6" if sprint_on else Color(1, 0.17, 0.84, 0.2), "#ff2bd6", 2)
 	txt("🏃", HW - 182, 425, 30, "#ffffff", "center")
 	add_btn(HW - 230, 380, 95, 70, "sprint", func(): pass)
-	big_btn(HW - 125, 380, 95, 70, "⤒", "jump", game.roam_jump, true, 34)
+	big_btn(HW - 125, 380, 95, 70, "▲", "jump", game.roam_jump, true, 34)
 	big_btn(HW - 230, 520, 200, 50, "🔦 BATERKA: ZAP" if roam.flash else "🔦 BATERKA: VYP", "flash", func():
 		if not game.G.out:
 			game.roam.flash = not game.roam.flash
@@ -593,7 +595,7 @@ func draw_menu(t: float) -> void:
 		txt("★ Přežil jsi 5 nocí" + (" · noci 6–7 odemčeny" if pr >= 7 else ""), 64, 560, 18, "#ffe46b")
 	if game.st_get("voxies_secret", false):
 		txt("🪓 Tajný konec: Osvobození", 64, 584, 18, "#ff6b6b")
-	txt("v2.2.0 Remastered · Godot", HW - 20, 700, 14, "#888888", "right")
+	txt("v2.5.0 Remastered · Godot", HW - 20, 700, 14, "#888888", "right")
 	txt("Táhni prstem = rozhlížení · Joystick = chůze mimo stůl · Q/E světla, A/D dveře, mezerník kamery, F baterka", 64, 700, 13, "#777777")
 
 func draw_intro() -> void:
@@ -881,7 +883,7 @@ func draw_dev_menu(t: float) -> void:
 	scanlines()
 	var cx = HW / 2
 	txt("🛠 DEV NÁSTROJE", cx, 80, 44, "#5dff8a", "center")
-	txt("Night at Voxie's v2.2.0 Remastered · pro tvůrce a testování", cx, 110, 16, "#9fffb8", "center")
+	txt("Night at Voxie's v2.5.0 Remastered · pro tvůrce a testování", cx, 110, 16, "#9fffb8", "center")
 	big_btn(cx - 420, 140, 400, 50, "DEV PANEL VE HŘE: " + ("ZAP" if DEV.on else "VYP"), "dvon", func():
 		DEV.on = not DEV.on
 		game.st_set("voxies_dev", DEV.on), true, 18)
@@ -993,8 +995,8 @@ func draw_extras(t: float) -> void:
 				info = "Kancelář pana Vojtěcha: psací stůl, židle, knihovna, trezor a kartotéky. Zamčeno od roku 1997."
 			if rm == "2":
 				info += " Nová pec s lopatou, objednávkový lístek a stoly s pizzou."
-			if rm == "5":
-				info += " Fialová pokladna."
+			if rm == "7":
+				info += " Nová fialová pokladna."
 			var ls = wrapt(info, HW - x - 80, 18)
 			for i in ls.size():
 				txt(ls[i], x + 20, 245 + i * 26, 18, "#ffffff")

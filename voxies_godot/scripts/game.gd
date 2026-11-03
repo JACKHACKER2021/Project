@@ -315,8 +315,13 @@ func _build_props() -> void:
 		else:
 			for j in 2:
 				place_model("res://models/nove/pizza_kousek.glb", 0.035, Vector3(p[0] + (j - 0.5) * 0.4, 0.83, p[1] + 0.15), randf() * TAU)
-	# --- výdej lístků: nová fialová pokladna místo starého modelu ---
-	var pk = place_model("res://models/nove/pokladna.glb", 2.4, Vector3(-17.5, 0, -7.6), 0)
+	# --- vchod: nová fialová pokladna místo staré krabicové (Kapitán Ticket ve výdeji lístků zůstává) ---
+	for mi in world.find_children("*", "MeshInstance3D", true, false):
+		var ab: AABB = mi.global_transform * mi.get_aabb()
+		var c: Vector3 = ab.get_center()
+		if c.x > -15.1 and c.x < -12.0 and c.z > -1.3 and c.z < 1.3 and c.y < 2.6 and ab.size.y < 3.0:
+			mi.visible = false
+	var pk = place_model("res://models/nove/pokladna.glb", 2.4, Vector3(-13.45, 0, -0.2), 0)
 	var a = _aabb(pk)
 	OBST.append({"x0": a.position.x, "z0": a.position.z, "x1": a.end.x, "z1": a.end.z, "ai": true, "hop": false})
 	# --- kancelář pana Vojtěcha (zamčená místnost X za skladem) ---
@@ -1136,12 +1141,12 @@ func _build_nav() -> void:
 				if id == "OFF":
 					door = "L" if sd == "w" else "R"
 				GAPS.append({"r": g, "door": door})
-	# překážky z Remasteru (bez starého výdeje lístků v místnosti 5 – tam je nová pokladna)
+	# překážky z Remasteru (bez staré pokladny ve vchodu – tam je nová)
 	var ob = JSON.parse_string(FileAccess.get_file_as_string("res://data/obst.json"))
 	for o in ob:
 		var cx: float = (o[0] + o[2]) / 2.0
 		var cz: float = (o[1] + o[3]) / 2.0
-		if cx > -22 and cx < -10 and cz > -10 and cz < -2:
+		if cx > -15.1 and cx < -12.0 and cz > -1.3 and cz < 1.3:
 			continue
 		OBST.append({"x0": o[0], "z0": o[1], "x1": o[2], "z1": o[3], "ai": o[4] == 1, "hop": o[5] == 1})
 	for gg in GAPS:
@@ -2436,6 +2441,10 @@ func _shots() -> void:
 	roam.pos = Vector3(-16, 1.6, -19.6)
 	await _wait(0.5)
 	await _shot("kitchen_order")
+	roam.pos = Vector3(-14, 1.6, 4.5)
+	roam.yaw = 0.0
+	await _wait(0.5)
+	await _shot("vchod")
 	roam.pos = Vector3(-13, 1.6, -5)
 	roam.yaw = PI / 2
 	await _wait(0.5)
@@ -2481,5 +2490,9 @@ func _shots() -> void:
 
 static func make_font() -> Font:
 	var f: FontFile = load("res://fonts/mono.ttf")
-	f.fallbacks = [load("res://fonts/symbols.ttf"), load("res://fonts/emoji.ttf")]
+	var sy: FontFile = load("res://fonts/symbols.ttf")
+	var em: FontFile = load("res://fonts/emoji.ttf")
+	for x in [f, sy, em]:
+		x.allow_system_fallback = false
+	f.fallbacks = [sy, em]
 	return f
