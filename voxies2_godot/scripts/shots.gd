@@ -167,7 +167,7 @@ static func run2(g) -> void:
 		await w(g, 0.2)
 		await shot(g, "x_arr_" + str(int(tt)))
 	g.scenes.start_prison()
-	for tt in [7.0, 23.0, 27.5, 30.0, 33.0, 36.4, 41.5]:
+	for tt in [23.0, 29.0, 33.0, 38.0, 41.0, 44.0, 46.8, 48.4, 50.0, 53.0]:
 		g.scenes.S.t = tt
 		g.scenes.S.said = 0
 		await w(g, 0.2)
