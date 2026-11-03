@@ -18,6 +18,8 @@ var ROUTE_R := ["1A", "1B", "3", "4", "HOLE"]
 var ROUTE: Array = ROUTE_L
 var baked := false
 var EYE := Vector3.ZERO
+var desk_parts := []
+var crt_node: Node3D
 var MON := Vector3.ZERO
 
 var S := "loading"
@@ -81,6 +83,9 @@ var coc_anim: AnimationPlayer
 var coc_mat: ShaderMaterial
 var coc_eyes: Array = []
 var coc_eye_mat: StandardMaterial3D
+var coc_sk: Skeleton3D
+var coc_bones := []
+var coc_eye_balls := []
 var coc_vis := {"van": null, "born": null, "force": null, "scareT": 0.0}
 var egg_head: Node3D
 var can_m: Node3D
@@ -96,6 +101,7 @@ var fl_vel := PackedFloat32Array()
 var out_ground: MeshInstance3D
 
 var hud
+var scenes
 var audio
 
 # ====================================================================
@@ -125,6 +131,10 @@ func _ready() -> void:
 	add_child(audio)
 	_adj()
 	_build()
+	scenes = preload("res://scripts/scenes.gd").new()
+	scenes.game = self
+	add_child(scenes)
+	scenes.build()
 	hud = preload("res://scripts/hud.gd").new()
 	hud.game = self
 	var pl = CanvasLayer.new()
@@ -154,7 +164,9 @@ func _ready() -> void:
 	if "--makemap" in OS.get_cmdline_user_args():
 		make_map()
 		return
-	if "--shots" in OS.get_cmdline_user_args():
+	if "--shots2" in OS.get_cmdline_user_args():
+		preload("res://scripts/shots.gd").run2(self)
+	elif "--shots" in OS.get_cmdline_user_args():
 		preload("res://scripts/shots.gd").run(self)
 
 func make_font() -> Font:
@@ -477,6 +489,14 @@ func _build_office() -> void:
 	if not baked:
 		_office_shell()
 	_office_screen()
+	# kusy stolu a počítače, které při Voxieho lekačce spadnou
+	desk_parts = []
+	for mi in building.find_children("*", "MeshInstance3D", true, false):
+		var aa: AABB = (mi as MeshInstance3D).global_transform * (mi as MeshInstance3D).get_aabb()
+		var cc = aa.get_center()
+		if absf(cc.x) < 2.0 and cc.y < 1.7 and cc.z > EYE.z - 2.1 and cc.z < EYE.z - 0.6 and aa.size.x < 3.6 and aa.size.y < 1.2:
+			desk_parts.append([mi, (mi as Node3D).global_transform])
+	desk_parts.append([crt_node, crt_node.global_transform])
 
 func _office_shell() -> void:
 	# starý monitor z 1. dílu na stole nahradí nový (ten se zapínací animací)
@@ -509,6 +529,7 @@ func _office_screen() -> void:
 	crt.material_override = cm
 	crt.position = MON + Vector3(0, 0, -0.04)
 	add_child(crt)
+	crt_node = crt
 	monitor_light = _omni("#40ff80", 1.6, 3.5, MON + Vector3(0, 0.1, 0.4))
 
 # ---------- postavy ----------
@@ -560,11 +581,38 @@ func _build_chars() -> void:
 	coc_eye_mat = StandardMaterial3D.new()
 	coc_eye_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	coc_eye_mat.albedo_color = Color(3, 3, 3)
-	for nm in ["cocEye_L", "cocEye_R"]:
+	# kostra: ruce dolů a houpání (originál je točil ručně, animace s rukama nehýbou)
+	var sks = coc_model.find_children("*", "Skeleton3D", true, false)
+	if sks.size():
+		coc_sk = sks[0]
+		for r in [["Bone.009_r", "z", 0.14, 1.1, 0.0, 1.15], ["Bone.009_l", "z", 0.14, 1.1, 1.7, -1.15], ["Bone.010_r", "x", 0.15, 1.6, 0.5, 0.0], ["Bone.010_l", "x", 0.15, 1.6, 2.2, 0.0]]:
+			for i in coc_sk.get_bone_count():
+				if coc_sk.get_bone_name(i).begins_with(r[0]):
+					coc_bones.append([i, coc_sk.get_bone_pose_rotation(i), r[1], r[2], r[3], r[4], r[5]])
+		# svítící oči připevněné ke kosti hlavy (Bone.013), mrkají podle animace cocEye_L/R
+		var head_i = -1
+		for i in coc_sk.get_bone_count():
+			if coc_sk.get_bone_name(i).begins_with("Bone.013"):
+				head_i = i
+		var ba = BoneAttachment3D.new()
+		coc_sk.add_child(ba)
+		if head_i >= 0:
+			ba.bone_idx = head_i
+		var nb = _aabb(coc_model)
+		for x in [-0.16, 0.16]:
+			var e = MeshInstance3D.new()
+			var sp = SphereMesh.new()
+			sp.radius = 0.055
+			sp.height = 0.11
+			e.mesh = sp
+			e.material_override = coc_eye_mat
+			COC.add_child(e)
+			e.position = Vector3(x, nb.end.y * 0.78, nb.end.z * 0.9)
+			e.reparent(ba, true)
+			coc_eye_balls.append(e)
+	for nm in ["cocEye_R", "cocEye_L"]:
 		var e = coc_model.find_child(nm, true, false)
 		if e:
-			for mi in ([e] if e is MeshInstance3D else e.find_children("*", "MeshInstance3D", true, false)):
-				(mi as MeshInstance3D).material_override = coc_eye_mat
 			coc_eyes.append(e)
 	COC.visible = false
 
@@ -961,6 +1009,9 @@ func update(dt: float) -> void:
 				hud.EX.scare = -1.0
 	if speech:
 		speech.t += dt
+	if S == "arrest" or S == "prison":
+		scenes.update(dt)
+		return
 	if S == "intro" and scene_t > 6:
 		begin_play()
 	if S == "boot":
@@ -1846,9 +1897,9 @@ func update_finale(dt: float) -> void:
 	if t > 53:
 		exit_g.visible = false
 		COC.visible = false
-		news_end = 5 if heart else 1
-		S = "news"
-		scene_t = 0.0
+		HB.visible = false
+		# venku po cestě… za zády policie a náčelník Král
+		scenes.start_arrest(5 if heart else 1)
 func fin_choose(k: String) -> void:
 	fin_pick = k
 	SV.fin = k
@@ -1902,6 +1953,17 @@ func coc_pose(name: String, tm: float) -> void:
 		coc_anim.play(name)
 	coc_anim.seek(tt, true)
 	coc_anim.pause()
+
+func coc_bones_tick(t: float) -> void:
+	if coc_sk == null:
+		return
+	for B in coc_bones:
+		var e = Vector3.ZERO
+		var ax = 2 if B[2] == "z" else 0
+		e[ax] = B[6] + sin(t * B[4] + B[5]) * B[3]
+		coc_sk.set_bone_pose_rotation(B[0], B[1] * Quaternion.from_euler(e))
+	for i in mini(coc_eyes.size(), coc_eye_balls.size()):
+		coc_eye_balls[i].scale = (coc_eyes[i] as Node3D).scale
 
 func coc_clip(t: float, dt: float) -> void:
 	var F = coc_vis.force
@@ -2020,6 +2082,15 @@ func render(t: float, dt: float) -> void:
 		cam.position = EYE
 		cam.rotation = Vector3(-0.06, 0, 0)
 		if G.killer == "V":
+			# Voxie skočí přes stůl: stůl i počítač se převrhnou na tebe
+			var fk = ease_io(clampf((scene_t - 0.12) / 0.45, 0, 1))
+			var piv = Vector3(0, 0, EYE.z - 0.75)
+			var rot = Transform3D(Basis(Vector3.RIGHT, 1.35 * fk).rotated(Vector3.UP, 0.25 * fk), Vector3.ZERO)
+			for dp in desk_parts:
+				var tr: Transform3D = dp[1]
+				(dp[0] as Node3D).global_transform = Transform3D(Basis(), piv) * rot * Transform3D(Basis(), -piv) * tr
+			if scene_t > 0.12 and scene_t - dt <= 0.12:
+				audio.sfx("clunk", 1.2)
 			VOX.visible = true
 			VOX.position = EYE + Vector3(randf_range(-0.04, 0.04) * j, -EYE.y - 0.08 * k, -2.4 + 1.2 * k)
 			VOX.rotation = Vector3(0, 0, (randf() - 0.5) * 0.12 * j)
@@ -2042,13 +2113,16 @@ func render(t: float, dt: float) -> void:
 			flash.light_energy = 0
 			env.ambient_light_energy = 0.02
 		var sh = 0.09 * maxf(0, 1 - scene_t / 1.1)
-		var fall = ease_io(clampf((scene_t - 1.1) / 0.3, 0, 1))
+		var fall = ease_io(clampf((scene_t - (0.55 if G.killer == "V" else 1.1)) / 0.35, 0, 1))
 		cam.position += Vector3((randf() - 0.5) * sh, (randf() - 0.5) * sh - fall * 1.05, 0)
 		cam.rotation = Vector3(-fall * 0.9, 0, (randf() - 0.5) * sh * 0.5 + fall * 0.7)
 		flash.light_energy = 14 * LK if G.killer == "V" else 0.0
 	else:
 		tube.light_color = Color("#b8d0ff")
 		COC.scale = Vector3.ONE
+		if desk_parts.size() and (desk_parts[0][0] as Node3D).global_transform != desk_parts[0][1]:
+			for dp in desk_parts:
+				(dp[0] as Node3D).global_transform = dp[1]
 	if COC.visible and S != "scare":
 		coc_eye_mat.albedo_color = Color.WHITE * (0.2 if randf() < 0.06 else 3.0)
 		COC.position.y = sin(t * 1.3) * 0.04 + 0.08
@@ -2103,8 +2177,14 @@ func render(t: float, dt: float) -> void:
 		VOX.visible = false
 	if S == "finale":
 		finale_scene(scene_t)
+	if scenes.active():
+		VOX.visible = false
+		COC.visible = false
+		scenes.render(t, dt)
+		view = cam
 	if COC.visible:
 		coc_clip(t, dt)
+		coc_bones_tick(t)
 	if G and G.cut and S == "play":
 		cut_pose(t, dt)
 	coc_mat.set_shader_parameter("uT", t)
@@ -2116,7 +2196,7 @@ func render(t: float, dt: float) -> void:
 	pm.set_shader_parameter("uCA", 0.012 * maxf(0, 1 - sc) if sc >= 0 else 0.002)
 	pm.set_shader_parameter("uGlitch", (1.0 if (sc < 0.15 or (sc > 0.6 and sc < 0.75) or randf() < 0.25) else 0.2) if sc >= 0 else 0.0)
 	pm.set_shader_parameter("uGrain", 0.18 + maxf(0, sc - 1.1) * 1.2 if sc >= 0 else 0.04)
-	post.visible = S in ["play", "scare", "menu", "custom", "extras", "devmenu", "home", "finale", "boot"]
+	post.visible = S in ["arrest", "prison", "play", "scare", "menu", "custom", "extras", "devmenu", "home", "finale", "boot"]
 	view.current = true
 	# záběr kamery do počítače
 	if S == "play" and G and G.mon and G.monA >= 1 and online(G.cam):

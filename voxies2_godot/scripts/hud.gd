@@ -257,6 +257,7 @@ func _draw() -> void:
 		"finale": draw_finale(t)
 		"news": draw_news(t)
 		"boot": draw_boot(t)
+		"arrest", "prison": game.scenes.draw(self, t)
 		"play":
 			draw_play(t)
 			draw_dev(t)
@@ -817,7 +818,7 @@ func draw_menu(t: float) -> void:
 	var lines = ["Žádné dveře ani proud. Jen počítač na baterii.", "🔦 Voxie v díře ve zdi: drž baterku, dokud necouvne.", "🖥 Kamery ukazují budovu, ale signál vypadává – kontroluj všechny.", "🔊 Zvukem ho odlákáš do vzdálenější místnosti.", "👁 Stínová Cocoa: osviť ji, jinak vysaje baterii.", "🚶 Odejdi od stolu (díra přes toalety). 🎒 Inventář, ▲ skok, 📷 fotky pro Voxieho."]
 	for i in lines.size():
 		txt(lines[i], 64, 476 + i * 28, 16, "#ffcfcf")
-	txt("v2.5.0 · Godot", HW - 20, 700, 14, "#666666", "right")
+	txt("v2.6.0 · Godot", HW - 20, 700, 14, "#666666", "right")
 
 func draw_intro() -> void:
 	var G = game.G
@@ -965,7 +966,7 @@ func draw_dev_menu(t: float) -> void:
 	rect(0, 0, HW, HH, Color(0, 0.03, 0.016, 0.9))
 	var cx = HW / 2
 	txt("🛠 DEV NÁSTROJE", cx, 110, 44, "#5dff8a", "center")
-	txt("Night at Voxie's 2 v2.5.0 (Godot) · pro tvůrce a testování", cx, 142, 16, "#9fffb8", "center")
+	txt("Night at Voxie's 2 v2.6.0 (Godot) · pro tvůrce a testování", cx, 142, 16, "#9fffb8", "center")
 	btn(cx - 300, 190, 600, 54, "DEV PANEL VE HŘE: " + ("ZAP" if DEV.on else "VYP"), "dvon", func():
 		DEV.on = not DEV.on
 		game.st_set("v2_dev", DEV.on), true, 20, "#5dff8a")
@@ -1443,6 +1444,8 @@ func draw_news(t: float) -> void:
 	txt(N.sub, x + 420, y + 156, 17, "#3a2a1a", "center")
 	wrap_txt(N.b, x + 40, y + 200, 760, 17, "#1a1410")
 	wrap_txt(N.t + (" Hlídač se prý druhý den vrátil." if (game.news_end == 1 and game.SV.fin == "back") else ""), x + 40, y + 430, 760, 17, N.tc)
+	if game.scene_t > 3 and game.news_end == 3:
+		btn(HW - 260, 652, 236, 54, "▶ ??? (EASTER EGG)", "egg3", game.scenes.start_prison, true, 16, "#8fe0ff")
 	if game.scene_t > 3:
 		neon(N.l, HW / 2, y + 540, 30, N.c, 14)
 		btn(HW / 2 - 150, 652, 300, 54, "MENU", "nmenu", game.to_menu, true, 20)

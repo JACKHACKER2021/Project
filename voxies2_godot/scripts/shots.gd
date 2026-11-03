@@ -134,3 +134,42 @@ static func run(g) -> void:
 	await w(g, 0.5)
 	await shot(g, "insp_draw")
 	g.get_tree().quit()
+
+static func run2(g) -> void:
+	await w(g, 1.5)
+	g.S = "extras"
+	g.hud.EX.page = "chars"
+	g.hud.EX.idx = 1
+	await w(g, 1.0)
+	await shot(g, "x_coc")
+	g.new_game(7)
+	g.begin_play()
+	g.start_finale()
+	g.scene_t = 13.0
+	g.fin_said = 99
+	await w(g, 0.4)
+	await shot(g, "x_fin13")
+	g.new_game(2)
+	g.begin_play()
+	g.G.look = 0.0
+	await w(g, 0.5)
+	g.jumpscare("V")
+	for tt in [0.25, 0.6, 1.0]:
+		g.scene_t = tt
+		await w(g, 0.05)
+		await shot(g, "x_scare_" + str(int(tt * 100)))
+		g.scene_t = tt
+	g.new_game(7)
+	g.scenes.start_arrest(1)
+	for tt in [4.0, 9.5, 13.0, 16.0, 22.8]:
+		g.scenes.S.t = tt
+		g.scenes.S.said = 0
+		await w(g, 0.2)
+		await shot(g, "x_arr_" + str(int(tt)))
+	g.scenes.start_prison()
+	for tt in [7.0, 23.0, 27.5, 30.0, 33.0, 36.4, 41.5]:
+		g.scenes.S.t = tt
+		g.scenes.S.said = 0
+		await w(g, 0.2)
+		await shot(g, "x_pr_" + str(int(tt * 10)))
+	g.get_tree().quit()
