@@ -30,7 +30,7 @@ func setup() -> void:
 		l.visible = false
 		game.add_child(l)
 		room_lights.append(l)
-	npcs["D."] = _person("D.", Color("#24345e"), Color("#1a1a24"), Color("#e0b090"), Color("#5a5a5a"), 1.82, true)
+	npcs["D."] = _person("D.", Color("#77777d"), Color("#26262a"), Color("#ecc4a0"), Color("#222226"), 1.82, false)
 	for k in KIDS:
 		npcs[k[0]] = _person(k[0], k[1], Color("#333344"), Color("#f0c8a0"), Color("#6a4020"), 1.15, false)
 	for n in npcs.values():
@@ -112,6 +112,14 @@ func _person(nm: String, shirt: Color, pants: Color, skin: Color, hair: Color, h
 	var hr = _box(Vector3(0.36, 0.1, 0.34), hair)
 	hr.position = Vector3(0, 0.4, -0.01)
 	headn.add_child(hr)
+	if nm == "D.":
+		# D.: tmavé krátké vlasy s čepicí nad čelem, šedé tričko (jako v Extras)
+		var hb = _box(Vector3(0.36, 0.2, 0.06), hair)
+		hb.position = Vector3(0, 0.3, -0.16)
+		headn.add_child(hb)
+		var vis = _box(Vector3(0.3, 0.03, 0.08), hair)
+		vis.position = Vector3(0, 0.37, 0.19)
+		headn.add_child(vis)
 	for s in [-1, 1]:
 		var e = _box(Vector3(0.05, 0.05, 0.02), Color("#111111"))
 		e.position = Vector3(0.08 * s, 0.24, 0.165)
