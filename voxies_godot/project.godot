@@ -2,6 +2,8 @@
 config_version=5
 
 [application]
+
+config/quit_on_go_back=false
 config/name="Night at Voxie's Remastered"
 config/version="2.2.0"
 run/main_scene="res://main.tscn"

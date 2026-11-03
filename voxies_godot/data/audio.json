@@ -1,0 +1,690 @@
+{
+ "sfx": {
+  "door": 0.4669387755102041,
+  "click": 0.0783219954648526,
+  "cam": 0.2688208616780045,
+  "tablet": 0.28049886621315195,
+  "step": 0.24829931972789115,
+  "softknock": 0.4420181405895692,
+  "knock": 0.5815873015873015,
+  "sting": 1.1959410430839001,
+  "scare": 1.2999773242630386,
+  "chime": 5.7942857142857145,
+  "ring": 2.09,
+  "powerdown": 1.7173696145124717,
+  "arcade": 0.392562358276644,
+  "clank": 0.3497732426303855,
+  "spark": 0.3494331065759637,
+  "ding2": 0.2619501133786848,
+  "ding_pizza": 0.24222222222222223,
+  "oven_ding": 0.6709750566893424,
+  "pz_show": 0.3851473922902494,
+  "work_done": 0.3085260770975057,
+  "found": 0.3546031746031746,
+  "mini_goal": 0.23174603174603176,
+  "mini_shake": 0.5862131519274376,
+  "mini_step": 0.07782312925170068,
+  "hit": 0.4969387755102041,
+  "sl_drone": 1.349705215419501,
+  "sl_glitch": 1.5286394557823129,
+  "zkrat": 0.34458049886621317,
+  "musicbox": 8.632222222222222,
+  "chiptune": 2.859251700680272,
+  "ambient": 4,
+  "buzz": 2
+ },
+ "voice": {
+  "phone|Haló? Haló, haló! Gratuluju k nové práci ve Voxie's Fun Factory. Já jsem tu hlídal před tebou.": {
+   "f": "v0000.wav",
+   "dur": 4.312843705459101
+  },
+  "phone|Prý ses o tu práci přihlásil sám. Kvůli Cocoe, tý králičí holce z reklam. Že ji znáš odmalička a chtěl ses s ní potkat. No... tak to se ti splní.": {
+   "f": "v0001.wav",
+   "dur": 5.771011148219859
+  },
+  "phone|Animatronici mají v noci volný režim, prý aby jim neztuhly klouby. Takže chodí. Voxie, ten velký medvěd z kostiček, chodí levou chodbou až k tvým dveřím.": {
+   "f": "v0002.wav",
+   "dur": 5.851921806373137
+  },
+  "phone|Když uslyšíš kroky vlevo, rozsviť světlo. Napočítej do dvou a zhasni. Ale nesviť na něj dlouho. Nesnáší, když se na něj někdo dívá.": {
+   "f": "v0003.wav",
+   "dur": 5.389949307897852
+  },
+  "phone|Cocoa chodí pravou chodbou. Je hodná. Stačí na ni posvítit a odejde. Jen ji neignoruj, když ťuká.": {
+   "f": "v0004.wav",
+   "dur": 4.443109354093326
+  },
+  "phone|Dveře zastaví oba, jenže žerou proud. Kamery taky. A když dojde proud, Voxie přijde a zahraje ti. V šest jdeš domů. Dobrou noc!": {
+   "f": "v0005.wav",
+   "dur": 5.4707801044594575
+  },
+  "phone|Haló? Přežil jsi první noc. Výborně. Tak co, potkal jsi ji?": {
+   "f": "v0006.wav",
+   "dur": 3.1203494420660616
+  },
+  "phone|Ten archivní automat v herně ti možná něco ukázal. Hraje to samo, každou noc. Hra se jmenuje Oslava devadesát sedm.": {
+   "f": "v0007.wav",
+   "dur": 4.78075990330477
+  },
+  "phone|Čtrnáctého června devadesát sedm tu byla narozeninová oslava. Voxie rozdával dorty. Pak zhasla světla. Když se rozsvítila, všichni utekli ven.": {
+   "f": "v0008.wav",
+   "dur": 5.79805965665249
+  },
+  "phone|Jenže Voxie zůstal na pódiu. A z kostýmu bylo slyšet dýchání. Tehdy ještě Voxie nebyl robot. Byl to člověk v obleku. Pan Vojtěch, majitel.": {
+   "f": "v0009.wav",
+   "dur": 5.891469904954771
+  },
+  "phone|Cocoa tě prý varuje, když jde Voxie. A dneska s tebou chce mluvit. Posviť na ni u pravých dveří, nebo za ní zajdi. Věř jí. Dobrou noc.": {
+   "f": "v0010.wav",
+   "dur": 5.79496075349967
+  },
+  "phone|Haló? Třetí noc. To už jsi tu skoro inventář. A dneska máš úkol navíc: majitel chce, abys v pizzerii přijal objednávku a upekl pizzu. Neptej se proč. Odejdi od stolu, vezmi baterku a pospěš si.": {
+   "f": "v0011.wav",
+   "dur": 7.839629426668064
+  },
+  "phone|Všiml sis, že se dívají přímo do kamer? Ví, kde jsou. Voxie je kdysi sám instaloval.": {
+   "f": "v0012.wav",
+   "dur": 3.711910954575649
+  },
+  "phone|Pan Vojtěch se po té oslavě ztratil. Policie našla jen jeho auto na parkovišti. A obleku Voxieho od té doby někdo vyměnil kostru za kovovou.": {
+   "f": "v0013.wav",
+   "dur": 5.615824342242384
+  },
+  "phone|Cocoa byla v devadesát sedmém nová. Měla dělat společnost dětem. Té noci prý jedno dítě schovala v trubkách, aby ho našli rodiče.": {
+   "f": "v0014.wav",
+   "dur": 5.125015384670766
+  },
+  "phone|Hlavně vydrž do šesti.": {
+   "f": "v0015.wav",
+   "dur": 1.1307955918239614
+  },
+  "phone|Haló... haló? Mám zlou zprávu. Cocoa je rozbitá. Někdo ji v noci poškodil a ona teď sedí ve skladu a nehýbe se.": {
+   "f": "v0016.wav",
+   "dur": 5.031634160834182
+  },
+  "phone|Oprav ji. Odejdi od stolu, dojdi do skladu a drž se u ní, dokud se nespraví. Voxie je dneska vypnutý, stojí na pódiu a nehýbe se, takže se bát nemusíš. Ale nedělej hluk.": {
+   "f": "v0017.wav",
+   "dur": 7.094897499996234
+  },
+  "phone|Ve skladu je prototyp, říkali mu Glitch. První verze Voxieho. Když ho zapnuli, prý řekl jméno pana Vojtěcha. Vypnuli ho a zakryli plachtou.": {
+   "f": "v0018.wav",
+   "dur": 5.500460935902386
+  },
+  "phone|Voxie je dneska vypnutý. Je to jen tma a ticho, a Cocoa. Tohle je tvoje noc.": {
+   "f": "v0019.wav",
+   "dur": 3.5340459250980767
+  },
+  "phone|Za Kapitánem Ticketem je zamčená místnost. Kancelář pana Vojtěcha. Klíč... ten jsem si tehdy nechal. Promiň.": {
+   "f": "v0020.wav",
+   "dur": 4.645593084015741
+  },
+  "phone|Haló. Poslední noc. Pátek. Čtrnáctého června.": {
+   "f": "v0021.wav",
+   "dur": 2.651567466440817
+  },
+  "phone|Dneska je to přesně výročí. Voxie bude zuřit. Cocoa bude smutná. Vždycky je smutná, když se blíží půlnoc.": {
+   "f": "v0022.wav",
+   "dur": 4.456506110627512
+  },
+  "phone|Já ti dlužím pravdu. Té noci jsem byl hlídač já. Slyšel jsem, jak pan Vojtěch v kostýmu volá o pomoc. Zámky se zasekly. A já... utekl.": {
+   "f": "v0023.wav",
+   "dur": 5.896653727314144
+  },
+  "phone|Kapitán Ticket počítá lístky, protože pan Vojtěch slíbil dětem: kdo nasbírá pět lístků, dostane klíč od pokladu. Najdi je, jestli chceš vědět víc.": {
+   "f": "v0024.wav",
+   "dur": 5.2395076213225735
+  },
+  "phone|A ještě něco: systém kamer padá. Server je ve vchodu, vedle pokladny. Když kamery zhasnou, dojdi tam a restartuj ho.": {
+   "f": "v0025.wav",
+   "dur": 4.834748104456233
+  },
+  "phone|Vydrž do šesti. A pak už se nevracej. Nebo se vrať. Asi už je to jedno.": {
+   "f": "v0026.wav",
+   "dur": 3.426673695282518
+  },
+  "phone|Haló? Ty jsi tu pořád? Přežil jsi výročí. Ale Voxie… něco se v něm zlomilo.": {
+   "f": "v0027.wav",
+   "dur": 4.003088749340307
+  },
+  "phone|Je poškozený. Nereaguje na světlo jako dřív a je pořád v pohybu.": {
+   "f": "v0028.wav",
+   "dur": 2.861602573800251
+  },
+  "phone|A nedívej se na něj dlouho. Ani přes kameru. Když ho sleduješ, rozběhne se po tobě.": {
+   "f": "v0029.wav",
+   "dur": 3.829956753674439
+  },
+  "phone|Server zase padá. Cocoa ti pomůže, jestli jsi ji opravil. Hodně štěstí.": {
+   "f": "v0030.wav",
+   "dur": 3.375378853685256
+  },
+  "phone|Poslední zpráva. Tohle je naposled, co volám.": {
+   "f": "v0031.wav",
+   "dur": 2.3756135615539047
+  },
+  "phone|Ve skladu je hasičská sekera. Pan Vojtěch ji tam dal po té noci… asi věděl proč.": {
+   "f": "v0032.wav",
+   "dur": 3.4368332630937535
+  },
+  "phone|Můžeš vydržet do šesti, jako vždycky. Nebo ho můžeš pustit ven. Tři rány do obleku. Sám se z něj nikdy nedostane.": {
+   "f": "v0033.wav",
+   "dur": 4.795448677723106
+  },
+  "phone|Vyber si. A děkuju. Za všechno.": {
+   "f": "v0034.wav",
+   "dur": 2.0903484865724034
+  },
+  "V|Show začíná o půlnoci!": {
+   "f": "v0035.wav",
+   "dur": 1.2693266591146577
+  },
+  "Vc|Show začíná o půlnoci!": {
+   "f": "v0036.wav",
+   "dur": 1.2536556658571716
+  },
+  "V|Hahaha... nový hlídač!": {
+   "f": "v0037.wav",
+   "dur": 1.550126836773255
+  },
+  "Vc|Hahaha... nový hlídač!": {
+   "f": "v0038.wav",
+   "dur": 1.4767653675177288
+  },
+  "V|Kdo chce dort?": {
+   "f": "v0039.wav",
+   "dur": 0.8762487522535172
+  },
+  "Vc|Kdo chce dort?": {
+   "f": "v0040.wav",
+   "dur": 0.812707111698689
+  },
+  "V|Slyším tě dýchat.": {
+   "f": "v0041.wav",
+   "dur": 0.9992633313444261
+  },
+  "Vc|Slyším tě dýchat.": {
+   "f": "v0042.wav",
+   "dur": 1.0232560522203071
+  },
+  "V|Už jdu, už jdu!": {
+   "f": "v0043.wav",
+   "dur": 1.1026418312369257
+  },
+  "Vc|Už jdu, už jdu!": {
+   "f": "v0044.wav",
+   "dur": 1.0871907608875488
+  },
+  "V|Oslava ještě neskončila.": {
+   "f": "v0045.wav",
+   "dur": 1.3703265776692428
+  },
+  "Vc|Oslava ještě neskončila.": {
+   "f": "v0046.wav",
+   "dur": 1.3728029151794783
+  },
+  "V|Ťuk ťuk. Pusť mě dál.": {
+   "f": "v0047.wav",
+   "dur": 1.3159464639234344
+  },
+  "Vc|Ťuk ťuk. Pusť mě dál.": {
+   "f": "v0048.wav",
+   "dur": 1.354511743900511
+  },
+  "V|Otevři. Mám pro tebe dort.": {
+   "f": "v0049.wav",
+   "dur": 1.5929516824326058
+  },
+  "Vc|Otevři. Mám pro tebe dort.": {
+   "f": "v0050.wav",
+   "dur": 1.5947404341821483
+  },
+  "V|Nikdo neodejde, dokud oslava neskončí.": {
+   "f": "v0051.wav",
+   "dur": 1.8937252290950557
+  },
+  "Vc|Nikdo neodejde, dokud oslava neskončí.": {
+   "f": "v0052.wav",
+   "dur": 1.8853601360926067
+  },
+  "V|Proč jsi zavřel? To není fér!": {
+   "f": "v0053.wav",
+   "dur": 1.574858466928878
+  },
+  "Vc|Proč jsi zavřel? To není fér!": {
+   "f": "v0054.wav",
+   "dur": 1.6317279062416408
+  },
+  "V|Zámky... vždycky ty zámky.": {
+   "f": "v0055.wav",
+   "dur": 1.5587568323940109
+  },
+  "Vc|Zámky... vždycky ty zámky.": {
+   "f": "v0056.wav",
+   "dur": 1.5147183683889538
+  },
+  "V|Au! To světlo pálí...": {
+   "f": "v0057.wav",
+   "dur": 1.501978819367385
+  },
+  "Vc|Au! To světlo pálí...": {
+   "f": "v0058.wav",
+   "dur": 1.4673126661648077
+  },
+  "V|Dobře. Přijdu pozdějc.": {
+   "f": "v0059.wav",
+   "dur": 1.3533708060031848
+  },
+  "Vc|Dobře. Přijdu pozdějc.": {
+   "f": "v0060.wav",
+   "dur": 1.4238114882699866
+  },
+  "V|Proč na mě pořád koukáš?": {
+   "f": "v0061.wav",
+   "dur": 1.2067273055409056
+  },
+  "Vc|Proč na mě pořád koukáš?": {
+   "f": "v0062.wav",
+   "dur": 1.1794359973278004
+  },
+  "V|Přestaň zírat. PŘESTAŇ.": {
+   "f": "v0063.wav",
+   "dur": 1.415595296031828
+  },
+  "Vc|Přestaň zírat. PŘESTAŇ.": {
+   "f": "v0064.wav",
+   "dur": 1.4326026698122456
+  },
+  "V|Vidím tě taky.": {
+   "f": "v0065.wav",
+   "dur": 1.00792885269963
+  },
+  "Vc|Vidím tě taky.": {
+   "f": "v0066.wav",
+   "dur": 1.0430143198033384
+  },
+  "V|Ahoj, kamero. Já tě instaloval.": {
+   "f": "v0067.wav",
+   "dur": 2.096732562512522
+  },
+  "Vc|Ahoj, kamero. Já tě instaloval.": {
+   "f": "v0068.wav",
+   "dur": 2.049833143898752
+  },
+  "V|Tma... jako tenkrát.": {
+   "f": "v0069.wav",
+   "dur": 1.379385528582588
+  },
+  "Vc|Tma... jako tenkrát.": {
+   "f": "v0070.wav",
+   "dur": 1.3319517583420168
+  },
+  "V|Teď si zahrajeme po mém.": {
+   "f": "v0071.wav",
+   "dur": 1.275649013719942
+  },
+  "Vc|Teď si zahrajeme po mém.": {
+   "f": "v0072.wav",
+   "dur": 1.2756102476657387
+  },
+  "V|Zítra si zase pohrajeme.": {
+   "f": "v0073.wav",
+   "dur": 1.400691418567279
+  },
+  "Vc|Zítra si zase pohrajeme.": {
+   "f": "v0074.wav",
+   "dur": 1.35647106907766
+  },
+  "V|Vi-vi-vidím tě.": {
+   "f": "v0075.wav",
+   "dur": 1.0303824701192859
+  },
+  "Vc|Vi-vi-vidím tě.": {
+   "f": "v0076.wav",
+   "dur": 1.036202393237429
+  },
+  "V|Ven… pusť… mě… VEN.": {
+   "f": "v0077.wav",
+   "dur": 1.9139992722149777
+  },
+  "Vc|Ven… pusť… mě… VEN.": {
+   "f": "v0078.wav",
+   "dur": 1.915710888401076
+  },
+  "V|O-o-oslava NESKONČILA.": {
+   "f": "v0079.wav",
+   "dur": 1.3726514742274187
+  },
+  "Vc|O-o-oslava NESKONČILA.": {
+   "f": "v0080.wav",
+   "dur": 1.366423127938249
+  },
+  "V|Po-pomoc… pomoc… POMOC.": {
+   "f": "v0081.wav",
+   "dur": 1.8882999047111069
+  },
+  "Vc|Po-pomoc… pomoc… POMOC.": {
+   "f": "v0082.wav",
+   "dur": 1.8111032771976352
+  },
+  "V|MÁM TĚ!": {
+   "f": "v0083.wav",
+   "dur": 0.7399257229666054
+  },
+  "Vc|MÁM TĚ!": {
+   "f": "v0084.wav",
+   "dur": 0.7597512726258271
+  },
+  "C|Přinesla jsem ti pizzu! Hihi.": {
+   "f": "v0085.wav",
+   "dur": 1.6601648640075264
+  },
+  "C|Hádej, co mám? Pizzu! Pro tebe.": {
+   "f": "v0086.wav",
+   "dur": 2.2158525099304636
+  },
+  "C|Ráda jsem pomohla! Papa!": {
+   "f": "v0087.wav",
+   "dur": 1.6734488670279235
+  },
+  "C|Hihi, dobrou chuť!": {
+   "f": "v0088.wav",
+   "dur": 1.171625563691261
+  },
+  "C|Ahoj! Ty jsi ten nový? Já jsem Cocoa!": {
+   "f": "v0089.wav",
+   "dur": 2.1986860561878556
+  },
+  "C|Hihi, konečně tu někdo je.": {
+   "f": "v0090.wav",
+   "dur": 1.463350458991322
+  },
+  "C|Nechceš si hrát na schovku?": {
+   "f": "v0091.wav",
+   "dur": 1.188187218043155
+  },
+  "C|Jdu za tebou! Neboj se.": {
+   "f": "v0092.wav",
+   "dur": 1.5164645064160538
+  },
+  "C|Můžu ti dělat společnost?": {
+   "f": "v0093.wav",
+   "dur": 1.344684216895428
+  },
+  "C|Ťuk ťuk! To jsem já, Cocoa!": {
+   "f": "v0094.wav",
+   "dur": 1.6964341577160056
+  },
+  "C|Pustíš mě? Chci tě jen obejmout.": {
+   "f": "v0095.wav",
+   "dur": 1.6964108212910887
+  },
+  "C|Ach jo... tak zítra.": {
+   "f": "v0096.wav",
+   "dur": 1.3464141417200757
+  },
+  "C|Dobře, nebudu otravovat.": {
+   "f": "v0097.wav",
+   "dur": 1.5051948963080048
+  },
+  "C|Jé, světýlko! Tak já jdu.": {
+   "f": "v0098.wav",
+   "dur": 1.7202315553027918
+  },
+  "C|Promiň, už jdu, už jdu!": {
+   "f": "v0099.wav",
+   "dur": 1.45647602086463
+  },
+  "C|Ahoj! Vidím tě!": {
+   "f": "v0100.wav",
+   "dur": 1.3960011716697762
+  },
+  "C|Mávám ti!": {
+   "f": "v0101.wav",
+   "dur": 0.8335893978380686
+  },
+  "C|Víš, že Voxie dřív býval hodný?": {
+   "f": "v0102.wav",
+   "dur": 1.5502418929308301
+  },
+  "C|Ty mě znáš? Ty jsi sem přišel kvůli mně?": {
+   "f": "v0103.wav",
+   "dur": 1.9371088452137295
+  },
+  "C|Nikdo za mnou dlouho nepřišel... Děkuju.": {
+   "f": "v0104.wav",
+   "dur": 1.9535703494159822
+  },
+  "C|Pozor! Voxie jde k tvým levým dveřím!": {
+   "f": "v0105.wav",
+   "dur": 1.7326877246303325
+  },
+  "C|Psst... Voxie je na chodbě!": {
+   "f": "v0106.wav",
+   "dur": 1.4085800514037212
+  },
+  "C|Rychle, světlo vlevo!": {
+   "f": "v0107.wav",
+   "dur": 1.262723254605664
+  },
+  "C|Tenkrát jsem schovala holčičku v trubkách. Našli ji. Ale pana Vojtěcha ne.": {
+   "f": "v0108.wav",
+   "dur": 3.127521124652672
+  },
+  "C|Voxie není zlý. Jen se nemůže dostat ven.": {
+   "f": "v0109.wav",
+   "dur": 2.016410785764509
+  },
+  "C|Pět lístků. Kapitán Ticket ví, kde jsou.": {
+   "f": "v0110.wav",
+   "dur": 2.133375383010843
+  },
+  "C|Dobré ráno! Přijdeš zítra?": {
+   "f": "v0111.wav",
+   "dur": 1.6248698096367034
+  },
+  "C|P-p-pomoc…": {
+   "f": "v0112.wav",
+   "dur": 0.7802997030210208
+  },
+  "C|Ne-nevidím…": {
+   "f": "v0113.wav",
+   "dur": 0.9149415030392269
+  },
+  "C|Bo-bolí to…": {
+   "f": "v0114.wav",
+   "dur": 0.9659074023526839
+  },
+  "C|Já… já zase vidím! Děkuju, kamaráde!": {
+   "f": "v0115.wav",
+   "dur": 2.522565453143255
+  },
+  "C|Opravil jsi mě. Teď tě budu hlídat já.": {
+   "f": "v0116.wav",
+   "dur": 1.927601409793801
+  },
+  "C|Promiň... musela jsem!": {
+   "f": "v0117.wav",
+   "dur": 1.4006553651245979
+  },
+  "C|E... m... a...? Kde... to... jsem...?": {
+   "f": "v0118.wav",
+   "dur": 2.633268773120134
+  },
+  "C|Ne... nejsem... sama... Co... mi to... tam...": {
+   "f": "v0119.wav",
+   "dur": 2.9714621456278008
+  },
+  "C|T-ticho... tma... Cítím... dva... hlasy...": {
+   "f": "v0120.wav",
+   "dur": 2.5414529549666955
+  },
+  "C|Au... au... AU. Ne... nesahej... tam...": {
+   "f": "v0121.wav",
+   "dur": 2.860344993694803
+  },
+  "C|Bo-bolí... Ema... křičí... uvnitř...": {
+   "f": "v0122.wav",
+   "dur": 2.3486912255276073
+  },
+  "C|Jsem... Co-Cocoa... ne... E... ema...?": {
+   "f": "v0123.wav",
+   "dur": 2.5875627906331786
+  },
+  "C|Ne-nenechávej... mě... tady... samotnou...": {
+   "f": "v0124.wav",
+   "dur": 2.5266839717655474
+  },
+  "C|Ema... se bojí... tmy... pomoz... jí...": {
+   "f": "v0125.wav",
+   "dur": 2.685490132151314
+  },
+  "C|Sly-slyšíš ji...? Tam... uvnitř...": {
+   "f": "v0126.wav",
+   "dur": 1.9070450991297807
+  },
+  "C|ZK-ZKRAT—AAA... ne... to... NENÍ ono...": {
+   "f": "v0127.wav",
+   "dur": 2.1878731726683043
+  },
+  "C|Bo-bolí... tohle... ne... ne... ne...": {
+   "f": "v0128.wav",
+   "dur": 2.599749344506696
+  },
+  "C|E-Ema... ječí... přestaň... přestaň...": {
+   "f": "v0129.wav",
+   "dur": 2.3236513314855665
+  },
+  "C|Ch-chladí... Je to... ostré... Drž... mě...": {
+   "f": "v0130.wav",
+   "dur": 2.5239554831523607
+  },
+  "C|M-mám pocit... že se... rozpadám... na dvě...": {
+   "f": "v0131.wav",
+   "dur": 2.389572284697061
+  },
+  "C|Dva... hlasy... Co... Ema...? Já... Coco...": {
+   "f": "v0132.wav",
+   "dur": 2.990995070284194
+  },
+  "C|Ne... ne... ještě ne... nechci... zmizet...": {
+   "f": "v0133.wav",
+   "dur": 2.7416584376550674
+  },
+  "C|E... m... a...? To... jsem... já...? Dě-děkuju...": {
+   "f": "v0134.wav",
+   "dur": 3.264252707091282
+  },
+  "C|Cítím... t-teplo... Ema už... nekřičí... S-spí...": {
+   "f": "v0135.wav",
+   "dur": 2.845335094410815
+  },
+  "C|Počkej tady... skočím do kuchyně. Něco pro tebe mám!": {
+   "f": "v0136.wav",
+   "dur": 2.6070921531758873
+  },
+  "C|Za chvilku jsem zpátky! Jen něco přinesu...": {
+   "f": "v0137.wav",
+   "dur": 1.9854342203158442
+  },
+  "C|Mám pizzu! Pro tebe... jako poděkování.": {
+   "f": "v0138.wav",
+   "dur": 2.423139159625469
+  },
+  "C|Tak jsem zpátky. Tohle je pro tebe, hihi.": {
+   "f": "v0139.wav",
+   "dur": 2.1325755744622987
+  },
+  "C|Děkuju, že jsi mě opravil... Posadím se vedle tebe, jen na chvilku.": {
+   "f": "v0140.wav",
+   "dur": 3.0621675142870055
+  },
+  "C|Dobrou chuť... a děkuju. Za všechno.": {
+   "f": "v0141.wav",
+   "dur": 2.0503099478190356
+  },
+  "C|Zzzt... p-pozor... jiskřím...": {
+   "f": "v0142.wav",
+   "dur": 1.5688045416399214
+  },
+  "C|A-aaa... zkrat... p-promiň...": {
+   "f": "v0143.wav",
+   "dur": 1.6659877505240464
+  },
+  "C|Zzz... E-ema... nech... to... bolí...": {
+   "f": "v0144.wav",
+   "dur": 2.490603016708047
+  },
+  "C|Bo... bolí... to... Pomoz... mi...": {
+   "f": "v0145.wav",
+   "dur": 2.4278140752412156
+  },
+  "C|N-nevidím... nikoho... jen... tmu... a E... emu...": {
+   "f": "v0146.wav",
+   "dur": 3.272809605749157
+  },
+  "C|Kdo... je... Ema...? Proč... pláče... v-ve mně...": {
+   "f": "v0147.wav",
+   "dur": 3.036570762255718
+  },
+  "C|Ahoj! Ty jsi ten, co mě zná z reklam? Opravdu jsi sem přišel kvůli mně?": {
+   "f": "v0148.wav",
+   "dur": 3.1970908902746333
+  },
+  "C|Hihi! To mi nikdo dlouho neřekl. V devadesát sedmém jsem měla teprve první vystoupení. A hned poslední.": {
+   "f": "v0149.wav",
+   "dur": 4.4148206191794355
+  },
+  "C|Jsem Cocoa. Robot. Ale myslím, že něco cítím. Třeba strach. O pana Vojtěcha.": {
+   "f": "v0150.wav",
+   "dur": 4.093105003389697
+  },
+  "C|Zhasla světla. Schovala jsem holčičku v trubkách. A pak jsem slyšela pana Vojtěcha. Byl v obleku Voxieho a volal o pomoc. Zámky se zasekly…": {
+   "f": "v0151.wav",
+   "dur": 5.7023891041747135
+  },
+  "C|Možná. Kapitán Ticket hlídá pět lístků. Kdo je nasbírá, otevře kancelář. Tam je vypínač obleku. Pomůžeš mi?": {
+   "f": "v0152.wav",
+   "dur": 5.252924802098877
+  },
+  "C|Kamarádi! Tak já tě budu hlídat. Kdykoli půjde Voxie, zavolám tě. A tobě nikdy neublížím.": {
+   "f": "v0153.wav",
+   "dur": 4.315439592565294
+  },
+  "C|Děkuju… Zítra ti ukážu, kde hledat první lístek. A budu tě hlídat, kamaráde.": {
+   "f": "v0154.wav",
+   "dur": 3.7499274921543138
+  },
+  "C|Tak zatím! A dávej pozor na levé dveře!": {
+   "f": "v0155.wav",
+   "dur": 2.094288099488521
+  },
+  "Vscare|MÁM TĚ!": {
+   "f": "v0156.wav",
+   "dur": 0.7126188254240176
+  },
+  "Cscare|Promiň... musela jsem!": {
+   "f": "v0157.wav",
+   "dur": 1.3754046081469837
+  },
+  "Vex|MÁM TĚ!": {
+   "f": "v0158.wav",
+   "dur": 0.6965445033791742
+  },
+  "Cex|Promiň... musela jsem!": {
+   "f": "v0159.wav",
+   "dur": 1.3011085459164582
+  },
+  "Vwin|Zítra si zase pohrajeme.": {
+   "f": "v0160.wav",
+   "dur": 1.3574588712605182
+  },
+  "Cwin|Dobré ráno! Přijdeš zítra?": {
+   "f": "v0161.wav",
+   "dur": 1.601045223108157
+  },
+  "secret|Dě-ku-ju.": {
+   "f": "v0162.wav",
+   "dur": 1.0502608775380091
+  }
+ }
+}
