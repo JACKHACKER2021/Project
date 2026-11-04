@@ -222,6 +222,7 @@ func _draw() -> void:
 		"menu": draw_menu(t)
 		"tour": draw_tour(t)
 		"extras": draw_extras(t)
+		"memory": draw_memory(t)
 		"custom": draw_custom(t)
 		"end7": draw_end7(t)
 		"devmenu": draw_devmenu(t)
@@ -275,7 +276,7 @@ func draw_menu(t: float) -> void:
 		"☕ Káva z kávovaru a 💊 prášky vrátí příčetnost. Psaní hlášení tě uklidňuje."]
 	for i in lines.size():
 		txt(lines[i], 64, 450 + i * 30, 16, "#cfeed4")
-	txt("v1.0.0 · Godot", HW - 20, 700, 14, "#666666", "right")
+	txt("v1.0.1 · Godot", HW - 20, 700, 14, "#666666", "right")
 
 # ---------------------------------------------------------------- titulky
 func subs() -> void:
@@ -320,6 +321,23 @@ func draw_arrive(t: float) -> void:
 		rect(0, 0, HW, HH, Color(0, 0, 0, clampf(st - 13.0, 0, 1)))
 	subs()
 	btn(HW - 220, 24, 196, 44, "PŘESKOČIT ▶", "askip", func(): game.scene_t = maxf(game.scene_t, 13.9), true, 16)
+
+## vzpomínka: hráč vypráví, co se stalo
+func draw_memory(t: float) -> void:
+	var st: float = game.scene_t
+	rect(0, 0, HW, HH, Color(0.12, 0.2, 0.1, 0.22))
+	vignette(1.0)
+	noise(0.08)
+	rect(0, 0, HW, 70, "#000000")
+	rect(0, HH - 70, HW, 70, "#000000")
+	if st < 1.2:
+		rect(0, 0, HW, HH, Color(0, 0, 0, 1 - st / 1.2))
+	txt("VZPOMÍNKA · před nocí " + str(game.G.night), 30, 46, 18, "#9fffb0")
+	subs()
+	btn(HW - 220, 14, 196, 44, "PŘESKOČIT ▶", "mskip", func():
+		game.Q.clear()
+		game.line = null
+		game.scene_t = 31.0, true, 16)
 
 func draw_intro() -> void:
 	var G = game.G
@@ -522,10 +540,10 @@ func draw_xp(t: float) -> void:
 	for i in 6:
 		rect(x0, y0 + h * 0.82 + i * h * 0.03, w, h * 0.03 + 1, Color("#4f9e26").darkened(0.06 * i))
 	# ikony na ploše
-	var icons = [["cam", "📹", "F&H Kamery"], ["word", "📄", "Hlášení.doc"], ["mail", "📧", "Outlook Express"], ["bin", "🗑", "Koš"]]
+	var icons = [["cam", "📹", "F&H Kamery"], ["word", "📄", "Hlášení.doc"], ["mail", "📧", "Outlook Express"], ["docs", "📁", "Dokumenty"], ["bin", "🗑", "Koš"]]
 	for i in icons.size():
 		var ic = icons[i]
-		var iy = y0 + 16 + i * 92
+		var iy = y0 + 12 + i * 86
 		if G.app == ic[0]:
 			rr(x0 + 8, iy, 86, 82, 4, Color(0.2, 0.4, 0.9, 0.45))
 		txt(ic[1], x0 + 51, iy + 42, 34, "#ffffff", "center")
@@ -543,6 +561,7 @@ func draw_xp(t: float) -> void:
 		"cam": cam_app(wx, wy, ww, wh, t)
 		"word": word_app(wx, wy, ww, wh, t)
 		"mail": mail_app(wx, wy, ww, wh)
+		"docs": docs_app(wx, wy, ww, wh)
 		"bin":
 			xp_window(wx + 200, wy + 100, 460, 220, "Koš", "🗑")
 			txt("hollow_bunny_1980_servis.txt", wx + 230, wy + 170, 15, "#000000")
@@ -556,7 +575,7 @@ func draw_xp(t: float) -> void:
 	txt("⊞ start", x0 + 52, y0 + h - 10, 18, "#ffffff", "center")
 	if G.app != "desk":
 		rr(x0 + 116, y0 + h - 30, 220, 26, 4, "#1e4ab8", "#5a8cf0", 1)
-		txt({"cam": "📹 F&H Kamery", "word": "📄 Hlášení.doc - Microsoft Word", "mail": "📧 Outlook Express", "bin": "🗑 Koš"}[G.app], x0 + 126, y0 + h - 12, 12, "#ffffff")
+		txt({"cam": "📹 F&H Kamery", "word": "📄 Hlášení.doc - Microsoft Word", "mail": "📧 Outlook Express", "docs": "📁 Dokumenty", "bin": "🗑 Koš"}[G.app], x0 + 126, y0 + h - 12, 12, "#ffffff")
 	rect(x0 + w - 150, y0 + h - 34, 150, 34, "#0f8ae6")
 	txt("🔊 " + clock_s(), x0 + w - 75, y0 + h - 11, 14, "#ffffff", "center")
 	# odejít od počítače
@@ -694,6 +713,23 @@ func mail_app(wx: float, wy: float, ww: float, wh: float) -> void:
 	rect(wx + 330, wy + 98, ww - 352, 1, "#a0a0a0")
 	wrap_txt(sel[2], wx + 330, wy + 126, ww - 360, 16, "#111111" if sel[0] != "neznámý" and sel[0] != "D." else "#7a0000", 1.5)
 
+var doc_i := 0
+func docs_app(wx: float, wy: float, ww: float, wh: float) -> void:
+	xp_window(wx, wy, ww, wh, "C:\\Dokumenty - Průzkumník", "📁")
+	rect(wx + 6, wy + 40, 320, wh - 46, "#ffffff")
+	for i in game.DOCS.size():
+		var y = wy + 46 + i * 40
+		if i == doc_i:
+			rect(wx + 8, y, 316, 36, "#316ac5")
+		txt("📄 " + game.DOCS[i][0], wx + 16, y + 24, 13, "#ffffff" if i == doc_i else "#000000")
+		var k = i
+		add_btn(wx + 8, y, 316, 36, "doc" + str(i), func():
+			doc_i = k
+			game.audio.sfx("click"))
+	rect(wx + 334, wy + 40, ww - 340, wh - 46, "#ffffff")
+	txt(game.DOCS[doc_i][0] + " - Poznámkový blok", wx + 350, wy + 66, 14, "#000080")
+	wrap_txt(game.DOCS[doc_i][1], wx + 350, wy + 100, ww - 380, 16, "#111111", 1.5)
+
 func noise_rect(a: float, x: float, y: float, w: float, h: float) -> void:
 	if a <= 0:
 		return
@@ -702,6 +738,15 @@ func noise_rect(a: float, x: float, y: float, w: float, h: float) -> void:
 # ---------------------------------------------------------------- extras a dev
 func draw_extras(t: float) -> void:
 	vignette(0.8)
+	if game.ex_lore:
+		rect(0, 0, HW, HH, Color(0, 0.04, 0.01, 0.92))
+		txt("📜 LORE · co se stalo", 40, 64, 30, "#7dff8a")
+		var y = 110.0
+		for e in game.LORE:
+			txt(e[0], 40, y + 18, 17, "#ffe46b")
+			y = wrap_txt(e[1], 200, y + 18, HW - 260, 16, "#dddddd", 1.4) + 14
+		btn(40, 652, 200, 48, "◀ POSTAVY", "lback", func(): game.ex_lore = false, true, 16)
+		return
 	rect(0, 0, 520, HH, Color(0, 0.05, 0.02, 0.8))
 	txt("★ EXTRAS", 40, 64, 34, "#7dff8a")
 	var E = game.EXTRAS[game.ex_i]
@@ -714,6 +759,7 @@ func draw_extras(t: float) -> void:
 			game.ex_i = k
 			game.audio.sfx("click"), true, 15, "#ffe46b" if i == game.ex_i else "#5dff8a")
 	btn(40, 652, 200, 48, "◀ MENU", "back", game.to_menu, true, 16)
+	btn(250, 652, 200, 48, "📜 LORE", "lore", func(): game.ex_lore = true, true, 16, "#ffe46b")
 
 func dev_toggle(x: float, y: float, label: String, key: String) -> void:
 	var on: bool = game.DEV[key]

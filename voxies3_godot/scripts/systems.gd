@@ -59,6 +59,7 @@ func build() -> void:
 	flash.spot_angle = 28
 	flash.shadow_enabled = false
 	game.cam.add_child(flash)
+	_collect_solids()
 	vox_node = game.world.find_child("znicen_voxie", true, false)
 	if vox_node:
 		vox_base = vox_node.rotation
@@ -217,11 +218,30 @@ func task_done() -> bool:
 	return T.kind == "" or T.done >= T.need
 
 # ------------------------------------------------------------------ chůze
-func walkable(x: float, z: float) -> bool:
+var solid := []
+func _collect_solids() -> void:
+	solid = BLOCKS.duplicate()
+	for n in game.world.find_children("*", "Node3D", true, false):
+		var nm: String = n.name
+		if nm.begins_with("Cabinet_") or nm.begins_with("Table_"):
+			var a = AABB()
+			var first = true
+			for mi in n.find_children("*", "MeshInstance3D", true, false):
+				var aa = mi.global_transform * mi.get_aabb()
+				a = aa if first else a.merge(aa)
+				first = false
+			if not first:
+				solid.append([a.position.x - 0.1, a.position.z - 0.1, a.end.x + 0.1, a.end.z + 0.1])
+func walkable(x: float, z: float, hare := false) -> bool:
 	var G = game.G
-	for b in BLOCKS:
+	for b in solid:
 		if x > b[0] and x < b[2] and z > b[1] and z < b[3]:
 			return false
+	if not hare and G.task.kind == "boxes":
+		for it in G.task.items:
+			var p: Vector3 = it.node.position
+			if Vector2(x - p.x, z - p.z).length() < 0.45:
+				return false
 	var m = 0.25
 	for id in game.MAP.rooms:
 		var r = game.MAP.rooms[id]
@@ -508,6 +528,15 @@ func vox_tick(dt: float) -> void:
 	var H = G.hare
 	if H.node == "VOXIE" and H.path.is_empty() and V.called:
 		V.beat = true
+		if vox_watched():
+			# když se díváš na CAM 04, zajíc nemlátí – jen zírá do kamery; po chvíli odejde
+			V.watch += dt
+			if V.watch > 7.0:
+				V.watch = 0.0
+				V.called = false
+				V.beat = false
+				game.hare_go(game.pick(["BACK", "ARCH", "PIZ"]))
+			return
 		V.hp -= dt * (5.0 + lv * 0.3)
 		V.hitT -= dt
 		if V.hitT <= 0:
@@ -524,6 +553,10 @@ func vox_tick(dt: float) -> void:
 		if V.beat and H.node != "VOXIE":
 			V.beat = false
 			V.called = false
+
+func vox_watched() -> bool:
+	var G = game.G
+	return G.mon and G.app == "cam" and G.cam == "04" and G.staticT <= 0
 
 # ------------------------------------------------------------------ 7. noc: kanystr a požár
 func fire_tick(dt: float) -> void:
@@ -563,7 +596,7 @@ func fire_tick(dt: float) -> void:
 	# budova se rozpadá: padající sutiny
 	G.debT -= dt
 	if G.debT <= 0:
-		G.debT = randf_range(0.6, 1.6)
+		G.debT = randf_range(2.5, 4.5)
 		var base = Vector3(G.rp.x, 0, G.rp.z) if G.roam else Vector3(0, 0, 4.0)
 		var p = base + Vector3(randf_range(-4, 4), 3.1, randf_range(-5, 1.5))
 		var d = MeshInstance3D.new()
@@ -583,14 +616,14 @@ func fire_tick(dt: float) -> void:
 		if debris.size() > 70:
 			debris.pop_front().queue_free()
 	# budova se postupně hroutí: místnost po místnosti padá strop a kácí se zdi
-	G.colT = G.get("colT", 10.0) - dt
+	G.colT = G.get("colT", 3.0) - dt
 	if G.colT <= 0:
-		G.colT = randf_range(6.0, 9.0)
+		G.colT = randf_range(5.0, 7.0)
 		var left = order.filter(func(id): return not G.get("fallen", []).has(id))
 		if left.size():
 			collapse_room(left[0])
 	# na konci praská i strop kanceláře
-	if G.t > game.HOUR * 5.7 and not G.get("fallen", []).has("OFF"):
+	if G.t > game.HOUR * 5.4 and not G.get("fallen", []).has("OFF"):
 		collapse_room("OFF", true)
 	G.shake = maxf(0, G.get("shake", 0.0) - dt)
 	# kouř ničí příčetnost, venku z kanceláře víc
@@ -607,6 +640,18 @@ func fire_tick(dt: float) -> void:
 			tw.tween_property(game.hare, "rotation:x", -PI / 2, 1.4).set_ease(Tween.EASE_IN)
 			tw.parallel().tween_property(game.hare, "position:y", 0.3, 1.4)
 			game.audio.sfx("powerdown", 0.6)
+## budova se hroutí pomalu: strop se prohýbá a padá, zdi se naklánějí a propadají, exponáty se kácí
+var moved := []   # [node, puvodni transform]
+func _remember(n: Node3D) -> void:
+	for m in moved:
+		if m[0] == n:
+			return
+	moved.append([n, n.transform])
+func restore_building() -> void:
+	for m in moved:
+		if is_instance_valid(m[0]):
+			m[0].transform = m[1]
+	moved = []
 func collapse_room(id: String, partial := false) -> void:
 	var G = game.G
 	if not G.has("fallen"):
@@ -616,34 +661,50 @@ func collapse_room(id: String, partial := false) -> void:
 	if room == null:
 		return
 	var H = 3.2
-	var i = 0
 	for c in room.get_children():
-		if not (c is MeshInstance3D) or not c.visible:
+		if not (c is Node3D) or not c.visible:
 			continue
-		var bm = c.mesh as BoxMesh
-		if bm == null:
-			continue
-		var tw = game.create_tween()
-		var delay = randf_range(0.0, 2.5)
-		if c.position.y > H - 0.6:
-			# strop, rastr a světla padají dolů
-			if partial and randf() < 0.75:
+		var tw
+		var delay = randf_range(0.0, 14.0)
+		var bm = (c.mesh as BoxMesh) if c is MeshInstance3D else null
+		if bm and c.position.y > H - 0.6:
+			if partial and randf() < 0.6:
 				continue
+			_remember(c)
+			tw = game.create_tween()
+			# nejdřív se prohne, pak spadne
 			tw.tween_interval(delay)
+			tw.tween_property(c, "rotation", c.rotation + Vector3(randf_range(-0.15, 0.15), 0, randf_range(-0.15, 0.15)), randf_range(2.0, 5.0))
+			tw.parallel().tween_property(c, "position:y", c.position.y - randf_range(0.2, 0.5), 4.0)
 			tw.tween_property(c, "position:y", randf_range(0.05, 0.6), randf_range(0.5, 0.9)).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
-			tw.parallel().tween_property(c, "rotation", Vector3(randf_range(-0.5, 0.5), randf_range(-0.4, 0.4), randf_range(-0.5, 0.5)), 0.8)
-		elif bm.size.y > H - 0.3 and not partial and randf() < 0.5:
-			# zeď se nakloní a propadne
-			var ax = Vector3(randf_range(-0.6, 0.6), 0, randf_range(-0.6, 0.6))
-			tw.tween_interval(delay + 1.0)
-			tw.tween_property(c, "rotation", ax, randf_range(1.2, 2.0)).set_ease(Tween.EASE_IN)
-			tw.parallel().tween_property(c, "position:y", c.position.y - randf_range(0.6, 1.4), 1.6)
-		else:
-			continue
-		i += 1
-	# hromady sutin
+			tw.parallel().tween_property(c, "rotation", Vector3(randf_range(-0.6, 0.6), randf_range(-0.4, 0.4), randf_range(-0.6, 0.6)), 0.8)
+			tw.tween_callback(func():
+				if randf() < 0.25:
+					game.audio.sfx("clunk", 0.5, clampf((c.global_position.x - game.cam.global_position.x) / 6, -1, 1)))
+		elif bm and bm.size.y > H - 0.3 and not partial:
+			# zeď: pomalé naklánění a propadání
+			_remember(c)
+			tw = game.create_tween()
+			var ax = Vector3(randf_range(-0.5, 0.5), 0, randf_range(-0.5, 0.5))
+			tw.tween_interval(delay + 2.0)
+			tw.tween_property(c, "rotation", c.rotation + ax * 0.25, randf_range(3.0, 6.0))
+			tw.tween_property(c, "rotation", c.rotation + ax, randf_range(2.0, 4.0)).set_ease(Tween.EASE_IN)
+			tw.parallel().tween_property(c, "position:y", c.position.y - randf_range(0.8, 1.8), 3.0)
+		elif bm and bm.size.y < 0.06 and c.position.y < 0.1 and randf() < (0.08 if partial else 0.3):
+			# propadlé dlaždice
+			_remember(c)
+			tw = game.create_tween()
+			tw.tween_interval(delay)
+			tw.tween_property(c, "position:y", -0.35, 1.5).set_ease(Tween.EASE_IN)
+		elif not bm and (String(c.name).begins_with("Cabinet_") or String(c.name).begins_with("Table_") or String(c.name).ends_with("Exhibit")):
+			# exponáty se převrhnou
+			_remember(c)
+			tw = game.create_tween()
+			tw.tween_interval(delay)
+			tw.tween_property(c, "rotation", c.rotation + Vector3(randf_range(-1.3, 1.3), randf_range(-0.5, 0.5), randf_range(-1.3, 1.3)) * (0.3 if String(c.name).ends_with("Exhibit") else 1.0), randf_range(1.0, 2.5)).set_ease(Tween.EASE_IN)
+	# sutiny z propadlé střechy
 	var r = game.MAP.rooms[id]
-	for k in (3 if partial else 9):
+	for k in (2 if partial else 6):
 		var d = MeshInstance3D.new()
 		var b = BoxMesh.new()
 		b.size = Vector3(randf_range(0.5, 1.4), randf_range(0.2, 0.7), randf_range(0.5, 1.4))
@@ -656,11 +717,10 @@ func collapse_room(id: String, partial := false) -> void:
 		game.add_child(d)
 		debris.append(d)
 		var tw2 = game.create_tween()
-		tw2.tween_interval(randf_range(0.2, 2.0))
+		tw2.tween_interval(randf_range(6.0, 16.0))
 		tw2.tween_property(d, "position:y", b.size.y * 0.35, 0.6).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
 	game.audio.sfx("crackle", 1.0, clampf(((r.x0 + r.x1) / 2 - game.cam.position.x) / 8, -1, 1))
-	game.audio.sfx("clunk", 1.0)
-	G.shake = 1.2
+	G.shake = 0.8
 
 func start_fire() -> void:
 	var G = game.G

@@ -187,5 +187,37 @@
  "p_misc": [
   "Tady to někde musí být. Kanystr.",
   "Shoř. Shoř i s ním."
- ]
+ ],
+ "memory": {
+  "2": [
+   "Před týdnem jsem ještě hlídal hernu Voxie's.",
+   "V šest ráno jsem odešel. Za pár minut stála celá v plamenech.",
+   "Policie si myslela, že jsem to byl já."
+  ],
+  "3": [
+   "V roce devadesát sedm zmizela na oslavě malá Ema.",
+   "Její duše skončila v kostýmu Cocoy. Viděl jsem ji. Mluvila se mnou.",
+   "A její táta, pan Vojtěch, zůstal v obleku Voxieho."
+  ],
+  "4": [
+   "Hlídač D. tehdy věděl všechno. Měl klíč od kanceláře.",
+   "Po požáru ho zatkli. Utekl jim při převozu k soudu.",
+   "Schoval se ve skladu pana Vojtěcha. Do starého obleku Hollow Bunnyho."
+  ],
+  "5": [
+   "Hollow Bunny byl odstavený od roku osmdesát. Kvůli zámkům.",
+   "Když utíkal, zámky povolily. Jeden po druhém.",
+   "Nikdo ho nenašel. Jen zajíce, který seděl jinak než předtím."
+  ],
+  "6": [
+   "Kroupa koupil všechno, co přežilo požár. I toho zajíce.",
+   "A teď ho chce prodat do muzea. S D. uvnitř.",
+   "Nemůžu to dovolit. Musí to skončit tady."
+  ],
+  "7": [
+   "Dnes v noci to skončí.",
+   "Herna vyhořela jednou. Tohle místo vyhoří taky.",
+   "Pro Emu. Pro pana Vojtěcha. I pro D."
+  ]
+ }
 }

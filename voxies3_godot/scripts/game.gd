@@ -656,7 +656,7 @@ func new_night(n: int) -> void:
 		"hare": {"node": "BACK", "path": [], "wait": 25.0 - n * 3, "at": 0.0, "bang": 0.0, "goal": "", "ph": 0.0, "moving": false, "lure": "", "lureT": 0.0, "talkT": 14.0, "atk": false},
 		"lureCd": 0.0, "hall": 0.0, "hallT": 6.0, "heartT": 0.0, "kroupa": n > 1, "kt": 0.0, "mail": 0, "app": "desk",
 		"pow": 100.0, "bangs": 0, "powFlash": 0.0, "blackout": false, "blackT": 0.0, "roam": false, "rp": {"x": 0.0, "z": 9.2, "yaw": 0.0, "pitch": 0.0, "bob": 0.0},
-		"shadows": [], "scareFace": null, "vox": {"hp": 100.0, "callT": 25.0, "called": false, "twitch": 0.0, "beat": false, "hitT": 0.0}, "fire": false, "fireT": 0.0, "debT": 0.0, "shake": 0.0, "task": {},
+		"shadows": [], "scareFace": null, "vox": {"hp": 100.0, "callT": 25.0, "called": false, "twitch": 0.0, "beat": false, "hitT": 0.0, "watch": 0.0}, "fire": false, "fireT": 0.0, "debT": 0.0, "shake": 0.0, "task": {},
 		"mailsRead": {}, "brew": 0.0, "coffeeCd": 0.0, "cups": 0, "tour_cut": 0.0, "nausea": 0.0, "hurtT": 0.0, "dead_by": "",
 	}
 	hare.position = NODES.BACK
@@ -668,6 +668,9 @@ func new_night(n: int) -> void:
 	vent_n.position.y = -0.95
 	desk_lamp.visible = true
 	env.ambient_light_color = Color("#4a4458")
+	restore_voxie()
+	hare_burnt(false)
+	sys.restore_building()
 	G.kroupa = n > 1 and n < 8
 	sys.setup(n)
 func start_night(n: int) -> void:
@@ -678,8 +681,36 @@ func start_night(n: int) -> void:
 	new_night(n)
 	if n == 8:
 		st_set("v3_cust", CUST)
+	elif L.memory.has(str(n)):
+		S = "memory"
+		scene_t = 0.0
+		for l in L.memory[str(n)]:
+			say("P", l)
+		return
 	S = "intro"
 	scene_t = 0.0
+const MEM_CAM := {
+	"2": [Vector3(-4.0, 1.7, 22.0), Vector3(-10, 3.0, 10.3), Vector3(-12.0, 1.7, 19.0)],
+	"3": [Vector3(5.4, 1.5, 4.9), Vector3(8, 1.2, 3), Vector3(6.5, 1.4, 1.2)],
+	"4": [Vector3(-4.6, 1.6, 1.5), Vector3(-3.0, 1.2, 7.8), Vector3(-4.4, 1.6, 5.0)],
+	"5": [Vector3(-1.0, 1.6, -14.6), Vector3(0, 1.4, -20), Vector3(1.2, 1.4, -16.5)],
+	"6": [Vector3(-7.5, 1.6, 9.0), Vector3(-12, 1.2, 6), Vector3(-7.4, 1.6, 4.0)],
+	"7": [Vector3(1.8, 1.6, -15.2), Vector3(0, 1.2, -20.5), Vector3(-1.6, 1.6, -15.6)],
+}
+func memory_tick(dt: float) -> void:
+	tick_lines(dt)
+	var c = MEM_CAM[str(G.night)]
+	var k = clampf(scene_t / 16.0, 0, 1)
+	cam.position = (c[0] as Vector3).lerp(c[2], ease_io(k))
+	cam.look_at(c[1])
+	hare.visible = G.night >= 5
+	hare.position = NODES.BACK
+	hare.rotation = Vector3.ZERO
+	if (line == null and Q.is_empty() and scene_t > 2.0) or scene_t > 30.0:
+		Q.clear()
+		line = null
+		S = "intro"
+		scene_t = 0.0
 func begin_play() -> void:
 	S = "play"
 	scene_t = 0.0
@@ -751,8 +782,11 @@ func play_tick(dt: float) -> void:
 	sys.tick(dt)
 	if S != "play":
 		return
-	if not G.kroupa and not DEV.freeze and not G.hare.get("dead", false):
+	var hare_off = G.night == 8 and CUST.hare <= 0
+	if not G.kroupa and not DEV.freeze and not G.hare.get("dead", false) and not hare_off:
 		hare_ai(dt)
+	elif hare_off:
+		_hare_pose(dt, false)
 	sanity_tick(dt)
 	if DEV.god:
 		G.san = 100.0
@@ -784,8 +818,31 @@ func _bfs(from: String, to: String) -> Array:
 		out.push_front(c)
 		c = prev[c]
 	return out
+const ROOM_NODE := {"OFF": "DOOR", "HALL": "HALL", "WC": "WC", "LOBBY": "LOBBY", "ARC": "ARC", "PIZ": "PIZ", "COC": "COC", "ARCH": "ARCH", "BACK": "BACK"}
+func room_at(x: float, z: float):
+	for id in MAP.rooms:
+		var r = MAP.rooms[id]
+		if x >= r.x0 and x <= r.x1 and z >= r.z0 and z <= r.z1:
+			return id
+	return null
+## po pronásledování: zajíc se vrátí do uzlu místnosti, ve které stojí (bez chůze zdí)
+func hare_resync() -> void:
+	var H = G.hare
+	var r = room_at(hare.position.x, hare.position.z)
+	if r == null:
+		return
+	var nd: String = ROOM_NODE[r]
+	if nd == "DOOR":
+		nd = "WC"
+	H.node = nd
+	H.path = [[NODES[nd], nd]] if r != "OFF" else [[Vector3(-1.5, 0, 7.8), ""], [Vector3(-4.5, 0, 7.8), ""], [NODES.WC, "WC"]]
 func hare_go(target: String) -> void:
 	var H = G.hare
+	if H.path.size() and not H.get("force", false):
+		# nejdřív dojde do příštího uzlu, pak se otočí k novému cíli
+		H.goal = target
+		return
+	H.force = false
 	var route = _bfs(H.node, target)
 	if route.is_empty():
 		return
@@ -806,7 +863,18 @@ func hare_ai(dt: float) -> void:
 	if G.roam and hare.position.y > -0.5 and H.flee <= 0:
 		var pp = Vector3(G.rp.x, 0, G.rp.z)
 		var d = hare.position.distance_to(pp)
-		if d < 6.5:
+		var clear = d < 6.5
+		if clear:
+			for k in range(1, 9):
+				var q = hare.position.lerp(pp, k / 9.0)
+				if not sys.walkable(q.x, q.z, true):
+					clear = false
+					break
+		if not clear and H.get("chasing", false):
+			H.chasing = false
+			hare_resync()
+		if clear:
+			H.chasing = true
 			var dir = (pp - hare.position).normalized()
 			var sp = (1.3 + harder() * 0.5) * (0.6 if G.fire else 1.0)
 			hare.position += dir * sp * dt
@@ -894,6 +962,13 @@ func hare_ai(dt: float) -> void:
 				if target in ["DOOR", "VENTDOOR"] and hour() < 1:
 					target = "BACK"
 			hare_go(target)
+	if H.node == "VOXIE" and H.path.is_empty() and G.vox.beat and not sys.vox_watched():
+		hare.rotation.y = lerp_angle(hare.rotation.y, atan2(-1.0, -1.9), dt * 5)
+		var cyc = fmod(t_now, 0.55) / 0.55
+		var a = -2.6 + ease_io(clampf(cyc / 0.35, 0, 1)) * 2.2
+		hare_parts.arm_R.rotation = hare_base.arm_R + Vector3(a, 0, 0)
+		hare_parts.arm_L.rotation = hare_base.arm_L + Vector3(-2.4 - a * 0.3, 0, 0)
+		hare_parts.chest.rotation = hare_base.chest + Vector3(0.35, 0, 0)
 	if G.mon:
 		hare_stare(dt)
 	# promluva
@@ -1141,6 +1216,25 @@ const EXTRAS := [
 	["COCOA", "exponát · vitrína", "Ohořelá hlava Cocoy ve skleněné vitríně. V roce 1997 v ní byla uvězněná duše malé Emy. Hlídač ji tehdy viděl."],
 ]
 var ex_light: OmniLight3D
+var ex_lore := false
+const LORE := [
+	["1980", "VoxieWorks postaví první springlocky: Voxie Bear a žlutý Hollow Bunny. Pružinové zámky povolují samy od sebe. Oba jsou odstaveni a zavřeni do skladu."],
+	["1993", "Pan Vojtěch otevírá hernu Voxie's Fun Factory. Voxie se vrací jako kostým se springlocky, prototyp s přezdívkou Glitch zůstává ve skladu."],
+	["14. 6. 1997", "Oslava Eminých narozenin. Ema zmizí u Cocoy. Pan Vojtěch se oblékne do Voxieho a zámky povolí. Hlídač D. má klíč od kanceláře – a neotevře."],
+	["1997–2023", "Herna je zavřená. Duše Emy zůstává v Cocoe, duše pana Vojtěcha ve Voxiem. Zvláštní tma v kanceláři – Shadow Voxie – není ani jeden z nich."],
+	["2023", "Nový hlídač přežije sedm nocí. V 6:00 odejde a herna lehne popelem. Policie (náčelník Král) hledá žháře."],
+	["srpen 2004*", "D. je zatčen a uteče z převozu. Schová se ve skladu pana Vojtěcha do Hollow Bunnyho. Zámky povolí, jeden po druhém. Z D. se stane Hollow Hare."],
+	["říjen 2004*", "Pan Kroupa skoupí relikvie a otevře Frights & Hides. Hlídač se vrací – tentokrát jen na „normální práci“. Ve 4:00 7. noci škrtne zápalkou."],
+	["", "* Data Frights & Hides jsou podle kamer a e-mailů v počítači. Kamery tvrdí rok 2004, hasiči rok 2023. Herna Voxie's nikdy nežije jen v jednom čase."],
+]
+const DOCS := [
+	["kupni_smlouva_kroupa.txt", "Kupní smlouva. Prodávající: Pozůstalost Voxie's Fun Factory. Kupující: J. Kroupa. Předmět: veškerý movitý majetek po požáru – automaty, stoly, pódium, maskoti (Voxie Bear – poškozen, Cocoa – hlava), 1× oblek Hollow Bunny (sklad, NEOTVÍRAT – poznámka hasičů)."],
+	["policie_D_spis.txt", "Spis: D., bývalý noční hlídač herny Voxie's (1997). Podezřelý ze zatajení zmizení dítěte a majitele. Při převozu k soudu utekl. Naposledy viděn u skladu pana Vojtěcha. Na místě nalezen jen jeho batoh a klíč od kanceláře z roku 1997."],
+	["hasici_protokol.txt", "Protokol hasičů: ve skladu nalezen žlutý kostým králíka. Zámky č. 3 a 7 uvolněné. Z kostýmu vychází silný zápach. Doporučeno předat k ohledání. Majitel Kroupa odmítl: „Je to exponát.“"],
+	["ema_kresba.txt", "Popis exponátu č. 14: Dětská kresba nalezená v bludišti herny. Postavy: medvěd, králice, holčička a velký pán. Nápis: TÁTA. Spodní roh ohořelý. Návštěvníci tvrdí, že se kresba v noci mění."],
+	["muzeum_nabidka.txt", "Muzeum herní historie nabízí za exponát Hollow Bunny (1980) částku, která převyšuje hodnotu celé budovy. Převoz domluven na ráno po 7. noci. Požadavek: exponát nesmí být poškozen."],
+	["hlidac_denik.txt", "Můj deník. Ve Voxie's jsem viděl věci, které nikdo neuvěří. Cocoa mluvila Eminým hlasem. Voxie měl v očích pana Vojtěcha. A teď tenhle zajíc. Má zelené oči. A dívá se do každé kamery, na kterou se podívám."],
+]
 func start_extras() -> void:
 	S = "extras"
 	scene_t = 0.0
@@ -1216,9 +1310,7 @@ func to_menu() -> void:
 	sys.hare_fire.emitting = false
 	hare_burnt(false)
 	hare.rotation = Vector3.ZERO
-	for ep in end_parts:
-		ep[0].queue_free()
-	end_parts = []
+	restore_voxie()
 	if sys.vox_node:
 		sys.vox_node.rotation = sys.vox_base
 	for c in sys.fire_root.get_children():
@@ -1239,6 +1331,7 @@ func _process(delta: float) -> void:
 		"play": play_tick(dt)
 		"scare", "collapse": tick_lines(dt)
 		"extras": extras_tick(dt)
+		"memory": memory_tick(dt)
 		"end7": end7_tick(dt)
 	render(dt)
 	hud.queue_redraw()
@@ -1405,7 +1498,87 @@ func _render_scare(dt: float) -> void:
 
 ## ohořelá verze Hollow Hare (uhel, popraskaná látka, zhaslé oči)
 var hare_mats := {}
+var burnt_extra: Node3D
+var burnt_hidden := []
+func _burnt_parts(h: Node3D) -> Node3D:
+	var root = Node3D.new()
+	root.name = "BurntExtras"
+	var bone = _mat("#b8ad90", 0.9)
+	var char_ = _mat("#120d0a", 1.0)
+	var metal = _mat("#2a2622", 0.6, 0.7)
+	var red = _mat("#3a0606", 0.6)
+	var head: Node3D = h.get_node("head")
+	var chest: Node3D = h.get_node("chest")
+	# odhořelá polovina obličeje: pod látkou vykukuje lebka D.
+	var hb = Node3D.new()
+	head.add_child(hb)
+	_box(hb, Vector3(0.2, 0.22, 0.04), Vector3(-0.14, 0.27, 0.315), bone)
+	_box(hb, Vector3(0.07, 0.07, 0.02), Vector3(-0.16, 0.31, 0.335), char_)
+	_box(hb, Vector3(0.03, 0.05, 0.02), Vector3(-0.1, 0.22, 0.335), char_)
+	for i in 4:
+		_box(hb, Vector3(0.025, 0.035, 0.02), Vector3(-0.2 + i * 0.03, 0.17, 0.335), bone)
+	# spálené ucho: jen kovový pahýl a dráty
+	_box(hb, Vector3(0.04, 0.3, 0.04), Vector3(-0.18, 0.72, -0.04), metal)
+	_box(hb, Vector3(0.015, 0.14, 0.015), Vector3(-0.16, 0.92, -0.02), metal)
+	# hrudník: propálená díra, žebra kostry springlocku a ostatky
+	_box(chest, Vector3(0.36, 0.34, 0.04), Vector3(0.0, 0.42, 0.27), char_)
+	for i in 4:
+		_box(chest, Vector3(0.32, 0.025, 0.03), Vector3(0, 0.3 + i * 0.07, 0.29), metal)
+	_box(chest, Vector3(0.05, 0.3, 0.035), Vector3(0, 0.42, 0.3), bone)
+	_box(chest, Vector3(0.12, 0.1, 0.02), Vector3(0.08, 0.5, 0.305), red)
+	# ruka spálená na kost: kovová předloktí, prsty
+	for nm in ["arm_L", "arm_R"]:
+		var arm: Node3D = chest.get_node(nm)
+		var fore: Node3D = arm.get_node("forearm")
+		var ab = Node3D.new()
+		fore.add_child(ab)
+		_box(ab, Vector3(0.05, 0.34, 0.05), Vector3(0, -0.17, 0), metal)
+		for f in 3:
+			_box(ab, Vector3(0.02, 0.12, 0.02), Vector3(-0.04 + f * 0.04, -0.4, 0.02), metal)
+	# nohy: ohořelé až na endoskeleton
+	for nm in ["leg_L", "leg_R"]:
+		var shin: Node3D = h.get_node(nm).get_node("shin")
+		_box(shin, Vector3(0.06, 0.32, 0.06), Vector3(0, -0.15, 0.0), metal)
+	return root
+func _burnt_toggle(h: Node3D, on: bool) -> void:
+	if burnt_extra == null:
+		burnt_extra = _burnt_parts(h)
+		burnt_extra.visible = false
+		h.add_child(burnt_extra)
+		# části, které shořely úplně (látka předloktí a lýtek, levé ucho)
+		var head: Node3D = h.get_node("head")
+		if head.has_node("ear_L"):
+			burnt_hidden.append(head.get_node("ear_L"))
+		for nm in ["arm_L", "arm_R"]:
+			var fore: Node3D = h.get_node("chest").get_node(nm).get_node("forearm")
+			for c in fore.get_children():
+				if c is MeshInstance3D:
+					burnt_hidden.append(c)
+		for nm in ["leg_L", "leg_R"]:
+			for c in h.get_node(nm).get_node("shin").get_children():
+				if c is MeshInstance3D and c.mesh is BoxMesh and c.mesh.size.y < 0.32:
+					burnt_hidden.append(c)
+	for n in _extras_of(h):
+		n.visible = on
+	for n in burnt_hidden:
+		n.visible = not on
+var _extras_cache := []
+func _extras_of(h: Node3D) -> Array:
+	return _extras_cache
+var _burn_last := [false, 0.0]
 func hare_burnt(on: bool, k := 1.0) -> void:
+	if burnt_extra == null:
+		var before = hare.find_children("*", "MeshInstance3D", true, false)
+		_burnt_toggle(hare, false)
+		for mi in hare.find_children("*", "MeshInstance3D", true, false):
+			if not before.has(mi):
+				_extras_cache.append(mi)
+	if on == _burn_last[0] and absf(k - _burn_last[1]) < 0.05:
+		return
+	_burn_last = [on, k]
+	_burnt_toggle(hare, on and k > 0.4)
+	for l in hare.find_children("*", "OmniLight3D", true, false):
+		l.visible = not (on and k > 0.6)
 	for mi in hare.find_children("*", "MeshInstance3D", true, false):
 		if not hare_mats.has(mi):
 			hare_mats[mi] = mi.material_override
@@ -1415,7 +1588,7 @@ func hare_burnt(on: bool, k := 1.0) -> void:
 			continue
 		var m: StandardMaterial3D = orig.duplicate()
 		var c = orig.albedo_color
-		var burnt = Color("#0e0b09").lerp(Color("#3a2a1c"), randf() * 0.35)
+		var burnt = Color("#080605").lerp(Color("#2a1e14"), randf() * 0.4)
 		if orig.metallic > 0.5:
 			burnt = Color("#2a2622")
 		m.albedo_color = c.lerp(burnt, k)
@@ -1444,6 +1617,16 @@ func _end7_fire_at(c: Vector3, ext: Vector3) -> void:
 	l.position = c + Vector3(0, 1.5, 0)
 	sys.fire_root.add_child(l)
 	sys.fire_lights.append(l)
+func restore_voxie() -> void:
+	for ep in end_parts:
+		var part: Node3D = ep[0]
+		if is_instance_valid(part):
+			part.get_parent().remove_child(part)
+			ep[2].add_child(part)
+			part.transform = ep[3]
+	end_parts = []
+	if sys.vox_node:
+		sys.vox_node.rotation = sys.vox_base
 func start_end7() -> void:
 	S = "end7"
 	scene_t = 0.0
@@ -1485,10 +1668,12 @@ func end7_tick(dt: float) -> void:
 				if part == null:
 					continue
 				var gt = part.global_transform
-				part.get_parent().remove_child(part)
+				var par = part.get_parent()
+				var lt = part.transform
+				par.remove_child(part)
 				add_child(part)
 				part.global_transform = gt
-				end_parts.append([part, gt])
+				end_parts.append([part, gt, par, lt])
 				var tw = create_tween()
 				tw.tween_interval(k * 0.35)
 				var dest = part.global_position + Vector3(randf_range(-0.7, 0.7), 0, randf_range(0.3, 1.2))
