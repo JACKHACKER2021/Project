@@ -1586,6 +1586,123 @@ export const REGISTRY = {
    "en": "Door Control Button",
    "cs": "Tlačítko ovládání dveří",
    "rot": "face"
+  },
+  "radiousti:dead_postman": {
+   "kind": "corpse",
+   "en": "Dead Postman",
+   "cs": "Mrtvý pošťák",
+   "multiblock": [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     1
+    ]
+   ],
+   "doc": "dead_postman",
+   "rot": "cardinal"
+  },
+  "radiousti:dead_mayor": {
+   "kind": "corpse",
+   "en": "Corpse of the Dead Mayor",
+   "cs": "Mrtvola starosty",
+   "multiblock": [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     1
+    ]
+   ],
+   "doc": "dead_mayor",
+   "rot": "cardinal"
+  },
+  "radiousti:dead_technician": {
+   "kind": "corpse",
+   "en": "Dead Plant Safety Technician",
+   "cs": "Mrtvola bezpečnostního technika elektrárny",
+   "multiblock": [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     1
+    ]
+   ],
+   "doc": "dead_technician",
+   "rot": "cardinal"
+  },
+  "radiousti:radiak_statue": {
+   "kind": "corpse",
+   "en": "Radiak in his Mechanical Suit",
+   "cs": "Radiak v mechanickém obleku",
+   "multiblock": [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     1,
+     0
+    ]
+   ],
+   "doc": "radiak_statue",
+   "rot": "cardinal"
+  },
+  "radiousti:museum_display_case": {
+   "kind": "decor",
+   "en": "Museum Display Case",
+   "cs": "Muzejní vitrína"
+  },
+  "radiousti:museum_pedestal": {
+   "kind": "decor",
+   "en": "Museum Pedestal",
+   "cs": "Muzejní podstavec"
+  },
+  "radiousti:museum_plaque": {
+   "kind": "document",
+   "en": "Museum Plaque",
+   "cs": "Muzejní cedulka",
+   "doc": "museum_plaque",
+   "rot": "face"
+  },
+  "radiousti:museum_rope_barrier": {
+   "kind": "decor",
+   "en": "Museum Rope Barrier",
+   "cs": "Muzejní zábrana s provazem",
+   "rot": "cardinal"
+  },
+  "radiousti:museum_bench": {
+   "kind": "decor",
+   "en": "Museum Bench",
+   "cs": "Muzejní lavice",
+   "rot": "cardinal"
+  },
+  "radiousti:nuke_bomb": {
+   "kind": "nuke",
+   "en": "Nuke Bomb",
+   "cs": "Atomová bomba"
+  },
+  "radiousti:siren": {
+   "kind": "alarm",
+   "en": "Air-Raid Siren",
+   "cs": "Siréna",
+   "trigger": "air_raid",
+   "rot": "cardinal"
   }
  },
  "items": {
@@ -1924,7 +2041,12 @@ export const REGISTRY = {
    "kind": "tablet",
    "en": "Security Tablet",
    "cs": "Bezpečnostní tablet"
+  },
+  "radiousti:hand_siren": {
+   "kind": "siren",
+   "en": "Hand-Cranked Siren",
+   "cs": "Ruční siréna"
   }
  }
 };
-export const SOUNDS = ["radiousti.alarm", "radiousti.door_close", "radiousti.door_open", "radiousti.geiger", "radiousti.generator_hum", "radiousti.generator_start", "radiousti.lab_process", "radiousti.light_switch", "radiousti.pc_boot", "radiousti.pc_click", "radiousti.pc_error", "radiousti.radiation_alarm", "radiousti.reactor_scram", "radiousti.reactor_start", "radiousti.record_radiousti", "radiousti.scanner_beep", "radiousti.valve"];
+export const SOUNDS = ["radiousti.alarm", "radiousti.door_close", "radiousti.door_open", "radiousti.geiger", "radiousti.generator_hum", "radiousti.generator_start", "radiousti.lab_process", "radiousti.light_switch", "radiousti.nuke_blast", "radiousti.pc_boot", "radiousti.pc_click", "radiousti.pc_error", "radiousti.radiation_alarm", "radiousti.reactor_scram", "radiousti.reactor_start", "radiousti.record_radiousti", "radiousti.scanner_beep", "radiousti.siren", "radiousti.valve"];

@@ -1,0 +1,28 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:museum_pedestal"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "CCC",
+      " C ",
+      "CCC"
+    ],
+    "key": {
+      "C": {
+        "item": "radiousti:cement_block"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:museum_pedestal",
+      "count": 2
+    }
+  }
+}

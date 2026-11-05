@@ -866,3 +866,56 @@ block("door_control_button", "Door Control Button", "Tlačítko ovládání dve�
       comps=[f"{NS}:door_button"], collision=False, mapc="#7c848a")
 item("security_tablet", "Security Tablet", "Bezpečnostní tablet", ic("security_tablet", "scanner"), cat="equipment", stack=1, kind="tablet",
      comps={"minecraft:hand_equipped": False})
+
+
+# ----------------------------------------------------------------- v1.8: corpses, Radiak statue, museum, nuke
+tex("corpse_skin", lambda n: T.Tex(n, base="#8a9a7a").noise(14).blobs(["#6a7a5a", "#5a0e0e"], 4, 1))
+tex("corpse_bone", lambda n: T.Tex(n, base="#ddd6bf").noise(8).speckle(["#b8ae94"], 10))
+tex("corpse_void", lambda n: T.Tex(n, base="#0c0a0a"))
+tex("postman_uniform", lambda n: T.Tex(n, base="#2f4f7a").noise(8).speckle(["#5a0e0e"], 6))
+tex("postman_trousers", lambda n: T.Tex(n, base="#26344a").noise(6))
+tex("mayor_suit", lambda n: T.Tex(n, base="#24252a").noise(5).speckle(["#5a0e0e"], 5))
+tex("mayor_sash", lambda n: (lambda t: (t.rect(0, 5, 16, 6, "#e8e8e8"), t.rect(0, 11, 16, 5, "#c23b22"), t)[-1])(T.Tex(n, base="#2f5fa8")))
+tex("technician_shirt", lambda n: T.Tex(n, base="#e6e6e0").noise(5).blobs(["#7a0e12", "#c9b25a"], 4, 1))
+tex("technician_trousers", lambda n: T.Tex(n, base="#3f5f8a").noise(6))
+tex("mail_bag", lambda n: T.Tex(n, base="#6b4a2a").noise(8).frame("#3a2a1a"))
+tex("dosimeter_badge", lambda n: T.Tex(n, base="#e0a800").noise(4))
+tex("shoe_black", lambda n: T.Tex(n, base="#1d1d1d").noise(3))
+CORPSES = [
+    ("dead_postman", "Dead Postman", "Mrtvý pošťák", "postman", {"cloth": "radiousti_postman_uniform", "cloth2": "radiousti_postman_trousers", "bag": "radiousti_mail_bag", "paper": "radiousti_papers_0"}, "#2f4f7a"),
+    ("dead_mayor", "Corpse of the Dead Mayor", "Mrtvola starosty", "mayor", {"cloth": "radiousti_mayor_suit", "cloth2": "radiousti_mayor_suit", "sash": "radiousti_mayor_sash", "bone": "radiousti_corpse_bone", "void": "radiousti_corpse_void"}, "#24252a"),
+    ("dead_technician", "Dead Plant Safety Technician", "Mrtvola bezpečnostního technika elektrárny", "technician", {"cloth": "radiousti_technician_shirt", "cloth2": "radiousti_technician_trousers", "badge": "radiousti_dosimeter_badge"}, "#e6e6e0"),
+]
+for cid, en, cs, kind, tx, col in CORPSES:
+    t = {"*": "radiousti_corpse_skin", "skin": "radiousti_corpse_skin", "shoe": "radiousti_shoe_black", "blood": "radiousti_blood_puddle"}
+    t.update(tx)
+    block(cid, en, cs, cat="items", model=("multi", ("corpse", kind), [(0, 0, 0), (0, 0, 1)]), rot="cardinal", tex=t, render="alpha_test",
+          states={f"{NS}:part": [0, 1]}, sound="slime", hardness=1, kind="corpse", meta={"multiblock": [(0, 0, 0), (0, 0, 1)], "doc": cid},
+          comps=[f"{NS}:readable"], loot="empty", mapc=col, placer_icon=("corpse", col), collision="auto")
+block("radiak_statue", "Radiak in his Mechanical Suit", "Radiak v mechanickém obleku", cat="items", model=("multi", ("radiak",), [(0, 0, 0), (0, 1, 0)]),
+      rot="cardinal", tex={"*": S["steel_dark"], "detail": S["steel"], "glow": S["glow_green"]}, states={f"{NS}:part": [0, 1]}, light=8,
+      sound="metal", hardness=3, kind="corpse", meta={"multiblock": [(0, 0, 0), (0, 1, 0)], "doc": "radiak_statue"}, comps=[f"{NS}:readable"],
+      loot="empty", mapc="#6c747a", placer_icon=("statue", "#6c747a"))
+EXHIBIT = tex("exhibit_uranium", lambda n: T.Tex(n, base="#5fd14a").noise(16).frame("#2a6a20"))
+ROPE = tex("museum_rope", lambda n: T.Tex(n, base="#9b1b24").noise(8))
+PLAQ = tex("museum_plaque", lambda n: (lambda t: (t.rect(2, 3, 12, 1, "#3a2c1c"), t.rect(2, 6, 10, 1, "#3a2c1c"), t.rect(2, 9, 11, 1, "#3a2c1c"), t.rect(2, 12, 7, 1, "#3a2c1c"), t)[-1])(T.Tex(n, base="#b08d3a").noise(6).frame("#6e5520")))
+block("museum_display_case", "Museum Display Case", "Muzejní vitrína", cat="items", model=("display_case",), tex={"*": S["wood_dark"], "detail": S["wood_dark"], "glass": S["glass_solid"], "exhibit": EXHIBIT},
+      sound="glass", hardness=1.5, mapc="#5e4528")
+block("museum_pedestal", "Museum Pedestal", "Muzejní podstavec", cat="items", model=("pedestal",), tex={"*": "radiousti_cement_block", "exhibit": "radiousti_reactor_core"},
+      hardness=2, mapc="#8d8a82")
+block("museum_plaque", "Museum Plaque", "Muzejní cedulka", cat="items", model=("flat_wall",), rot="face", tex={"*": PLAQ}, render="alpha_test",
+      sound="metal", hardness=0.5, collision=False, kind="document", meta={"doc": "museum_plaque"}, comps=[f"{NS}:readable"], mapc="#b08d3a")
+block("museum_rope_barrier", "Museum Rope Barrier", "Muzejní zábrana s provazem", cat="items", model=("rope_barrier",), rot="cardinal",
+      tex={"*": S["brass"], "detail": S["brass"], "rope": ROPE}, sound="metal", hardness=1, mapc="#b08d3a")
+block("museum_bench", "Museum Bench", "Muzejní lavice", cat="items", model=("bench",), rot="cardinal", tex={"*": S["wood"], "detail": S["steel_dark"]},
+      sound="wood", hardness=1.5, mapc="#8a6a43")
+block("nuke_bomb", "Nuke Bomb", "Atomová bomba", cat="equipment", model=("nuke",),
+      tex={"*": tex("nuke_casing", lambda n: T.metal(n, "#5e6f55", rust=4)), "detail": S["steel_dark"], "hazard": S["hazard"], "glow": S["glow_red"]},
+      sound="metal", hardness=5, resist=1200, kind="nuke", comps=[f"{NS}:nuke"], light=3, mapc="#5e6f55")
+
+block("siren", "Air-Raid Siren", "Siréna", cat="items", model=("siren",), rot="cardinal",
+      tex={"*": tex("siren_body", lambda n: T.metal(n, "#a3471f", rust=5)), "detail": S["steel_dark"], "glow": S["glow_off"]},
+      tex_lit={"glow": S["glow_red"]}, light_lit=10, states={f"{NS}:lit": [False, True]}, sound="metal", hardness=2, kind="alarm",
+      meta={"trigger": "air_raid"}, comps=[f"{NS}:alarm"], mapc="#a3471f")
+item("hand_siren", "Hand-Cranked Siren", "Ruční siréna", ic("hand_siren", "gascan", "#a3471f"), cat="equipment", stack=1, kind="siren",
+     comps={"minecraft:cooldown": {"category": "radiousti_siren", "duration": 4}})

@@ -1,0 +1,26 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:item": {
+    "description": {
+      "identifier": "radiousti:dead_technician",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "textures": {
+          "default": "radiousti_dead_technician_icon"
+        }
+      },
+      "minecraft:display_name": {
+        "value": "Mrtvola bezpečnostního technika elektrárny"
+      },
+      "minecraft:max_stack_size": 16,
+      "minecraft:block_placer": {
+        "block": "radiousti:dead_technician",
+        "replace_block_item": true
+      }
+    }
+  }
+}

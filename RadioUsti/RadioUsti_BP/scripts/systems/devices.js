@@ -6,6 +6,7 @@ import { onCycle, getCycle } from "./network.js";
 import { isAlertStatus, scram, reactorsNear } from "./reactor.js";
 import { radiationAt, lastRateOf } from "./radiation.js";
 import { world } from "@minecraft/server";
+import { isAirRaid } from "./nuke.js";
 
 const LIT = `${NS}:lit`;
 
@@ -50,6 +51,7 @@ export function alarmCondition(rec, ctx) {
   const now = system.currentTick;
   if ((rec.test ?? 0) > 0) return { on: true, why: "test" };
   if ((rec.silencedUntil ?? 0) > now) return { on: false, why: "ztlumeno" };
+  if (isAirRaid()) return { on: true, why: "letecký poplach" };
   if (reactorAlertNear(ctx.dim.id, ctx.pos, 32)) return { on: true, why: "reaktor" };
   if (i.trigger === "radiation" || i.trigger === "any") {
     if (radiationAt(ctx.dim, ctx.pos, 5) > 1.5) return { on: true, why: "radiace v okolí" };
@@ -74,7 +76,10 @@ onCycle("afterPower", (live) => {
       setState(ctx.block, LIT, c.on);
       if (c.on && !was) Logs.push("alarms", `${i.cs} ${ctx.pos.x} ${ctx.pos.y} ${ctx.pos.z} spuštěn: ${c.why}.`);
       rec.why = c.why;
-      if (c.on) sound(ctx.dim, ctx.pos, rec.t === `${NS}:alarm` ? "radiousti.alarm" : "radiousti.radiation_alarm", 1);
+      if (c.on) {
+        const snd = rec.t === `${NS}:siren` ? "radiousti.siren" : rec.t === `${NS}:alarm` ? "radiousti.alarm" : "radiousti.radiation_alarm";
+        if (rec.t !== `${NS}:siren` || getCycle() % 2 === 0) sound(ctx.dim, ctx.pos, snd, rec.t === `${NS}:siren` ? 4 : 1);
+      }
       Machines.save(key);
     } else if (i.kind === "indicator") {
       let lvl = radiationAt(ctx.dim, ctx.pos, 6);

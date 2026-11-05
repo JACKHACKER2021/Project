@@ -42,6 +42,12 @@ def make():
     s = {}
     # alarm: two-tone siren
     s["alarm"] = np.concatenate([tone(660, 0.35, "square") * 0.5, tone(880, 0.35, "square") * 0.5]) * _env(int(0.7 * SR), 0.01, 0.05)
+    # air-raid siren: slow rising and falling wail
+    t = np.arange(int(4.0 * SR)) / SR
+    f = 330 + 260 * (0.5 - 0.5 * np.cos(2 * np.pi * t / 4.0))
+    ph = 2 * np.pi * np.cumsum(f) / SR
+    s["siren"] = (np.sin(ph) * 0.45 + np.sign(np.sin(ph * 2)) * 0.12) * _env(len(t), 0.3, 0.6)
+    s["nuke_blast"] = lowpass(noise(3.0, 77), 60) * np.exp(-np.arange(int(3.0 * SR)) / SR * 1.2) * 1.4
     # radiation alarm: fast beeps
     beep = np.concatenate([tone(1200, 0.08, "square") * 0.5, np.zeros(int(0.07 * SR))])
     s["radiation_alarm"] = np.tile(beep, 4)
@@ -84,7 +90,7 @@ def make():
     return s
 
 
-CATS = {"generator_hum": ("block", 0.6), "record_radiousti": ("record", 1.0), "geiger": ("player", 0.7)}
+CATS = {"siren": ("block", 1.0), "nuke_blast": ("weather", 1.0), "generator_hum": ("block", 0.6), "record_radiousti": ("record", 1.0), "geiger": ("player", 0.7)}
 
 
 def emit(sound_dir, wjson):
@@ -109,6 +115,8 @@ def emit(sound_dir, wjson):
         if name == "record_radiousti":
             entry["sounds"][0]["stream"] = True
             entry["max_distance"] = 64
+        elif name in ("siren", "nuke_blast"):
+            entry["max_distance"] = 160
         else:
             entry["max_distance"] = 24
         defs[f"radiousti.{name}"] = entry

@@ -1,0 +1,318 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:dead_technician",
+      "menu_category": {
+        "category": "none"
+      },
+      "states": {
+        "radiousti:part": [
+          0,
+          1
+        ]
+      },
+      "traits": {
+        "minecraft:placement_direction": {
+          "enabled_states": [
+            "minecraft:cardinal_direction"
+          ],
+          "y_rotation_offset": 180
+        }
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 1
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#e6e6e0",
+      "radiousti:readable": {},
+      "minecraft:loot": "loot_tables/blocks/radiousti_empty.json",
+      "minecraft:geometry": "geometry.radiousti.dead_technician.p0.north",
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_corpse_skin",
+          "render_method": "alpha_test",
+          "ambient_occlusion": false
+        },
+        "skin": {
+          "texture": "radiousti_corpse_skin",
+          "render_method": "alpha_test",
+          "ambient_occlusion": false
+        },
+        "shoe": {
+          "texture": "radiousti_shoe_black",
+          "render_method": "alpha_test",
+          "ambient_occlusion": false
+        },
+        "blood": {
+          "texture": "radiousti_blood_puddle",
+          "render_method": "alpha_test",
+          "ambient_occlusion": false
+        },
+        "cloth": {
+          "texture": "radiousti_technician_shirt",
+          "render_method": "alpha_test",
+          "ambient_occlusion": false
+        },
+        "cloth2": {
+          "texture": "radiousti_technician_trousers",
+          "render_method": "alpha_test",
+          "ambient_occlusion": false
+        },
+        "badge": {
+          "texture": "radiousti_dosimeter_badge",
+          "render_method": "alpha_test",
+          "ambient_occlusion": false
+        }
+      },
+      "minecraft:display_name": "Mrtvola bezpečnostního technika elektrárny"
+    },
+    "permutations": [
+      {
+        "condition": "q.block_state('radiousti:part') == 0 && q.block_state('minecraft:cardinal_direction') == 'north'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.dead_technician.p0.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -7.5,
+              0,
+              -8
+            ],
+            "size": [
+              15.0,
+              3.5,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -7.5,
+              0,
+              -8
+            ],
+            "size": [
+              15.0,
+              3.5,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 0 && q.block_state('minecraft:cardinal_direction') == 'east'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.dead_technician.p0.east",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -7.5
+            ],
+            "size": [
+              16,
+              3.5,
+              15.0
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -7.5
+            ],
+            "size": [
+              16,
+              3.5,
+              15.0
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 0 && q.block_state('minecraft:cardinal_direction') == 'south'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.dead_technician.p0.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -7.5,
+              0,
+              -8
+            ],
+            "size": [
+              15.0,
+              3.5,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -7.5,
+              0,
+              -8
+            ],
+            "size": [
+              15.0,
+              3.5,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 0 && q.block_state('minecraft:cardinal_direction') == 'west'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.dead_technician.p0.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -7.5
+            ],
+            "size": [
+              16,
+              3.5,
+              15.0
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -7.5
+            ],
+            "size": [
+              16,
+              3.5,
+              15.0
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 1 && q.block_state('minecraft:cardinal_direction') == 'north'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.dead_technician.p1.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -7.5,
+              0,
+              -8
+            ],
+            "size": [
+              15.0,
+              6.3,
+              14
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -7.5,
+              0,
+              -8
+            ],
+            "size": [
+              15.0,
+              6.3,
+              14
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 1 && q.block_state('minecraft:cardinal_direction') == 'east'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.dead_technician.p1.east",
+          "minecraft:selection_box": {
+            "origin": [
+              -6,
+              0,
+              -7.5
+            ],
+            "size": [
+              14,
+              6.3,
+              15.0
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -6,
+              0,
+              -7.5
+            ],
+            "size": [
+              14,
+              6.3,
+              15.0
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 1 && q.block_state('minecraft:cardinal_direction') == 'south'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.dead_technician.p1.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -7.5,
+              0,
+              -6
+            ],
+            "size": [
+              15.0,
+              6.3,
+              14
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -7.5,
+              0,
+              -6
+            ],
+            "size": [
+              15.0,
+              6.3,
+              14
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 1 && q.block_state('minecraft:cardinal_direction') == 'west'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.dead_technician.p1.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -7.5
+            ],
+            "size": [
+              14,
+              6.3,
+              15.0
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -7.5
+            ],
+            "size": [
+              14,
+              6.3,
+              15.0
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

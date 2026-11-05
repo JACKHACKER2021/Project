@@ -2,7 +2,7 @@
 // Target: Minecraft Bedrock 1.26.50, stable @minecraft/server 2.0.0 + @minecraft/server-ui 2.0.0.
 // Runtime behaviour has only been statically validated (type-checked against the official
 // typings); in-game testing is tracked in FEATURES.md.
-import { world, system, BlockPermutation, EquipmentSlot } from "@minecraft/server";
+import { world, system, BlockPermutation, EquipmentSlot, CommandPermissionLevel, CustomCommandParamType, CustomCommandStatus } from "@minecraft/server";
 import { NS, BLOCKS, ITEMS, info, stateOf, setState, isCreative, dropItem, sound, heldItem, consumeHeld, giveItem, later, safe, posKey } from "./lib/util.js";
 import { Machines, Config, Logs } from "./lib/store.js";
 import { updateAround } from "./systems/connections.js";
@@ -11,6 +11,7 @@ import { startNetworkLoop, ensureMachine, findCoreNear } from "./systems/network
 import "./systems/reactor.js";
 import { startSmog } from "./systems/environment.js";
 import { cameraRecord, renameCamera, openTablet, pressDoorButton, cureInfection } from "./systems/security.js";
+import { interactNuke, atomicCommand } from "./systems/nuke.js";
 import { radiationTick, mobRadiationTick, wasteSpreadTick, contaminationSpreadTick, decontaminate, getDose, setDose, fullHazmat } from "./systems/radiation.js";
 import { toggleLight, interactAlarm, pressScram } from "./systems/devices.js";
 import { openStation } from "./systems/lab.js";
@@ -30,6 +31,25 @@ function needsRecord(i) {
 
 // ------------------------------------------------------------------ custom block components
 system.beforeEvents.startup.subscribe((ev) => {
+  // /radiousti:atomic_bomb <on|off|strike|status> [minutes]  (operators)
+  try {
+    ev.customCommandRegistry.registerEnum(`${NS}:atomic_action`, ["on", "off", "strike", "status"]);
+    ev.customCommandRegistry.registerCommand({
+      name: `${NS}:atomic_bomb`,
+      description: "RadioÚstí: atomové útoky (on/off/strike/status) [interval v minutách]",
+      permissionLevel: CommandPermissionLevel.GameDirectors,
+      mandatoryParameters: [{ type: CustomCommandParamType.Enum, name: `${NS}:atomic_action` }],
+      optionalParameters: [{ type: CustomCommandParamType.Integer, name: "minutes" }],
+    }, (origin, action, minutes) => {
+      system.run(() => {
+        const msg = atomicCommand(origin, action, minutes);
+        world.sendMessage(`§e[RadioÚstí] ${msg}`);
+      });
+      return { status: CustomCommandStatus.Success };
+    });
+  } catch (e) {
+    console.warn(`[RadioÚstí] custom command: ${e}`);
+  }
   const reg = (id, def) => ev.blockComponentRegistry.registerCustomComponent(`${NS}:${id}`, def);
   const ui = (fn) => safe("ui", (e) => {
     if (!e.player) return;
@@ -159,6 +179,7 @@ system.beforeEvents.startup.subscribe((ev) => {
       e.player?.onScreenDisplay.setActionBar(r.n ? `§e${r.open ? "Otevírám" : "Zavírám"} bezpečnostní dveře: ${r.n}` : "§7V okruhu 8 bloků nejsou bezpečnostní dveře.");
     }),
   });
+  reg("nuke", { onPlayerInteract: ui(async (p, b) => interactNuke(p, b)) });
   reg("conduit", { onPlace: safe("conduit", (e) => later(() => updateAround(e.dimension, e.block.location), 1)) });
   reg("liquid", { onTick: safe("liquid", (e) => liquidTick(e.block)) });
   reg("contamination_spread", { onTick: safe("spread", (e) => contaminationSpreadTick(e.block)) });
@@ -271,6 +292,18 @@ world.afterEvents.itemUse.subscribe(safe("itemUse", (ev) => {
   if (id === `${NS}:handbook`) system.run(() => openHandbook(p).catch(() => {}));
   else if (id === `${NS}:experiment_registry`) system.run(() => openRegistry(p).catch(() => {}));
   else if (id === `${NS}:security_tablet`) system.run(() => openTablet(p).catch(() => {}));
+  else if (id === `${NS}:hand_siren`) {
+    for (const pl of world.getAllPlayers()) {
+      if (pl.dimension.id === p.dimension.id && (pl.location.x - p.location.x) ** 2 + (pl.location.z - p.location.z) ** 2 < 96 * 96) {
+        try {
+          pl.playSound("radiousti.siren", { volume: 1, location: p.location });
+          if (pl.id !== p.id) pl.onScreenDisplay.setActionBar(`§c${p.name} spustil ruční sirénu!`);
+        } catch {
+          /* ignore */
+        }
+      }
+    }
+  }
   else if (ITEMS[id]?.kind === "document") system.run(() => readDocument(p, id).catch(() => {}));
   else if (id === ANALYZER) p.onScreenDisplay.setActionBar(`§eAnalyzátor: klepněte na blok. Vaše dávka radiace: ${getDose(p).toFixed(0)}/150`);
 }));
@@ -329,6 +362,8 @@ system.afterEvents.scriptEventReceive.subscribe(safe("scriptevent", (ev) => {
     else if (k === "dayradiation") c = Config.set({ dayRadiation: on });
     else if (k === "spread") c = Config.set({ contaminationSpread: on });
     else if (k === "infection") c = Config.set({ infection: on });
+    else if (k === "nuke") c = Config.set({ nuke: on });
+    else if (k === "rain") c = Config.set({ frequentRain: on });
     else if (k === "smog") {
       startSmog(Number(v) || 3);
       c = Config.get();

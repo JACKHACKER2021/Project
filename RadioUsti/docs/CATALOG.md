@@ -81,9 +81,9 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Pletivový plot | Chain-Link Fence | `radiousti:chainlink_fence` | dekorace |
 | Výpusť páry | Steam Vent | `radiousti:steam_vent` | dekorace |
 | Pult velínu | Control Room Console | `radiousti:control_console` | dekorace |
-| Okenní barikáda | Window Barricade | `radiousti:window_barricade` | barricade |
+| Okenní barikáda | Window Barricade | `radiousti:window_barricade` | barikáda |
 
-## Bloky – Vybavení (34)
+## Bloky – Vybavení (35)
 
 | Název | English | ID | Typ |
 |---|---|---|---|
@@ -121,8 +121,9 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Počítačová pracovní stanice | Computer Workstation | `radiousti:computer_workstation` | stroj |
 | Nádrž Liverocrystal Gas (Blue Gasoline) | Liverocrystal Gas Tank (Blue Gasoline) | `radiousti:liverocrystal_gas_tank` | stroj |
 | Kádě s biogenním sérem | Biogenic Serum Vat | `radiousti:biogenic_serum_vat` | dekorace |
+| Atomová bomba | Nuke Bomb | `radiousti:nuke_bomb` | výbušnina |
 
-## Bloky – Předměty (45)
+## Bloky – Předměty (51)
 
 | Název | English | ID | Typ |
 |---|---|---|---|
@@ -169,8 +170,14 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Jevištní reflektor | Stage Spotlight | `radiousti:stage_spotlight` | světlo |
 | Televizor CWT | CWT Television | `radiousti:crt_tv` | světlo |
 | Sprcha | Shower | `radiousti:shower_head` | světlo |
-| Bezpečnostní kamera | Security Camera | `radiousti:security_camera` | camera |
+| Bezpečnostní kamera | Security Camera | `radiousti:security_camera` | kamera |
 | Tlačítko ovládání dveří | Door Control Button | `radiousti:door_control_button` | ovládání |
+| Muzejní vitrína | Museum Display Case | `radiousti:museum_display_case` | dekorace |
+| Muzejní podstavec | Museum Pedestal | `radiousti:museum_pedestal` | dekorace |
+| Muzejní cedulka | Museum Plaque | `radiousti:museum_plaque` | dokument |
+| Muzejní zábrana s provazem | Museum Rope Barrier | `radiousti:museum_rope_barrier` | dekorace |
+| Muzejní lavice | Museum Bench | `radiousti:museum_bench` | dekorace |
+| Siréna | Air-Raid Siren | `radiousti:siren` | alarm |
 
 ## Bloky – Příroda (17)
 
@@ -194,7 +201,7 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Shluk Liverocrystalu | Liverocrystal Cluster | `radiousti:liverocrystal_cluster` | toxický materiál |
 | Modré krystalické usazeniny | Blue Crystal Residue | `radiousti:blue_crystal_residue` | dekorace |
 
-## Bloky – Pokládané laboratorní sklo a multibloky (pokládají se předmětem) (34)
+## Bloky – Pokládané laboratorní sklo a multibloky (pokládají se předmětem) (38)
 
 | Název | English | ID | Typ |
 |---|---|---|---|
@@ -232,8 +239,12 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Bezpečnostní roletové dveře | Security Shutter Door | `radiousti:security_door` | dveře |
 | Dekontaminační plášť | Decontamination Curtain | `radiousti:decontamination_curtain` | dveře |
 | Zabarikádované dveře | Barricaded Door | `radiousti:barricaded_door` | dveře |
+| Mrtvý pošťák | Dead Postman | `radiousti:dead_postman` | mrtvola / socha |
+| Mrtvola starosty | Corpse of the Dead Mayor | `radiousti:dead_mayor` | mrtvola / socha |
+| Mrtvola bezpečnostního technika elektrárny | Dead Plant Safety Technician | `radiousti:dead_technician` | mrtvola / socha |
+| Radiak v mechanickém obleku | Radiak in his Mechanical Suit | `radiousti:radiak_statue` | mrtvola / socha |
 
-## Předměty (62)
+## Předměty (63)
 
 | Název | English | ID | Popis |
 |---|---|---|---|
@@ -299,3 +310,4 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Kalhoty ochranného obleku | Hazmat Trousers | `radiousti:hazmat_pants` |  |
 | Boty ochranného obleku | Hazmat Boots | `radiousti:hazmat_boots` |  |
 | Bezpečnostní tablet | Security Tablet | `radiousti:security_tablet` |  |
+| Ruční siréna | Hand-Cranked Siren | `radiousti:hand_siren` |  |

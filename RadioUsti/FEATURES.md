@@ -60,6 +60,12 @@ Verze 1.0.0 byla podle autora otestovaná ve hře a funguje („Otestováno a co
 | G20 | Kamery + bezpečnostní tablet + tlačítko ovládání dveří | staticky ověřeno | – | `player.camera.setCamera("minecraft:free")` |
 | G21 | Zéd nákaza (3 fáze, sérum, povstání) | staticky ověřeno | – | |
 | G22 | Radiakova zombie | staticky ověřeno | – | |
+| G23 | Atomová bomba + událost atomových útoků + příkaz `/radiousti:atomic_bomb` | staticky ověřeno | – | Script API 2.10.0 |
+| G24 | Siréna (blok), ruční siréna | staticky ověřeno | – | |
+| G25 | Postavy: pošťák, starosta, technik, Radiak (dekorace s popisem) | staticky ověřeno | – | |
+| G26 | Radiakův reaktorový sliz | staticky ověřeno | – | |
+| G27 | Muzeum: bloky + struktura `muzeum` | staticky ověřeno | – | |
+| G28 | Častější déšť | staticky ověřeno | – | |
 | F1 | Validace JSON, geometrií, skriptů, ID, textur | staticky ověřeno | – | `tools/validate.py`: 0 chyb; komunitní JSON schémata: 0 nálezů |
 | F2 | Export .mcaddon + .mcpack | staticky ověřeno | – | `tools/package.py`, kontrola integrity ZIP |
 | F3 | Test v Minecraftu Bedrock 1.26.50 | 1.0.0 načteno a hratelné | ✓ (1.0.0, obecně) | 1.1 čeká na test |

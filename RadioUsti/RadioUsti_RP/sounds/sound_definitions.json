@@ -11,6 +11,26 @@
       ],
       "max_distance": 24
     },
+    "radiousti.siren": {
+      "category": "block",
+      "sounds": [
+        {
+          "name": "sounds/radiousti/siren",
+          "volume": 1.0
+        }
+      ],
+      "max_distance": 160
+    },
+    "radiousti.nuke_blast": {
+      "category": "weather",
+      "sounds": [
+        {
+          "name": "sounds/radiousti/nuke_blast",
+          "volume": 1.0
+        }
+      ],
+      "max_distance": 160
+    },
     "radiousti.radiation_alarm": {
       "category": "block",
       "sounds": [

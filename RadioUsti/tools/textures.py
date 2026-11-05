@@ -532,6 +532,11 @@ def _item(name, kind, color="#888888"):
     elif kind == "bucket":
         t.rect(3, 4, 10, 2, "#9aa3a8"); t.rect(4, 6, 8, 8, "#7c848a"); t.rect(5, 14, 6, 1, "#5b6267")
         t.rect(4, 5, 8, 3, color); t.rect(2, 3, 1, 3, "#5b6267"); t.rect(13, 3, 1, 3, "#5b6267"); t.rect(3, 1, 10, 1, "#5b6267")
+    elif kind == "corpse":
+        t.rect(2, 9, 12, 3, color); t.rect(12, 8, 3, 4, "#8a9a7a"); t.rect(2, 12, 12, 1, "#5a0e0e"); t.rect(1, 9, 1, 2, "#1d1d1d")
+    elif kind == "statue":
+        t.rect(5, 2, 6, 5, "#6c747a"); t.rect(6, 3, 4, 2, "#7dff3a"); t.rect(4, 7, 8, 5, "#6c747a"); t.rect(6, 8, 4, 2, "#7dff3a")
+        t.rect(5, 12, 2, 3, "#5b6267"); t.rect(9, 12, 2, 3, "#5b6267")
     elif kind == "vhs":
         t.rect(1, 4, 14, 9, "#1d1d1d"); t.rect(3, 5, 10, 4, "#d9cfb3"); t.rect(4, 6, 3, 2, "#3a3a3a"); t.rect(9, 6, 3, 2, "#3a3a3a")
         t.rect(3, 10, 10, 2, "#2c2c2c"); t.rect(4, 5, 8, 1, color)

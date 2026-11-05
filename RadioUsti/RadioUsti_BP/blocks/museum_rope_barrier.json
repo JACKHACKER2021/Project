@@ -1,0 +1,167 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:museum_rope_barrier",
+      "menu_category": {
+        "category": "items"
+      },
+      "traits": {
+        "minecraft:placement_direction": {
+          "enabled_states": [
+            "minecraft:cardinal_direction"
+          ],
+          "y_rotation_offset": 180
+        }
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 1
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#b08d3a",
+      "minecraft:geometry": "geometry.radiousti.museum_rope_barrier.north",
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_brass",
+          "render_method": "opaque"
+        },
+        "detail": {
+          "texture": "radiousti_brass",
+          "render_method": "opaque"
+        },
+        "rope": {
+          "texture": "radiousti_museum_rope",
+          "render_method": "opaque"
+        }
+      },
+      "minecraft:display_name": "Muzejní zábrana s provazem"
+    },
+    "permutations": [
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'north'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.museum_rope_barrier.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -7,
+              0,
+              -1.5
+            ],
+            "size": [
+              14,
+              11.5,
+              3.0
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -7,
+              0,
+              -1.5
+            ],
+            "size": [
+              14,
+              11.5,
+              3.0
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'east'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.museum_rope_barrier.east",
+          "minecraft:selection_box": {
+            "origin": [
+              -1.5,
+              0,
+              -7
+            ],
+            "size": [
+              3.0,
+              11.5,
+              14
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -1.5,
+              0,
+              -7
+            ],
+            "size": [
+              3.0,
+              11.5,
+              14
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'south'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.museum_rope_barrier.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -7,
+              0,
+              -1.5
+            ],
+            "size": [
+              14,
+              11.5,
+              3.0
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -7,
+              0,
+              -1.5
+            ],
+            "size": [
+              14,
+              11.5,
+              3.0
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'west'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.museum_rope_barrier.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -1.5,
+              0,
+              -7
+            ],
+            "size": [
+              3.0,
+              11.5,
+              14
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -1.5,
+              0,
+              -7
+            ],
+            "size": [
+              3.0,
+              11.5,
+              14
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

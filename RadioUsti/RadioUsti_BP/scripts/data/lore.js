@@ -42,5 +42,10 @@ export const DOCS = {
   wall_notice: { title: "Oznámení", text: "Ředitelství závodu oznamuje: od pondělí jsou zakázány vstupy do reaktorové haly bez dozimetru. Porušení = okamžité propuštění." },
   document_pile: { title: "Hromada dokumentů", text: "Hromada osobních složek zaměstnanců elektrárny. Většina složek je označena červeným razítkem: NEZVĚSTNÝ." },
   chalkboard: { title: "Školní tabule", text: "Na tabuli zůstalo křídou: 'Pennov – rozvrh na pondělí. 1. hodina: Bezpečnost při radiačním poplachu. 2. hodina: Občanská nauka Zeds Corp.' V rohu někdo připsal: 'Nevěřte vysílání z CWT.'" },
+  dead_postman: { title: "Mrtvý pošťák", text: "Pošťák RadioÚstí s brašnou plnou nedoručených dopisů. Poslední zásilka měla jít na velín elektrárny – adresát: 'Radislav M., směna B'. Dopisy kolem něj jsou nasáklé deštěm a slabě světélkují." },
+  dead_mayor: { title: "Mrtvola starosty", text: "Starosta RadioÚstí ve slavnostním obleku se šerpou. Půlka jeho hlavy je stržená až na lebku, oční důlky jsou prázdné. V kapse projev, který už nikdy nepřednesl: 'Elektrárna je bezpečná. Zeds Corp nás ochrání.'" },
+  dead_technician: { title: "Mrtvola bezpečnostního technika", text: "Bezpečnostní technik elektrárny v bílé košili. Dozimetr na hrudi ukazuje maximum. Měl na starosti chladicí okruh B – ventil, který ten den někdo zavřel." },
+  radiak_statue: { title: "Radiak v mechanickém obleku", text: "U256 – Radiak (Radislav M.). Mechanický oblek, který měl chránit Rogerova asistenta, se stal jeho rakví i trůnem: uvnitř už není tělo, jen tekutý zelený uran, který hledí ven průzorem. Kdo ho kousne, ten se změní v Radiakovu zombii." },
+  museum_plaque: { title: "Muzeum RadioÚstí", text: "Muzeum RadioÚstí – stálá expozice 'Konec světa 2084'. Vystaveno: první uranová palivová tyč, jádro reaktoru, oblek Radiaka a oběti katastrofy. Vstup na vlastní nebezpečí, dozimetr povinný." },
   photo_frame: { title: "Fotografie na zdi", text: "Zarámovaná fotografie směny velína, rok 2071. Všichni se usmívají." },
 };

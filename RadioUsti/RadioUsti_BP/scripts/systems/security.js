@@ -220,6 +220,29 @@ function zedTick() {
   }
 }
 
+// ------------------------------------------------------------------ Radiak's reactor slime
+function slimeTick() {
+  for (const p of world.getAllPlayers()) {
+    let slimes = [];
+    try {
+      slimes = p.dimension.getEntities({ location: p.location, maxDistance: 6, type: `${NS}:radiak_slime` });
+    } catch {
+      continue;
+    }
+    for (const s of slimes) {
+      try {
+        s.dimension.spawnParticle(`${NS}:radiation_mote`, { x: s.location.x, y: s.location.y + 0.6, z: s.location.z });
+      } catch {
+        /* ignore */
+      }
+      if (!fullHazmat(p) && dist2(p.location, s.location) < 6.25) {
+        setDose(p, getDose(p) + 4);
+        p.onScreenDisplay.setActionBar(`§a☢ Reaktorový sliz tě ozařuje! Dávka ${getDose(p).toFixed(0)}`);
+      }
+    }
+  }
+}
+
 // ------------------------------------------------------------------ decontamination curtain
 function curtainTick() {
   for (const p of world.getAllPlayers()) {
@@ -317,6 +340,7 @@ export function cureInfection(p) {
 system.runInterval(() => {
   try {
     zedTick();
+    slimeTick();
     curtainTick();
     infectionTick();
   } catch (e) {

@@ -126,6 +126,16 @@ export const HANDBOOK = [
       "RADIAKOVA ZOMBIE: oběť kousnutí Radiaka – svítí zeleně, vyzařuje radiaci do 4 bloků, kousnutí +15 dávky, 34 HP, útok 6.",
   },
   {
+    title: "10e. Atomová bomba, sirény, muzeum",
+    text:
+      "ATOMOVÁ BOMBA: klepnutím ji aktivujete (30 s odpočet se sirénami a odpočtem na obrazovce). Výbuch zničí okolí, zamoří okruh 32 bloků, ozáří okolí do 64 bloků a spustí déšť a smog. Během odpočtu ji lze klepnutím deaktivovat.\n" +
+      "ATOMOVÉ ÚTOKY (operátor): /radiousti:atomic_bomb on [minuty] – z nebe občas spadne atomovka (letecký poplach 20 s, všechny sirény houkají); off – vypnout; strike – útok hned; status.\n" +
+      "SIRÉNA (blok) houká při leteckém poplachu a poplachu reaktoru. RUČNÍ SIRÉNA (předmět) varuje hráče do 96 bloků.\n" +
+      "ČASTĚJŠÍ DÉŠŤ: za suchého počasí zhruba každých 10 minut začne pršet (radioaktivně).\n" +
+      "RADIAKŮV REAKTOROVÝ SLIZ: svítivý sliz, který ozařuje každého do 2,5 bloku.\n" +
+      "MUZEUM: /structure load muzeum ~ ~ ~ – expozice s Radiakem v obleku, mrtvolami starosty, pošťáka a technika, vitrínami a plakáty.",
+  },
+  {
     title: "11. Světla, alarmy, dveře",
     text:
       "Světla zapínáte klepnutím. Výstražný maják se sám rozsvítí při poplachu reaktoru do 32 bloků, nouzové světlo při výpadku napájení do 16 bloků.\n" +

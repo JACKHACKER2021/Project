@@ -6,7 +6,7 @@ _Generováno nástrojem `tools/build.py` z `tools/recipes.py`._
 Laboratorní stanice (zpracování vzorků, palivové tyče…) jsou popsané v README v kapitole Laboratoř.
 
 
-## Pracovní stůl (79)
+## Pracovní stůl (84)
 
 - **Systémový analyzátor RadioÚstí** ×1: vzor ` R  / IPI / ICI` – `R` = redstone, `I` = iron_ingot, `P` = glass_pane, `C` = copper_ingot
 - **Příručka RadioÚstí** ×1: 1× book + 1× yellow_dye
@@ -87,8 +87,13 @@ Laboratorní stanice (zpracování vzorků, palivové tyče…) jsou popsané v 
 - **Kalhoty ochranného obleku** ×1: vzor `YYY / Y Y / Y Y` – `Y` = yellow_wool
 - **Boty ochranného obleku** ×1: vzor `L L / L L` – `L` = leather
 - **Okenní barikáda** ×4: vzor `P P / SSS / P P` – `P` = libovolné planks, `S` = stick
+- **Muzejní vitrína** ×1: vzor `GGG / G G / PPP` – `G` = glass, `P` = libovolné planks
+- **Muzejní podstavec** ×2: vzor `CCC /  C  / CCC` – `C` = Blok cementu
+- **Muzejní cedulka** ×2: 1× gold_ingot + 1× paper
+- **Muzejní zábrana s provazem** ×2: vzor `GSG / G G` – `G` = gold_ingot, `S` = string
+- **Muzejní lavice** ×2: vzor `PPP / I I` – `P` = libovolné planks, `I` = iron_nugget
 
-## Průmyslový ponk (88)
+## Průmyslový ponk (91)
 
 - **Vodovodní potrubí** ×6: 3× copper_ingot + 1× iron_ingot
 - **Tenké nástěnné vodovodní potrubí** ×8: 1× copper_ingot + 2× iron_nugget
@@ -178,6 +183,9 @@ Laboratorní stanice (zpracování vzorků, palivové tyče…) jsou popsané v 
 - **Bezpečnostní kamera** ×1: vzor `IPI / IRI /  I ` – `I` = iron_ingot, `P` = glass_pane, `R` = redstone
 - **Tlačítko ovládání dveří** ×1: 1× stone_button + 1× redstone + 1× iron_ingot
 - **Bezpečnostní tablet** ×1: vzor `IPI / IRI / INI` – `I` = iron_ingot, `P` = glass_pane, `R` = redstone, `N` = Počítačový síťový kabel
+- **Atomová bomba** ×1: vzor `UTU / TCT / UTU` – `U` = Blok uranu, `T` = tnt, `C` = Jádro reaktoru
+- **Siréna** ×1: vzor `INI /  R  /  I ` – `I` = iron_ingot, `N` = noteblock, `R` = redstone
+- **Ruční siréna** ×1: vzor ` I  / INI /  S ` – `I` = iron_ingot, `N` = noteblock, `S` = stick
 
 ## Laboratorní stůl (33)
 

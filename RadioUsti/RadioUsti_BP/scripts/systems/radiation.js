@@ -204,7 +204,7 @@ function applyRadiationEffect(e, dose, isPlayer) {
   }
 }
 
-const MOB_EXCLUDE = ["player", "inanimate", "undead"];
+const MOB_EXCLUDE = ["player", "inanimate", "undead", "radiousti_slime"];
 const ITEMLIKE = ["minecraft:item", "minecraft:xp_orb", "minecraft:arrow", "minecraft:armor_stand", "minecraft:painting", "minecraft:boat",
   "minecraft:minecart", "minecraft:falling_block", "minecraft:tnt"];
 

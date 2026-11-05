@@ -618,5 +618,38 @@
   },
   "radiousti:door_control_button": {
     "sound": "metal"
+  },
+  "radiousti:dead_postman": {
+    "sound": "slime"
+  },
+  "radiousti:dead_mayor": {
+    "sound": "slime"
+  },
+  "radiousti:dead_technician": {
+    "sound": "slime"
+  },
+  "radiousti:radiak_statue": {
+    "sound": "metal"
+  },
+  "radiousti:museum_display_case": {
+    "sound": "glass"
+  },
+  "radiousti:museum_pedestal": {
+    "sound": "stone"
+  },
+  "radiousti:museum_plaque": {
+    "sound": "metal"
+  },
+  "radiousti:museum_rope_barrier": {
+    "sound": "metal"
+  },
+  "radiousti:museum_bench": {
+    "sound": "wood"
+  },
+  "radiousti:nuke_bomb": {
+    "sound": "metal"
+  },
+  "radiousti:siren": {
+    "sound": "metal"
   }
 }

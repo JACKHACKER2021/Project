@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.8.0 – atomové útoky, sirény, postavy, muzeum (2026-11-05)
+**Přidáno**
+- Atomová bomba (odpočet, kruh explozí, zamoření okruhu 32 bloků, radiace do 64 bloků).
+- Událost atomových útoků a vlastní příkaz `/radiousti:atomic_bomb on|off|strike|status [minuty]`.
+- Siréna (blok) a ruční siréna (předmět), zvuky siréna a jaderný výbuch.
+- Častější radioaktivní déšť.
+- Dekorace postav: mrtvý pošťák, mrtvola starosty, mrtvola bezpečnostního technika elektrárny, Radiak v mechanickém obleku (všechny s popisem).
+- Entita Radiakův reaktorový sliz (vanilla slime jako základ).
+- Muzejní bloky a struktura `muzeum`.
+
+**Změněno**
+- Script API `@minecraft/server` 2.0.0 → 2.10.0 a `@minecraft/server-ui` 2.0.0 → 2.2.0 (kvůli vlastním příkazům). Všechny skripty prošly typovou kontrolou proti 2.10.0.
+- Verze balíčků 1.7.0 → 1.8.0.
+
 ## 1.7.0 – bezpečnost, kamery, Zéd nákaza (2026-11-05)
 **Přidáno**
 - Okenní barikáda. Zedi rozbíjejí nechráněné sklo a barikády ho chrání.

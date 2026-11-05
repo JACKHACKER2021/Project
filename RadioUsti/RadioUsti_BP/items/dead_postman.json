@@ -1,0 +1,26 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:item": {
+    "description": {
+      "identifier": "radiousti:dead_postman",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "textures": {
+          "default": "radiousti_dead_postman_icon"
+        }
+      },
+      "minecraft:display_name": {
+        "value": "Mrtvý pošťák"
+      },
+      "minecraft:max_stack_size": 16,
+      "minecraft:block_placer": {
+        "block": "radiousti:dead_postman",
+        "replace_block_item": true
+      }
+    }
+  }
+}

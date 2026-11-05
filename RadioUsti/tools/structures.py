@@ -202,8 +202,11 @@ def chest_items():
     return [{"Count": Byte(n), "Damage": Short(0), "Name": name, "Slot": Byte(i), "WasPickedUp": Byte(0)} for i, (name, n) in enumerate(items)]
 
 
-def build(path):
-    B = build_layout()
+def build(path, layout=None, size=None):
+    global SX, SY, SZ
+    if size:
+        SX, SY, SZ = size
+    B = (layout or build_layout)()
     resolve_conduits(B)
     palette, index = [], {}
     layer0 = []
@@ -243,3 +246,64 @@ def build(path):
     with open(path, "wb") as f:
         f.write(data)
     return len(palette), sum(1 for v in layer0 if palette[v]["name"] != "minecraft:air")
+
+
+# ---------------------------------------------------------------- Muzeum RadioÚstí (/structure load muzeum)
+MSIZE = (15, 7, 13)
+
+
+def museum_layout():
+    X, Y, Z = MSIZE
+    B = {}
+
+    def put(x, y, z, name, **st):
+        B[(x, y, z)] = (name if ":" in name else f"{NS}:{name}", st)
+
+    for x in range(X):
+        for z in range(Z):
+            put(x, 0, z, "shower_tiles_blue" if (x + z) % 2 else "cement_block")
+            put(x, 6, z, "cement_block")
+    for y in range(1, 6):
+        for x in range(X):
+            put(x, y, 0, "house_block")
+            put(x, y, Z - 1, "house_block")
+        for z in range(Z):
+            put(0, y, z, "house_block")
+            put(X - 1, y, z, "house_block")
+    # entrance (laboratory door) in the north wall, centre
+    put(7, 1, 0, "lab_door", **{"minecraft:cardinal_direction": "south", f"{NS}:upper": False, f"{NS}:open": False})
+    put(7, 2, 0, "lab_door", **{"minecraft:cardinal_direction": "south", f"{NS}:upper": True, f"{NS}:open": False})
+    for x in (3, 11):
+        put(x, 3, 0, "old_glass")
+    # ceiling lights (lit)
+    for x in (3, 7, 11):
+        for z in (3, 9):
+            put(x, 5, z, "lab_light", **{f"{NS}:lit": True})
+    # centrepiece: Radiak in his suit on a raised floor, behind rope barriers
+    put(7, 1, 7, "radiak_statue", **{f"{NS}:part": 0, "minecraft:cardinal_direction": "north"})
+    put(7, 2, 7, "radiak_statue", **{f"{NS}:part": 1, "minecraft:cardinal_direction": "north"})
+    for x in (5, 9):
+        put(x, 1, 5, "museum_rope_barrier", **{"minecraft:cardinal_direction": "north"})
+    put(7, 1, 5, "museum_rope_barrier", **{"minecraft:cardinal_direction": "north"})
+    put(7, 2, 9, "museum_plaque", **{"minecraft:block_face": "north"})
+    # corpses (2 blocks long, laid along +z) behind barriers on the east and west sides
+    for (x, cid) in ((2, "dead_mayor"), (12, "dead_postman")):
+        put(x, 1, 4, cid, **{f"{NS}:part": 0, "minecraft:cardinal_direction": "north"})
+        put(x, 1, 5, cid, **{f"{NS}:part": 1, "minecraft:cardinal_direction": "north"})
+        put(x + (1 if x < 7 else -1), 1, 4, "museum_rope_barrier", **{"minecraft:cardinal_direction": "west"})
+        put(x, 2, 1, "museum_plaque", **{"minecraft:block_face": "south"})
+    put(2, 1, 8, "dead_technician", **{f"{NS}:part": 0, "minecraft:cardinal_direction": "north"})
+    put(2, 1, 9, "dead_technician", **{f"{NS}:part": 1, "minecraft:cardinal_direction": "north"})
+    # display cases, pedestal with a reactor core, posters, benches
+    for x in (10, 12):
+        put(x, 1, 9, "museum_display_case")
+    put(11, 1, 11, "museum_pedestal")
+    for x, pid in ((1, "poster_outbreak_2072"), (13, "poster_radiation")):
+        put(x, 3, 6, pid, **{"minecraft:block_face": "east" if x == 1 else "west"})
+    put(4, 3, 11, "poster_collapse", **{"minecraft:block_face": "north"})
+    put(10, 3, 11, "poster_zeds_world", **{"minecraft:block_face": "north"})
+    put(5, 1, 10, "museum_bench", **{"minecraft:cardinal_direction": "north"})
+    put(9, 1, 10, "museum_bench", **{"minecraft:cardinal_direction": "north"})
+    put(13, 2, 2, "security_camera", **{"minecraft:block_face": "west"})
+    put(1, 1, 11, "radiation_sign", **{"minecraft:block_face": "east"})
+    return B

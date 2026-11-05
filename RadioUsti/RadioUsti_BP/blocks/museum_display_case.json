@@ -1,0 +1,65 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:museum_display_case",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 1.5
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#5e4528",
+      "minecraft:geometry": "geometry.radiousti.museum_display_case",
+      "minecraft:collision_box": {
+        "origin": [
+          -7.5,
+          0,
+          -7.5
+        ],
+        "size": [
+          15.0,
+          16,
+          15.0
+        ]
+      },
+      "minecraft:selection_box": {
+        "origin": [
+          -7.5,
+          0,
+          -7.5
+        ],
+        "size": [
+          15.0,
+          16,
+          15.0
+        ]
+      },
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_wood_dark",
+          "render_method": "opaque"
+        },
+        "detail": {
+          "texture": "radiousti_wood_dark",
+          "render_method": "opaque"
+        },
+        "glass": {
+          "texture": "radiousti_glass_solid",
+          "render_method": "opaque"
+        },
+        "exhibit": {
+          "texture": "radiousti_exhibit_uranium",
+          "render_method": "opaque"
+        }
+      },
+      "minecraft:display_name": "Muzejní vitrína"
+    }
+  }
+}

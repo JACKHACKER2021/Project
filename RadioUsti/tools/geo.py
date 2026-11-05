@@ -777,3 +777,72 @@ def security_camera():
 
 def door_button():
     return [B("root", C(4, 3, 14.5, 8, 10, 1.5, "detail"), C(5.5, 8.5, 13.8, 5, 3, 0.7, "glow"), C(5.5, 4.5, 13.8, 5, 3, 0.7))]
+
+
+# ---------------------------------------------------------------- corpses, statue, museum (v1.8)
+
+def corpse_lying(kind):
+    """A corpse lying on its back along local +z (2 blocks: feet at z 0, head at z ~28). Front (north) = feet."""
+    c = []
+    # legs
+    c += [C(4, 0, 1, 3.5, 3, 12, "cloth2"), C(8.5, 0, 1, 3.5, 3, 12, "cloth2"), C(4, 0, 0, 3.5, 3, 1.5, "shoe"), C(8.5, 0, 0, 3.5, 3, 1.5, "shoe")]
+    # torso
+    c += [C(3.5, 0, 13, 9, 3.5, 11, "cloth")]
+    # arms
+    c += [C(0.5, 0, 14, 3, 3, 10, "cloth"), C(12.5, 0, 14, 3, 3, 10, "cloth"), C(0.5, 0, 12, 3, 2.5, 2, "skin"), C(12.5, 0, 12, 3, 2.5, 2, "skin")]
+    # head
+    if kind == "mayor":
+        c += [C(4.5, 0, 24, 3.5, 6, 6, "skin"), C(8, 0, 24, 3.5, 6, 6, "bone"),       # half flesh, half skull
+              C(5.2, 5.9, 25.5, 1.6, 0.2, 1.6, "void"), C(8.9, 5.9, 25.5, 1.6, 0.2, 1.6, "void"),  # empty eye sockets
+              C(3.5, 3.5, 15, 9, 0.3, 2, "sash"), C(6.5, 3.5, 17, 3, 0.3, 4, "sash")]           # mayoral sash
+    else:
+        c += [C(4.5, 0, 24, 7, 6, 6, "skin")]
+    if kind == "postman":
+        c += [C(4.5, 6, 24.5, 7, 1.2, 5, "cloth"), C(11, 0, 16, 5, 4, 6, "bag"),                # cap, mail bag
+              C(13, 0.1, 2, 2.5, 0.2, 3, "paper"), C(1, 0.1, 6, 3, 0.2, 2.5, "paper"), C(14, 0.1, 9, 2, 0.2, 3, "paper")]
+    if kind == "technician":
+        c += [C(9, 3.5, 18, 2, 0.3, 2.5, "badge"), C(4.5, 6, 25, 7, 0.3, 5, "skin")]          # dosimeter badge, bald head
+    c += [C(2, 0, 10, 12, 0.05, 20, "blood")]                                              # blood stain under the body
+    return [B("root", *c)]
+
+
+def radiak_statue():
+    """Radiak in his mechanical suit (2 blocks tall): green liquid uranium visible through the visor and chest tank."""
+    return [B("root", C(3, 0, 5, 4, 12, 6), C(9, 0, 5, 4, 12, 6), C(2, 0, 4, 5, 2, 8, "detail"), C(9, 0, 4, 5, 2, 8, "detail"),
+              C(2, 12, 4, 12, 10, 8), C(0, 13, 5, 2.5, 9, 5, "detail"), C(13.5, 13, 5, 2.5, 9, 5, "detail"), C(0, 9, 5, 2.5, 4, 5),
+              C(13.5, 9, 5, 2.5, 4, 5), C(4, 22, 4, 8, 8, 8), C(3.5, 29.5, 3.5, 9, 1, 9, "detail"), C(7, 24, 12, 2, 3, 2, "detail")),
+            B("uranium", C(4.5, 23.5, 3.8, 7, 4, 0.3, "glow"), C(5, 15, 3.8, 6, 5, 0.3, "glow"))]
+
+
+def display_case():
+    return [B("root", C(1, 0, 1, 14, 8, 14, "detail"), C(0.5, 8, 0.5, 15, 0.5, 15, "detail"), C(1, 8.5, 1, 14, 7, 14, "glass"),
+              C(0.5, 15.5, 0.5, 15, 0.5, 15, "detail")), B("exhibit", C(6.5, 8.5, 6.5, 3, 5, 3, "exhibit"))]
+
+
+def pedestal():
+    return [B("root", C(2, 0, 2, 12, 2, 12), C(4, 2, 4, 8, 9, 8), C(2.5, 11, 2.5, 11, 1.5, 11)),
+            B("exhibit", C(5.5, 12.5, 5.5, 5, 3.5, 5, "exhibit"))]
+
+
+def rope_barrier():
+    return [B("root", C(1, 0, 6.5, 3, 1, 3, "detail"), C(2, 1, 7.5, 1, 9, 1, "detail"), C(12, 0, 6.5, 3, 1, 3, "detail"),
+              C(13, 1, 7.5, 1, 9, 1, "detail"), C(1.5, 10, 7, 2, 1.5, 2, "detail"), C(12.5, 10, 7, 2, 1.5, 2, "detail")),
+            B("rope", C(3, 8, 7.7, 10, 0.8, 0.6, "rope"))]
+
+
+def bench():
+    return [B("root", C(0, 5, 3, 16, 1.5, 10), C(1, 0, 4, 2, 5, 8, "detail"), C(13, 0, 4, 2, 5, 8, "detail"), C(0, 6.5, 11, 16, 6, 1.5))]
+
+
+def nuke():
+    return [B("root", C(2, 0, 2, 12, 2, 12, "detail"), C(4, 2, 4, 8, 9, 8), C(5, 11, 5, 6, 2, 6), C(6.5, 13, 6.5, 3, 2, 3, "detail"),
+              C(3.5, 6, 3.5, 9, 1.5, 9, "hazard"), C(2, 2, 7, 2, 6, 2, "detail"), C(12, 2, 7, 2, 6, 2, "detail")),
+            B("glow", C(7, 15, 7, 2, 1, 2, "glow"))]
+
+
+
+def siren():
+    """Air-raid siren on a short post: rotor housing with two horns (front = north)."""
+    return [B("root", C(6.5, 0, 6.5, 3, 7, 3, "detail"), C(4, 7, 4, 8, 5, 8), C(3, 7.5, 1, 4, 4, 3.5, "detail"),
+              C(9, 7.5, 1, 4, 4, 3.5, "detail"), C(6, 12, 6, 4, 2, 4, "detail")),
+            B("glow", C(3.5, 8, 0.8, 3, 3, 0.3, "glow"), C(9.5, 8, 0.8, 3, 3, 0.3, "glow"))]

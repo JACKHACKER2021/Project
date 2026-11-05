@@ -1,7 +1,7 @@
 # RadioÚstí – add-on pro Minecraft Bedrock
 
 **Zeds World • jaderný horor • ÚstíOS Longhorn Edition • zombie apokalypsa • středověká pevnost**
-Autor projektu: **Jackhack2021** · Cíl: **Minecraft Bedrock 1.26.50** · Script API: `@minecraft/server` 2.0.0 a `@minecraft/server-ui` 2.0.0 (stabilní)
+Autor projektu: **Jackhack2021** · Cíl: **Minecraft Bedrock 1.26.50** · Script API: `@minecraft/server` 2.10.0 a `@minecraft/server-ui` 2.2.0 (stabilní v 1.26.50)
 
 RadioÚstí přidává do světa Zeds World funkční potrubí a kabelové sítě, generátory 2×2, fiktivní jaderný reaktor, interaktivní počítače, systémový analyzátor, uran a kontaminaci, laboratoř, nemocnici a retro československé stavební bloky. Nechybí ani dokumenty a plakáty z roku 2072 a prvky středověké pevnosti.
 
@@ -176,6 +176,26 @@ název, ID, typ, stav, napájení, propojení potrubí a kabelů včetně směr�
 * **Dveře** jsou dva bloky vysoké. Otevřeš je klepnutím na kteroukoli polovinu. Když zničíš jednu polovinu, zmizí obě a vypadne jeden předmět.
 * **Nemocniční lůžko** a **operační stůl** jsou dva bloky dlouhé. Klepnutím na lůžko si nastavíš bod oživení. **Otočná kancelářská židle** se po klepnutí otočí o 90°.
 * **Plakáty, oznámení, papíry, hromada dokumentů a fotografie** si přečteš klepnutím. **Nástěnné hodiny** ukážou herní čas.
+
+## Novinky 1.8 – atomové útoky, sirény, postavy, muzeum
+* **Atomová bomba** (blok): klepnutím ji aktivuješ.
+  * Spustí se 30sekundový odpočet se sirénou a velkým odpočtem na obrazovce. Během odpočtu ji jde klepnutím deaktivovat.
+  * Výbuch udělá kráter (centrální exploze a kruh 8 dalších), zamoří okruh 32 bloků radioaktivním odpadem a kontaminovaným terénem a ozáří všechny do 64 bloků. Pak spustí déšť a smog.
+  * Vypnutí bomb ve světě: `/scriptevent radiousti:config nuke off`.
+* **Atomové útoky z nebe (událost):** vlastní příkaz pro operátory.
+  * `/radiousti:atomic_bomb on 30` zapne útoky zhruba každých 30 minut (±30 %).
+  * `/radiousti:atomic_bomb strike` spustí útok hned, `… off` útoky vypne, `… status` ukáže stav.
+  * Při útoku houkají všechny sirény, všem hráčům se zobrazí „LETECKÝ POPLACH“ a odpočet 20 s. Z nebe padá hořící bomba, která vybuchne 45–95 bloků od náhodného hráče.
+  * Příkazy vyžadují Script API 2.10.0, balíček je proto na verzi 2.10.0 (stabilní v Minecraftu 1.26.50).
+* **Siréna** (blok s rotorem a dvěma trychtýři) houká při leteckém poplachu i poplachu reaktoru a je slyšet do 160 bloků. **Ruční siréna** (předmět) varuje všechny hráče do 96 bloků.
+* **Častější déšť:** za suchého počasí začne zhruba každých 10 minut pršet radioaktivní déšť. Vypnutí: `… rain off`.
+* **Postavy příběhu (dekorace s popisem, klepnutím přečteš):**
+  * **Mrtvý pošťák** s brašnou a rozházenými dopisy.
+  * **Mrtvola starosty** v obleku se šerpou, hlava napůl stržená na lebku, bez očí.
+  * **Mrtvola bezpečnostního technika elektrárny** v bílé košili s dozimetrem.
+  * **Radiak v mechanickém obleku** (2 bloky vysoký, uran svítí průzorem).
+* **Radiakův reaktorový sliz:** svítivě zelený sliz postavený na vanilla slimeovi. Spawnuje i ve dne a ozařuje každého do 2,5 bloku (+4 dávky každé 2 s). Upouští sliz a surový uran.
+* **Muzeum:** muzejní vitrína, podstavec, cedulka, zábrana s provazem a lavice. Hotové muzeum načteš příkazem `/structure load muzeum ~ ~ ~`. Je to budova 15×7×13 s Radiakem uprostřed, mrtvolami za zábranami, vitrínami, plakáty, světly a kamerou.
 
 ## Novinky 1.7 – bezpečnost, kamery, Zéd nákaza
 * **Zedi rozbíjejí skla.** Ozářený Zed a Radiakova zombie rozbijí nechráněné sklo, které je vedle nich (běžné i barevné sklo, tabule, luxfery a HELP sklo). Vanilla zombie to dělají jen občas.

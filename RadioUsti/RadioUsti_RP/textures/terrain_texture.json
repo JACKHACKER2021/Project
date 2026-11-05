@@ -618,6 +618,57 @@
     },
     "radiousti_barricaded_door_bottom": {
       "textures": "textures/blocks/radiousti_barricaded_door_bottom"
+    },
+    "radiousti_corpse_skin": {
+      "textures": "textures/blocks/radiousti_corpse_skin"
+    },
+    "radiousti_corpse_bone": {
+      "textures": "textures/blocks/radiousti_corpse_bone"
+    },
+    "radiousti_corpse_void": {
+      "textures": "textures/blocks/radiousti_corpse_void"
+    },
+    "radiousti_postman_uniform": {
+      "textures": "textures/blocks/radiousti_postman_uniform"
+    },
+    "radiousti_postman_trousers": {
+      "textures": "textures/blocks/radiousti_postman_trousers"
+    },
+    "radiousti_mayor_suit": {
+      "textures": "textures/blocks/radiousti_mayor_suit"
+    },
+    "radiousti_mayor_sash": {
+      "textures": "textures/blocks/radiousti_mayor_sash"
+    },
+    "radiousti_technician_shirt": {
+      "textures": "textures/blocks/radiousti_technician_shirt"
+    },
+    "radiousti_technician_trousers": {
+      "textures": "textures/blocks/radiousti_technician_trousers"
+    },
+    "radiousti_mail_bag": {
+      "textures": "textures/blocks/radiousti_mail_bag"
+    },
+    "radiousti_dosimeter_badge": {
+      "textures": "textures/blocks/radiousti_dosimeter_badge"
+    },
+    "radiousti_shoe_black": {
+      "textures": "textures/blocks/radiousti_shoe_black"
+    },
+    "radiousti_exhibit_uranium": {
+      "textures": "textures/blocks/radiousti_exhibit_uranium"
+    },
+    "radiousti_museum_rope": {
+      "textures": "textures/blocks/radiousti_museum_rope"
+    },
+    "radiousti_museum_plaque": {
+      "textures": "textures/blocks/radiousti_museum_plaque"
+    },
+    "radiousti_nuke_casing": {
+      "textures": "textures/blocks/radiousti_nuke_casing"
+    },
+    "radiousti_siren_body": {
+      "textures": "textures/blocks/radiousti_siren_body"
     }
   }
 }

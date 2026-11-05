@@ -6,7 +6,7 @@
     "uuid": "2a1d12c9-ff63-4c23-a8d2-aee1dfabf685",
     "version": [
       1,
-      7,
+      8,
       0
     ],
     "min_engine_version": [
@@ -42,17 +42,17 @@
       "uuid": "afadd868-792a-4450-9519-e5bc21b03759",
       "version": [
         1,
-        7,
+        8,
         0
       ]
     },
     {
       "module_name": "@minecraft/server",
-      "version": "2.0.0"
+      "version": "2.10.0"
     },
     {
       "module_name": "@minecraft/server-ui",
-      "version": "2.0.0"
+      "version": "2.2.0"
     }
   ]
 }

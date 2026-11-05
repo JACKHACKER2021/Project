@@ -100,6 +100,14 @@ function tick() {
     return;
   }
   if (!isSmog() && !isRaining() && Math.random() < 1 / 240) startSmog(2 + Math.floor(Math.random() * 4));
+  // more frequent (radioactive) rain: on average every ~10 minutes of dry weather
+  if (cfg.frequentRain !== false && !isRaining() && Math.random() < 1 / 120) {
+    try {
+      world.getDimension("overworld").runCommand(`weather rain ${3600 + Math.floor(Math.random() * 6000)}`);
+    } catch {
+      /* ignore */
+    }
+  }
   for (const p of players) {
     applyFog(p, fogFor(p));
     if (isRaining() && cfg.rainRadiation !== false && p.dimension.id === "minecraft:overworld") rainContamination(p);

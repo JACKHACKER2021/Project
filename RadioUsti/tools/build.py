@@ -67,7 +67,8 @@ def resolve_model(m):
         "serving_counter": G.serving_counter, "kitchen_pot": G.kitchen_pot, "shower_head": G.shower_head, "floor_drain": G.floor_drain,
         "lab_sink": G.lab_sink, "brazier": G.brazier, "pillar": G.pillar, "chainlink": G.chainlink, "steam_vent": G.steam_vent,
         "console": G.console, "ore": G.ore_crystals, "window_barricade": G.window_barricade,
-        "security_camera": G.security_camera, "door_button": G.door_button, "bottle": G.bottle, "jar_small": lambda fill=True: G.jar(8, 6),
+        "security_camera": G.security_camera, "door_button": G.door_button, "display_case": G.display_case,
+        "pedestal": G.pedestal, "rope_barrier": G.rope_barrier, "bench": G.bench, "nuke": G.nuke, "siren": G.siren, "bottle": G.bottle, "jar_small": lambda fill=True: G.jar(8, 6),
     }
     if k in table:
         return table[k](*a)
@@ -89,6 +90,8 @@ def resolve_model(m):
 
 
 def multi_source(mk):
+    if isinstance(mk, tuple):
+        return G.corpse_lying(mk[1]) if mk[0] == "corpse" else G.radiak_statue()
     if mk == "bed":
         return G.bed_long()
     if mk == "optable":
@@ -640,6 +643,50 @@ def emit_particles():
                 "minecraft:particle_appearance_tinting": {"color": tint}}}})
 
 
+def emit_slime(lang):
+    import numpy as np
+    from PIL import Image
+    src = os.path.join(HERE, "vanilla_entities")
+    ident = f"{NS}:radiak_slime"
+    with open(os.path.join(src, "slime.behavior.json"), encoding="utf-8") as f:
+        bp = json.load(f)
+    e = bp["minecraft:entity"]
+    e["description"]["identifier"] = ident
+    e["description"]["runtime_identifier"] = "minecraft:slime"
+    fam = e["components"].get("minecraft:type_family", {"family": ["slime", "monster", "mob"]})
+    fam["family"] = list(dict.fromkeys(fam["family"] + ["radiousti_slime"]))
+    e["components"]["minecraft:type_family"] = fam
+    e["components"]["minecraft:loot"] = {"table": "loot_tables/entities/radiak_slime.json"}
+    wjson(os.path.join(BP, "entities", "radiak_slime.json"), bp)
+    wjson(os.path.join(BP, "loot_tables", "entities", "radiak_slime.json"), {"pools": [
+        {"rolls": 1, "entries": [{"type": "item", "name": "minecraft:slime_ball", "weight": 1,
+                                  "functions": [{"function": "set_count", "count": {"min": 0, "max": 2}}]}]},
+        {"rolls": 1, "entries": [{"type": "item", "name": f"{NS}:raw_uranium", "weight": 1}, {"type": "empty", "weight": 2}]}]})
+    wjson(os.path.join(BP, "spawn_rules", "radiak_slime.json"), {"format_version": "1.8.0", "minecraft:spawn_rules": {
+        "description": {"identifier": ident, "population_control": "monster"},
+        "conditions": [{"minecraft:spawns_on_surface": {}, "minecraft:spawns_underground": {},
+                        "minecraft:brightness_filter": {"min": 0, "max": 15, "adjust_for_weather": False},
+                        "minecraft:difficulty_filter": {"min": "easy", "max": "hard"}, "minecraft:weight": {"default": 15},
+                        "minecraft:herd": {"min_size": 1, "max_size": 2},
+                        "minecraft:biome_filter": {"test": "has_biome_tag", "value": "overworld"}}]}})
+    with open(os.path.join(src, "slime.client_entity.json"), encoding="utf-8") as f:
+        rp = json.load(f)
+    d = rp["minecraft:client_entity"]["description"]
+    d["identifier"] = ident
+    d["textures"] = {"default": "textures/entity/radiousti_radiak_slime"}
+    d["spawn_egg"] = {"base_color": "#2f8f1f", "overlay_color": "#d6ff7a"}
+    wjson(os.path.join(RP, "entity", "radiak_slime.entity.json"), rp)
+    im = np.array(Image.open(os.path.join(src, "slime.png")).convert("RGBA")).astype(int)
+    lum = im[:, :, :3].mean(axis=2)
+    im[:, :, 0] = np.clip(lum * 0.45, 0, 255)
+    im[:, :, 1] = np.clip(lum * 1.15 + 40, 0, 255)
+    im[:, :, 2] = np.clip(lum * 0.25, 0, 255)
+    Image.fromarray(im.astype("uint8"), "RGBA").save(os.path.join(RP, "textures", "entity", "radiousti_radiak_slime.png"))
+    for code, name in (("en", "Radiak's Reactor Slime"), ("cs", "Radiakův reaktorový sliz")):
+        lang[code][f"entity.{ident}.name"] = name
+        lang[code][f"item.spawn_egg.entity.{ident}.name"] = ("Spawn " if code == "en" else "Vyvolat: ") + name
+
+
 def emit_attachables():
     for iid, kind, layer, geom, script in (
             ("gas_mask", "mask", "gas_mask_layer", "geometry.humanoid.armor.helmet", "variable.helmet_layer_visible = 0.0;"),
@@ -696,7 +743,8 @@ KIND_CS = {"pipe": "potrubí", "valve": "ventil", "cable": "kabel", "machine": "
            "reactor_port": "port reaktoru", "door": "dveře", "light": "světlo", "alarm": "alarm", "indicator": "indikátor",
            "radioactive": "radioaktivní", "decor": "dekorace", "furniture": "nábytek", "document": "dokument", "clock": "hodiny",
            "jar": "nádoba", "organic": "organické", "soul": "duše", "control": "ovládání", "craft_table": "pracovní stůl",
-           "station": "stanice", "glassware": "laboratorní sklo", "toxic": "toxický materiál", "liquid": "tekutina"}
+           "station": "stanice", "glassware": "laboratorní sklo", "toxic": "toxický materiál", "liquid": "tekutina",
+           "corpse": "mrtvola / socha", "nuke": "výbušnina", "barricade": "barikáda", "camera": "kamera"}
 CAT_CS = {"construction": "Stavba", "equipment": "Vybavení", "items": "Předměty", "nature": "Příroda",
           "none": "Pokládané laboratorní sklo a multibloky (pokládají se předmětem)"}
 TABLE_CS = {"crafting_table": "Pracovní stůl", "radiousti_industrial": "Průmyslový ponk", "radiousti_lab": "Laboratorní stůl"}
@@ -799,12 +847,15 @@ def main():
                                            "functions": [{"function": "set_count", "count": {"min": 1, "max": 3}}]}]},
                  {"rolls": 1, "entries": [{"type": "item", "name": f"{NS}:uranium_ingot", "weight": 1}, {"type": "empty", "weight": 4}]},
                  {"rolls": 1, "entries": [{"type": "item", "name": f"{NS}:infected_flesh", "weight": 1}]}]})
+    emit_slime(lang)
     emit_particles()
     for f in os.listdir(os.path.join(BP, "structures")):
         if f.endswith(".mcstructure"):
             os.remove(os.path.join(BP, "structures", f))
-    pal, nblocks = STR.build(os.path.join(BP, "structures", "reaktor.mcstructure"))
+    pal, nblocks = STR.build(os.path.join(BP, "structures", "reaktor.mcstructure"), STR.build_layout, (15, 6, 12))
     print(f"structure reaktor: {nblocks} blocks, {pal} palette entries")
+    pal, nblocks = STR.build(os.path.join(BP, "structures", "muzeum.mcstructure"), STR.museum_layout, STR.MSIZE)
+    print(f"structure muzeum: {nblocks} blocks, {pal} palette entries")
     write_lang(lang)
     write_docs()
 
