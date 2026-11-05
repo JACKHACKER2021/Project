@@ -6,7 +6,7 @@ _Generováno nástrojem `tools/build.py` z `tools/recipes.py`._
 Laboratorní stanice (zpracování vzorků, palivové tyče…) jsou popsané v README v kapitole Laboratoř.
 
 
-## Pracovní stůl (90)
+## Pracovní stůl (91)
 
 - **Systémový analyzátor RadioÚstí** ×1: vzor ` R  / IPI / ICI` – `R` = redstone, `I` = iron_ingot, `P` = glass_pane, `C` = copper_ingot
 - **Příručka RadioÚstí** ×1: 1× book + 1× yellow_dye
@@ -98,6 +98,7 @@ Laboratorní stanice (zpracování vzorků, palivové tyče…) jsou popsané v 
 - **Chodník** ×4: vzor `CC / CC` – `C` = Blok cementu
 - **Pouliční lampa** ×1: vzor ` G  /  C  /  C ` – `G` = glowstone, `C` = Blok cementu
 - **Zvon osady přeživších** ×1: vzor `PPP / GBG / P P` – `P` = libovolné planks, `G` = gold_ingot, `B` = bell
+- **Radiační senzor (dozimetr)** ×1: vzor `IPI / IRI / IUI` – `I` = iron_ingot, `P` = glass_pane, `R` = redstone, `U` = Surový uran
 
 ## Průmyslový ponk (101)
 

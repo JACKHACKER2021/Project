@@ -304,7 +304,7 @@ for p, code in src.items():
         if not os.path.exists(os.path.normpath(os.path.join(os.path.dirname(p), imp))):
             err(f"{os.path.relpath(p, ROOT)}: import {imp} not found")
     for ref in re.findall(r'`\$\{NS\}:([a-z0-9_]+)`', code):
-        if ref in state_names or ref in ("config", "status", "atomic_bomb", "atomic_action") or ref.endswith("_"):
+        if ref in state_names or ref in ("config", "status", "atomic_bomb", "atomic_action", "starter_kit") or ref.endswith("_"):
             continue  # block states, scriptevent ids and id prefixes
         if f"radiousti:{ref}" not in known:
             err(f"{os.path.relpath(p, ROOT)}: unknown id radiousti:{ref}")

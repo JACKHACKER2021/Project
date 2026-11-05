@@ -177,6 +177,11 @@ název, ID, typ, stav, napájení, propojení potrubí a kabelů včetně směr�
 * **Nemocniční lůžko** a **operační stůl** jsou dva bloky dlouhé. Klepnutím na lůžko si nastavíš bod oživení. **Otočná kancelářská židle** se po klepnutí otočí o 90°.
 * **Plakáty, oznámení, papíry, hromada dokumentů a fotografie** si přečteš klepnutím. **Nástěnné hodiny** ukážou herní čas.
 
+## Novinky 2.1 – startovní balíček
+* **Startovní balíček přeživšího:** každý hráč ho dostane automaticky **jednou při prvním připojení** do světa. Obsahuje plynovou masku, **radiační senzor (dozimetr)**, 6 konzerv, 2 vojenské dávky MRE, 4 filtrované vody, 4 dekontaminované chleby, 4 antiradiační tablety a příručku.
+* **Radiační senzor (dozimetr):** když ho držíš v ruce, nad lištou neustále ukazuje míru radiace (mSv/s), dávku a stupeň Radiace. Použitím vypíše měření do chatu a cvakne jako Geigerův počítač. Recept: železo, tabule skla, rudit a surový uran.
+* **Balíček znovu (operátor):** `/radiousti:starter_kit`. Hodí se pro hráče ve světě, kde už hrají. Vypnutí automatického balíčku: `/scriptevent radiousti:config starterkit off`.
+
 ## Novinky 2.0 – Zeds World: RadioÚstí (survival)
 * **Nový název a logo:** *Zeds World: RadioÚstí*, verze **2.0.0**. Logo tvoří zelená obloha, atomový hřib nad chladicí věží, symbol radiace a nápis ZW / RADIOÚSTÍ.
 * **Atomovky:**

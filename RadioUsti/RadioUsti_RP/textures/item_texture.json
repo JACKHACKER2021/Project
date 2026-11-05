@@ -206,6 +206,9 @@
     "radiousti_iodine_soup": {
       "textures": "textures/items/radiousti_iodine_soup"
     },
+    "radiousti_dosimeter": {
+      "textures": "textures/items/radiousti_dosimeter"
+    },
     "radiousti_generator_standard_icon": {
       "textures": "textures/items/radiousti_generator_standard_icon"
     },

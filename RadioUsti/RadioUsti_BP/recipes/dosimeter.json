@@ -1,0 +1,37 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:dosimeter"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "IPI",
+      "IRI",
+      "IUI"
+    ],
+    "key": {
+      "I": {
+        "item": "minecraft:iron_ingot"
+      },
+      "P": {
+        "item": "minecraft:glass_pane"
+      },
+      "R": {
+        "item": "minecraft:redstone"
+      },
+      "U": {
+        "item": "radiousti:raw_uranium"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:dosimeter",
+      "count": 1
+    }
+  }
+}

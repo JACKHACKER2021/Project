@@ -144,6 +144,7 @@ export const HANDBOOK = [
       "VE SVĚTĚ SE GENERUJÍ: rozpadlé paneláky, kusy silnic s vraky aut a lampami, rozpadlé městské bloky (křižovatka, panelák, obchod, cihlový dům, ordinace), opevněné osady přeživších, ruiny pevností a laboratoře. V truhlách je loot.\n" +
       "OSADA PŘEŽIVŠÍCH: zdi s cimbuřím, strážní věže s reflektory a sirénami, brána s bezpečnostními dveřmi a dekontaminačním pláštěm, domy se zabarikádovanými okny a zvon osady, u kterého vždy čeká Přeživší obchodník.\n" +
       "PŘEŽIVŠÍ OBCHODNÍK: za nalezené věci (shnilé maso, kosti, železo, měď, uran, uhlí, papír, provázky…) prodává bunkrové bloky, ochranný oblek, konzervy, MRE, tablety, sérum, kamery a tablet.\n" +
+      "STARTOVNÍ BALÍČEK: při prvním připojení dostanete masku, radiační senzor, jídlo, vodu, tablety a příručku. Znovu: /radiousti:starter_kit. Radiační senzor v ruce stále ukazuje radiaci a dávku.\n" +
       "JÍDLO: obyčejné jídlo je kontaminované (+5 dávky, někdy nevolnost). Čisté jídlo: Konzerva Zeds Corp, Vojenská dávka MRE, Filtrovaná voda (−5 dávky), Dekontaminovaný chléb, Jódová polévka (−15 dávky).\n" +
       "Voda je nazelenalá. Zvířata a tvorové dostávají od radiace skutečná zranění a umírají.\n" +
       "ATOMOVKY: /radiousti:atomic_bomb on 1 = útok každou minutu. Padá 3–5 bomb z nebe na různá místa, každá udělá kráter, atomový hřib a oslnivý záblesk.",

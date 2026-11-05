@@ -256,7 +256,7 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Vrak auta | Car Wreck | `radiousti:car_wreck` | nábytek |
 | Pouliční lampa | Street Lamp | `radiousti:street_lamp` | nábytek |
 
-## Předměty (68)
+## Předměty (69)
 
 | Název | English | ID | Popis |
 |---|---|---|---|
@@ -328,3 +328,4 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Filtrovaná voda | Purified Water | `radiousti:purified_water` |  |
 | Dekontaminovaný chléb | Decontaminated Bread | `radiousti:decontaminated_bread` |  |
 | Jódová polévka | Iodine Soup | `radiousti:iodine_soup` |  |
+| Radiační senzor (dozimetr) | Radiation Sensor (Dosimeter) | `radiousti:dosimeter` |  |

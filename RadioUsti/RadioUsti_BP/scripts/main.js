@@ -13,6 +13,7 @@ import { startSmog } from "./systems/environment.js";
 import { cameraRecord, renameCamera, openTablet, pressDoorButton, cureInfection } from "./systems/security.js";
 import { interactNuke, atomicCommand } from "./systems/nuke.js";
 import "./systems/dimensions.js";
+import { giveStarterKit, dosimeterText } from "./systems/starter.js";
 import { radiationTick, mobRadiationTick, wasteSpreadTick, contaminationSpreadTick, decontaminate, getDose, setDose, fullHazmat } from "./systems/radiation.js";
 import { toggleLight, interactAlarm, pressScram } from "./systems/devices.js";
 import { openStation } from "./systems/lab.js";
@@ -46,6 +47,16 @@ system.beforeEvents.startup.subscribe((ev) => {
         const msg = atomicCommand(origin, action, minutes);
         world.sendMessage(`§e[RadioÚstí] ${msg}`);
       });
+      return { status: CustomCommandStatus.Success };
+    });
+    ev.customCommandRegistry.registerCommand({
+      name: `${NS}:starter_kit`,
+      description: "RadioÚstí: dá ti startovní balíček přeživšího (jídlo, maska, radiační senzor)",
+      permissionLevel: CommandPermissionLevel.GameDirectors,
+    }, (origin) => {
+      const p = origin.sourceEntity;
+      if (!p || p.typeId !== "minecraft:player") return { status: CustomCommandStatus.Failure, message: "Příkaz musí zadat hráč." };
+      system.run(() => giveStarterKit(/** @type {any} */ (p)));
       return { status: CustomCommandStatus.Success };
     });
   } catch (e) {
@@ -303,6 +314,14 @@ world.afterEvents.itemUse.subscribe(safe("itemUse", (ev) => {
   if (id === `${NS}:handbook`) system.run(() => openHandbook(p).catch(() => {}));
   else if (id === `${NS}:experiment_registry`) system.run(() => openRegistry(p).catch(() => {}));
   else if (id === `${NS}:security_tablet`) system.run(() => openTablet(p).catch(() => {}));
+  else if (id === `${NS}:dosimeter`) {
+    p.sendMessage(`§7[Dozimetr] ${dosimeterText(p)}`);
+    try {
+      p.playSound("radiousti.geiger", { volume: 0.6 });
+    } catch {
+      /* ignore */
+    }
+  }
   else if (id === `${NS}:hand_siren`) {
     for (const pl of world.getAllPlayers()) {
       if (pl.dimension.id === p.dimension.id && (pl.location.x - p.location.x) ** 2 + (pl.location.z - p.location.z) ** 2 < 96 * 96) {
@@ -394,6 +413,7 @@ system.afterEvents.scriptEventReceive.subscribe(safe("scriptevent", (ev) => {
     else if (k === "rain") c = Config.set({ frequentRain: on });
     else if (k === "dimensions") c = Config.set({ dimensionsOpen: on });
     else if (k === "food") c = Config.set({ contaminatedFood: on });
+    else if (k === "starterkit") c = Config.set({ starterKit: on });
     else if (k === "smog") {
       startSmog(Number(v) || 3);
       c = Config.get();

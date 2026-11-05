@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.1.0 – startovní balíček (2026-11-05)
+**Přidáno**
+- Startovní balíček přeživšího při prvním připojení (jídlo, plynová maska, radiační senzor, tablety, příručka).
+- Radiační senzor (dozimetr) s průběžným měřením v ruce.
+- Příkaz `/radiousti:starter_kit` a nastavení `starterkit on|off`.
+
+**Změněno**
+- Verze balíčků 2.0.0 → 2.1.0.
+
 ## 2.0.0 – Zeds World: RadioÚstí (2026-11-05)
 **Přidáno**
 - Nový název *Zeds World: RadioÚstí*, nové logo (pack icon), verze 2.0.0.

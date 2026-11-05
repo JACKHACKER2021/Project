@@ -1,0 +1,26 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:item": {
+    "description": {
+      "identifier": "radiousti:dosimeter",
+      "menu_category": {
+        "category": "equipment"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "textures": {
+          "default": "radiousti_dosimeter"
+        }
+      },
+      "minecraft:display_name": {
+        "value": "Radiační senzor (dozimetr)"
+      },
+      "minecraft:max_stack_size": 1,
+      "minecraft:cooldown": {
+        "category": "radiousti_dosimeter",
+        "duration": 1
+      }
+    }
+  }
+}

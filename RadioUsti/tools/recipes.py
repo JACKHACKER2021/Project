@@ -259,6 +259,7 @@ shaped("sidewalk", ["CC", "CC"], {"C": CEM}, 4)
 shaped("car_wreck", ["III", "GIG", "WIW"], {"I": M + "iron_block", "G": PANE, "W": M + "black_wool"}, 1, IW)
 shaped("street_lamp", [" G ", " C ", " C "], {"G": M + "glowstone", "C": CEM}, 1)
 shaped("village_bell", ["PPP", "GBG", "P P"], {"P": PLANK, "G": M + "gold_ingot", "B": M + "bell"}, 1)
+shaped("dosimeter", ["IPI", "IRI", "IUI"], {"I": IRON, "P": PANE, "R": RS, "U": "raw_uranium"}, 1)
 furnace("raw_uranium", "uranium_ingot")
 furnace("infected_flesh", "meat_piece")
 

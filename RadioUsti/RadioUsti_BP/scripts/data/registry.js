@@ -2168,6 +2168,11 @@ export const REGISTRY = {
    "en": "Iodine Soup",
    "cs": "Jódová polévka",
    "heal_dose": 15
+  },
+  "radiousti:dosimeter": {
+   "kind": "dosimeter",
+   "en": "Radiation Sensor (Dosimeter)",
+   "cs": "Radiační senzor (dozimetr)"
   }
  }
 };

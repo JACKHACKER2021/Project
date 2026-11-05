@@ -490,6 +490,10 @@ def _item(name, kind, color="#888888"):
             for x, ch in enumerate(row):
                 if ch in pal:
                     t.px(x, y, pal[ch])
+    elif kind == "scanner" and name.endswith("dosimeter"):
+        t.rect(4, 1, 8, 14, "#3c4246"); t.rect(5, 2, 6, 5, "#c9d6b8"); t.rect(6, 4, 1, 2, "#1d1d1d"); t.rect(8, 3, 1, 3, "#1d1d1d")
+        t.rect(5, 8, 6, 2, P["hazard"]); t.rect(7, 8, 2, 2, "#1d1d1d"); t.rect(5, 11, 2, 2, "#3df25a"); t.rect(9, 11, 2, 2, "#b3170f")
+        t.rect(7, 0, 2, 1, "#7c848a")
     elif kind == "scanner":
         t.rect(4, 2, 8, 12, "#e0a800"); t.rect(5, 3, 6, 5, "#1c2a22"); t.rect(6, 4, 4, 1, "#5ee08a")
         t.rect(6, 6, 3, 1, "#5ee08a"); t.rect(5, 9, 2, 2, "#b3170f"); t.rect(9, 9, 2, 2, "#3c4246")

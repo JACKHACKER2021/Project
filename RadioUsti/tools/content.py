@@ -980,3 +980,8 @@ block("street_lamp", "Street Lamp", "Pouliční lampa", cat="items", model=("mul
 block("village_bell", "Settlement Bell", "Zvon osady přeživších", cat="items", model=("village_bell",),
       tex={"*": S["brass"], "detail": S["wood_dark"]}, sound="metal", hardness=3, kind="decor", comps=[f"{NS}:village_bell"], tick=(400, 600),
       mapc="#b08d3a")
+
+
+# ----------------------------------------------------------------- v2.1: survival starter kit
+item("dosimeter", "Radiation Sensor (Dosimeter)", "Radiační senzor (dozimetr)", ic("dosimeter", "scanner"), cat="equipment", stack=1, kind="dosimeter",
+     comps={"minecraft:cooldown": {"category": "radiousti_dosimeter", "duration": 1}})
