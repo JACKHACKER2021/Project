@@ -8,8 +8,8 @@
         "default": "zombie"
       },
       "textures": {
-        "default": "textures/entity/radiousti_zed",
-        "baby": "textures/entity/radiousti_zed_baby"
+        "default": "textures/entity/radiousti_irradiated_zed",
+        "baby": "textures/entity/radiousti_irradiated_zed_baby"
       },
       "geometry": {
         "default": "geometry.zombie.v1.8",

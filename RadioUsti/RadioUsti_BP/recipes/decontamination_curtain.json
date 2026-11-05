@@ -1,0 +1,31 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:decontamination_curtain"
+    },
+    "tags": [
+      "radiousti_lab"
+    ],
+    "pattern": [
+      "WW",
+      "GG",
+      "WW"
+    ],
+    "key": {
+      "W": {
+        "item": "minecraft:white_wool"
+      },
+      "G": {
+        "item": "radiousti:reagent_flask_green"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:decontamination_curtain",
+      "count": 1
+    }
+  }
+}

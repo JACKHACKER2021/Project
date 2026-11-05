@@ -1,0 +1,378 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:decontamination_curtain",
+      "menu_category": {
+        "category": "none"
+      },
+      "states": {
+        "radiousti:upper": [
+          false,
+          true
+        ],
+        "radiousti:open": [
+          false,
+          true
+        ]
+      },
+      "traits": {
+        "minecraft:placement_direction": {
+          "enabled_states": [
+            "minecraft:cardinal_direction"
+          ],
+          "y_rotation_offset": 180
+        }
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 1
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 10
+      },
+      "minecraft:map_color": "#6c747a",
+      "radiousti:door": {},
+      "minecraft:loot": "loot_tables/blocks/radiousti_empty.json",
+      "minecraft:geometry": "geometry.radiousti.decontamination_curtain.closed.lower.north",
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_decon_strips",
+          "render_method": "blend",
+          "ambient_occlusion": false
+        },
+        "detail": {
+          "texture": "radiousti_steel_dark",
+          "render_method": "blend",
+          "ambient_occlusion": false
+        }
+      },
+      "minecraft:display_name": "Dekontaminační plášť"
+    },
+    "permutations": [
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'north' && q.block_state('radiousti:open') == false && q.block_state('radiousti:upper') == false",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.decontamination_curtain.closed.lower.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -7.9,
+              0,
+              -7.2
+            ],
+            "size": [
+              15.8,
+              16,
+              1.0
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'north' && q.block_state('radiousti:open') == false && q.block_state('radiousti:upper') == true",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.decontamination_curtain.closed.upper.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              2
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'north' && q.block_state('radiousti:open') == true && q.block_state('radiousti:upper') == false",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.decontamination_curtain.open.lower.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -7.8,
+              0,
+              -7.2
+            ],
+            "size": [
+              15.6,
+              16,
+              1.0
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'north' && q.block_state('radiousti:open') == true && q.block_state('radiousti:upper') == true",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.decontamination_curtain.open.upper.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              2
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'east' && q.block_state('radiousti:open') == false && q.block_state('radiousti:upper') == false",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.decontamination_curtain.closed.lower.east",
+          "minecraft:selection_box": {
+            "origin": [
+              6.5,
+              0,
+              -7.9
+            ],
+            "size": [
+              1.0,
+              16,
+              15.8
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'east' && q.block_state('radiousti:open') == false && q.block_state('radiousti:upper') == true",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.decontamination_curtain.closed.upper.east",
+          "minecraft:selection_box": {
+            "origin": [
+              6,
+              0,
+              -8
+            ],
+            "size": [
+              2,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'east' && q.block_state('radiousti:open') == true && q.block_state('radiousti:upper') == false",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.decontamination_curtain.open.lower.east",
+          "minecraft:selection_box": {
+            "origin": [
+              6.9,
+              0,
+              -7.8
+            ],
+            "size": [
+              1.0,
+              16,
+              15.6
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'east' && q.block_state('radiousti:open') == true && q.block_state('radiousti:upper') == true",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.decontamination_curtain.open.upper.east",
+          "minecraft:selection_box": {
+            "origin": [
+              6,
+              0,
+              -8
+            ],
+            "size": [
+              2,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'south' && q.block_state('radiousti:open') == false && q.block_state('radiousti:upper') == false",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.decontamination_curtain.closed.lower.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -7.9,
+              0,
+              6.5
+            ],
+            "size": [
+              15.8,
+              16,
+              1.0
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'south' && q.block_state('radiousti:open') == false && q.block_state('radiousti:upper') == true",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.decontamination_curtain.closed.upper.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              6
+            ],
+            "size": [
+              16,
+              16,
+              2
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'south' && q.block_state('radiousti:open') == true && q.block_state('radiousti:upper') == false",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.decontamination_curtain.open.lower.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -7.8,
+              0,
+              6.9
+            ],
+            "size": [
+              15.6,
+              16,
+              1.0
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'south' && q.block_state('radiousti:open') == true && q.block_state('radiousti:upper') == true",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.decontamination_curtain.open.upper.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              6
+            ],
+            "size": [
+              16,
+              16,
+              2
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'west' && q.block_state('radiousti:open') == false && q.block_state('radiousti:upper') == false",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.decontamination_curtain.closed.lower.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -7.2,
+              0,
+              -7.9
+            ],
+            "size": [
+              1.0,
+              16,
+              15.8
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'west' && q.block_state('radiousti:open') == false && q.block_state('radiousti:upper') == true",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.decontamination_curtain.closed.upper.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              2,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'west' && q.block_state('radiousti:open') == true && q.block_state('radiousti:upper') == false",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.decontamination_curtain.open.lower.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -7.2,
+              0,
+              -7.8
+            ],
+            "size": [
+              1.0,
+              16,
+              15.6
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'west' && q.block_state('radiousti:open') == true && q.block_state('radiousti:upper') == true",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.decontamination_curtain.open.upper.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              2,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:upper') == true",
+        "components": {
+          "minecraft:material_instances": {
+            "*": {
+              "texture": "radiousti_decon_strips",
+              "render_method": "blend",
+              "ambient_occlusion": false
+            },
+            "detail": {
+              "texture": "radiousti_steel_dark",
+              "render_method": "blend",
+              "ambient_occlusion": false
+            }
+          }
+        }
+      }
+    ]
+  }
+}

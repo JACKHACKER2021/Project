@@ -1546,6 +1546,46 @@ export const REGISTRY = {
    "en": "Control Room Console",
    "cs": "Pult velínu",
    "rot": "cardinal"
+  },
+  "radiousti:security_door": {
+   "kind": "door",
+   "en": "Security Shutter Door",
+   "cs": "Bezpečnostní roletové dveře",
+   "security": true,
+   "rot": "cardinal"
+  },
+  "radiousti:decontamination_curtain": {
+   "kind": "door",
+   "en": "Decontamination Curtain",
+   "cs": "Dekontaminační plášť",
+   "decon": true,
+   "rot": "cardinal"
+  },
+  "radiousti:barricaded_door": {
+   "kind": "door",
+   "en": "Barricaded Door",
+   "cs": "Zabarikádované dveře",
+   "barricaded": true,
+   "security": true,
+   "rot": "cardinal"
+  },
+  "radiousti:window_barricade": {
+   "kind": "barricade",
+   "en": "Window Barricade",
+   "cs": "Okenní barikáda",
+   "rot": "face"
+  },
+  "radiousti:security_camera": {
+   "kind": "camera",
+   "en": "Security Camera",
+   "cs": "Bezpečnostní kamera",
+   "rot": "face"
+  },
+  "radiousti:door_control_button": {
+   "kind": "control",
+   "en": "Door Control Button",
+   "cs": "Tlačítko ovládání dveří",
+   "rot": "face"
   }
  },
  "items": {
@@ -1879,6 +1919,11 @@ export const REGISTRY = {
    "kind": "armor",
    "en": "Hazmat Boots",
    "cs": "Boty ochranného obleku"
+  },
+  "radiousti:security_tablet": {
+   "kind": "tablet",
+   "en": "Security Tablet",
+   "cs": "Bezpečnostní tablet"
   }
  }
 };

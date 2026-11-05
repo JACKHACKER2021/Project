@@ -10,6 +10,7 @@ import { buildMultiblock, breakMultiblock, buildDoor, breakDoor, toggleDoor, ori
 import { startNetworkLoop, ensureMachine, findCoreNear } from "./systems/network.js";
 import "./systems/reactor.js";
 import { startSmog } from "./systems/environment.js";
+import { cameraRecord, renameCamera, openTablet, pressDoorButton, cureInfection } from "./systems/security.js";
 import { radiationTick, mobRadiationTick, wasteSpreadTick, contaminationSpreadTick, decontaminate, getDose, setDose, fullHazmat } from "./systems/radiation.js";
 import { toggleLight, interactAlarm, pressScram } from "./systems/devices.js";
 import { openStation } from "./systems/lab.js";
@@ -148,6 +149,16 @@ system.beforeEvents.startup.subscribe((ev) => {
   reg("shower", { onTick: particles("minecraft:water_splash_particle", 0.6, (b) => stateOf(b, `${NS}:lit`, false)) });
   reg("steam_vent", { onTick: particles("minecraft:campfire_smoke_particle", 0.7) });
   reg("brazier", { onTick: particles("minecraft:basic_flame_particle", 0.85) });
+  reg("camera", {
+    onPlace: safe("camera", (e) => later(() => { const b = e.dimension.getBlock(e.block.location); if (b) cameraRecord(b); }, 1)),
+    onPlayerInteract: ui(async (p, b) => renameCamera(p, b)),
+  });
+  reg("door_button", {
+    onPlayerInteract: safe("doorButton", (e) => {
+      const r = pressDoorButton(e.block);
+      e.player?.onScreenDisplay.setActionBar(r.n ? `§e${r.open ? "Otevírám" : "Zavírám"} bezpečnostní dveře: ${r.n}` : "§7V okruhu 8 bloků nejsou bezpečnostní dveře.");
+    }),
+  });
   reg("conduit", { onPlace: safe("conduit", (e) => later(() => updateAround(e.dimension, e.block.location), 1)) });
   reg("liquid", { onTick: safe("liquid", (e) => liquidTick(e.block)) });
   reg("contamination_spread", { onTick: safe("spread", (e) => contaminationSpreadTick(e.block)) });
@@ -259,6 +270,7 @@ world.afterEvents.itemUse.subscribe(safe("itemUse", (ev) => {
   const p = ev.source;
   if (id === `${NS}:handbook`) system.run(() => openHandbook(p).catch(() => {}));
   else if (id === `${NS}:experiment_registry`) system.run(() => openRegistry(p).catch(() => {}));
+  else if (id === `${NS}:security_tablet`) system.run(() => openTablet(p).catch(() => {}));
   else if (ITEMS[id]?.kind === "document") system.run(() => readDocument(p, id).catch(() => {}));
   else if (id === ANALYZER) p.onScreenDisplay.setActionBar(`§eAnalyzátor: klepněte na blok. Vaše dávka radiace: ${getDose(p).toFixed(0)}/150`);
 }));
@@ -274,6 +286,7 @@ world.afterEvents.itemCompleteUse.subscribe(safe("consume", (ev) => {
     p.addEffect("nausea", 100, { amplifier: 0 });
     p.onScreenDisplay.setActionBar("§dBiogenní sérum B-9: tkáně se spojují…");
   } else if (id === `${NS}:zed_serum`) {
+    cureInfection(p);
     setDose(p, getDose(p) - 10);
     p.addEffect("regeneration", 200, { amplifier: 1 });
     p.removeEffect("poison");
@@ -315,6 +328,7 @@ system.afterEvents.scriptEventReceive.subscribe(safe("scriptevent", (ev) => {
     else if (k === "mobradiation") c = Config.set({ mobRadiation: on });
     else if (k === "dayradiation") c = Config.set({ dayRadiation: on });
     else if (k === "spread") c = Config.set({ contaminationSpread: on });
+    else if (k === "infection") c = Config.set({ infection: on });
     else if (k === "smog") {
       startSmog(Number(v) || 3);
       c = Config.get();

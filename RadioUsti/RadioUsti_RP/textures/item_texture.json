@@ -185,6 +185,9 @@
     "radiousti_hazmat_boots": {
       "textures": "textures/items/radiousti_hazmat_boots"
     },
+    "radiousti_security_tablet": {
+      "textures": "textures/items/radiousti_security_tablet"
+    },
     "radiousti_generator_standard_icon": {
       "textures": "textures/items/radiousti_generator_standard_icon"
     },
@@ -220,6 +223,15 @@
     },
     "radiousti_operating_table_icon": {
       "textures": "textures/items/radiousti_operating_table_icon"
+    },
+    "radiousti_security_door_icon": {
+      "textures": "textures/items/radiousti_security_door_icon"
+    },
+    "radiousti_decontamination_curtain_icon": {
+      "textures": "textures/items/radiousti_decontamination_curtain_icon"
+    },
+    "radiousti_barricaded_door_icon": {
+      "textures": "textures/items/radiousti_barricaded_door_icon"
     }
   }
 }

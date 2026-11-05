@@ -6,7 +6,7 @@ _Generováno nástrojem `tools/build.py` z `tools/recipes.py`._
 Laboratorní stanice (zpracování vzorků, palivové tyče…) jsou popsané v README v kapitole Laboratoř.
 
 
-## Pracovní stůl (78)
+## Pracovní stůl (79)
 
 - **Systémový analyzátor RadioÚstí** ×1: vzor ` R  / IPI / ICI` – `R` = redstone, `I` = iron_ingot, `P` = glass_pane, `C` = copper_ingot
 - **Příručka RadioÚstí** ×1: 1× book + 1× yellow_dye
@@ -86,8 +86,9 @@ Laboratorní stanice (zpracování vzorků, palivové tyče…) jsou popsané v 
 - **Kontejner zdravotnického materiálu** ×1: vzor `IRI / ICI` – `I` = iron_ingot, `R` = red_dye, `C` = chest
 - **Kalhoty ochranného obleku** ×1: vzor `YYY / Y Y / Y Y` – `Y` = yellow_wool
 - **Boty ochranného obleku** ×1: vzor `L L / L L` – `L` = leather
+- **Okenní barikáda** ×4: vzor `P P / SSS / P P` – `P` = libovolné planks, `S` = stick
 
-## Průmyslový ponk (83)
+## Průmyslový ponk (88)
 
 - **Vodovodní potrubí** ×6: 3× copper_ingot + 1× iron_ingot
 - **Tenké nástěnné vodovodní potrubí** ×8: 1× copper_ingot + 2× iron_nugget
@@ -172,8 +173,13 @@ Laboratorní stanice (zpracování vzorků, palivové tyče…) jsou popsané v 
 - **Kbelík – kontaminovaný olej** ×1: 1× bucket + 1× Kanystr – zelený kontaminovaný olej
 - **Kbelík – radioaktivní olej** ×1: 1× bucket + 1× Kanystr – radioaktivní olej
 - **Kbelík – tekutý liverocrystal (blue gasoline)** ×1: 1× bucket + 1× Kanystr Liverocrystal Gas
+- **Bezpečnostní roletové dveře** ×1: vzor `II / IR / II` – `I` = iron_block, `R` = redstone
+- **Zabarikádované dveře** ×1: vzor `PB / PI / PB` – `P` = Spálená prkna, `B` = Okenní barikáda, `I` = iron_door
+- **Bezpečnostní kamera** ×1: vzor `IPI / IRI /  I ` – `I` = iron_ingot, `P` = glass_pane, `R` = redstone
+- **Tlačítko ovládání dveří** ×1: 1× stone_button + 1× redstone + 1× iron_ingot
+- **Bezpečnostní tablet** ×1: vzor `IPI / IRI / INI` – `I` = iron_ingot, `P` = glass_pane, `R` = redstone, `N` = Počítačový síťový kabel
 
-## Laboratorní stůl (32)
+## Laboratorní stůl (33)
 
 - **Prázdná laboratorní nádoba** ×3: vzor `G G / G G / GGG` – `G` = glass
 - **Prázdná zkumavka** ×4: vzor `G / G / G` – `G` = glass
@@ -207,6 +213,7 @@ Laboratorní stanice (zpracování vzorků, palivové tyče…) jsou popsané v 
 - **Biogenní sérum (B-9)** ×1: 1× Erlenmeyerova baňka + 1× Organický materiál + 1× Esence duše
 - **Kádě s biogenním sérem** ×1: vzor `MGM / GSG / MGM` – `M` = Ingot Liverocrystal Metal, `G` = glass, `S` = Biogenní sérum (B-9)
 - **Kbelík – krev** ×1: 1× bucket + 1× Nádoba s krví
+- **Dekontaminační plášť** ×1: vzor `WW / GG / WW` – `W` = white_wool, `G` = Baňka se zeleným činidlem
 
 ## Pec (2)
 

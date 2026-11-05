@@ -66,7 +66,8 @@ def resolve_model(m):
         "school_desk": G.school_desk, "chalkboard": G.chalkboard, "canteen_table": G.canteen_table, "lunch_tray": G.lunch_tray,
         "serving_counter": G.serving_counter, "kitchen_pot": G.kitchen_pot, "shower_head": G.shower_head, "floor_drain": G.floor_drain,
         "lab_sink": G.lab_sink, "brazier": G.brazier, "pillar": G.pillar, "chainlink": G.chainlink, "steam_vent": G.steam_vent,
-        "console": G.console, "ore": G.ore_crystals, "bottle": G.bottle, "jar_small": lambda fill=True: G.jar(8, 6),
+        "console": G.console, "ore": G.ore_crystals, "window_barricade": G.window_barricade,
+        "security_camera": G.security_camera, "door_button": G.door_button, "bottle": G.bottle, "jar_small": lambda fill=True: G.jar(8, 6),
     }
     if k in table:
         return table[k](*a)
@@ -251,7 +252,7 @@ def emit_block(b, geo_files, blocks_json, lang, registry):
         for d in dirs:
             for op in (False, True):
                 for up in (False, True):
-                    pb = G.rot_model(G.door_model(op, up), d)
+                    pb = G.rot_model(G.door_model(op, up, b.get("door_style", "swing")), d)
                     ident = f"{gbase}.{'open' if op else 'closed'}.{'upper' if up else 'lower'}.{d}"
                     entries.append(G.geometry_entry(ident, pb))
                     geos.append((q("minecraft:cardinal_direction", d) + " && " + q(f"{NS}:open", op) + " && " + q(f"{NS}:upper", up), ident, pb))
@@ -513,7 +514,7 @@ def emit_environment():
 ZED = f"{NS}:irradiated_zed"
 
 
-def zed_texture(src, dst):
+def zed_texture(src, dst, variant="zed"):
     """Recolour the vanilla zombie skin into a radioactive RadioÚstí Zed (toxic skin, worn hazmat suit, glowing eyes)."""
     import numpy as np
     from PIL import Image
@@ -529,11 +530,13 @@ def zed_texture(src, dst):
             if g > r + 8 and g > b:          # skin
                 tone = 0.6 + lum / 255 * 0.7
                 c = [int(110 * tone), int(150 * tone), int(52 * tone)]
-                if rng.random() < 0.08:
-                    c = [190, 255, 90]       # radioactive blisters
-            elif b > r and b >= g:            # shirt -> worn hazmat yellow
+                if variant == "radiak":
+                    c = [int(60 * tone), int(200 * tone), int(60 * tone)]
+                if rng.random() < (0.08 if variant == "zed" else 0.2):
+                    c = [190, 255, 90] if variant == "zed" else [125, 255, 58]   # radioactive blisters / uranium crystals
+            elif b > r and b >= g:            # shirt -> worn hazmat yellow (Radiak: burnt mechanical suit)
                 tone = 0.55 + lum / 255 * 0.8
-                c = [int(175 * tone), int(150 * tone), int(40 * tone)]
+                c = [int(175 * tone), int(150 * tone), int(40 * tone)] if variant == "zed" else [int(70 * tone), int(78 * tone), int(84 * tone)]
                 if rng.random() < 0.05:
                     c = [80, 60, 30]
             else:                             # trousers and rest -> dark grey-green
@@ -547,12 +550,12 @@ def zed_texture(src, dst):
     Image.fromarray(im.astype("uint8"), "RGBA").save(dst)
 
 
-def emit_zed(lang):
+def emit_zed(lang, ident=ZED, variant="zed", health=26, damage=4, weight=60, names=None, loot=None, egg=("#3f6f2a", "#c6ff5a")):
     src = os.path.join(HERE, "vanilla_entities")
     with open(os.path.join(src, "zombie.behavior.json"), encoding="utf-8") as f:
         bp = json.load(f)
     e = bp["minecraft:entity"]
-    e["description"]["identifier"] = ZED
+    e["description"]["identifier"] = ident
     e["description"]["runtime_identifier"] = "minecraft:zombie"
     e["components"].pop("minecraft:burns_in_daylight", None)
     for g in ("minecraft:look_to_start_transformations", "minecraft:start_drowned_transformation",
@@ -572,12 +575,13 @@ def emit_zed(lang):
             for key in ("add", "remove"):
                 if key in part:
                     part[key]["component_groups"] = [g for g in part[key].get("component_groups", []) if g in e["component_groups"]]
+    short = ident.split(":")[1]
     e["components"]["minecraft:type_family"] = {"family": ["zombie", "undead", "monster", "mob", "radiousti_zed"]}
-    e["components"]["minecraft:health"] = {"value": 26, "max": 26}
-    e["components"]["minecraft:attack"] = {"damage": 4}
-    e["components"]["minecraft:loot"] = {"table": "loot_tables/entities/irradiated_zed.json"}
-    wjson(os.path.join(BP, "entities", "irradiated_zed.json"), bp)
-    wjson(os.path.join(BP, "loot_tables", "entities", "irradiated_zed.json"), {"pools": [
+    e["components"]["minecraft:health"] = {"value": health, "max": health}
+    e["components"]["minecraft:attack"] = {"damage": damage}
+    e["components"]["minecraft:loot"] = {"table": f"loot_tables/entities/{short}.json"}
+    wjson(os.path.join(BP, "entities", f"{short}.json"), bp)
+    wjson(os.path.join(BP, "loot_tables", "entities", f"{short}.json"), loot or {"pools": [
         {"rolls": 1, "entries": [{"type": "item", "name": f"{NS}:infected_flesh", "weight": 1,
                                   "functions": [{"function": "set_count", "count": {"min": 0, "max": 2}}]}]},
         {"rolls": 1, "entries": [{"type": "item", "name": f"{NS}:blood_bottle", "weight": 3}, {"type": "empty", "weight": 7}]},
@@ -585,29 +589,29 @@ def emit_zed(lang):
         {"rolls": 1, "entries": [{"type": "item", "name": "minecraft:rotten_flesh", "weight": 1,
                                   "functions": [{"function": "set_count", "count": {"min": 0, "max": 1}}]}]}]})
     # spawning: any light level (also in daylight), overworld surface
-    wjson(os.path.join(BP, "spawn_rules", "irradiated_zed.json"), {
+    wjson(os.path.join(BP, "spawn_rules", f"{short}.json"), {
         "format_version": "1.8.0",
-        "minecraft:spawn_rules": {"description": {"identifier": ZED, "population_control": "monster"},
+        "minecraft:spawn_rules": {"description": {"identifier": ident, "population_control": "monster"},
                                   "conditions": [{"minecraft:spawns_on_surface": {}, "minecraft:spawns_underground": {},
                                                   "minecraft:brightness_filter": {"min": 0, "max": 15, "adjust_for_weather": False},
                                                   "minecraft:difficulty_filter": {"min": "easy", "max": "hard"},
-                                                  "minecraft:weight": {"default": 60},
+                                                  "minecraft:weight": {"default": weight},
                                                   "minecraft:herd": {"min_size": 1, "max_size": 3},
                                                   "minecraft:biome_filter": {"test": "has_biome_tag", "value": "overworld"}}]}})
     with open(os.path.join(src, "zombie.client_entity.json"), encoding="utf-8") as f:
         rp = json.load(f)
     d = rp["minecraft:client_entity"]["description"]
-    d["identifier"] = ZED
-    d["textures"] = {"default": "textures/entity/radiousti_zed", "baby": "textures/entity/radiousti_zed_baby"}
-    d["spawn_egg"] = {"base_color": "#3f6f2a", "overlay_color": "#c6ff5a"}
+    d["identifier"] = ident
+    d["textures"] = {"default": f"textures/entity/radiousti_{short}", "baby": f"textures/entity/radiousti_{short}_baby"}
+    d["spawn_egg"] = {"base_color": egg[0], "overlay_color": egg[1]}
     os.makedirs(os.path.join(RP, "entity"), exist_ok=True)
     os.makedirs(os.path.join(RP, "textures", "entity"), exist_ok=True)
-    wjson(os.path.join(RP, "entity", "irradiated_zed.entity.json"), rp)
-    zed_texture(os.path.join(src, "zombie.png"), os.path.join(RP, "textures", "entity", "radiousti_zed.png"))
-    zed_texture(os.path.join(src, "zombie_baby.png"), os.path.join(RP, "textures", "entity", "radiousti_zed_baby.png"))
-    for code, name in (("en", "Irradiated Zed of RadioÚstí"), ("cs", "Ozářený Zed z RadioÚstí")):
-        lang[code][f"entity.{ZED}.name"] = name
-        lang[code][f"item.spawn_egg.entity.{ZED}.name"] = ("Spawn " if code == "en" else "Vyvolat: ") + name
+    wjson(os.path.join(RP, "entity", f"{short}.entity.json"), rp)
+    zed_texture(os.path.join(src, "zombie.png"), os.path.join(RP, "textures", "entity", f"radiousti_{short}.png"), variant)
+    zed_texture(os.path.join(src, "zombie_baby.png"), os.path.join(RP, "textures", "entity", f"radiousti_{short}_baby.png"), variant)
+    for code, name in (names or (("en", "Irradiated Zed of RadioÚstí"), ("cs", "Ozářený Zed z RadioÚstí"))):
+        lang[code][f"entity.{ident}.name"] = name
+        lang[code][f"item.spawn_egg.entity.{ident}.name"] = ("Spawn " if code == "en" else "Vyvolat: ") + name
 
 
 def emit_particles():
@@ -788,6 +792,13 @@ def main():
     pack_icon(os.path.join(BP, "pack_icon.png"))
     pack_icon(os.path.join(RP, "pack_icon.png"))
     emit_zed(lang)
+    emit_zed(lang, ident=f"{NS}:radiak_zombie", variant="radiak", health=34, damage=6, weight=25,
+             names=(("en", "Radiak's Zombie"), ("cs", "Radiakova zombie")), egg=("#1f4f1f", "#7dff3a"),
+             loot={"pools": [
+                 {"rolls": 1, "entries": [{"type": "item", "name": f"{NS}:raw_uranium", "weight": 1,
+                                           "functions": [{"function": "set_count", "count": {"min": 1, "max": 3}}]}]},
+                 {"rolls": 1, "entries": [{"type": "item", "name": f"{NS}:uranium_ingot", "weight": 1}, {"type": "empty", "weight": 4}]},
+                 {"rolls": 1, "entries": [{"type": "item", "name": f"{NS}:infected_flesh", "weight": 1}]}]})
     emit_particles()
     for f in os.listdir(os.path.join(BP, "structures")):
         if f.endswith(".mcstructure"):

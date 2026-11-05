@@ -1,0 +1,162 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:security_camera",
+      "menu_category": {
+        "category": "items"
+      },
+      "traits": {
+        "minecraft:placement_position": {
+          "enabled_states": [
+            "minecraft:block_face"
+          ]
+        }
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 1.5
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#cbc3a8",
+      "minecraft:light_emission": 2,
+      "radiousti:camera": {},
+      "minecraft:geometry": "geometry.radiousti.security_camera.north",
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_cabinet_beige",
+          "render_method": "opaque"
+        },
+        "detail": {
+          "texture": "radiousti_steel_dark",
+          "render_method": "opaque"
+        },
+        "glow": {
+          "texture": "radiousti_glow_red",
+          "render_method": "opaque"
+        }
+      },
+      "minecraft:display_name": "Bezpečnostní kamera"
+    },
+    "permutations": [
+      {
+        "condition": "q.block_state('minecraft:block_face') == 'north'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.security_camera.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -3.5,
+              9,
+              -4.5
+            ],
+            "size": [
+              7.0,
+              4.2,
+              12.5
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:block_face') == 'south'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.security_camera.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -3.5,
+              9,
+              -8
+            ],
+            "size": [
+              7.0,
+              4.2,
+              12.5
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:block_face') == 'east'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.security_camera.east",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              9,
+              -3.5
+            ],
+            "size": [
+              12.5,
+              4.2,
+              7.0
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:block_face') == 'west'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.security_camera.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -4.5,
+              9,
+              -3.5
+            ],
+            "size": [
+              12.5,
+              4.2,
+              7.0
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:block_face') == 'up'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.security_camera.up",
+          "minecraft:selection_box": {
+            "origin": [
+              -3.5,
+              0,
+              1
+            ],
+            "size": [
+              7.0,
+              12.5,
+              4.2
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:block_face') == 'down'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.security_camera.down",
+          "minecraft:selection_box": {
+            "origin": [
+              -3.5,
+              3.5,
+              1
+            ],
+            "size": [
+              7.0,
+              12.5,
+              4.2
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      }
+    ]
+  }
+}

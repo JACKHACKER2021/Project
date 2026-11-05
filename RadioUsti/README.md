@@ -177,6 +177,22 @@ název, ID, typ, stav, napájení, propojení potrubí a kabelů včetně směr�
 * **Nemocniční lůžko** a **operační stůl** jsou dva bloky dlouhé. Klepnutím na lůžko si nastavíš bod oživení. **Otočná kancelářská židle** se po klepnutí otočí o 90°.
 * **Plakáty, oznámení, papíry, hromada dokumentů a fotografie** si přečteš klepnutím. **Nástěnné hodiny** ukážou herní čas.
 
+## Novinky 1.7 – bezpečnost, kamery, Zéd nákaza
+* **Zedi rozbíjejí skla.** Ozářený Zed a Radiakova zombie rozbijí nechráněné sklo, které je vedle nich (běžné i barevné sklo, tabule, luxfery a HELP sklo). Vanilla zombie to dělají jen občas.
+* **Okenní barikáda:** prkna, která přidělíš přímo na sklo. Sklo vedle okenní barikády, dřevěné barikády nebo zabarikádovaných dveří Zedi nerozbijí.
+* **Zabarikádované dveře:** dvoublokové, velmi odolné (výbuch 80). Zedy, kteří k nim přijdou, odhodí zpět.
+* **Bezpečnostní roletové dveře:** dvoublokové, otevírají se vysunutím nahoru do rámu, odolnost 60.
+* **Tlačítko ovládání dveří:** otevře nebo zavře všechny bezpečnostní a zabarikádované dveře do 8 bloků. Podle nejbližších dveří pozná, jestli má otevírat, nebo zavírat.
+* **Dekontaminační plášť:** dvoublokové dveře z průhledných pásů. Jdou otevřít a zavřít a dá se jimi projít. Když v nich stojíš, každé 2 s ti ubude 6 dávky a zpomalí se Zéd nákaza.
+* **Bezpečnostní kamera a tablet:** kameru polož na zeď (nebo strop či podlahu) a klepnutím ji pojmenuj. Tablet ukáže seznam kamer, přepne pohled do vybrané kamery (`player.camera`) a otevře nebo zavře bezpečnostní dveře do 32 bloků. Plížením a použitím tabletu sledování ukončíš. Když tě něco zraní, kamera se sama vypne.
+* **Zéd nákaza:** kousnutí zombie může nakazit (Ozářený Zed 25 %, Radiakova zombie 40 %, ostatní zombie 10 %). Nemoc má tři fáze:
+  * **I:** nevolnost.
+  * **II** (po 3 min): slabost a zpomalení.
+  * **III** (po 6 min): zranění 2 HP každé 2 s.
+  * Kdo zemře nakažený, povstane jako Ozářený Zed. Léčí ji **Sérum s protilátkami Zed**. Kompletní ochranný oblek před nákazou chrání. Vypnutí: `… infection off`.
+* **Radiakova zombie** (`radiousti:radiak_zombie`): oběť kousnutí Radiaka. Svítí zeleně, má roztavený mechanický oblek, 34 HP a útok 6. Vyzařuje radiaci do 4 bloků a její kousnutí přidá 15 dávky. Spawnuje i ve dne a upouští surový i obohacený uran.
+* **Uvnitř budov** (pod střechou) tě nezasáhne déšť ani denní radiace.
+
 ## Novinky 1.6
 * **Hotová elektrárna:** operátor napíše `/structure load reaktor ~ ~ ~` a načte se celá funkční elektrárna 15×6×12 bloků. Obsahuje reaktor 3×3×3 s porty a panelem, chladicí okruh (potrubí, ventil, chladicí jednotku, čerpadlo, vodu), jaderný generátor na vysokonapěťovém kabelu, Starý počítač napájený kabelem a se síťovým kabelem k panelu, odpad do kontejneru, SCRAM tlačítko, indikátor, majáky, alarm a truhlu s 4 palivovými tyčemi, analyzátorem, příručkou, Registrem experimentů a kompletním ochranným oblekem.
 * **Napojování kabelů a potrubí opraveno:** tvar spojů už není řízený výrazy Molang v modelu. Každá kombinace napojení má vlastní pevnou permutaci (64, u ventilů 128). Napojení se přepočítá i při `/setblock`, `/fill` a načtení struktury.

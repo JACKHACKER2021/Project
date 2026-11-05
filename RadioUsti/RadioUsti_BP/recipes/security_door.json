@@ -1,0 +1,31 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:security_door"
+    },
+    "tags": [
+      "radiousti_industrial"
+    ],
+    "pattern": [
+      "II",
+      "IR",
+      "II"
+    ],
+    "key": {
+      "I": {
+        "item": "minecraft:iron_block"
+      },
+      "R": {
+        "item": "minecraft:redstone"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:security_door",
+      "count": 1
+    }
+  }
+}

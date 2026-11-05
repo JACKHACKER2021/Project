@@ -835,3 +835,34 @@ for b in BLOCKS:
         b["tick"] = (1200, 2400)
     if b["id"] == "liverocrystal_gas_liquid":
         b["meta"]["toxic"] = 2
+
+
+# ----------------------------------------------------------------- v1.7: security, barricades, curtains, Zed infection
+STRIPS = tex("decon_strips", lambda n: (lambda t: ([t.vline(x, "#9fc4c9") for x in (0, 4, 8, 12)], t)[-1])(T.Tex(n, base="#cfe8ee", alpha=150).noise(4)))
+SHUT = tex("security_shutter", lambda n: (lambda t: ([t.hline(y, "#3a3f43") for y in (3, 7, 11, 15)], t.rect(0, 0, 16, 2, P["hazard"]), t)[-1])(T.metal(n, "#6c747a", rivet=False)))
+BARD_TOP = tex("barricaded_door_top", lambda n: (lambda t: (t.rect(0, 3, 16, 3, "#6b4d2a"), t.rect(0, 10, 16, 3, "#6b4d2a"), t.rect(2, 1, 12, 1, "#2a2a2a"), t)[-1])(T.wood(n, "#4a3a28")))
+BARD_BOT = tex("barricaded_door_bottom", lambda n: (lambda t: (t.rect(0, 2, 16, 3, "#6b4d2a"), t.rect(0, 9, 16, 3, "#6b4d2a"), t.rect(5, 0, 3, 16, "#5a4024"), t.rect(12, 7, 2, 2, "#c0c7cc"), t)[-1])(T.wood(n, "#4a3a28")))
+for did, en, cs, style, tx, txu, extra in (
+        ("security_door", "Security Shutter Door", "Bezpečnostní roletové dveře", "shutter", SHUT, SHUT,
+         dict(meta={"security": True}, resist=60, hardness=8)),
+        ("decontamination_curtain", "Decontamination Curtain", "Dekontaminační plášť", "curtain", STRIPS, STRIPS,
+         dict(meta={"decon": True}, render="blend", collision=False, sound="cloth", hardness=1)),
+        ("barricaded_door", "Barricaded Door", "Zabarikádované dveře", "swing", BARD_BOT, BARD_TOP,
+         dict(meta={"barricaded": True, "security": True}, resist=80, hardness=10, sound="wood"))):
+    kw = dict(cat="construction", model=("door",), rot="cardinal", tex={"*": tx, "detail": S["steel_dark"]}, tex_upper={"*": txu},
+              states={f"{NS}:upper": [False, True], f"{NS}:open": [False, True]}, sound="metal", hardness=3, resist=10,
+              kind="door", comps=[f"{NS}:door"], loot="empty", mapc="#6c747a", placer_icon=("door_icon", "#6c747a"), door_style=style)
+    kw.update(extra)
+    kw["meta"] = {**kw["meta"]}
+    block(did, en, cs, **kw)
+block("window_barricade", "Window Barricade", "Okenní barikáda", cat="construction", model=("window_barricade",), rot="face",
+      tex={"*": "radiousti_burnt_planks", "detail": S["wood"]}, sound="wood", hardness=2, resist=20, kind="barricade",
+      tags=["wood"], mapc="#5e4528")
+block("security_camera", "Security Camera", "Bezpečnostní kamera", cat="items", model=("security_camera",), rot="face",
+      tex={"*": S["cabinet_beige"], "detail": S["steel_dark"], "glow": S["glow_red"]}, sound="metal", hardness=1.5, kind="camera",
+      comps=[f"{NS}:camera"], collision=False, light=2, mapc="#cbc3a8")
+block("door_control_button", "Door Control Button", "Tlačítko ovládání dveří", cat="items", model=("door_button",), rot="face",
+      tex={"*": S["steel"], "detail": S["steel_dark"], "glow": S["glow_green"]}, sound="metal", hardness=1, kind="control",
+      comps=[f"{NS}:door_button"], collision=False, mapc="#7c848a")
+item("security_tablet", "Security Tablet", "Bezpečnostní tablet", ic("security_tablet", "scanner"), cat="equipment", stack=1, kind="tablet",
+     comps={"minecraft:hand_equipped": False})

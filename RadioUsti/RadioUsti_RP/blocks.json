@@ -600,5 +600,23 @@
   },
   "radiousti:control_console": {
     "sound": "metal"
+  },
+  "radiousti:security_door": {
+    "sound": "metal"
+  },
+  "radiousti:decontamination_curtain": {
+    "sound": "cloth"
+  },
+  "radiousti:barricaded_door": {
+    "sound": "wood"
+  },
+  "radiousti:window_barricade": {
+    "sound": "wood"
+  },
+  "radiousti:security_camera": {
+    "sound": "metal"
+  },
+  "radiousti:door_control_button": {
+    "sound": "metal"
   }
 }

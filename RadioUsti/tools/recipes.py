@@ -227,6 +227,13 @@ for key in ("industrial", "black", "hydraulic", "lab", "contaminated", "radioact
 shaped("hazmat_pants", ["YYY", "Y Y", "Y Y"], {"Y": M + "yellow_wool"})
 shaped("hazmat_boots", ["L L", "L L"], {"L": M + "leather"})
 shapeless("liverocrystal_gas_bucket", [M + "bucket", "liverocrystal_gas_canister"], 1, IW)
+shaped("window_barricade", ["P P", "SSS", "P P"], {"P": PLANK, "S": STICK}, 4)
+shaped("security_door", ["II", "IR", "II"], {"I": M + "iron_block", "R": RS}, 1, IW)
+shaped("decontamination_curtain", ["WW", "GG", "WW"], {"W": M + "white_wool", "G": "reagent_flask_green"}, 1, LT)
+shaped("barricaded_door", ["PB", "PI", "PB"], {"P": "burnt_planks", "B": "window_barricade", "I": M + "iron_door"}, 1, IW)
+shaped("security_camera", ["IPI", "IRI", " I "], {"I": IRON, "P": PANE, "R": RS}, 1, IW)
+shapeless("door_control_button", [M + "stone_button", RS, IRON], 1, IW)
+shaped("security_tablet", ["IPI", "IRI", "INI"], {"I": IRON, "P": PANE, "R": RS, "N": "network_cable"}, 1, IW)
 furnace("raw_uranium", "uranium_ingot")
 furnace("infected_flesh", "meat_piece")
 

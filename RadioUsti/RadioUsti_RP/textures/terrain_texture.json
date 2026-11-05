@@ -606,6 +606,18 @@
     },
     "radiousti_deepslate_plain": {
       "textures": "textures/blocks/radiousti_deepslate_plain"
+    },
+    "radiousti_decon_strips": {
+      "textures": "textures/blocks/radiousti_decon_strips"
+    },
+    "radiousti_security_shutter": {
+      "textures": "textures/blocks/radiousti_security_shutter"
+    },
+    "radiousti_barricaded_door_top": {
+      "textures": "textures/blocks/radiousti_barricaded_door_top"
+    },
+    "radiousti_barricaded_door_bottom": {
+      "textures": "textures/blocks/radiousti_barricaded_door_bottom"
     }
   }
 }

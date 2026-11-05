@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.7.0 – bezpečnost, kamery, Zéd nákaza (2026-11-05)
+**Přidáno**
+- Okenní barikáda. Zedi rozbíjejí nechráněné sklo a barikády ho chrání.
+- Zabarikádované dveře (odhodí Zedy), bezpečnostní roletové dveře (vysunutí nahoru), dekontaminační plášť (průchodná dvířka, dekontaminace).
+- Tlačítko ovládání dveří, bezpečnostní kamera (pojmenovatelná), bezpečnostní tablet (pohled z kamer přes `player.camera`, ovládání dveří).
+- Zéd nákaza (3 fáze, léčba sérem, smrt = povstání jako Zed).
+- Radiakova zombie (radiační aura, silnější kousnutí, uranový loot).
+
+**Změněno**
+- Verze balíčků 1.6.0 → 1.7.0.
+
 ## 1.6.0 – struktura reaktoru, Ozářený Zed, denní radiace (2026-11-05)
 **Přidáno**
 - Struktura `reaktor` (`/structure load reaktor`): kompletní funkční elektrárna, generovaná nástrojem `tools/structures.py` (vlastní zapisovač NBT, ověřený zpětným načtením).

@@ -336,8 +336,27 @@ def flat_floor(th=0.25):
     return [B("root", C(0.5, 0, 0.5, 15, th, 15))]
 
 
-def door_model(open_, upper=False):
-    """Door panel with a frame strip and (lower half) a handle on both sides."""
+def door_model(open_, upper=False, style="swing"):
+    """Door halves. style: swing (hinged panel), shutter (slides up into the frame), curtain (plastic strips)."""
+    if style == "shutter":
+        posts = [C(0, 0, 0, 1.5, 16, 3, "detail"), C(14.5, 0, 0, 1.5, 16, 3, "detail")]
+        if not open_:
+            cubes = posts + [C(1.5, 0, 0.5, 13, 16, 2)]
+            for y in (3.5, 7.5, 11.5, 15.5):
+                cubes.append(C(1.5, y, 0.3, 13, 0.4, 0.2, "detail"))
+            return [B("root", *cubes)]
+        if upper:
+            return [B("root", *posts, C(1.5, 12.5, 0.3, 13, 3.5, 2.4, "detail"))]   # rolled-up shutter
+        return [B("root", *posts)]
+    if style == "curtain":
+        cubes = [C(0, 15, 0, 16, 1, 2, "detail")] if upper else []
+        if not open_:
+            for i, x in enumerate(range(0, 16, 2)):
+                cubes.append(C(x + 0.1, 0 if not upper else 0, 0.8 + (i % 2) * 0.4, 1.8, 16 if not upper else 15, 0.3))
+        else:
+            for x in (0.2, 1.2, 2.2, 13.6, 14.6):
+                cubes.append(C(x, 0, 0.8, 1.2, 16 if not upper else 15, 0.3))
+        return [B("root", *cubes)]
     if open_:
         cubes = [C(0, 0, 0, 3, 16, 16), C(0, 0, 0, 3.2, 16, 1, "detail")]
         if not upper:
@@ -741,3 +760,20 @@ def ore_crystals(seed=1):
     # edge fillers so the silhouette still reads as a full block
     cubes += [C(0, 0, 0, 16, 1, 16), C(0, 15, 0, 16, 1, 16), C(0, 1, 0, 1, 14, 1), C(15, 1, 0, 1, 14, 1), C(0, 1, 15, 1, 14, 1), C(15, 1, 15, 1, 14, 1)]
     return [B("root", *cubes)]
+
+
+
+def window_barricade():
+    """Boards nailed over a window: mounted on the SOUTH face (back), sticks out 2 px."""
+    return [B("root", C(0, 2, 14, 16, 3, 1.5), C(0, 11, 14, 16, 3, 1.5), C(2, 0, 15, 3, 16, 1, "detail"),
+              C(11, 0, 15, 3, 16, 1, "detail"), C(1, 6, 13.6, 14, 2.5, 1.2))]
+
+
+def security_camera():
+    """Wall camera on an arm; lens faces north (front)."""
+    return [B("root", C(6, 9, 14, 4, 4, 2, "detail"), C(7.25, 10, 10, 1.5, 1.5, 4, "detail"), C(5, 9, 4, 6, 4, 7),
+              C(4.5, 12.6, 3.5, 7, 0.6, 8, "detail")), B("lens", C(6.5, 10, 3.8, 3, 2, 0.3, "glow"))]
+
+
+def door_button():
+    return [B("root", C(4, 3, 14.5, 8, 10, 1.5, "detail"), C(5.5, 8.5, 13.8, 5, 3, 0.7, "glow"), C(5.5, 4.5, 13.8, 5, 3, 0.7))]

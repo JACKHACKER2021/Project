@@ -3,7 +3,7 @@
 _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 
 
-## Bloky – Stavba (74)
+## Bloky – Stavba (75)
 
 | Název | English | ID | Typ |
 |---|---|---|---|
@@ -81,6 +81,7 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Pletivový plot | Chain-Link Fence | `radiousti:chainlink_fence` | dekorace |
 | Výpusť páry | Steam Vent | `radiousti:steam_vent` | dekorace |
 | Pult velínu | Control Room Console | `radiousti:control_console` | dekorace |
+| Okenní barikáda | Window Barricade | `radiousti:window_barricade` | barricade |
 
 ## Bloky – Vybavení (34)
 
@@ -121,7 +122,7 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Nádrž Liverocrystal Gas (Blue Gasoline) | Liverocrystal Gas Tank (Blue Gasoline) | `radiousti:liverocrystal_gas_tank` | stroj |
 | Kádě s biogenním sérem | Biogenic Serum Vat | `radiousti:biogenic_serum_vat` | dekorace |
 
-## Bloky – Předměty (43)
+## Bloky – Předměty (45)
 
 | Název | English | ID | Typ |
 |---|---|---|---|
@@ -168,6 +169,8 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Jevištní reflektor | Stage Spotlight | `radiousti:stage_spotlight` | světlo |
 | Televizor CWT | CWT Television | `radiousti:crt_tv` | světlo |
 | Sprcha | Shower | `radiousti:shower_head` | světlo |
+| Bezpečnostní kamera | Security Camera | `radiousti:security_camera` | camera |
+| Tlačítko ovládání dveří | Door Control Button | `radiousti:door_control_button` | ovládání |
 
 ## Bloky – Příroda (17)
 
@@ -191,7 +194,7 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Shluk Liverocrystalu | Liverocrystal Cluster | `radiousti:liverocrystal_cluster` | toxický materiál |
 | Modré krystalické usazeniny | Blue Crystal Residue | `radiousti:blue_crystal_residue` | dekorace |
 
-## Bloky – Pokládané laboratorní sklo a multibloky (pokládají se předmětem) (31)
+## Bloky – Pokládané laboratorní sklo a multibloky (pokládají se předmětem) (34)
 
 | Název | English | ID | Typ |
 |---|---|---|---|
@@ -226,8 +229,11 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Radioaktivní olej | Radioactive Oil | `radiousti:radioactive_oil_liquid` | tekutina |
 | Radioaktivní kal | Radioactive Sludge | `radiousti:radioactive_sludge_liquid` | tekutina |
 | Tekutý Liverocrystal (Blue Gasoline) | Liquid Liverocrystal (Blue Gasoline) | `radiousti:liverocrystal_gas_liquid` | tekutina |
+| Bezpečnostní roletové dveře | Security Shutter Door | `radiousti:security_door` | dveře |
+| Dekontaminační plášť | Decontamination Curtain | `radiousti:decontamination_curtain` | dveře |
+| Zabarikádované dveře | Barricaded Door | `radiousti:barricaded_door` | dveře |
 
-## Předměty (61)
+## Předměty (62)
 
 | Název | English | ID | Popis |
 |---|---|---|---|
@@ -292,3 +298,4 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Kbelík – tekutý liverocrystal (blue gasoline) | Bucket of Liquid Liverocrystal (Blue Gasoline) | `radiousti:liverocrystal_gas_bucket` |  |
 | Kalhoty ochranného obleku | Hazmat Trousers | `radiousti:hazmat_pants` |  |
 | Boty ochranného obleku | Hazmat Boots | `radiousti:hazmat_boots` |  |
+| Bezpečnostní tablet | Security Tablet | `radiousti:security_tablet` |  |

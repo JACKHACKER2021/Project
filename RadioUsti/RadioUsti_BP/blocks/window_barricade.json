@@ -1,0 +1,223 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:window_barricade",
+      "menu_category": {
+        "category": "construction"
+      },
+      "traits": {
+        "minecraft:placement_position": {
+          "enabled_states": [
+            "minecraft:block_face"
+          ]
+        }
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 2
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 20
+      },
+      "minecraft:map_color": "#5e4528",
+      "tag:wood": {},
+      "minecraft:geometry": "geometry.radiousti.window_barricade.north",
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_burnt_planks",
+          "render_method": "opaque"
+        },
+        "detail": {
+          "texture": "radiousti_wood",
+          "render_method": "opaque"
+        }
+      },
+      "minecraft:display_name": "Okenní barikáda"
+    },
+    "permutations": [
+      {
+        "condition": "q.block_state('minecraft:block_face') == 'north'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.window_barricade.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              5.6
+            ],
+            "size": [
+              16,
+              16,
+              2.4
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              5.6
+            ],
+            "size": [
+              16,
+              16,
+              2.4
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:block_face') == 'south'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.window_barricade.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              2.4
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              2.4
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:block_face') == 'east'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.window_barricade.east",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              2.4,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              2.4,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:block_face') == 'west'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.window_barricade.west",
+          "minecraft:selection_box": {
+            "origin": [
+              5.6,
+              0,
+              -8
+            ],
+            "size": [
+              2.4,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              5.6,
+              0,
+              -8
+            ],
+            "size": [
+              2.4,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:block_face') == 'up'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.window_barricade.up",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              2.4,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              2.4,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:block_face') == 'down'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.window_barricade.down",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              13.6,
+              -8
+            ],
+            "size": [
+              16,
+              2.4,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              13.6,
+              -8
+            ],
+            "size": [
+              16,
+              2.4,
+              16
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

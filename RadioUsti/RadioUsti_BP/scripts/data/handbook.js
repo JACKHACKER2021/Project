@@ -116,6 +116,16 @@ export const HANDBOOK = [
       "Nastavení: /scriptevent radiousti:config environment off | rainradiation off | dayradiation off | spread off | smog 3",
   },
   {
+    title: "10d. Bezpečnost, kamery a Zéd nákaza",
+    text:
+      "ZEDI ROZBÍJEJÍ SKLA: Ozářený Zed a Radiakova zombie rozbijí nechráněné sklo vedle sebe (obyčejní zombie jen občas). Sklo je chráněné, když sousedí s Okenní barikádou, dřevěnou barikádou nebo Zabarikádovanými dveřmi. Okenní barikádu položte přímo na sklo.\n" +
+      "ZABARIKÁDOVANÉ DVEŘE odrážejí Zedy, kteří k nim přijdou. BEZPEČNOSTNÍ ROLETOVÉ DVEŘE se otevírají vysunutím nahoru. TLAČÍTKO OVLÁDÁNÍ DVEŘÍ otevře/zavře všechny bezpečnostní a zabarikádované dveře do 8 bloků.\n" +
+      "DEKONTAMINAČNÍ PLÁŠŤ: dveře z pásů – průchodem se dekontaminujete (−6 dávky každé 2 s) a zpomalí se Zéd nákaza.\n" +
+      "KAMERY: položte Bezpečnostní kameru na zeď, klepnutím ji pojmenujte. BEZPEČNOSTNÍ TABLET: seznam kamer, pohled z kamery, otevření/zavření dveří do 32 bloků. Plížení + tablet = konec sledování. Při zranění se kamera sama vypne.\n" +
+      "ZÉD NÁKAZA: kousnutí zombie může nakazit (Ozářený Zed 25 %, Radiakova zombie 40 %, ostatní 10 %). Fáze I nevolnost, II (po 3 min) slabost a zpomalení, III (po 6 min) zranění. Kdo zemře nakažený, povstane jako Zed. Léčba: Sérum s protilátkami Zed. Kompletní ochranný oblek chrání.\n" +
+      "RADIAKOVA ZOMBIE: oběť kousnutí Radiaka – svítí zeleně, vyzařuje radiaci do 4 bloků, kousnutí +15 dávky, 34 HP, útok 6.",
+  },
+  {
     title: "11. Světla, alarmy, dveře",
     text:
       "Světla zapínáte klepnutím. Výstražný maják se sám rozsvítí při poplachu reaktoru do 32 bloků, nouzové světlo při výpadku napájení do 16 bloků.\n" +

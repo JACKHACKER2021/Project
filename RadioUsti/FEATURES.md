@@ -55,6 +55,11 @@ Verze 1.0.0 byla podle autora otestovaná ve hře a funguje („Otestováno a co
 | G16 | Denní radiace, částečky radiace, šíření kontaminace | staticky ověřeno | – | |
 | G17 | Kompletní ochranný oblek = imunita | staticky ověřeno | – | |
 | B1b | Oprava napojení kabelů/potrubí (permutace místo Molang) | staticky ověřeno | – | nahlášeno autorem, ověřit ve hře |
+| G18 | Zedi rozbíjejí skla, okenní barikády je chrání | staticky ověřeno | – | |
+| G19 | Bezpečnostní roletové dveře, zabarikádované dveře, dekontaminační plášť | staticky ověřeno | – | |
+| G20 | Kamery + bezpečnostní tablet + tlačítko ovládání dveří | staticky ověřeno | – | `player.camera.setCamera("minecraft:free")` |
+| G21 | Zéd nákaza (3 fáze, sérum, povstání) | staticky ověřeno | – | |
+| G22 | Radiakova zombie | staticky ověřeno | – | |
 | F1 | Validace JSON, geometrií, skriptů, ID, textur | staticky ověřeno | – | `tools/validate.py`: 0 chyb; komunitní JSON schémata: 0 nálezů |
 | F2 | Export .mcaddon + .mcpack | staticky ověřeno | – | `tools/package.py`, kontrola integrity ZIP |
 | F3 | Test v Minecraftu Bedrock 1.26.50 | 1.0.0 načteno a hratelné | ✓ (1.0.0, obecně) | 1.1 čeká na test |
