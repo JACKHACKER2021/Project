@@ -541,6 +541,9 @@
     "radiousti_liquid_radioactive_sludge": {
       "textures": "textures/blocks/radiousti_liquid_radioactive_sludge"
     },
+    "radiousti_liquid_liverocrystal_gas": {
+      "textures": "textures/blocks/radiousti_liquid_liverocrystal_gas"
+    },
     "radiousti_velvet_red": {
       "textures": "textures/blocks/radiousti_velvet_red"
     },

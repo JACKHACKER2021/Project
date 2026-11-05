@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.6.0 – struktura reaktoru, Ozářený Zed, denní radiace (2026-11-05)
+**Přidáno**
+- Struktura `reaktor` (`/structure load reaktor`): kompletní funkční elektrárna, generovaná nástrojem `tools/structures.py` (vlastní zapisovač NBT, ověřený zpětným načtením).
+- Entita Ozářený Zed z RadioÚstí (vanilla zombie jako základ, spawnuje i ve dne, nehoří, zásah = radiace, vlastní loot a vejce).
+- Denní radiace pod otevřeným nebem, plovoucí částečky radiace (vlastní částice), šíření kontaminace jako sculk.
+- Kalhoty a boty ochranného obleku. Kompletní oblek dává imunitu.
+- Tekutý Liverocrystal. Kapitola „Hra na postavy v Pennov Theater“ v Registru experimentů.
+
+**Opraveno**
+- Napojování kabelů a potrubí: pevné permutace místo Molang v `bone_visibility` a přepočet při každém položení (`onPlace`).
+- Ikona realistického krumpáče.
+
+**Změněno**
+- Verze balíčků 1.5.0 → 1.6.0.
+
 ## 1.5.0 – efekt Radiace a oprava názvů (2026-11-05)
 **Přidáno**
 - Efekt Radiace I–IV (řízený skriptem): ukazatel na obrazovce, zelené částice, slabost a zpomalení, radiační zásahy (1 a 3 HP / 2 s).

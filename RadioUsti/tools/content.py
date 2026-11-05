@@ -722,6 +722,7 @@ LIQUIDS = [
     ("contaminated_oil", "Contaminated Oil", "Kontaminovaný olej", "#5f8f2a", 220, 3, "poison", 0),
     ("radioactive_oil", "Radioactive Oil", "Radioaktivní olej", "#7dff3a", 210, 8, "radiation", 2),
     ("radioactive_sludge", "Radioactive Sludge", "Radioaktivní kal", "#4f6b1f", 235, 5, "radiation", 3),
+    ("liverocrystal_gas", "Liquid Liverocrystal (Blue Gasoline)", "Tekutý Liverocrystal (Blue Gasoline)", "#2d8fd6", 200, 9, "liverocrystal", 0),
 ]
 for key, en, cs, col, al, lt, eff, rad in LIQUIDS:
     t = tex(f"liquid_{key}", lambda n, c=col, a=al: T.Tex(n, base=c, alpha=a).noise(10).speckle(["#ffffff"], 3))
@@ -819,3 +820,18 @@ for b in BLOCKS:
         b["model"] = ("ore", {"uranium_ore": 3, "deepslate_uranium_ore": 7, "liverocrystal_ore": 11}[b["id"]])
         b["tex"] = {"*": stone, "crystal": crystal}
         b["collision"] = "full"
+
+
+# ----------------------------------------------------------------- v1.6: full hazmat set, spreading contamination
+item("hazmat_pants", "Hazmat Trousers", "Kalhoty ochranného obleku", ic("hazmat_pants", "suit", "#c9aa2a"), cat="equipment", stack=1, kind="armor",
+     comps={"minecraft:wearable": {"slot": "slot.armor.legs", "protection": 2}, "minecraft:durability": {"max_durability": 300},
+            "minecraft:enchantable": {"value": 5, "slot": "armor_legs"}})
+item("hazmat_boots", "Hazmat Boots", "Boty ochranného obleku", ic("hazmat_boots", "bucket", "#2b2b2b"), cat="equipment", stack=1, kind="armor",
+     comps={"minecraft:wearable": {"slot": "slot.armor.feet", "protection": 1}, "minecraft:durability": {"max_durability": 300},
+            "minecraft:enchantable": {"value": 5, "slot": "armor_feet"}})
+for b in BLOCKS:
+    if b["id"] in ("contaminated_grass", "contaminated_dirt", "contaminated_stone"):
+        b["comps"] = list(b["comps"]) + [f"{NS}:contamination_spread"]
+        b["tick"] = (1200, 2400)
+    if b["id"] == "liverocrystal_gas_liquid":
+        b["meta"]["toxic"] = 2

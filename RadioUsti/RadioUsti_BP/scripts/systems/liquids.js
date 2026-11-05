@@ -114,7 +114,14 @@ export function liquidEffects(player) {
     if (!i || i.kind !== "liquid") continue;
     try {
       player.addEffect("slowness", 50, { amplifier: 1, showParticles: false });
-      if (i.effect && i.effect !== "slowness" && i.effect !== "radiation") {
+      if (i.effect === "liverocrystal") {
+        const masked = player.getComponent("minecraft:equippable")?.getEquipment("Head")?.typeId === `${NS}:gas_mask`;
+        if (!masked) {
+          player.addEffect("nausea", 160, { amplifier: 0, showParticles: false });
+          player.addEffect("poison", 60, { amplifier: 1, showParticles: false });
+          player.onScreenDisplay.setActionBar("§9Tekutý Liverocrystal ti prosakuje do těla!");
+        }
+      } else if (i.effect && i.effect !== "slowness" && i.effect !== "radiation") {
         player.addEffect(i.effect, 60, { amplifier: 0, showParticles: false });
       }
     } catch {

@@ -80,6 +80,15 @@ export const EXPERIMENTS = [
       "§lCrazy Cat§r – šílená kočičí bestie se záchvaty zuřivosti z tlaku plynů v Pennově.",
   },
   {
+    title: "VI-B. Hra na postavy v Pennov Theater",
+    text:
+      "Dokument PA-LIV-2076 • Liverocrystal Gas (Blue Gasoline)\n\n" +
+      "Při představeních v Pennov Theater podávala obsluha divákům – i dětem – modrou tekutinu Liverocrystalu. Slibovala, že si na jedno odpoledne vyzkoušejí „být někým jiným“: na chvíli se proměnit v divadelní postavy z jeviště.\n\n" +
+      "Během jednoho představení nádrž s Liverocrystal Gas explodovala. Proměna se už nikdy nevrátila: děti zůstaly navždy uvězněné v tělech divadelních postav, s modrým a fialovým palivem místo krve.\n\n" +
+      "Roger Smith incident uzavřel jako „nepodařenou sérii“. Nikdo jim nepomohl a nikdo je nehledal. Dodnes bloudí opuštěným divadlem a spodními patry Pennova.\n\n" +
+      "§7Varování ve hře: tekutý Liverocrystal a jeho výpary bez plynové masky způsobují otravu a nevolnost.§r",
+  },
+  {
     title: "VII. Absolutní mutanti",
     text:
       "§lSiren Jack§r – nukleární mutant se sirénou místo hlavy. Nesmí křičet, jinak by vibracemi zničil vlastní reproduktory.\n\n" +
@@ -123,7 +132,6 @@ export const EXPERIMENTS = [
     text:
       "Následující spisy jsou v tomto vydání registru §cUZAVŘENY§r a nejsou přístupné:\n\n" +
       "• Sektor CWT – profily hybridních subjektů (CWT-01 až CWT-03)\n" +
-      "• Liverocrystalci z Pennova\n" +
       "• Pennov Škola a Jídelna – selekční protokoly\n" +
       "• Subjekty 52, 55 a 56\n" +
       "• Spis Blandy & Rizzy\n" +

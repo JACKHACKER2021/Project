@@ -1,0 +1,2 @@
+Vanilla zombie behavior, client entity and textures from Mojang/bedrock-samples (2026-10-28, format 1.26.50).
+Used by tools/build.py as the base for radiousti:irradiated_zed.

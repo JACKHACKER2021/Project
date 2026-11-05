@@ -45,6 +45,12 @@ export const HANDBOOK = [
       "7) Vyrobte Uranovou palivovou tyč (stůl jaderného výzkumu) a vložte ji klepnutím do řídicího panelu.",
   },
   {
+    title: "5b. Hotová elektrárna: /structure load reaktor",
+    text:
+      "Operátor může napsat do chatu: /structure load reaktor ~ ~ ~\nNačte se celá funkční elektrárna 15×6×12 bloků: reaktor 3×3×3, chladicí okruh s ventilem, chladicí jednotkou, čerpadlem a vodou, jaderný generátor na vysokonapěťovém kabelu, Starý počítač napojený kabelem i síťovým kabelem k řídicímu panelu, odpadní potrubí s kontejnerem, tlačítko SCRAM, indikátor radiace, majáky, alarm a truhla s palivem, analyzátorem a kompletním ochranným oblekem.\n" +
+      "Postup: otevřete truhlu, vložte palivové tyče do řídicího panelu a stiskněte START.",
+  },
+  {
     title: "6. Provoz a odstavení reaktoru",
     text:
       "Řídicí panel: Start, SCRAM, Reset, vložení paliva, automatická ochrana.\n\n" +
@@ -102,7 +108,12 @@ export const HANDBOOK = [
       "Obloha nad RadioÚstí je trvale nazelenalá. Mlha se mění s časem: ve dne zelená, večer a za úsvitu načervenalá, v noci rudá. S grafikou Vibrant Visuals se barví i celé nebe.\n" +
       "SMOG: občas se nad krajem převalí hustý smog (2–5 minut) a dohlednost klesne na pár desítek bloků.\n" +
       "RADIOAKTIVNÍ DÉŠŤ: kdo stojí v dešti pod otevřeným nebem, dostává dávku radiace (maska a oblek ji snižují). Déšť pomalu zamořuje trávu kolem hráčů.\n" +
-      "Nastavení: /scriptevent radiousti:config environment off | rainradiation off | smog 3",
+      "DENNÍ RADIACE: pod otevřeným nebem radiace během dne stále roste – od úsvitu nulová, k západu slunce nejvyšší, v noci nic. Každým dalším dnem světa je silnější (až dvojnásobek po 40 dnech). Pod střechou jste v bezpečí.\n" +
+      "V ovzduší se vznášejí drobné zelené částečky radiace.\n" +
+      "KONTAMINACE se šíří jako sculk: kontaminovaná tráva, hlína a kámen postupně zamořují sousední bloky.\n" +
+      "OCHRANA: kompletní ochranný oblek (plynová maska, oblek, kalhoty, boty) = úplná imunita vůči radiaci z okolí i zásahům Zedů.\n" +
+      "OZÁŘENÝ ZED: nový zombie z RadioÚstí, objevuje se i ve dne, na slunci nehoří, každý jeho zásah ozáří (+8 dávky).\n" +
+      "Nastavení: /scriptevent radiousti:config environment off | rainradiation off | dayradiation off | spread off | smog 3",
   },
   {
     title: "11. Světla, alarmy, dveře",

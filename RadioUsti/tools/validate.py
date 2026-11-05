@@ -220,7 +220,17 @@ vp = os.path.join(ROOT, "tools", "vanilla_ids.json")
 if os.path.exists(vp):
     vanilla = json.load(open(vp, encoding="utf-8"))
 vitems = set(vanilla.get("items", []))
-known = block_ids | item_ids
+entity_ids = set()
+for p in walk(os.path.join(BP, "entities"), ".json"):
+    d = all_json.get(p)
+    if d:
+        entity_ids.add(d["minecraft:entity"]["description"]["identifier"])
+particle_ids = set()
+for p in walk(os.path.join(RP, "particles"), ".json"):
+    d = all_json.get(p)
+    if d:
+        particle_ids.add(d["particle_effect"]["description"]["identifier"])
+known = block_ids | item_ids | entity_ids | particle_ids
 VANILLA_TAGS = {"minecraft:planks", "minecraft:coals", "minecraft:logs", "minecraft:wool"}
 
 

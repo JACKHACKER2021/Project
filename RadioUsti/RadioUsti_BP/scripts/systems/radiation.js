@@ -7,7 +7,7 @@ import { NS, BLOCKS, ITEMS, blockAt, dist2, sound } from "../lib/util.js";
 import { Machines, Config, Logs } from "../lib/store.js";
 
 import { liquidEffects } from "./liquids.js";
-import { isRaining, underSky } from "./environment.js";
+import { isRaining, underSky, dayRadiation } from "./environment.js";
 
 export const TOXIC_BLOCKS = Object.entries(BLOCKS).filter(([, v]) => v.toxic).map(([k]) => k);
 
@@ -88,12 +88,27 @@ function inventoryRadiation(player) {
   return Math.min(r, 2);
 }
 
+export function fullHazmat(player) {
+  try {
+    const eq = player.getComponent("minecraft:equippable");
+    return eq?.getEquipment(EquipmentSlot.Head)?.typeId === `${NS}:gas_mask` &&
+      eq?.getEquipment(EquipmentSlot.Chest)?.typeId === `${NS}:hazmat_suit` &&
+      eq?.getEquipment(EquipmentSlot.Legs)?.typeId === `${NS}:hazmat_pants` &&
+      eq?.getEquipment(EquipmentSlot.Feet)?.typeId === `${NS}:hazmat_boots`;
+  } catch {
+    return false;
+  }
+}
+
 export function protectionOf(player) {
   let m = 1;
+  if (fullHazmat(player)) return 0; // complete hazmat set: immune to environmental radiation
   try {
     const eq = player.getComponent("minecraft:equippable");
     if (eq?.getEquipment(EquipmentSlot.Head)?.typeId === `${NS}:gas_mask`) m *= 0.7;
     if (eq?.getEquipment(EquipmentSlot.Chest)?.typeId === `${NS}:hazmat_suit`) m *= 0.5;
+    if (eq?.getEquipment(EquipmentSlot.Legs)?.typeId === `${NS}:hazmat_pants`) m *= 0.8;
+    if (eq?.getEquipment(EquipmentSlot.Feet)?.typeId === `${NS}:hazmat_boots`) m *= 0.9;
   } catch {
     /* no equipment component */
   }
@@ -128,9 +143,21 @@ export function radiationTick(players) {
     }
     const loc = { x: Math.floor(p.location.x), y: Math.floor(p.location.y), z: Math.floor(p.location.z) };
     const rain = cfg.rainRadiation !== false && isRaining() && p.dimension.id === "minecraft:overworld" && underSky(p) ? 0.6 : 0;
-    const rate = (radiationAt(p.dimension, loc, 4) + inventoryRadiation(p) + rain) * protectionOf(p) * cfg.radiationMultiplier;
+    const day = dayRadiation(p);
+    const rate = (radiationAt(p.dimension, loc, 4) + inventoryRadiation(p) + rain + day) * protectionOf(p) * cfg.radiationMultiplier;
     if (rain > 0 && rate > 0.05) p.onScreenDisplay.setActionBar(`§a☢ Radioaktivní déšť! §f${rate.toFixed(2)} mSv/s – schovej se pod střechu`);
     lastRate.set(p.id, rate);
+    // floating radiation motes: always a few outdoors in the overworld, more where radiation is high
+    if (p.dimension.id === "minecraft:overworld" && (day > 0 || rain > 0 || rate > 0.05)) {
+      const bursts = Math.min(4, 1 + Math.floor((rate + day * 4) * 2));
+      for (let i = 0; i < bursts; i++) {
+        try {
+          p.dimension.spawnParticle(`${NS}:radiation_mote`, { x: p.location.x, y: p.location.y + 1.5, z: p.location.z });
+        } catch {
+          /* particle not loaded */
+        }
+      }
+    }
     let dose = getDose(p);
     dose = rate > 0.05 ? dose + rate : dose - 0.15;
     setDose(p, dose);
@@ -199,6 +226,7 @@ export function mobRadiationTick(players) {
       seen.add(e.id);
       let rate = 0;
       if (raining && e.dimension.id === "minecraft:overworld" && underSky(e)) rate += 0.6;
+      rate += dayRadiation(e);
       const l = e.location;
       for (const dy of [-1, 0]) {
         const b = blockAt(e.dimension, { x: l.x, y: l.y + dy, z: l.z });
@@ -244,6 +272,21 @@ export function contaminateArea(dim, c, r, attempts, wasteBlocks) {
     }
   }
   return changed;
+}
+
+/** Contaminated terrain spreads like sculk: each tick it may convert one neighbouring grass/dirt/stone block. */
+export function contaminationSpreadTick(block) {
+  if (Config.get().contaminationSpread === false) return;
+  if (Math.random() > 0.35) return;
+  const p = { x: block.location.x + rnd(-1, 1), y: block.location.y + rnd(-1, 1), z: block.location.z + rnd(-1, 1) };
+  const b = blockAt(block.dimension, p);
+  const to = b && CONTAMINATE[b.typeId];
+  if (!to) return;
+  try {
+    b.setPermutation(BlockPermutation.resolve(to));
+  } catch {
+    /* ignore */
+  }
 }
 
 /** Radioactive waste block tick: slowly contaminates nearby terrain (radius 2). */

@@ -176,6 +176,15 @@
     "radiousti_radioactive_sludge_bucket": {
       "textures": "textures/items/radiousti_radioactive_sludge_bucket"
     },
+    "radiousti_liverocrystal_gas_bucket": {
+      "textures": "textures/items/radiousti_liverocrystal_gas_bucket"
+    },
+    "radiousti_hazmat_pants": {
+      "textures": "textures/items/radiousti_hazmat_pants"
+    },
+    "radiousti_hazmat_boots": {
+      "textures": "textures/items/radiousti_hazmat_boots"
+    },
     "radiousti_generator_standard_icon": {
       "textures": "textures/items/radiousti_generator_standard_icon"
     },

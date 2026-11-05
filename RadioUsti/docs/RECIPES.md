@@ -6,7 +6,7 @@ _Generováno nástrojem `tools/build.py` z `tools/recipes.py`._
 Laboratorní stanice (zpracování vzorků, palivové tyče…) jsou popsané v README v kapitole Laboratoř.
 
 
-## Pracovní stůl (76)
+## Pracovní stůl (78)
 
 - **Systémový analyzátor RadioÚstí** ×1: vzor ` R  / IPI / ICI` – `R` = redstone, `I` = iron_ingot, `P` = glass_pane, `C` = copper_ingot
 - **Příručka RadioÚstí** ×1: 1× book + 1× yellow_dye
@@ -84,8 +84,10 @@ Laboratorní stanice (zpracování vzorků, palivové tyče…) jsou popsané v 
 - **Kartotéka** ×1: vzor `III / PPP / III` – `I` = iron_ingot, `P` = paper
 - **Stará šatní skříňka** ×1: vzor `II / II / II` – `I` = iron_ingot
 - **Kontejner zdravotnického materiálu** ×1: vzor `IRI / ICI` – `I` = iron_ingot, `R` = red_dye, `C` = chest
+- **Kalhoty ochranného obleku** ×1: vzor `YYY / Y Y / Y Y` – `Y` = yellow_wool
+- **Boty ochranného obleku** ×1: vzor `L L / L L` – `L` = leather
 
-## Průmyslový ponk (82)
+## Průmyslový ponk (83)
 
 - **Vodovodní potrubí** ×6: 3× copper_ingot + 1× iron_ingot
 - **Tenké nástěnné vodovodní potrubí** ×8: 1× copper_ingot + 2× iron_nugget
@@ -169,6 +171,7 @@ Laboratorní stanice (zpracování vzorků, palivové tyče…) jsou popsané v 
 - **Kbelík – laboratorní olej** ×1: 1× bucket + 1× Kanystr – červený laboratorní olej
 - **Kbelík – kontaminovaný olej** ×1: 1× bucket + 1× Kanystr – zelený kontaminovaný olej
 - **Kbelík – radioaktivní olej** ×1: 1× bucket + 1× Kanystr – radioaktivní olej
+- **Kbelík – tekutý liverocrystal (blue gasoline)** ×1: 1× bucket + 1× Kanystr Liverocrystal Gas
 
 ## Laboratorní stůl (32)
 

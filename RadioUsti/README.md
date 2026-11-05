@@ -177,6 +177,18 @@ název, ID, typ, stav, napájení, propojení potrubí a kabelů včetně směr�
 * **Nemocniční lůžko** a **operační stůl** jsou dva bloky dlouhé. Klepnutím na lůžko si nastavíš bod oživení. **Otočná kancelářská židle** se po klepnutí otočí o 90°.
 * **Plakáty, oznámení, papíry, hromada dokumentů a fotografie** si přečteš klepnutím. **Nástěnné hodiny** ukážou herní čas.
 
+## Novinky 1.6
+* **Hotová elektrárna:** operátor napíše `/structure load reaktor ~ ~ ~` a načte se celá funkční elektrárna 15×6×12 bloků. Obsahuje reaktor 3×3×3 s porty a panelem, chladicí okruh (potrubí, ventil, chladicí jednotku, čerpadlo, vodu), jaderný generátor na vysokonapěťovém kabelu, Starý počítač napájený kabelem a se síťovým kabelem k panelu, odpad do kontejneru, SCRAM tlačítko, indikátor, majáky, alarm a truhlu s 4 palivovými tyčemi, analyzátorem, příručkou, Registrem experimentů a kompletním ochranným oblekem.
+* **Napojování kabelů a potrubí opraveno:** tvar spojů už není řízený výrazy Molang v modelu. Každá kombinace napojení má vlastní pevnou permutaci (64, u ventilů 128). Napojení se přepočítá i při `/setblock`, `/fill` a načtení struktury.
+* **Denní radiace:** pod otevřeným nebem radiace během dne stále roste. Při východu slunce je nulová, k západu slunce dosáhne až 0,12 mSv/s a v noci je nulová. S každým dnem světa sílí, po 40 dnech až na dvojnásobek. Pod střechou jsi v bezpečí. Vypnutí: `… dayradiation off`.
+* **Částečky radiace:** venku se ve vzduchu vznášejí drobné svítící zelené částečky. Čím víc radiace, tím jich je víc.
+* **Kontaminace se šíří jako sculk:** kontaminovaná tráva, hlína a kámen zhruba jednou za 1–2 minuty zamoří sousední blok. Vypnutí: `… spread off`.
+* **Kompletní ochranný oblek** = plynová maska + oblek + **kalhoty** + **boty** (nové). Dává úplnou imunitu vůči radiaci z okolí i zásahům Zedů. Jednotlivé kusy radiaci jen snižují.
+* **Ozářený Zed z RadioÚstí** (`radiousti:irradiated_zed`): nový zombie postavený na vanilla zombiem. Objevuje se na povrchu i v podzemí **i ve dne** a na slunci nehoří. Má 26 HP a útok 4 a každý jeho zásah tě ozáří (+8 dávky). Upouští infikované maso, láhev krve a vzácně surový uran. Má vlastní vejce na vyvolání a toxicky zelenou kůži s roztrhaným ochranným oblekem.
+* **Tekutý Liverocrystal (Blue Gasoline):** modrá svítící tekutina s kbelíkem. Bez plynové masky otráví.
+* **Nová ikona realistického krumpáče.**
+* **Registr experimentů:** nová kapitola o Hře na postavy v Pennov Theater.
+
 ## Prostředí a nové lokace (1.4)
 **Obloha a počasí**
 * Obloha je ve všech biomech overworldu trvale **nazelenalá**. Na vanilla biomy se přidá jen barva oblohy a atmosféra RadioÚstí, hudba, zvuky a barva vody zůstávají.

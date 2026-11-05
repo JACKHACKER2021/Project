@@ -48,25 +48,29 @@
       "tag:metal": {},
       "tag:radiousti:industrial": {},
       "radiousti:valve": {},
+      "radiousti:conduit": {},
       "minecraft:geometry": {
         "identifier": "geometry.radiousti.molten_valve",
         "bone_visibility": {
-          "n": "q.block_state('radiousti:n')",
-          "fl_n": "q.block_state('radiousti:n')",
-          "s": "q.block_state('radiousti:s')",
-          "fl_s": "q.block_state('radiousti:s')",
-          "e": "q.block_state('radiousti:e')",
-          "fl_e": "q.block_state('radiousti:e')",
-          "w": "q.block_state('radiousti:w')",
-          "fl_w": "q.block_state('radiousti:w')",
-          "u": "q.block_state('radiousti:u')",
-          "fl_u": "q.block_state('radiousti:u')",
-          "d": "q.block_state('radiousti:d')",
-          "fl_d": "q.block_state('radiousti:d')",
-          "wheel_open": "q.block_state('radiousti:open')",
-          "wheel_closed": "!q.block_state('radiousti:open')",
-          "lamp_open": "q.block_state('radiousti:open')",
-          "lamp_closed": "!q.block_state('radiousti:open')"
+          "core": true,
+          "n": false,
+          "s": false,
+          "w": false,
+          "e": false,
+          "d": false,
+          "u": false,
+          "fl_n": false,
+          "fl_s": false,
+          "fl_w": false,
+          "fl_e": false,
+          "fl_d": false,
+          "fl_u": false,
+          "body": true,
+          "stem": true,
+          "wheel_open": true,
+          "wheel_closed": false,
+          "lamp_open": true,
+          "lamp_closed": false
         }
       },
       "minecraft:collision_box": {
@@ -117,6 +121,3336 @@
         }
       },
       "minecraft:display_name": "Ventil roztaveného materiálu"
-    }
+    },
+    "permutations": [
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": false,
+              "fl_d": false,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": false,
+              "fl_u": false,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": false,
+              "fl_w": false,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": false,
+              "fl_e": false,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": false,
+              "fl_s": false,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": false,
+              "fl_n": false,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": true,
+              "wheel_closed": false,
+              "lamp_open": true,
+              "lamp_closed": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.molten_valve",
+            "bone_visibility": {
+              "n": true,
+              "fl_n": true,
+              "s": true,
+              "fl_s": true,
+              "e": true,
+              "fl_e": true,
+              "w": true,
+              "fl_w": true,
+              "u": true,
+              "fl_u": true,
+              "d": true,
+              "fl_d": true,
+              "wheel_open": false,
+              "wheel_closed": true,
+              "lamp_open": false,
+              "lamp_closed": true
+            }
+          }
+        }
+      }
+    ]
   }
 }

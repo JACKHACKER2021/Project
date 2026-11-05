@@ -469,10 +469,27 @@ def _item(name, kind, color="#888888"):
     elif kind == "rod":
         t.rect(7, 1, 2, 14, "#7c848a"); t.rect(6, 3, 4, 10, color); t.rect(6, 1, 4, 1, "#3c4246"); t.rect(6, 14, 4, 1, "#3c4246")
     elif kind == "pickaxe":
-        for i in range(10):
-            t.px(4 + i, 13 - i, "#5e4528"); t.px(5 + i, 13 - i, "#8a6a43")
-        t.rect(2, 2, 6, 2, color); t.rect(8, 3, 4, 2, color); t.rect(11, 5, 2, 5, color); t.rect(1, 4, 2, 2, color)
-        t.px(12, 10, "#c0c7cc")
+        art = ["................",
+               "....mMMMMMMm....",
+               "..mMMHHHHHHMMm..",
+               ".mMHm..CC..mHMm.",
+               ".MHm...Cw...mHM.",
+               ".Mm....Ww....mM.",
+               ".m.....Ww.....m.",
+               "......Ww........",
+               "......Ww........",
+               ".....Ww.........",
+               ".....Ww.........",
+               "....Ww..........",
+               "....Ww..........",
+               "...Ww...........",
+               "...ww...........",
+               "................"]
+        pal = {"M": color, "m": "#5b6267", "H": "#d9e0e4", "C": "#b87333", "W": "#9a7448", "w": "#5e4528"}
+        for y, row in enumerate(art):
+            for x, ch in enumerate(row):
+                if ch in pal:
+                    t.px(x, y, pal[ch])
     elif kind == "scanner":
         t.rect(4, 2, 8, 12, "#e0a800"); t.rect(5, 3, 6, 5, "#1c2a22"); t.rect(6, 4, 4, 1, "#5ee08a")
         t.rect(6, 6, 3, 1, "#5ee08a"); t.rect(5, 9, 2, 2, "#b3170f"); t.rect(9, 9, 2, 2, "#3c4246")
@@ -544,6 +561,10 @@ def armor_layer(name, kind):
         r(0, 8, 32, 8, "#3c4246")
         r(8, 0, 16, 8, "#3c4246")
         r(9, 10, 2, 2, "#9fc4c9"); r(13, 10, 2, 2, "#9fc4c9"); r(10, 13, 4, 3, "#5e6f55")
+    elif kind == "pants":
+        r(0, 16, 16, 16, "#c9aa2a"); r(16, 16, 24, 16, "#c9aa2a")   # legs (+ waist)
+    elif kind == "boots":
+        r(0, 16, 16, 16, "#2b2b2b")
     else:
         r(16, 16, 24, 16, "#d4b62a")   # body
         r(40, 16, 16, 16, "#d4b62a")   # arms

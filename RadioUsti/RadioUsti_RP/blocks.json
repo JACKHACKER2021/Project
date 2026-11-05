@@ -508,6 +508,9 @@
   "radiousti:radioactive_sludge_liquid": {
     "sound": "slime"
   },
+  "radiousti:liverocrystal_gas_liquid": {
+    "sound": "slime"
+  },
   "radiousti:theater_seat": {
     "sound": "cloth"
   },

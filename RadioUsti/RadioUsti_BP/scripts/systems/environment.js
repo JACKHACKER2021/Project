@@ -66,6 +66,20 @@ export function underSky(entity) {
   }
 }
 
+/**
+ * Daytime radiation under the open sky: rises from 0 at sunrise to its peak at sunset,
+ * and grows with every in-game day (x1 on day 0 up to x2 from day 40).
+ */
+export function dayRadiation(entity) {
+  const cfg = Config.get();
+  if (cfg.dayRadiation === false || entity.dimension.id !== "minecraft:overworld") return 0;
+  const t = world.getTimeOfDay();
+  if (t >= 12000) return 0;
+  if (!underSky(entity)) return 0;
+  const days = Math.floor(world.getAbsoluteTime() / 24000);
+  return 0.12 * (t / 12000) * (1 + Math.min(days, 40) * 0.025);
+}
+
 function rainContamination(player) {
   if (Math.random() > 0.1) return;
   const x = Math.floor(player.location.x + (Math.random() * 40 - 20));

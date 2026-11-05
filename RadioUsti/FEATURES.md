@@ -50,6 +50,11 @@ Verze 1.0.0 byla podle autora otestovaná ve hře a funguje („Otestováno a co
 | G11 | Oprava názvů (`item.…` místo jména) | staticky ověřeno | – | nahlášeno autorem, ověřit ve hře |
 | G12 | Efekt Radiace I–IV (hráči), radiační zásahy | staticky ověřeno | – | skriptový efekt, Bedrock nepovoluje vlastní efekty |
 | G13 | Radiace u zvířat a tvorů (déšť, zamořená země, tekutiny) | staticky ověřeno | – | |
+| G14 | Struktura `reaktor` – kompletní elektrárna | staticky ověřeno | – | NBT ověřeno zpětným načtením |
+| G15 | Ozářený Zed (spawn i ve dne, radiační zásah) | staticky ověřeno | – | založeno na vanilla zombie 1.26.50 |
+| G16 | Denní radiace, částečky radiace, šíření kontaminace | staticky ověřeno | – | |
+| G17 | Kompletní ochranný oblek = imunita | staticky ověřeno | – | |
+| B1b | Oprava napojení kabelů/potrubí (permutace místo Molang) | staticky ověřeno | – | nahlášeno autorem, ověřit ve hře |
 | F1 | Validace JSON, geometrií, skriptů, ID, textur | staticky ověřeno | – | `tools/validate.py`: 0 chyb; komunitní JSON schémata: 0 nálezů |
 | F2 | Export .mcaddon + .mcpack | staticky ověřeno | – | `tools/package.py`, kontrola integrity ZIP |
 | F3 | Test v Minecraftu Bedrock 1.26.50 | 1.0.0 načteno a hratelné | ✓ (1.0.0, obecně) | 1.1 čeká na test |

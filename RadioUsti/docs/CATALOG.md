@@ -191,7 +191,7 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Shluk Liverocrystalu | Liverocrystal Cluster | `radiousti:liverocrystal_cluster` | toxický materiál |
 | Modré krystalické usazeniny | Blue Crystal Residue | `radiousti:blue_crystal_residue` | dekorace |
 
-## Bloky – Pokládané laboratorní sklo a multibloky (pokládají se předmětem) (30)
+## Bloky – Pokládané laboratorní sklo a multibloky (pokládají se předmětem) (31)
 
 | Název | English | ID | Typ |
 |---|---|---|---|
@@ -225,8 +225,9 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Kontaminovaný olej | Contaminated Oil | `radiousti:contaminated_oil_liquid` | tekutina |
 | Radioaktivní olej | Radioactive Oil | `radiousti:radioactive_oil_liquid` | tekutina |
 | Radioaktivní kal | Radioactive Sludge | `radiousti:radioactive_sludge_liquid` | tekutina |
+| Tekutý Liverocrystal (Blue Gasoline) | Liquid Liverocrystal (Blue Gasoline) | `radiousti:liverocrystal_gas_liquid` | tekutina |
 
-## Předměty (58)
+## Předměty (61)
 
 | Název | English | ID | Popis |
 |---|---|---|---|
@@ -288,3 +289,6 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Kbelík – kontaminovaný olej | Bucket of Contaminated Oil | `radiousti:contaminated_oil_bucket` |  |
 | Kbelík – radioaktivní olej | Bucket of Radioactive Oil | `radiousti:radioactive_oil_bucket` |  |
 | Kbelík – radioaktivní kal | Bucket of Radioactive Sludge | `radiousti:radioactive_sludge_bucket` |  |
+| Kbelík – tekutý liverocrystal (blue gasoline) | Bucket of Liquid Liverocrystal (Blue Gasoline) | `radiousti:liverocrystal_gas_bucket` |  |
+| Kalhoty ochranného obleku | Hazmat Trousers | `radiousti:hazmat_pants` |  |
+| Boty ochranného obleku | Hazmat Boots | `radiousti:hazmat_boots` |  |

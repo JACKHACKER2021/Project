@@ -17,6 +17,14 @@
       "minecraft:map_color": "#6f7468",
       "tag:stone": {},
       "tag:minecraft:is_pickaxe_item_destructible": {},
+      "radiousti:contamination_spread": {},
+      "minecraft:tick": {
+        "interval_range": [
+          1200,
+          2400
+        ],
+        "looping": true
+      },
       "minecraft:geometry": "minecraft:geometry.full_block",
       "minecraft:material_instances": {
         "*": {

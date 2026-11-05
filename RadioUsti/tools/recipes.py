@@ -224,6 +224,9 @@ shaped("biogenic_serum_vat", ["MGM", "GSG", "MGM"], {"M": "liverocrystal_metal_i
 shapeless("blood_bucket", [M + "bucket", "blood_jar"], 1, LT)
 for key in ("industrial", "black", "hydraulic", "lab", "contaminated", "radioactive"):
     shapeless(f"{key}_oil_bucket" if key != "black" else "black_oil_bucket", [M + "bucket", f"canister_{key}_oil"], 1, IW)
+shaped("hazmat_pants", ["YYY", "Y Y", "Y Y"], {"Y": M + "yellow_wool"})
+shaped("hazmat_boots", ["L L", "L L"], {"L": M + "leather"})
+shapeless("liverocrystal_gas_bucket", [M + "bucket", "liverocrystal_gas_canister"], 1, IW)
 furnace("raw_uranium", "uranium_ingot")
 furnace("infected_flesh", "meat_piece")
 

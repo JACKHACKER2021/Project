@@ -1370,6 +1370,15 @@ export const REGISTRY = {
    "bucket": "radiousti:radioactive_sludge_bucket",
    "rad": 3
   },
+  "radiousti:liverocrystal_gas_liquid": {
+   "kind": "liquid",
+   "en": "Liquid Liverocrystal (Blue Gasoline)",
+   "cs": "Tekutý Liverocrystal (Blue Gasoline)",
+   "liquid": "liverocrystal_gas",
+   "effect": "liverocrystal",
+   "bucket": "radiousti:liverocrystal_gas_bucket",
+   "toxic": 2
+  },
   "radiousti:theater_seat": {
    "kind": "decor",
    "en": "Theater Seat",
@@ -1854,6 +1863,22 @@ export const REGISTRY = {
    "en": "Bucket of Radioactive Sludge",
    "cs": "Kbelík – radioaktivní kal",
    "liquid": "radiousti:radioactive_sludge_liquid"
+  },
+  "radiousti:liverocrystal_gas_bucket": {
+   "kind": "liquid_bucket",
+   "en": "Bucket of Liquid Liverocrystal (Blue Gasoline)",
+   "cs": "Kbelík – tekutý liverocrystal (blue gasoline)",
+   "liquid": "radiousti:liverocrystal_gas_liquid"
+  },
+  "radiousti:hazmat_pants": {
+   "kind": "armor",
+   "en": "Hazmat Trousers",
+   "cs": "Kalhoty ochranného obleku"
+  },
+  "radiousti:hazmat_boots": {
+   "kind": "armor",
+   "en": "Hazmat Boots",
+   "cs": "Boty ochranného obleku"
   }
  }
 };

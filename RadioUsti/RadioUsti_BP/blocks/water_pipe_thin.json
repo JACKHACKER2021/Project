@@ -47,17 +47,19 @@
       "minecraft:map_color": "#6b8099",
       "tag:metal": {},
       "tag:radiousti:industrial": {},
+      "radiousti:conduit": {},
       "minecraft:geometry": {
         "identifier": "geometry.radiousti.water_pipe_thin",
         "bone_visibility": {
-          "n": "q.block_state('radiousti:n')",
-          "s": "q.block_state('radiousti:s')",
-          "e": "q.block_state('radiousti:e')",
-          "w": "q.block_state('radiousti:w')",
-          "u": "q.block_state('radiousti:u')",
-          "d": "q.block_state('radiousti:d')",
-          "joint": "q.block_state('radiousti:joint')",
-          "bracket": "!q.block_state('radiousti:d')"
+          "core": true,
+          "n": false,
+          "s": false,
+          "w": false,
+          "e": false,
+          "d": false,
+          "u": false,
+          "joint": false,
+          "bracket": false
         }
       },
       "minecraft:collision_box": {
@@ -96,6 +98,1160 @@
         }
       },
       "minecraft:display_name": "Tenké nástěnné vodovodní potrubí"
-    }
+    },
+    "permutations": [
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": false,
+              "e": false,
+              "w": false,
+              "u": false,
+              "d": false,
+              "joint": false,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": false,
+              "e": false,
+              "w": false,
+              "u": false,
+              "d": false,
+              "joint": false,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": true,
+              "e": false,
+              "w": false,
+              "u": false,
+              "d": false,
+              "joint": false,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": true,
+              "e": false,
+              "w": false,
+              "u": false,
+              "d": false,
+              "joint": false,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": false,
+              "e": true,
+              "w": false,
+              "u": false,
+              "d": false,
+              "joint": false,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": false,
+              "e": true,
+              "w": false,
+              "u": false,
+              "d": false,
+              "joint": true,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": true,
+              "e": true,
+              "w": false,
+              "u": false,
+              "d": false,
+              "joint": true,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": true,
+              "e": true,
+              "w": false,
+              "u": false,
+              "d": false,
+              "joint": true,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": false,
+              "e": false,
+              "w": true,
+              "u": false,
+              "d": false,
+              "joint": false,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": false,
+              "e": false,
+              "w": true,
+              "u": false,
+              "d": false,
+              "joint": true,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": true,
+              "e": false,
+              "w": true,
+              "u": false,
+              "d": false,
+              "joint": true,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": true,
+              "e": false,
+              "w": true,
+              "u": false,
+              "d": false,
+              "joint": true,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": false,
+              "e": true,
+              "w": true,
+              "u": false,
+              "d": false,
+              "joint": false,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": false,
+              "e": true,
+              "w": true,
+              "u": false,
+              "d": false,
+              "joint": true,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": true,
+              "e": true,
+              "w": true,
+              "u": false,
+              "d": false,
+              "joint": true,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": true,
+              "e": true,
+              "w": true,
+              "u": false,
+              "d": false,
+              "joint": true,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": false,
+              "e": false,
+              "w": false,
+              "u": true,
+              "d": false,
+              "joint": false,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": false,
+              "e": false,
+              "w": false,
+              "u": true,
+              "d": false,
+              "joint": true,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": true,
+              "e": false,
+              "w": false,
+              "u": true,
+              "d": false,
+              "joint": true,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": true,
+              "e": false,
+              "w": false,
+              "u": true,
+              "d": false,
+              "joint": true,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": false,
+              "e": true,
+              "w": false,
+              "u": true,
+              "d": false,
+              "joint": true,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": false,
+              "e": true,
+              "w": false,
+              "u": true,
+              "d": false,
+              "joint": true,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": true,
+              "e": true,
+              "w": false,
+              "u": true,
+              "d": false,
+              "joint": true,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": true,
+              "e": true,
+              "w": false,
+              "u": true,
+              "d": false,
+              "joint": true,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": false,
+              "e": false,
+              "w": true,
+              "u": true,
+              "d": false,
+              "joint": true,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": false,
+              "e": false,
+              "w": true,
+              "u": true,
+              "d": false,
+              "joint": true,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": true,
+              "e": false,
+              "w": true,
+              "u": true,
+              "d": false,
+              "joint": true,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": true,
+              "e": false,
+              "w": true,
+              "u": true,
+              "d": false,
+              "joint": true,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": false,
+              "e": true,
+              "w": true,
+              "u": true,
+              "d": false,
+              "joint": true,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": false,
+              "e": true,
+              "w": true,
+              "u": true,
+              "d": false,
+              "joint": true,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": true,
+              "e": true,
+              "w": true,
+              "u": true,
+              "d": false,
+              "joint": true,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == false",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": true,
+              "e": true,
+              "w": true,
+              "u": true,
+              "d": false,
+              "joint": true,
+              "bracket": true
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": false,
+              "e": false,
+              "w": false,
+              "u": false,
+              "d": true,
+              "joint": false,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": false,
+              "e": false,
+              "w": false,
+              "u": false,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": true,
+              "e": false,
+              "w": false,
+              "u": false,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": true,
+              "e": false,
+              "w": false,
+              "u": false,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": false,
+              "e": true,
+              "w": false,
+              "u": false,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": false,
+              "e": true,
+              "w": false,
+              "u": false,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": true,
+              "e": true,
+              "w": false,
+              "u": false,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": true,
+              "e": true,
+              "w": false,
+              "u": false,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": false,
+              "e": false,
+              "w": true,
+              "u": false,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": false,
+              "e": false,
+              "w": true,
+              "u": false,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": true,
+              "e": false,
+              "w": true,
+              "u": false,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": true,
+              "e": false,
+              "w": true,
+              "u": false,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": false,
+              "e": true,
+              "w": true,
+              "u": false,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": false,
+              "e": true,
+              "w": true,
+              "u": false,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": true,
+              "e": true,
+              "w": true,
+              "u": false,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == false && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": true,
+              "e": true,
+              "w": true,
+              "u": false,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": false,
+              "e": false,
+              "w": false,
+              "u": true,
+              "d": true,
+              "joint": false,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": false,
+              "e": false,
+              "w": false,
+              "u": true,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": true,
+              "e": false,
+              "w": false,
+              "u": true,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": true,
+              "e": false,
+              "w": false,
+              "u": true,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": false,
+              "e": true,
+              "w": false,
+              "u": true,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": false,
+              "e": true,
+              "w": false,
+              "u": true,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": true,
+              "e": true,
+              "w": false,
+              "u": true,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == false && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": true,
+              "e": true,
+              "w": false,
+              "u": true,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": false,
+              "e": false,
+              "w": true,
+              "u": true,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": false,
+              "e": false,
+              "w": true,
+              "u": true,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": true,
+              "e": false,
+              "w": true,
+              "u": true,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == false && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": true,
+              "e": false,
+              "w": true,
+              "u": true,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": false,
+              "e": true,
+              "w": true,
+              "u": true,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == false && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": false,
+              "e": true,
+              "w": true,
+              "u": true,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == false && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": false,
+              "s": true,
+              "e": true,
+              "w": true,
+              "u": true,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:n') == true && q.block_state('radiousti:s') == true && q.block_state('radiousti:e') == true && q.block_state('radiousti:w') == true && q.block_state('radiousti:u') == true && q.block_state('radiousti:d') == true",
+        "components": {
+          "minecraft:geometry": {
+            "identifier": "geometry.radiousti.water_pipe_thin",
+            "bone_visibility": {
+              "n": true,
+              "s": true,
+              "e": true,
+              "w": true,
+              "u": true,
+              "d": true,
+              "joint": true,
+              "bracket": false
+            }
+          }
+        }
+      }
+    ]
   }
 }

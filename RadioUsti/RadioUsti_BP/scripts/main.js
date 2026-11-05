@@ -10,7 +10,7 @@ import { buildMultiblock, breakMultiblock, buildDoor, breakDoor, toggleDoor, ori
 import { startNetworkLoop, ensureMachine, findCoreNear } from "./systems/network.js";
 import "./systems/reactor.js";
 import { startSmog } from "./systems/environment.js";
-import { radiationTick, mobRadiationTick, wasteSpreadTick, decontaminate, getDose, setDose } from "./systems/radiation.js";
+import { radiationTick, mobRadiationTick, wasteSpreadTick, contaminationSpreadTick, decontaminate, getDose, setDose, fullHazmat } from "./systems/radiation.js";
 import { toggleLight, interactAlarm, pressScram } from "./systems/devices.js";
 import { openStation } from "./systems/lab.js";
 import { liquidTick, pourBucket, fillBucket, isLiquid } from "./systems/liquids.js";
@@ -148,7 +148,9 @@ system.beforeEvents.startup.subscribe((ev) => {
   reg("shower", { onTick: particles("minecraft:water_splash_particle", 0.6, (b) => stateOf(b, `${NS}:lit`, false)) });
   reg("steam_vent", { onTick: particles("minecraft:campfire_smoke_particle", 0.7) });
   reg("brazier", { onTick: particles("minecraft:basic_flame_particle", 0.85) });
+  reg("conduit", { onPlace: safe("conduit", (e) => later(() => updateAround(e.dimension, e.block.location), 1)) });
   reg("liquid", { onTick: safe("liquid", (e) => liquidTick(e.block)) });
+  reg("contamination_spread", { onTick: safe("spread", (e) => contaminationSpreadTick(e.block)) });
   reg("waste_spread", { onTick: safe("waste", (e) => wasteSpreadTick(e.block)) });
   const hurt = (dmg, slow) => safe("hazard", (e) => {
     const ent = e.entity;
@@ -279,6 +281,15 @@ world.afterEvents.itemCompleteUse.subscribe(safe("consume", (ev) => {
   }
 }));
 
+// Irradiated Zed hits irradiate players (a full hazmat set blocks it)
+world.afterEvents.entityHitEntity.subscribe(safe("zedHit", (ev) => {
+  if (ev.damagingEntity?.typeId !== `${NS}:irradiated_zed`) return;
+  const p = ev.hitEntity;
+  if (p?.typeId !== "minecraft:player" || fullHazmat(p)) return;
+  setDose(p, getDose(p) + 8);
+  p.onScreenDisplay.setActionBar(`§a☢ Zásah ozářeného Zeda! Dávka ${getDose(p).toFixed(0)}`);
+}));
+
 world.afterEvents.entityDie.subscribe(safe("zedDrops", (ev) => {
   const e = ev.deadEntity;
   if (!ZOMBIES.has(e.typeId) || !Config.get().zedDrops) return;
@@ -302,6 +313,8 @@ system.afterEvents.scriptEventReceive.subscribe(safe("scriptevent", (ev) => {
     else if (k === "environment") c = Config.set({ environment: on });
     else if (k === "rainradiation") c = Config.set({ rainRadiation: on });
     else if (k === "mobradiation") c = Config.set({ mobRadiation: on });
+    else if (k === "dayradiation") c = Config.set({ dayRadiation: on });
+    else if (k === "spread") c = Config.set({ contaminationSpread: on });
     else if (k === "smog") {
       startSmog(Number(v) || 3);
       c = Config.get();

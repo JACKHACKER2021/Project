@@ -22,6 +22,7 @@ import content as CT  # noqa: E402
 import textures as T  # noqa: E402
 import recipes as R  # noqa: E402
 import sounds as SND  # noqa: E402
+import structures as STR  # noqa: E402
 
 ROOT = os.path.dirname(HERE)
 BP = os.path.join(ROOT, "RadioUsti_BP")
@@ -189,22 +190,35 @@ def emit_block(b, geo_files, blocks_json, lang, registry):
         else:
             r = model[1]
             bones = G.valve_model(r)
-        vis = {}
-        for s in ("n", "s", "e", "w", "u", "d"):
-            vis[s] = f"q.block_state('{NS}:{s}')"
-            if any(bb["name"] == f"fl_{s}" for bb in bones):
-                vis[f"fl_{s}"] = f"q.block_state('{NS}:{s}')"
-        if any(bb["name"] == "joint" for bb in bones):
-            vis["joint"] = f"q.block_state('{NS}:joint')"
-        if model[0] == "valve":
-            vis["wheel_open"] = f"q.block_state('{NS}:open')"
-            vis["wheel_closed"] = f"!q.block_state('{NS}:open')"
-            vis["lamp_open"] = f"q.block_state('{NS}:open')"
-            vis["lamp_closed"] = f"!q.block_state('{NS}:open')"
-        if any(bb["name"] == "bracket" for bb in bones):
-            vis["bracket"] = f"!q.block_state('{NS}:d')"
+        # Explicit permutations (no Molang in bone_visibility): one per connection combination.
+        names = {bb["name"] for bb in bones}
+        sides = ("n", "s", "e", "w", "u", "d")
+        opp = {"n": "s", "s": "n", "e": "w", "w": "e", "u": "d", "d": "u"}
+        valve = model[0] == "valve"
+        for mask in range(64):
+            on = {k: bool(mask >> i & 1) for i, k in enumerate(sides)}
+            act = [k for k in sides if on[k]]
+            straight = len(act) == 2 and opp[act[0]] == act[1]
+            for op in ((True, False) if valve else (None,)):
+                vis = {}
+                for k in sides:
+                    vis[k] = on[k]
+                    if f"fl_{k}" in names:
+                        vis[f"fl_{k}"] = on[k]
+                if "joint" in names:
+                    vis["joint"] = len(act) >= 3 or (len(act) == 2 and not straight)
+                if "bracket" in names:
+                    vis["bracket"] = not on["d"]
+                if valve:
+                    vis.update({"wheel_open": op, "wheel_closed": not op, "lamp_open": op, "lamp_closed": not op})
+                cond = " && ".join(q(f"{NS}:{k}", on[k]) for k in sides)
+                if valve:
+                    cond += " && " + q(f"{NS}:open", op)
+                perms.append({"condition": cond, "components": {"minecraft:geometry": {"identifier": gbase, "bone_visibility": vis}}})
+        base_vis = {bb["name"]: bb["name"] in ("core", "body", "stem", "wheel_open", "lamp_open") for bb in bones}
+        comps[f"{NS}:conduit"] = {}
         geo_files[b["id"]] = [G.geometry_entry(gbase, bones)]
-        comps["minecraft:geometry"] = {"identifier": gbase, "bone_visibility": vis}
+        comps["minecraft:geometry"] = {"identifier": gbase, "bone_visibility": base_vis}
         rr = max(r, 2)
         core = {"origin": [-rr, 8 - rr, -rr], "size": [2 * rr, 2 * rr, 2 * rr]}
         comps["minecraft:collision_box"] = core
@@ -496,10 +510,138 @@ def emit_environment():
     return n
 
 
+ZED = f"{NS}:irradiated_zed"
+
+
+def zed_texture(src, dst):
+    """Recolour the vanilla zombie skin into a radioactive RadioÚstí Zed (toxic skin, worn hazmat suit, glowing eyes)."""
+    import numpy as np
+    from PIL import Image
+    im = np.array(Image.open(src).convert("RGBA")).astype(int)
+    rng = np.random.default_rng(72)
+    h, w = im.shape[:2]
+    for y in range(h):
+        for x in range(w):
+            r, g, b, a = im[y, x]
+            if a == 0:
+                continue
+            lum = (r + g + b) / 3
+            if g > r + 8 and g > b:          # skin
+                tone = 0.6 + lum / 255 * 0.7
+                c = [int(110 * tone), int(150 * tone), int(52 * tone)]
+                if rng.random() < 0.08:
+                    c = [190, 255, 90]       # radioactive blisters
+            elif b > r and b >= g:            # shirt -> worn hazmat yellow
+                tone = 0.55 + lum / 255 * 0.8
+                c = [int(175 * tone), int(150 * tone), int(40 * tone)]
+                if rng.random() < 0.05:
+                    c = [80, 60, 30]
+            else:                             # trousers and rest -> dark grey-green
+                tone = 0.5 + lum / 255 * 0.8
+                c = [int(55 * tone), int(68 * tone), int(55 * tone)]
+            im[y, x, :3] = np.clip(c, 0, 255)
+    # glowing eyes on the head front (8..16, 8..16)
+    for ex, ey in ((9, 12), (10, 12), (13, 12), (14, 12)):
+        if ey < h and ex < w:
+            im[ey, ex] = [190, 255, 90, 255]
+    Image.fromarray(im.astype("uint8"), "RGBA").save(dst)
+
+
+def emit_zed(lang):
+    src = os.path.join(HERE, "vanilla_entities")
+    with open(os.path.join(src, "zombie.behavior.json"), encoding="utf-8") as f:
+        bp = json.load(f)
+    e = bp["minecraft:entity"]
+    e["description"]["identifier"] = ZED
+    e["description"]["runtime_identifier"] = "minecraft:zombie"
+    e["components"].pop("minecraft:burns_in_daylight", None)
+    for g in ("minecraft:look_to_start_transformations", "minecraft:start_drowned_transformation",
+              "minecraft:convert_to_drowned", "minecraft:convert_to_baby_drowned"):
+        e["component_groups"].pop(g, None)
+    for ev in ("minecraft:start_transforming_into_drowned", "minecraft:stop_transforming", "minecraft:convert_to_drowned"):
+        e["events"].pop(ev, None)
+    for grp in e["component_groups"].values():
+        for k in list(grp):
+            if "transformation" in k:
+                grp.pop(k)
+    sensor = e["components"].get("minecraft:environment_sensor")
+    if sensor:
+        sensor["triggers"] = [t for t in sensor["triggers"] if "drowned" not in t.get("event", "")]
+    for ev in e["events"].values():
+        for part in ([ev] + ev.get("sequence", [])):
+            for key in ("add", "remove"):
+                if key in part:
+                    part[key]["component_groups"] = [g for g in part[key].get("component_groups", []) if g in e["component_groups"]]
+    e["components"]["minecraft:type_family"] = {"family": ["zombie", "undead", "monster", "mob", "radiousti_zed"]}
+    e["components"]["minecraft:health"] = {"value": 26, "max": 26}
+    e["components"]["minecraft:attack"] = {"damage": 4}
+    e["components"]["minecraft:loot"] = {"table": "loot_tables/entities/irradiated_zed.json"}
+    wjson(os.path.join(BP, "entities", "irradiated_zed.json"), bp)
+    wjson(os.path.join(BP, "loot_tables", "entities", "irradiated_zed.json"), {"pools": [
+        {"rolls": 1, "entries": [{"type": "item", "name": f"{NS}:infected_flesh", "weight": 1,
+                                  "functions": [{"function": "set_count", "count": {"min": 0, "max": 2}}]}]},
+        {"rolls": 1, "entries": [{"type": "item", "name": f"{NS}:blood_bottle", "weight": 3}, {"type": "empty", "weight": 7}]},
+        {"rolls": 1, "entries": [{"type": "item", "name": f"{NS}:raw_uranium", "weight": 1}, {"type": "empty", "weight": 9}]},
+        {"rolls": 1, "entries": [{"type": "item", "name": "minecraft:rotten_flesh", "weight": 1,
+                                  "functions": [{"function": "set_count", "count": {"min": 0, "max": 1}}]}]}]})
+    # spawning: any light level (also in daylight), overworld surface
+    wjson(os.path.join(BP, "spawn_rules", "irradiated_zed.json"), {
+        "format_version": "1.8.0",
+        "minecraft:spawn_rules": {"description": {"identifier": ZED, "population_control": "monster"},
+                                  "conditions": [{"minecraft:spawns_on_surface": {}, "minecraft:spawns_underground": {},
+                                                  "minecraft:brightness_filter": {"min": 0, "max": 15, "adjust_for_weather": False},
+                                                  "minecraft:difficulty_filter": {"min": "easy", "max": "hard"},
+                                                  "minecraft:weight": {"default": 60},
+                                                  "minecraft:herd": {"min_size": 1, "max_size": 3},
+                                                  "minecraft:biome_filter": {"test": "has_biome_tag", "value": "overworld"}}]}})
+    with open(os.path.join(src, "zombie.client_entity.json"), encoding="utf-8") as f:
+        rp = json.load(f)
+    d = rp["minecraft:client_entity"]["description"]
+    d["identifier"] = ZED
+    d["textures"] = {"default": "textures/entity/radiousti_zed", "baby": "textures/entity/radiousti_zed_baby"}
+    d["spawn_egg"] = {"base_color": "#3f6f2a", "overlay_color": "#c6ff5a"}
+    os.makedirs(os.path.join(RP, "entity"), exist_ok=True)
+    os.makedirs(os.path.join(RP, "textures", "entity"), exist_ok=True)
+    wjson(os.path.join(RP, "entity", "irradiated_zed.entity.json"), rp)
+    zed_texture(os.path.join(src, "zombie.png"), os.path.join(RP, "textures", "entity", "radiousti_zed.png"))
+    zed_texture(os.path.join(src, "zombie_baby.png"), os.path.join(RP, "textures", "entity", "radiousti_zed_baby.png"))
+    for code, name in (("en", "Irradiated Zed of RadioÚstí"), ("cs", "Ozářený Zed z RadioÚstí")):
+        lang[code][f"entity.{ZED}.name"] = name
+        lang[code][f"item.spawn_egg.entity.{ZED}.name"] = ("Spawn " if code == "en" else "Vyvolat: ") + name
+
+
+def emit_particles():
+    """Tiny glowing radiation motes floating in the air (spawned by scripts/systems/radiation.js)."""
+    from PIL import Image
+    d = os.path.join(RP, "particles")
+    os.makedirs(d, exist_ok=True)
+    os.makedirs(os.path.join(RP, "textures", "particle"), exist_ok=True)
+    im = Image.new("RGBA", (4, 4), (0, 0, 0, 0))
+    for x, y, a in ((1, 1, 255), (2, 1, 255), (1, 2, 255), (2, 2, 255), (0, 1, 90), (3, 2, 90), (1, 0, 90), (2, 3, 90)):
+        im.putpixel((x, y), (220, 255, 170, a))
+    im.save(os.path.join(RP, "textures", "particle", "radiousti_mote.png"))
+    for pid, n, radius, tint in (("radiation_mote", 8, 7, [0.55, 1.0, 0.3, 0.9]), ("liverocrystal_mote", 6, 4, [0.35, 0.75, 1.0, 0.9])):
+        wjson(os.path.join(d, f"radiousti_{pid}.json"), {"format_version": "1.10.0", "particle_effect": {
+            "description": {"identifier": f"{NS}:{pid}",
+                            "basic_render_parameters": {"material": "particles_add", "texture": "textures/particle/radiousti_mote"}},
+            "components": {
+                "minecraft:emitter_rate_instant": {"num_particles": n},
+                "minecraft:emitter_lifetime_once": {"active_time": 0.1},
+                "minecraft:emitter_shape_sphere": {"radius": radius, "surface_only": False, "direction": "outwards"},
+                "minecraft:particle_lifetime_expression": {"max_lifetime": "math.random(2.5, 4.5)"},
+                "minecraft:particle_initial_speed": 0.08,
+                "minecraft:particle_motion_dynamic": {"linear_acceleration": [0, 0.03, 0], "linear_drag_coefficient": 1.5},
+                "minecraft:particle_appearance_billboard": {"size": [0.03, 0.03], "facing_camera_mode": "rotate_xyz",
+                                                            "uv": {"texture_width": 4, "texture_height": 4, "uv": [0, 0], "uv_size": [4, 4]}},
+                "minecraft:particle_appearance_tinting": {"color": tint}}}})
+
+
 def emit_attachables():
     for iid, kind, layer, geom, script in (
             ("gas_mask", "mask", "gas_mask_layer", "geometry.humanoid.armor.helmet", "variable.helmet_layer_visible = 0.0;"),
-            ("hazmat_suit", "suit", "hazmat_layer", "geometry.humanoid.armor.chestplate", "variable.chest_layer_visible = 0.0;")):
+            ("hazmat_suit", "suit", "hazmat_layer", "geometry.humanoid.armor.chestplate", "variable.chest_layer_visible = 0.0;"),
+            ("hazmat_pants", "pants", "hazmat_layer2", "geometry.humanoid.armor.leggings", "variable.leg_layer_visible = 0.0;"),
+            ("hazmat_boots", "boots", "hazmat_layer3", "geometry.humanoid.armor.boots", "variable.boot_layer_visible = 0.0;")):
         os.makedirs(os.path.join(RP, "textures", "models", "armor"), exist_ok=True)
         T.armor_layer(layer, kind).save(os.path.join(RP, "textures", "models", "armor", f"radiousti_{layer}.png"))
         wjson(os.path.join(RP, "attachables", f"{iid}.json"), {
@@ -603,7 +745,8 @@ def main():
     for d in (os.path.join(BP, "blocks"), os.path.join(BP, "items"), os.path.join(BP, "recipes"), os.path.join(BP, "loot_tables"),
               os.path.join(BP, "features"), os.path.join(BP, "feature_rules"),
               os.path.join(RP, "models", "blocks"), os.path.join(RP, "textures", "blocks"), os.path.join(RP, "textures", "items"),
-              os.path.join(RP, "textures", "models"), os.path.join(RP, "attachables"), os.path.join(RP, "sounds", "radiousti")):
+              os.path.join(RP, "textures", "models"), os.path.join(RP, "attachables"), os.path.join(RP, "sounds", "radiousti"),
+              os.path.join(BP, "spawn_rules"), os.path.join(RP, "entity"), os.path.join(RP, "textures", "entity")):
         clean(d)
 
     lang = {"en": {}, "cs": {}}
@@ -644,6 +787,13 @@ def main():
     SND.emit(os.path.join(RP, "sounds"), wjson)
     pack_icon(os.path.join(BP, "pack_icon.png"))
     pack_icon(os.path.join(RP, "pack_icon.png"))
+    emit_zed(lang)
+    emit_particles()
+    for f in os.listdir(os.path.join(BP, "structures")):
+        if f.endswith(".mcstructure"):
+            os.remove(os.path.join(BP, "structures", f))
+    pal, nblocks = STR.build(os.path.join(BP, "structures", "reaktor.mcstructure"))
+    print(f"structure reaktor: {nblocks} blocks, {pal} palette entries")
     write_lang(lang)
     write_docs()
 
