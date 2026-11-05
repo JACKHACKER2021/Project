@@ -193,6 +193,19 @@ func _draw() -> void:
 		"loading": rect(0, 0, HW, HH, "#000000")
 		"menu": draw_menu(t)
 		"intro": draw_intro()
+		"d7":
+			vignette(1.0)
+			if game.G.flash > 0:
+				rect(0, 0, HW, HH, Color(1, 1, 1, game.G.flash * 1.6))
+			noise(0.06 + (0.3 if game.G.d7 == 3 else 0.0))
+			if game.G.d7 == 3:
+				rect(0, 0, HW, HH, Color(0, 0, 0, clampf(game.G.d7t / 0.9, 0, 1)))
+			subs()
+			btn(HW - 220, 24, 196, 44, "PŘESKOČIT ▶", "d7skip", func():
+				game.Q.clear()
+				game.line = null
+				game.G.d7 = 3
+				game.G.d7t = 0.5, true, 16)
 		"play": draw_play(t)
 		"scare": draw_scare(t)
 		"dead", "win": draw_end(game.S)
@@ -204,7 +217,7 @@ func draw_menu(t: float) -> void:
 	txt("NIGHT AT", 60, 110, 40, "#e0b0ff")
 	neon("VOXIE'S 4", 60, 196, 84, "#c040ff", 18, "left")
 	neon("NIGHTMARE", 64, 250, 34, "#ff3060", 14, "left")
-	txt("PREVIEW 0.2.1", 420, 250, 18, "#ffe46b")
+	txt("PREVIEW 0.3.0", 420, 250, 18, "#ffe46b")
 	if game.st_get("v4_end", false):
 		txt("★ Všech 7 nocí přežito.", 64, 462, 16, "#ffe46b")
 	txt("Ema, jaro 1997. Bouřka. A něco v domě, co umí otevírat dveře.", 64, 290, 17, "#cccccc")
@@ -224,7 +237,7 @@ func draw_menu(t: float) -> void:
 	for i in lines.size():
 		txt(lines[i], 64, 480 + i * 30, 16, "#e8d8f8")
 	txt("Nightmare Voxie · Nightmare Hollow Bunny", HW - 24, 680, 14, "#a080c0", "right")
-	txt("v0.2.1 preview · Godot", HW - 24, 704, 13, "#666666", "right")
+	txt("v0.3.0 preview · Godot", HW - 24, 704, 13, "#666666", "right")
 
 func draw_intro() -> void:
 	var st: float = game.scene_t
@@ -275,8 +288,12 @@ func subs() -> void:
 		return
 	var h = 58
 	rr(HW / 2 - 360, HH - 190, 720, h, 10, Color(0.05, 0.0, 0.08, 0.75), Color(0.8, 0.5, 1.0, 0.5), 1)
-	txt("Ema", HW / 2 - 344, HH - 172, 14, "#ffb0d8")
-	txt(l.t, HW / 2, HH - 148, 20, "#ffffff", "center")
+	var nm = {"E": ["Ema", "#ffb0d8"], "D": ["Hollow Bunny", "#ffe46b"], "H": ["???", "#ff4060"]}.get(l.who, ["", "#ffffff"])
+	txt(nm[0], HW / 2 - 344, HH - 172, 14, nm[1])
+	var ls = wrapt(l.t, 680, 20)
+	for i in ls.size():
+		var o = Vector2(randf_range(-2, 2), randf_range(-2, 2)) if l.who == "H" else Vector2.ZERO
+		txt(ls[i], HW / 2 + o.x, HH - 148 + i * 24 + o.y, 20, "#ffffff" if l.who != "H" else "#ffc0c8", "center")
 
 func draw_scare(t: float) -> void:
 	if game.scene_t < 0.08:

@@ -185,12 +185,39 @@ func door_leaf(p: Node3D, hinge: Vector3, w: float, open_ang: float, axis_x: boo
 	d.rotation.y = open_ang
 	p.add_child(d)
 	var dm = mat("#e8dcc8", 0.6)
+	var brass = mat("#c8a448", 0.3, 0.85)
+	var dark = mat("#1a1410", 0.6)
 	if axis_x:
 		box(d, Vector3(w, 2.0, 0.04), Vector3(w / 2, 1.0, 0), dm)
-		box(d, Vector3(0.1, 0.03, 0.06), Vector3(w - 0.1, 1.0, 0.04), mat("#c8a448", 0.3, 0.8))
 	else:
 		box(d, Vector3(0.04, 2.0, w), Vector3(0, 1.0, w / 2), dm)
-		box(d, Vector3(0.06, 0.03, 0.1), Vector3(0.04, 1.0, w - 0.1), mat("#c8a448", 0.3, 0.8))
+	# výplně dveří
+	for py in [[1.45, 0.75], [0.55, 0.7]]:
+		if axis_x:
+			for sd in [-1, 1]:
+				box(d, Vector3(w - 0.24, py[1], 0.012), Vector3(w / 2, py[0], 0.024 * sd), mat("#ddd0b8", 0.6))
+		else:
+			for sd in [-1, 1]:
+				box(d, Vector3(0.012, py[1], w - 0.24), Vector3(0.024 * sd, py[0], w / 2), mat("#ddd0b8", 0.6))
+	# klika z obou stran: štítek, páka, klíčová dírka
+	var hz = w - 0.09
+	for sd in [-1, 1]:
+		if axis_x:
+			box(d, Vector3(0.05, 0.2, 0.012), Vector3(hz, 0.98, 0.028 * sd), brass)
+			box(d, Vector3(0.025, 0.025, 0.05), Vector3(hz, 1.04, 0.05 * sd), brass)
+			box(d, Vector3(0.13, 0.022, 0.022), Vector3(hz - 0.055, 1.04, 0.075 * sd), brass)
+			box(d, Vector3(0.012, 0.03, 0.004), Vector3(hz, 0.93, 0.035 * sd), dark)
+		else:
+			box(d, Vector3(0.012, 0.2, 0.05), Vector3(0.028 * sd, 0.98, hz), brass)
+			box(d, Vector3(0.05, 0.025, 0.025), Vector3(0.05 * sd, 1.04, hz), brass)
+			box(d, Vector3(0.022, 0.022, 0.13), Vector3(0.075 * sd, 1.04, hz - 0.055), brass)
+			box(d, Vector3(0.004, 0.03, 0.012), Vector3(0.035 * sd, 0.93, hz), dark)
+	# panty
+	for hy in [0.25, 1.75]:
+		if axis_x:
+			box(d, Vector3(0.03, 0.1, 0.05), Vector3(0.0, hy, 0), brass)
+		else:
+			box(d, Vector3(0.05, 0.1, 0.03), Vector3(0, hy, 0.0), brass)
 
 # ------------------------------------------------------------------ stavba
 func build() -> void:
@@ -255,17 +282,44 @@ func build() -> void:
 		box(bed, Vector3(0.04, 0.42, 0.05), Vector3(-0.36 + i * 0.18, 0.62, 0.95), wood_d)
 	box(bed, Vector3(0.94, 0.3, 0.04), Vector3(0, 0.42, -0.95), bw)
 	box(bed, Vector3(0.92, 0.16, 1.84), Vector3(0, 0.46, 0), mat("#f6f0e6", 0.95))
-	# peřina: zvlněná, odhrnutá (Ema z ní právě vstala)
-	var duv = mat("#e88ab8", 0.95)
-	for i in 6:
-		box(bed, Vector3(0.98, 0.07 + (i % 2) * 0.03, 0.2), Vector3(0, 0.57 + (i % 2) * 0.015, -0.85 + i * 0.2), duv, Vector3(randf_range(-0.05, 0.05), 0, 0))
-	box(bed, Vector3(0.98, 0.12, 0.25), Vector3(0.0, 0.6, 0.38), duv, Vector3(0.4, 0, 0))
-	box(bed, Vector3(0.98, 0.03, 0.08), Vector3(0, 0.62, 0.48), mat("#ffffff"))
-	for i in 6:
-		box(bed, Vector3(0.1, 0.075, 0.1), Vector3(-0.36 + (i % 3) * 0.36, 0.6, -0.7 + int(i / 3) * 0.45), mat("#6a3a1c"))
-		box(bed, Vector3(0.03, 0.08, 0.03), Vector3(-0.39 + (i % 3) * 0.36, 0.63, -0.72 + int(i / 3) * 0.45), mat("#6a3a1c"))
-	box(bed, Vector3(0.64, 0.14, 0.34), Vector3(0, 0.6, 0.7), mat("#ffffff", 0.95))
-	box(bed, Vector3(0.7, 0.04, 0.4), Vector3(0, 0.55, 0.7), mat("#f8d8e8", 0.95))
+	# rošt a tma pod postelí
+	box(bed, Vector3(0.92, 0.2, 1.8), Vector3(0, 0.12, 0), mat("#050304", 1.0))
+	for i in 7:
+		box(bed, Vector3(0.9, 0.02, 0.07), Vector3(0, 0.37, -0.8 + i * 0.27), wood_d)
+	# prošívaná peřina s obrázky (srdíčka a zajíčci), přehnutá přes boky
+	var quilt = Image.create(64, 128, false, Image.FORMAT_RGB8)
+	for y in 128:
+		for x in 64:
+			var cell = (int(x / 16) + int(y / 16)) % 3
+			var c = [Color("#e88ab8"), Color("#f4c8dc"), Color("#c86aa0")][cell]
+			if x % 16 < 1 or y % 16 < 1:
+				c = Color("#fff4f8")
+			var lx = x % 16
+			var ly = y % 16
+			if cell == 1 and Vector2(lx - 8, ly - 8).length() < 3.2:
+				c = Color("#7a4a2a")
+			if cell == 0 and ((lx - 6) * (lx - 6) + (ly - 7) * (ly - 7) < 5 or (lx - 10) * (lx - 10) + (ly - 7) * (ly - 7) < 5 or (ly > 7 and absf(lx - 8) < 12 - ly)):
+				c = Color("#d02060")
+			quilt.set_pixel(x, y, c)
+	var qm = StandardMaterial3D.new()
+	qm.albedo_texture = ImageTexture.create_from_image(quilt)
+	qm.roughness = 0.95
+	box(bed, Vector3(0.98, 0.1, 1.25), Vector3(0, 0.6, -0.3), qm)
+	for sx in [-1, 1]:
+		box(bed, Vector3(0.03, 0.28, 1.2), Vector3(0.505 * sx, 0.48, -0.3), qm)
+	box(bed, Vector3(0.98, 0.28, 0.03), Vector3(0, 0.48, -0.94), qm)
+	# odhrnutý roh peřiny (Ema právě vstala)
+	box(bed, Vector3(0.6, 0.08, 0.4), Vector3(0.18, 0.66, 0.32), qm, Vector3(0.0, 0.3, 0.35))
+	box(bed, Vector3(0.95, 0.02, 0.5), Vector3(0, 0.545, 0.5), mat("#ffffff", 0.95))
+	# polštář s důlkem a krajkou
+	box(bed, Vector3(0.62, 0.12, 0.34), Vector3(0, 0.6, 0.72), mat("#ffffff", 0.95))
+	box(bed, Vector3(0.3, 0.03, 0.16), Vector3(0, 0.665, 0.72), mat("#e8e0e8", 0.95))
+	for i in 9:
+		box(bed, Vector3(0.06, 0.04, 0.02), Vector3(-0.28 + i * 0.07, 0.6, 0.545), mat("#fff0f8"))
+	# bačkůrky u postele
+	for sx in [-1, 1]:
+		box(bed, Vector3(0.09, 0.06, 0.2), Vector3(-0.62 + sx * 0.06, 0.03, -0.5), mat("#f08ab8", 0.95))
+		box(bed, Vector3(0.05, 0.05, 0.05), Vector3(-0.62 + sx * 0.06, 0.07, -0.58), mat("#ffffff", 0.95))
 	# plyšová Cocoa (na polštáři)
 	var cp = Node3D.new()
 	cp.name = "CocoaPlush"

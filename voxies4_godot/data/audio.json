@@ -54,6 +54,42 @@
   "Něco je za dveřmi.": {
    "f": "e2.wav",
    "dur": 0.68
+  },
+  "Ahoj, Emo. Pamatuješ si mě?": {
+   "f": "d0.wav",
+   "dur": 2.11
+  },
+  "Hráli jsme spolu na schovávanou. Vždycky jsem tě našel.": {
+   "f": "d1.wav",
+   "dur": 2.99
+  },
+  "Myslela sis, že jsem jen robot. Že se zapínám sám.": {
+   "f": "d2.wav",
+   "dur": 2.85
+  },
+  "Ale uvnitř jsem byl celou dobu já.": {
+   "f": "d3.wav",
+   "dur": 1.69
+  },
+  "Pamatuješ, jak jsi řekla tátovi, ať jdete do auta? Viděla jsi, jak se dívám.": {
+   "f": "d4.wav",
+   "dur": 4.85
+  },
+  "A pak, v herně, zhaslo světlo.": {
+   "f": "d5.wav",
+   "dur": 1.57
+  },
+  "Je to tvoje vina. Tvoje a tvého táty.": {
+   "f": "d6.wav",
+   "dur": 2.94
+  },
+  "Ta herna měla být i moje. Nikdy mě nenechal být spoluvlastníkem.": {
+   "f": "d7.wav",
+   "dur": 4.54
+  },
+  "Tak si to zasloužíte. Oba.": {
+   "f": "d8.wav",
+   "dur": 2.19
   }
  }
 }

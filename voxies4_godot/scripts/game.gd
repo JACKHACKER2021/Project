@@ -38,6 +38,9 @@ var rain: Node3D
 var moon: OmniLight3D
 var rain_player: AudioStreamPlayer
 var plush: Node3D
+var eye_nodes := {}
+var d7_bunny: Node3D
+var d7_light: OmniLight3D
 
 func _ready() -> void:
 	_load_store()
@@ -227,6 +230,19 @@ func _build() -> void:
 			base[k] = p[k].rotation
 		nm_parts[n] = [p, base]
 		n.visible = false
+		var eyes = []
+		for mi in p.head.find_children("*", "MeshInstance3D", true, false):
+			var mm = mi.material_override
+			if mm is StandardMaterial3D and mm.emission_enabled and mi.get_aabb().size.x < 0.08:
+				mm.emission_energy_multiplier = 6.0
+				var el = OmniLight3D.new()
+				el.light_color = mm.emission
+				el.light_energy = 1.0
+				el.omni_range = 1.4
+				el.position = mi.position + Vector3(0, 0, 0.1)
+				mi.get_parent().add_child(el)
+				eyes.append([el, mi])
+		eye_nodes[n] = eyes
 	cam = Camera3D.new()
 	cam.fov = 72
 	cam.near = 0.05
@@ -269,9 +285,9 @@ func new_night(n: int) -> void:
 		"night": n, "t": 0.0, "view": "closet", "yaw": 0.0, "light": false, "bat": 100.0, "batLock": false,
 		"fear": 0.0, "boltT": randf_range(6, 12), "flash": 0.0, "thunderT": -1.0,
 		# Nightmare Voxie: chodí mezi chodbami, u dveří otevírá
-		"vox": {"side": "left", "stage": 0, "t": maxf(5.0, randf_range(14, 22) - lv * 3), "open": 0.0, "lit": 0.0, "cool": 0.0},
+		"vox": {"side": "left", "stage": 0, "t": maxf(5.0, randf_range(14, 22) - lv * 3), "open": 0.0, "lit": 0.0, "flinch": 0.0},
 		# Nightmare Hollow Bunny: ve skříni
-		"bun": {"stage": 0, "t": maxf(8.0, randf_range(26, 36) - lv * 4), "open": 0.0, "lit": 0.0, "cool": 0.0},
+		"bun": {"side": "closet", "stage": 0, "t": (6.0 if n >= 7 else maxf(8.0, randf_range(26, 36) - lv * 4)), "open": 0.0, "lit": 0.0, "flinch": 0.0},
 		"hurt": 0.0, "dead_by": "",
 	}
 	for k in doors:
@@ -284,6 +300,9 @@ func new_night(n: int) -> void:
 func start_night(n: int) -> void:
 	audio.stop_menu_song()
 	new_night(n)
+	if n == 7:
+		start_d7()
+		return
 	S = "intro"
 	scene_t = 0.0
 func begin_play() -> void:
@@ -321,8 +340,9 @@ func play_tick(dt: float) -> void:
 	torch.light_energy = 6.0 * (0.9 + 0.1 * sin(t_now * 40)) if G.light and not G.batLock else 0.0
 	# bouřka
 	storm_tick(dt)
-	_vox_tick(dt)
-	_bun_tick(dt)
+	if G.night < 7:
+		_enemy_tick("vox", dt)
+	_enemy_tick("bun", dt)
 	# strach: tlukot srdce, když je něco otevřené
 	var danger = maxf(G.vox.open, G.bun.open)
 	G.fear = move_toward(G.fear, danger, dt * 0.8)
@@ -360,118 +380,129 @@ func _set_open(side: String, k: float) -> void:
 	for i in doors[side].size():
 		doors[side][i].rotation.y = ys[i] * k
 
-# ---------- Nightmare Voxie u levých / pravých dveří
-func _vox_tick(dt: float) -> void:
-	var V = G.vox
+# ---------- noční můry: Voxie (levé/pravé dveře), Hollow Bunny (skříň; v 7. noci všechny tři strany)
+func _place(n: Node3D, side: String, k: float) -> void:
+	if side == "closet":
+		n.position = Vector3(0, -0.45, -2.6)
+		n.rotation = Vector3.ZERO
+		n.scale = Vector3.ONE * 0.74
+	else:
+		var s = -1.0 if side == "left" else 1.0
+		n.scale = Vector3.ONE * 0.92
+		# s otevíráním dveří se nakloní do škvíry
+		n.position = Vector3(3.0 * s - s * 0.35 * k, 0, 0.05 + 0.18 * k)
+		n.rotation = Vector3(0, -PI / 2 * s, 0.12 * k * s)
+
+func _enemy_tick(who: String, dt: float) -> void:
+	var E = G[who]
+	var node: Node3D = vox if who == "vox" else bun
 	var lv = (G.night - 1) * 0.7 + hour() * 0.3
-	V.cool = maxf(0, V.cool - dt)
-	match V.stage:
+	var pan = func(side): return -0.9 if side == "left" else (0.9 if side == "right" else 0.0)
+	match E.stage:
 		0:
-			V.t -= dt
-			if V.t <= 0:
-				V.side = pick(["left", "right"])
-				V.stage = 1
-				V.t = randf_range(4, 7)
-				audio.sfx("step", 0.25, -0.9 if V.side == "left" else 0.9)
+			E.t -= dt
+			if E.t <= 0:
+				if who == "vox":
+					E.side = pick(["left", "right"])
+				elif G.night >= 7:
+					E.side = pick(["left", "right", "closet"])
+				else:
+					E.side = "closet"
+				E.stage = 1
+				E.t = randf_range(2.0, 3.5) if G.night >= 7 else randf_range(4, 7)
+				if E.side == "closet":
+					audio.sfx("servo", 0.5, 0.0)
+					audio.sfx("whisper", 0.4, 0.0)
 		1:
-			# kroky na chodbě
-			V.t -= dt
-			if fmod(V.t, 0.7) < dt:
-				audio.sfx("step", 0.35, -0.9 if V.side == "left" else 0.9)
-			if V.t <= 0:
-				V.stage = 2
-				V.open = 0.0
-				V.lit = 0.0
-				audio.sfx("doorcreak", 0.8, -0.9 if V.side == "left" else 0.9)
-				if randf() < 0.3:
+			# kroky na chodbě (u skříně jen cvakání zámků)
+			E.t -= dt
+			if E.side != "closet" and fmod(E.t, 0.7) < dt:
+				audio.sfx("step", 0.35, pan.call(E.side))
+			if E.t <= 0 or E.side == "closet":
+				E.stage = 2
+				E.open = 0.0
+				E.lit = 0.0
+				E.flinch = 0.0
+				audio.sfx("doorcreak", 0.8, pan.call(E.side))
+				if randf() < 0.3 and E.side != "closet":
 					say("E", "Něco je za dveřmi.")
 		2:
-			# dveře se pomalu otevírají; světlo ho zažene
-			vox.visible = true
-			var s = -1.0 if V.side == "left" else 1.0
-			vox.position = Vector3(3.0 * s, 0, 0.05)
-			vox.rotation = Vector3(0, -PI / 2 * s, 0)
-			_nm_pose(vox, dt, V.open)
-			if lit(V.side):
-				V.lit += dt
-				vox.position.x += s * V.lit * 0.25
-				if V.lit > 1.2 - minf(0.5, lv * 0.08):
-					pass
-				if V.lit > 1.0 + lv * 0.12:
-					_repel("vox")
+			node.visible = true
+			_place(node, E.side, ease_io(E.open))
+			if E.flinch > 0:
+				# couvá před světlem, pak dveře zabouchne
+				E.flinch += dt
+				_nm_pose(node, dt, E.open, E.flinch)
+				node.position += node.transform.basis.z * -E.flinch * 0.9
+				if E.flinch > 0.55:
+					_repel(who)
+				return
+			_nm_pose(node, dt, E.open, 0.0)
+			if lit(E.side):
+				E.lit += dt
+				if E.lit > (1.0 if who == "vox" else 1.1) + lv * 0.12:
+					E.flinch = 0.01
+					audio.sfx("servo", 0.7, pan.call(E.side))
 					return
 			else:
-				V.lit = maxf(0, V.lit - dt * 0.5)
-				V.open = minf(1.0, V.open + dt * (0.09 + lv * 0.03))
-			_set_open(V.side, ease_io(V.open))
-			if V.open >= 1.0:
-				V.t += dt
-				if V.t > 1.6 - minf(0.8, lv * 0.15):
-					jumpscare("vox")
-
-# ---------- Nightmare Hollow Bunny ve skříni
-func _bun_tick(dt: float) -> void:
-	var B = G.bun
-	var lv = (G.night - 1) * 0.7 + hour() * 0.3
-	match B.stage:
-		0:
-			B.t -= dt
-			if B.t <= 0:
-				B.stage = 1
-				B.open = 0.0
-				B.lit = 0.0
-				audio.sfx("servo", 0.5, 0.0)
-				audio.sfx("whisper", 0.4, 0.0)
-		1:
-			bun.visible = true
-			bun.position = Vector3(0, -0.45, -2.6)
-			bun.rotation = Vector3.ZERO
-			bun.scale = Vector3.ONE * 0.74
-			_nm_pose(bun, dt, B.open)
-			if lit("closet"):
-				B.lit += dt
-				if B.lit > 1.1 + lv * 0.12:
-					_repel("bun")
-					return
-			else:
-				B.lit = maxf(0, B.lit - dt * 0.5)
-				B.open = minf(1.0, B.open + dt * (0.07 + lv * 0.025))
-			_set_open("closet", ease_io(B.open))
-			if B.open >= 1.0:
-				B.t += dt
-				if B.t > 1.4 - minf(0.7, lv * 0.15):
-					jumpscare("bun")
+				E.lit = maxf(0, E.lit - dt * 0.5)
+				var sp = (0.09 + lv * 0.03) if E.side != "closet" else (0.07 + lv * 0.025)
+				if G.night >= 7:
+					sp *= 1.25
+				E.open = minf(1.0, E.open + dt * sp)
+			_set_open(E.side, ease_io(E.open))
+			if E.open >= 1.0:
+				E.t += dt
+				if E.t > 1.6 - minf(0.8, lv * 0.15):
+					jumpscare(who)
 
 func _repel(who: String) -> void:
 	var lv = (G.night - 1) * 0.7
-	if who == "vox":
-		var V = G.vox
-		V.stage = 0
-		V.t = maxf(4.0, randf_range(12, 20) - lv * 2.5 - hour())
-		V.open = 0.0
-		_set_open(V.side, 0.0)
-		vox.visible = false
-		audio.sfx("clunk", 0.9, -0.9 if V.side == "left" else 0.9)
+	var E = G[who]
+	var node: Node3D = vox if who == "vox" else bun
+	E.stage = 0
+	E.open = 0.0
+	E.flinch = 0.0
+	if G.night >= 7:
+		E.t = randf_range(3.0, 6.0)
+	elif who == "vox":
+		E.t = maxf(4.0, randf_range(12, 20) - lv * 2.5 - hour())
 	else:
-		var B = G.bun
-		B.stage = 0
-		B.t = maxf(6.0, randf_range(18, 28) - lv * 3 - hour())
-		B.open = 0.0
-		_set_open("closet", 0.0)
-		bun.visible = false
-		audio.sfx("clunk", 0.8)
-	audio.sfx("servo", 0.6)
+		E.t = maxf(6.0, randf_range(18, 28) - lv * 3 - hour())
+	_set_open(E.side, 0.0)
+	node.visible = false
+	audio.sfx("clunk", 0.9, -0.9 if E.side == "left" else (0.9 if E.side == "right" else 0.0))
 
-func _nm_pose(n: Node3D, dt: float, k: float) -> void:
+## animace: dýchání, škubání, ruka sahá na dveře, nahlíží škvírou; při světle si kryje oči
+func _nm_pose(n: Node3D, dt: float, k: float, flinch := 0.0) -> void:
 	var pb = nm_parts[n]
 	var p = pb[0]
 	var b = pb[1]
-	p.head.rotation = b.head + Vector3(sin(t_now * 1.3) * 0.06, sin(t_now * 0.7) * 0.2, 0)
-	p.jaw.rotation = b.jaw + Vector3(0.1 + k * 0.4 + sin(t_now * 3) * 0.05, 0, 0)
-	p.arm_L.rotation = b.arm_L + Vector3(-k * 0.8, 0, 0)
-	p.arm_R.rotation = b.arm_R + Vector3(-k * 0.6, 0, 0)
+	var tw = 0.0
+	if fmod(t_now * 1.9, 3.3) < 0.09:
+		tw = randf_range(-0.35, 0.35)
+	p.chest.scale = Vector3(1, 1.0 + sin(t_now * 2.2) * 0.02, 1)
+	p.head.rotation = b.head + Vector3(sin(t_now * 1.3) * 0.06 - k * 0.15, sin(t_now * 0.7) * 0.2 + tw, 0.25 * k + tw * 0.5)
+	p.jaw.rotation = b.jaw + Vector3(0.1 + k * 0.45 + absf(sin(t_now * 6)) * 0.08 * k, 0, 0)
+	# levá ruka drží hranu dveří, pravá se natahuje
+	p.arm_L.rotation = b.arm_L + Vector3(-1.2 * k, 0.4 * k, -0.5 * k)
+	p.arm_R.rotation = b.arm_R + Vector3(-0.5 * k + sin(t_now * 3) * 0.12 * k, 0, 0.2 * k)
+	if flinch > 0:
+		var f = clampf(flinch / 0.3, 0, 1)
+		p.arm_L.rotation = b.arm_L + Vector3(-2.4 * f, 0, 0.6 * f)
+		p.arm_R.rotation = b.arm_R + Vector3(-2.4 * f, 0, -0.6 * f)
+		p.head.rotation = b.head + Vector3(0.45 * f, randf_range(-0.1, 0.1), 0)
+		p.jaw.rotation = b.jaw + Vector3(0.9 * f, 0, 0)
+	# svítící oči: ve světle se zúží, jinak pomalu pulzují
+	for e in eye_nodes.get(n, []):
+		var lit_now = G != null and G.light and not G.batLock and flinch <= 0 and k > 0.05
+		e[0].light_energy = (0.25 if lit_now else 1.1 + sin(t_now * 4) * 0.25) * (0.3 if flinch > 0 else 1.0)
+		e[1].scale = Vector3.ONE * (0.55 if lit_now or flinch > 0 else 1.0)
 
 func jumpscare(who: String) -> void:
+	var node: Node3D = vox if who == "vox" else bun
+	G.scareFrom = node.position
+	G.scareSide = G[who].side
 	S = "scare"
 	scene_t = 0.0
 	G.dead_by = who
@@ -496,6 +527,9 @@ func to_menu() -> void:
 	G = null
 	vox.visible = false
 	bun.visible = false
+	if d7_bunny:
+		d7_bunny.visible = false
+		d7_light.visible = false
 	torch.light_energy = 0
 	rain_player.stop()
 	audio.start_menu_song()
@@ -512,8 +546,11 @@ func _process(delta: float) -> void:
 	scene_t += dt
 	match S:
 		"play": play_tick(dt)
+		"d7": d7_tick(dt)
 		"intro":
 			if scene_t > 6.0:
+				if d7_bunny:
+					d7_bunny.visible = false
 				begin_play()
 	render(dt)
 	hud.queue_redraw()
@@ -539,6 +576,9 @@ func render(dt: float) -> void:
 			bun.position = Vector3(0, -0.45, -2.6)
 			bun.scale = Vector3.ONE * 0.74
 			_set_open("closet", 0.25)
+		"d7":
+			vig = 1.0
+			glitch = 0.5 if G.flash > 0 else 0.0
 		"play", "intro":
 			cam.position = EYE
 			var f: float = G.fear if G else 0.0
@@ -554,24 +594,117 @@ func render(dt: float) -> void:
 	pm.set_shader_parameter("uGrain", 0.06)
 
 func _render_scare(dt: float) -> void:
-	var who = vox if G.dead_by == "vox" else bun
+	var who: Node3D = vox if G.dead_by == "vox" else bun
 	var t = scene_t
 	who.visible = true
-	who.scale = Vector3.ONE
-	var dir = Vector3(-sin(cam.rotation.y), 0, -cos(cam.rotation.y))
-	var k = ease_io(clampf(t / 0.35, 0, 1))
-	who.position = Vector3(EYE.x, 0, EYE.z) + dir * (2.0 - k * 1.25) + Vector3(0, -0.15 * k, 0)
-	who.look_at(Vector3(EYE.x, 0, EYE.z), Vector3.UP, true)
+	var side: String = G.get("scareSide", "closet")
+	# Ema se prudce otočí ke dveřím, ze kterých noční můra skočí
+	G.yaw = lerp_angle(G.yaw, VIEWS[side], minf(1.0, dt * 14))
+	var dir = Vector3(-sin(G.yaw), 0, -cos(G.yaw))
+	var from: Vector3 = G.get("scareFrom", Vector3(0, 0, -2.0))
+	var to = Vector3(EYE.x, 0, EYE.z) + dir * 1.35
+	var k = ease_io(clampf(t / 0.42, 0, 1))
+	who.scale = Vector3.ONE * lerpf(who.scale.x, 1.0, minf(1.0, dt * 10))
+	who.position = from.lerp(to, k) + Vector3(0, sin(k * PI) * 0.55 - 0.25 * k, 0)
+	who.look_at(Vector3(EYE.x, who.position.y, EYE.z), Vector3.UP, true)
+	who.rotation.x = -0.35 * sin(k * PI)
 	var pb = nm_parts[who]
-	pb[0].jaw.rotation = pb[1].jaw + Vector3(0.9 + sin(t_now * 30) * 0.15, 0, 0)
+	pb[0].jaw.rotation = pb[1].jaw + Vector3(0.95 + sin(t_now * 30) * 0.15, 0, 0)
 	pb[0].head.rotation = pb[1].head + Vector3(randf_range(-0.1, 0.1), randf_range(-0.15, 0.15), 0)
-	pb[0].arm_L.rotation = pb[1].arm_L + Vector3(-2.2, 0, 0)
-	pb[0].arm_R.rotation = pb[1].arm_R + Vector3(-2.2, 0, 0)
-	cam.position = EYE + Vector3(randf_range(-1, 1), randf_range(-1, 1), 0) * 0.03
-	cam.look_at(who.position + Vector3(0, 2.1, 0))
+	pb[0].arm_L.rotation = pb[1].arm_L + Vector3(-2.5, 0, 0.4)
+	pb[0].arm_R.rotation = pb[1].arm_R + Vector3(-2.5, 0, -0.4)
+	for e in eye_nodes.get(who, []):
+		e[0].light_energy = 3.0
+		e[1].scale = Vector3.ONE * 1.3
+	cam.position = EYE + Vector3(randf_range(-1, 1), randf_range(-1, 1), 0) * (0.015 + 0.03 * k)
+	cam.rotation = Vector3(0.1 * k, G.yaw, 0)
+	if k > 0.5:
+		var head: Node3D = nm_parts[who][0].head
+		cam.look_at(head.global_position + Vector3(0, 0.15, 0))
 	torch.light_energy = 5.0 if fmod(t, 0.16) > 0.08 else 1.0
 	if t > 2.4:
 		S = "dead"
 		scene_t = 0.0
 		who.visible = false
 		torch.light_energy = 0
+
+# ---------- před 7. nocí: Hollow Bunny mluví k Emě zády, pak se otočí a ukáže se noční můra
+const D7_A := ["Ahoj, Emo. Pamatuješ si mě?", "Hráli jsme spolu na schovávanou. Vždycky jsem tě našel.", "Myslela sis, že jsem jen robot. Že se zapínám sám.", "Ale uvnitř jsem byl celou dobu já.", "Pamatuješ, jak jsi řekla tátovi, ať jdete do auta? Viděla jsi, jak se dívám.", "A pak, v herně, zhaslo světlo."]
+const D7_B := ["Je to tvoje vina. Tvoje a tvého táty.", "Ta herna měla být i moje. Nikdy mě nenechal být spoluvlastníkem.", "Tak si to zasloužíte. Oba."]
+func start_d7() -> void:
+	S = "d7"
+	scene_t = 0.0
+	G.d7 = 0
+	G.d7t = 0.0
+	if d7_bunny == null:
+		d7_bunny = preload("res://scripts/hollow.gd").make(false)
+		add_child(d7_bunny)
+	d7_bunny.visible = true
+	if d7_light == null:
+		d7_light = OmniLight3D.new()
+		d7_light.light_color = Color("#9ab0ff")
+		d7_light.omni_range = 3.5
+		add_child(d7_light)
+	d7_light.visible = true
+	d7_light.light_energy = 0.9
+	d7_light.position = Vector3(0.9, 2.2, -1.1)
+	d7_bunny.position = Vector3(0, 0, -1.85)
+	d7_bunny.rotation = Vector3(0, PI, 0)
+	bun.visible = false
+	rain_player.play()
+	for l in D7_A:
+		say("D", l)
+func d7_tick(dt: float) -> void:
+	tick_lines(dt)
+	storm_tick(dt)
+	G.d7t += dt
+	cam.position = EYE
+	cam.rotation = Vector3(0.24, 0, 0)
+	var head: Node3D = d7_bunny.get_node("head")
+	match G.d7:
+		0:
+			# mluví zády, hlava se pomalu naklání
+			head.rotation = Vector3(0.1, sin(t_now * 0.6) * 0.15, 0.05 + sin(t_now * 0.9) * 0.08)
+			if line == null and Q.is_empty() and G.d7t > 2.0:
+				G.d7 = 1
+				G.d7t = 0.0
+				audio.sfx("servo", 0.9)
+		1:
+			# pomalé otočení
+			var k = ease_io(clampf(G.d7t / 1.6, 0, 1))
+			d7_bunny.rotation.y = PI * (1.0 - k)
+			head.rotation = Vector3(0.15, -0.4 * (1 - k), 0.1)
+			if fmod(G.d7t, 0.35) < dt:
+				audio.sfx("servo", 0.5)
+			if G.d7t > 1.9:
+				# záblesk: z Hollow Bunnyho je noční můra
+				G.d7 = 2
+				G.d7t = 0.0
+				G.flash = 0.45
+				audio.sfx("thunder", 1.0, 0.4)
+				audio.sfx("scare_c", 0.8)
+				d7_bunny.visible = false
+				bun.visible = true
+				bun.position = Vector3(0, 0, -1.85)
+				bun.rotation = Vector3.ZERO
+				bun.scale = Vector3.ONE
+				for l in D7_B:
+					say("H", l)
+		2:
+			_nm_pose(bun, dt, 0.35 + absf(sin(t_now * 2)) * 0.2)
+			var pb = nm_parts[bun]
+			if line != null:
+				pb[0].jaw.rotation = pb[1].jaw + Vector3(0.3 + absf(sin(t_now * 11)) * 0.4, 0, 0)
+			if line == null and Q.is_empty() and G.d7t > 2.0:
+				G.d7 = 3
+				G.d7t = 0.0
+				audio.sfx("scare", 0.9)
+		3:
+			# skočí k Emě a tma
+			var k = clampf(G.d7t / 0.35, 0, 1)
+			bun.position = Vector3(0, 0.2 * sin(k * PI), -1.85 + k * 0.9)
+			if G.d7t > 0.9:
+				bun.visible = false
+				d7_light.visible = false
+				S = "intro"
+				scene_t = 0.0
