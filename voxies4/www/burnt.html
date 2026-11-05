@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="cs"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Burnt Hollow Bunny – návrh</title>
+<style>html, body { margin: 0; height: 100%; background: #050302; overflow: hidden; } canvas { display: block; width: 100%; height: 100%; }
+#t { position: fixed; left: 20px; top: 16px; color: #ff9a50; font: bold 22px 'Courier New', monospace; } #s { position: fixed; left: 20px; top: 46px; color: #aaa; font: bold 14px 'Courier New', monospace; }</style></head>
+<body><div id="t">BURNT HOLLOW BUNNY</div><div id="s">Night at Voxie's 4 · po požáru Frights & Hides</div><canvas id="gl"></canvas>
+<script type="importmap">{ "imports": { "three": "./lib/three.module.js", "three/addons/": "./lib/addons/" } }</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+const rand = (a, b) => a + Math.random() * (b - a);
+function canvasTex(w, h, draw) { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.magFilter = THREE.NearestFilter; return t; }
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('gl'), antialias: true }); renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x080404); scene.fog = new THREE.Fog(0x080404, 6, 16);
+const cam = new THREE.PerspectiveCamera(42, 1, .05, 50); cam.position.set(2.2, 1.7, 3.6);
+const ctl = new OrbitControls(cam, renderer.domElement); ctl.target.set(0, 1.2, 0); ctl.update();
+scene.add(new THREE.HemisphereLight(0x806050, 0x100604, .5));
+const fire1 = new THREE.PointLight(0xff6a20, 14, 7, 1.3); fire1.position.set(-1.5, .6, 1.2); scene.add(fire1);
+const fire2 = new THREE.PointLight(0xff3010, 10, 6, 1.3); fire2.position.set(1.6, .4, -1); scene.add(fire2);
+const key = new THREE.SpotLight(0xffd0a0, 12, 12, .6, .5, 1.3); key.position.set(1, 3.5, 3); key.target.position.set(0, 1.1, 0); scene.add(key, key.target);
+{ const f = new THREE.Mesh(new THREE.CircleGeometry(5, 40), new THREE.MeshLambertMaterial({ color: 0x120c08 })); f.rotation.x = -Math.PI / 2; scene.add(f); }
+// Hollow Hare: springlockový zajíc. clean = opravená (nedokončená) verze, jak ji nechal pan Vojtěch
+function makeHare(clean = false) {
+const furTex = canvasTex(32, 32, (x, w, h) => { x.fillStyle = '#5e5e2a'; x.fillRect(0, 0, w, h); for (let i = 0; i < 3; i++) { x.fillStyle = `rgba(90,10,6,${rand(.5, .8)})`; const bx = rand(0, w), by = rand(0, h); x.fillRect(bx, by, rand(3, 8), rand(2, 5)); x.fillRect(bx + 1, by, 2, rand(6, 14)); } for (let i = 0; i < 40; i++) { x.fillStyle = `rgba(${Math.random() < .5 ? '40,40,10' : '120,110,60'},${rand(.3, .7)})`; x.fillRect(rand(0, w), rand(0, h), rand(1, 4), rand(1, 4)); } for (let i = 0; i < 3; i++) { x.fillStyle = '#1a1008'; x.fillRect(rand(0, w - 6), rand(0, h - 6), rand(2, 6), rand(2, 5)); } x.strokeStyle = 'rgba(0,0,0,.35)'; x.strokeRect(.5, .5, w - 1, h - 1); });
+const mat = c => new THREE.MeshLambertMaterial({ color: c });
+const fur = new THREE.MeshLambertMaterial({ map: furTex }), dark = mat('#4a4a20'), belly = mat('#a8a070'), flesh = mat('#6a2a24'), skin = mat('#b08a78'), metal = mat('#6a6e74'), wire = [mat('#c0201a'), mat('#2050c0'), mat('#d0b020'), mat('#202020')];
+const box = (w, h, d, m, x, y, z, p) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); p.add(b); return b; };
+const node = (p, x, y, z) => { const n = new THREE.Group(); n.position.set(x, y, z); p.add(n); return n; };
+const tube = (p, pts, r, m) => p.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts.map(a => new THREE.Vector3(...a))), 12, r, 5), m));
+const H = new THREE.Group(), legs = [], irises = [];
+const hips = node(H, 0, .85, 0); hips.rotation.z = .05;
+// nohy (pravá roztržená v koleni, vidět kov a maso)
+for (const s of [-1, 1]) { const l = node(hips, s * .2, 0, 0); legs.push(l); box(.26, .46, .3, fur, 0, -.23, 0, l); const k = node(l, 0, -.46, 0); k.rotation.x = s > 0 ? .12 : 0;
+  box(.24, .34, .28, fur, 0, -.17, 0, k); box(.32, .12, .46, dark, 0, -.34, .08, k);
+  if (s > 0) { box(.26, .08, .3, flesh, 0, .0, 0, k); box(.05, .2, .05, metal, .08, -.02, .1, k); tube(k, [[.05, .1, .14], [.12, -.05, .18], [.06, -.2, .16]], .012, wire[0]); } }
+// trup: díra v břiše, lidské žebra a springlocky
+const chest = node(hips, 0, .05, 0); chest.rotation.x = .42; chest.rotation.z = -.1;
+box(.84, .76, .56, fur, 0, .38, 0, chest); box(.54, .5, .02, belly, 0, .34, .29, chest);
+box(.3, .32, .06, mat('#0a0505'), .08, .3, .29, chest); for (let i = 0; i < 4; i++) box(.26, .03, .04, mat('#d8c8b0'), .08, .2 + i * .065, .3, chest); // díra a žebra
+for (const [x, y] of [[-.3, .55], [.3, .55], [-.3, .15], [.3, .15]]) { box(.07, .07, .07, metal, x, y, .29, chest); box(.03, .1, .03, metal, x, y - .06, .31, chest); }
+for (let i = 0; i < 6; i++) tube(chest, [[rand(-.1, .2), .4, .1], [rand(-.25, .3), .25, .32], [rand(-.3, .35), rand(-.1, .1), .38]], .013, wire[i % 4]);
+box(.1, .55, .02, mat('#2a1a10'), -.25, .38, .29, chest); for (let i = 0; i < 6; i++) box(.06, .015, .03, mat('#b0a080'), -.25, .14 + i * .09, .3, chest); // zašitý šev
+// ruce: levá visí, pravá ohnutá s odhalenou lidskou rukou
+const aL = node(chest, .54, .66, 0); aL.rotation.z = .25; box(.22, .42, .24, fur, 0, -.21, 0, aL); const aL2 = node(aL, 0, -.42, 0); aL2.rotation.x = -.1; box(.2, .36, .22, fur, 0, -.18, 0, aL2); box(.24, .12, .26, dark, 0, -.38, 0, aL2); for (const dx of [-.07, 0, .07]) { const c = box(.03, .16, .03, metal, dx, -.5, .04, aL2); c.rotation.x = .4; }
+const aR = node(chest, -.54, .66, 0); aR.rotation.set(-.5, 0, -.3); box(.22, .42, .24, fur, 0, -.21, 0, aR); const aR2 = node(aR, 0, -.42, 0); aR2.rotation.x = -.9; box(.2, .18, .22, fur, 0, -.09, 0, aR2);
+box(.09, .16, .09, skin, 0, -.26, .02, aR2); for (const dx of [-.04, 0, .04]) box(.025, .1, .025, skin, dx, -.38, .03, aR2); box(.12, .05, .12, flesh, 0, -.18, 0, aR2);
+// hlava: zaječí, s jedním ulomeným uchem, propadlou čelistí a lidskýma očima uvnitř
+const head = node(chest, 0, .8, .06); head.rotation.set(-.25, .3, .28);
+box(.82, .66, .7, fur, 0, .33, 0, head); box(.84, .12, .72, dark, 0, .68, 0, head); // čelo s propadlinou
+for (const s2 of [-1, 1]) box(.12, .2, .5, mat('#4a4a20'), s2 * .42, .32, 0, head);
+// rozšklebená tlama: tmavá dutina, ostré zuby kostýmu a za nimi lidské zuby
+box(.62, .3, .3, mat('#060202'), 0, .08, .3, head);
+const jaw = node(head, 0, .02, .12); jaw.rotation.x = .75; box(.6, .12, .52, fur, 0, -.06, .1, jaw); box(.5, .03, .4, mat('#3a0806'), 0, .0, .1, jaw);
+for (let i = 0; i < 7; i++) { const t1 = box(.05, .12, .04, mat('#d8cc9a'), -.24 + i * .08, .06, .32, jaw); t1.rotation.z = rand(-.3, .3); const t2 = box(.05, .13, .04, mat('#c8bc8a'), -.24 + i * .08, .17, .43, head); t2.rotation.z = rand(-.3, .3); t2.rotation.x = .2; }
+for (let i = 0; i < 6; i++) box(.045, .05, .03, mat('#f0e8d8'), -.11 + i * .045, .11, .33, head); // lidské zuby uvnitř
+box(.46, .22, .22, mat('#7a7050'), 0, .3, .38, head); box(.12, .08, .06, mat('#2a0a06'), 0, .38, .5, head); // čenich
+for (const s2 of [-1, 1]) { box(.26, .24, .05, mat('#000000'), s2 * .2, .52, .34, head); // hluboké černé důlky
+  const e = new THREE.Mesh(new THREE.SphereGeometry(.04, 12, 10), mat('#d8d0b8')); e.position.set(s2 * .2, .5, .345); head.add(e);
+  const iris = new THREE.Mesh(new THREE.SphereGeometry(.014, 10, 8), new THREE.MeshBasicMaterial({ color: 0xc8ffd0 })); iris.position.set(s2 * .2 + .006, .5, .382); head.add(iris); iris.userData.bx = iris.position.x; iris.userData.by = iris.position.y; irises.push(iris);
+  const gl = new THREE.PointLight(0x80ffa0, .8, .6); gl.position.set(s2 * .2, .5, .42); head.add(gl);
+  box(.03, .12, .02, mat('#5a0806'), s2 * .2 + .04, .37, .375, head); } // krvavé slzy
+for (let i = 0; i < 4; i++) tube(head, [[rand(-.3, .3), .1, .3], [rand(-.3, .3), -.05, .38], [rand(-.3, .3), -.2, .36]], .01, wire[i % 4]);
+// uši: levé dlouhé a zlomené, pravé utržené s kabely
+const eL = node(head, .2, .7, -.05); eL.rotation.z = -.15; box(.14, .7, .1, fur, 0, .35, 0, eL); const eL2 = node(eL, 0, .7, 0); eL2.rotation.z = -2.0; box(.13, .45, .09, fur, 0, .22, 0, eL2); box(.14, .06, .11, flesh, 0, .0, 0, eL2); box(.07, .3, .02, mat('#8a5a50'), 0, .25, .06, eL);
+const eR = node(head, -.2, .7, -.05); box(.14, .14, .1, fur, 0, .07, 0, eR); box(.06, .06, .06, metal, 0, .16, 0, eR); tube(eR, [[0, .14, 0], [-.05, .3, .02], [-.12, .36, -.05]], .012, wire[0]); tube(eR, [[0, .14, 0], [.04, .28, -.03], [.02, .4, .02]], .012, wire[1]);
+// ocas
+box(.2, .2, .18, mat('#a8a070'), 0, .1, -.36, hips);
+
+  if (clean) { const cleanTex = canvasTex(32, 32, (x, w, h) => { x.fillStyle = '#c8a848'; x.fillRect(0, 0, w, h); for (let i = 0; i < 20; i++) { x.fillStyle = `rgba(255,240,180,${rand(.1, .3)})`; x.fillRect(rand(0, w), rand(0, h), rand(1, 3), rand(1, 3)); } x.strokeStyle = 'rgba(0,0,0,.25)'; x.strokeRect(.5, .5, w - 1, h - 1); });
+    fur.map = cleanTex; fur.needsUpdate = true; const kill = ['0a0505', '000000', '060202', '5a0806', 'd8c8b0', 'f0e8d8', '3a0806', '2a0806', '6a2a24', 'b08a78', 'd8d0b8', '2a1a10', 'b0a080', '8a5a50'];
+    H.traverse(o => { if (o.isPointLight) o.visible = false; if (!o.isMesh) return; const m = o.material; if (o.geometry.type === 'TubeGeometry' || (m.color && kill.includes(m.color.getHexString())) || (m.isMeshBasicMaterial)) o.visible = false; });
+    box(.54, .5, .03, mat('#e0c870'), 0, .34, .3, chest); for (const s2 of [-1, 1]) box(.22, .2, .05, mat('#1a1408'), s2 * .2, .52, .34, head); jaw.rotation.x = .12; chest.rotation.x = .1; head.rotation.set(0, 0, 0); }
+  H.traverse(o => { if (o.isMesh) o.frustumCulled = false; });
+  H.userData = { head, jaw, chest, aL, aR, hips, legs, clean, irises, chestX: chest.rotation.x, headR: head.rotation.clone() }; return H;
+}
+const H = makeHare(false); scene.add(H); const u = H.userData;
+// spálení: zuhelnatělá srst, roztavené kusy, chybějící ucho, odhalená kostra, žhavé uhlíky
+const charTex = canvasTex(32, 32, (x, w, h) => { x.fillStyle = '#1a140e'; x.fillRect(0, 0, w, h); for (let i = 0; i < 50; i++) { x.fillStyle = `rgba(${Math.random() < .15 ? '255,90,20' : Math.random() < .5 ? '60,50,30' : '0,0,0'},${rand(.4, .9)})`; x.fillRect(rand(0, w), rand(0, h), rand(1, 4), rand(1, 4)); } });
+H.traverse(o => { if (!o.isMesh || o.geometry.type === 'SphereGeometry') return; const m = o.material; if (m.map) { o.material = new THREE.MeshLambertMaterial({ map: charTex }); } else if (m.color) { const c = m.color.clone().multiplyScalar(.25).lerp(new THREE.Color('#120c08'), .5); o.material = new THREE.MeshLambertMaterial({ color: c }); } });
+const ember = new THREE.MeshBasicMaterial({ color: 0xff6a20 }), metal = new THREE.MeshLambertMaterial({ color: '#5a5a60' });
+const box = (w, h, d, m, x, y, z, p) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); p.add(b); return b; };
+// ulomené ucho (zbyde jen kovová tyč)
+u.head.children.filter(c => c.isGroup).forEach((g, i) => { if (g.position.x > 0) { g.visible = false; box(.04, .5, .04, metal, .2, .95, -.05, u.head); box(.12, .04, .04, metal, .2, 1.2, -.05, u.head); } });
+// díry ve srsti s endoskeletonem
+for (const [x, y, z] of [[.35, .3, .2], [-.3, .5, .25], [.1, .65, -.25]]) { box(.2, .2, .05, new THREE.MeshLambertMaterial({ color: '#050302' }), x, y, z, u.chest); box(.04, .18, .04, metal, x, y, z + (z > 0 ? .03 : -.03), u.chest); }
+box(.14, .14, .14, metal, .2, .3, .36, u.head); // kov pod tváří
+// žhnoucí uhlíky po těle
+const embers = []; for (let i = 0; i < 28; i++) { const e = box(.025, .025, .025, ember, rand(-.4, .4), rand(.1, 1.9), rand(-.3, .3), H); e.userData.ph = rand(0, 9); embers.push(e); }
+// kouř
+const smoke = []; const smTex = canvasTex(64, 64, (x) => { const g = x.createRadialGradient(32, 32, 2, 32, 32, 30); g.addColorStop(0, 'rgba(60,55,50,.6)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, 64, 64); });
+for (let i = 0; i < 30; i++) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: smTex, transparent: true, depthWrite: false })); s.userData = { ph: rand(0, 6), x: rand(-.5, .5), z: rand(-.4, .4) }; scene.add(s); smoke.push(s); }
+// trosky kolem
+for (let i = 0; i < 16; i++) { const a = rand(0, 6.28), r = rand(.8, 2.4); const b = box(rand(.2, .6), rand(.05, .25), rand(.2, .6), new THREE.MeshLambertMaterial({ color: '#1a120c' }), Math.cos(a) * r, .08, Math.sin(a) * r, scene); b.rotation.y = rand(0, 3); }
+u.chest.rotation.x = .3; u.head.rotation.set(-.1, .35, .3);
+const bone = new THREE.MeshLambertMaterial({ color: '#cfc2a4' }), flesh = new THREE.MeshLambertMaterial({ color: '#4a1410' }), fleshD = new THREE.MeshLambertMaterial({ color: '#2a0806' }), hole = new THREE.MeshLambertMaterial({ color: '#050202' });
+// oči přestaly svítit: lidské oči s žilkami, bez světla
+u.head.traverse(o => { if (o.isPointLight) o.visible = false; });
+u.irises.forEach(ir => { ir.material = new THREE.MeshLambertMaterial({ color: '#3a2414' }); ir.scale.setScalar(1.3); });
+u.head.children.forEach(o => { if (o.isMesh && o.geometry.type === 'SphereGeometry' && !u.irises.includes(o)) { o.material = new THREE.MeshLambertMaterial({ color: '#e0d2c0' }); o.scale.setScalar(1.15); } });
+for (const sx of [-1, 1]) for (let i = 0; i < 3; i++) { const v = box(.035, .005, .01, new THREE.MeshLambertMaterial({ color: '#8a1010' }), sx * .2 + rand(-.02, .02), .5 + rand(-.03, .03), .39, u.head); v.rotation.z = rand(-1, 1); }
+// kus hlavy chybí: horní pravá část je pryč, vidět lebka a kovový rám
+u.head.children.forEach(o => { if (o.isMesh && o.geometry.parameters && Math.abs(o.geometry.parameters.width - .82) < .01 && Math.abs(o.geometry.parameters.height - .66) < .01) o.visible = false; if (o.isMesh && o.geometry.parameters && Math.abs(o.geometry.parameters.width - .84) < .01) o.visible = false; });
+const furM = new THREE.MeshLambertMaterial({ map: charTex });
+box(.82, .38, .7, furM, 0, .19, 0, u.head); box(.46, .3, .7, furM, -.18, .53, 0, u.head); box(.36, .14, .5, furM, .23, .44, -.1, u.head);
+box(.42, .36, .48, bone, .16, .54, -.02, u.head); box(.1, .08, .06, hole, .1, .58, .23, u.head); box(.08, .06, .05, hole, .26, .6, .2, u.head); // lebka s dírou
+for (const [x, z] of [[.05, -.25], [.35, -.25], [.35, .25]]) box(.04, .4, .04, metal, x, .6, z, u.head); box(.36, .04, .04, metal, .2, .8, -.25, u.head); box(.04, .04, .5, metal, .35, .8, 0, u.head);
+for (let i = 0; i < 6; i++) box(rand(.04, .1), rand(.03, .08), .04, fleshD, rand(-.05, .38), rand(.36, .72), .3, u.head);
+// tlama skoro pryč: zbyla kovová čelist, lidské zuby a maso
+u.jaw.visible = false; u.head.children.forEach(o => { if (o.isMesh && o.geometry.parameters && Math.abs(o.geometry.parameters.width - .05) < .001 && Math.abs(o.geometry.parameters.height - .13) < .001) o.visible = Math.random() < .3; });
+const sz = o => o.geometry.type === 'BoxGeometry' ? [o.geometry.parameters.width, o.geometry.parameters.height, o.geometry.parameters.depth].map(v => +v.toFixed(2)).join(',') : '';
+u.head.children.forEach(o => { if (!o.isMesh) return; const k = sz(o); if (['0.46,0.22,0.22', '0.12,0.08,0.06', '0.62,0.3,0.3', '0.5,0.1,0.02'].includes(k)) o.visible = false; });
+// místo tlamy: spálená lebka, horní čelist z kosti a kovu, maso
+box(.5, .26, .22, hole, 0, .1, .26, u.head); box(.4, .08, .2, bone, 0, .24, .33, u.head); for (let i = 0; i < 7; i++) if (Math.random() < .75) box(.035, .06, .03, bone, -.14 + i * .047, .18, .42, u.head);
+box(.2, .06, .08, fleshD, -.12, .28, .4, u.head); box(.14, .05, .06, flesh, .14, .12, .36, u.head); box(.04, .3, .04, metal, -.2, .1, .3, u.head); box(.04, .3, .04, metal, .2, .1, .3, u.head);
+const mj = new THREE.Group(); mj.position.set(0, .02, .14); mj.rotation.x = .95; u.head.add(mj);
+box(.46, .04, .04, metal, 0, -.02, .3, mj); box(.04, .04, .34, metal, -.22, -.02, .14, mj); box(.04, .04, .34, metal, .22, -.02, .14, mj);
+for (let i = 0; i < 7; i++) if (Math.random() < .8) box(.04, .05, .03, bone, -.15 + i * .05, .02, .3, mj);
+box(.36, .06, .26, flesh, 0, .0, .15, mj); box(.4, .1, .06, fleshD, 0, .06, .3, u.head);
+// prohořelá místa: endoskeleton, kosti a maso D.
+const burnHole = (p, x, y, z, w, h, nz = 1) => { box(w, h, .05, hole, x, y, z, p); box(w * .7, h * .5, .04, flesh, x, y + h * .1, z + .01 * nz, p); box(.035, h * .9, .035, metal, x - w * .25, y, z + .025 * nz, p); box(w * .55, .03, .03, bone, x + w * .05, y - h * .2, z + .03 * nz, p); };
+burnHole(u.chest, .32, .45, .29, .3, .34); burnHole(u.chest, -.28, .2, .29, .26, .26); burnHole(u.chest, .1, .6, -.29, .4, .3, -1); burnHole(u.chest, -.3, .55, .29, .2, .18);
+for (let i = 0; i < 5; i++) box(.3, .025, .03, bone, .05, .2 + i * .07, .31, u.chest); // žebra
+u.legs.forEach((l, i) => { burnHole(l, 0, -.22, .155, .2, .3); const k = l.children.find(c => c.isGroup); if (k) burnHole(k, 0, -.15, .145, .18, .22); });
+burnHole(u.aL, 0, -.2, .125, .18, .26); box(.05, .4, .05, bone, 0, -.2, .13, u.aL);
+for (let i = 0; i < 4; i++) box(rand(.08, .16), rand(.08, .16), .05, flesh, rand(-.35, .35), rand(.05, .7), .3, u.chest); u.aR.rotation.set(-.2, 0, -.5);
+function resize() { renderer.setSize(innerWidth, innerHeight, false); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); } addEventListener('resize', resize); resize();
+const clock = new THREE.Clock();
+function loop() { const t = clock.getElapsedTime(); if (!window.__still) H.rotation.y = Math.sin(t * .35) * .6;
+  embers.forEach(e => e.material === ember && (e.scale.setScalar(.6 + Math.abs(Math.sin(t * 3 + e.userData.ph)) * .8)));
+  smoke.forEach(s => { const k = ((t * .25 + s.userData.ph) % 1); s.position.set(s.userData.x + Math.sin(t + s.userData.ph) * .1, .5 + k * 2.6, s.userData.z); s.scale.setScalar(.4 + k * 1.2); s.material.opacity = (1 - k) * .7; });
+  fire1.intensity = 12 + Math.random() * 5; fire2.intensity = 8 + Math.random() * 4;
+  renderer.render(scene, cam); requestAnimationFrame(loop); }
+loop();
+window.__b = { set(y, cx, cy, cz, tx = 0, ty = 1.2) { window.__still = true; H.rotation.y = y; cam.position.set(cx, cy, cz); ctl.target.set(tx, ty, 0); ctl.update(); } };
+</script></body></html>

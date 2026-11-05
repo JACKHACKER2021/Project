@@ -1,0 +1,371 @@
+{
+ "sfx": {
+  "spark": 0.3087528344671202,
+  "step": 0.2836281179138322,
+  "click": 0.07811791383219954,
+  "cam": 0.2276643990929705,
+  "lure": 0.8600453514739229,
+  "whisper": 1.299501133786848,
+  "drain": 1.1501814058956916,
+  "scare": 1.299546485260771,
+  "chime": 3.2,
+  "powerdown": 1.7173696145124717,
+  "scare_v": 1.229954648526077,
+  "scare_c": 1.5,
+  "heart": 0.4821541950113379,
+  "drip": 0.4731972789115646,
+  "vent": 0.4331972789115646,
+  "servo": 0.3710430839002268,
+  "task": 0.2801814058956916,
+  "fixed": 0.1606575963718821,
+  "pick": 0.24219954648526076,
+  "can": 0.24229024943310656,
+  "draw": 0.3264625850340136,
+  "hs": 0.7083446712018141,
+  "ring": 0.29086167800453516,
+  "hangup": 0.6392290249433107,
+  "doorcreak": 0.6352154195011338,
+  "crackle": 0.19104308390022676,
+  "whoosh": 1.0512698412698414,
+  "burnlong": 1.5908390022675738,
+  "hurt": 0.3760997732426304,
+  "clunk": 0.3291609977324263,
+  "egg": 0.5125396825396825,
+  "jump": 0.28328798185941045,
+  "ambient": 4
+ },
+ "voice": {
+  "Vítejte ve Frights and Hides! Já jsem Kroupa, majitel.": {
+   "f": "k0.wav",
+   "dur": 3.01
+  },
+  "Všechno, co tady vidíte, jsme vykopali ze sutin té staré herny Voxie's.": {
+   "f": "k1.wav",
+   "dur": 4.09
+  },
+  "Tady je herna. Automaty jsou ohořelé, ale lidi je milujou.": {
+   "f": "k2.wav",
+   "dur": 4.2
+  },
+  "A tohle je naše hvězda. Voxie Bear. Teda, co z něj zbylo. Nesahat!": {
+   "f": "k3.wav",
+   "dur": 4.61
+  },
+  "Hlava Cocoy. Je ve vitríně, protože ji lidi chtěli odnášet domů.": {
+   "f": "k4.wav",
+   "dur": 4.29
+  },
+  "Pizzerie. Stoly jsou originál, i ty kloboučky.": {
+   "f": "k5.wav",
+   "dur": 3.17
+  },
+  "Archiv. Tahle kresba se našla v bludišti. Někdo na ni napsal táta.": {
+   "f": "k6.wav",
+   "dur": 4.2
+  },
+  "A vzadu je zákulisí. Včera sem přivezli toho zajíce.": {
+   "f": "k7.wav",
+   "dur": 3.53
+  },
+  "Říkáme mu Hollow Hare. Ten smrad jsou prý efekty. Nechoďte k němu.": {
+   "f": "k8.wav",
+   "dur": 4.09
+  },
+  "Tohle je vaše kancelář. Počítač je nový, Windows XP.": {
+   "f": "k9.wav",
+   "dur": 3.18
+  },
+  "Každou noc mi napíšete hlášení. Bez hlášení žádná výplata.": {
+   "f": "k10.wav",
+   "dur": 3.46
+  },
+  "Dveře i šachta se dají zavřít, ale pak se tu nedá dýchat. Hodně štěstí.": {
+   "f": "k11.wav",
+   "dur": 4.32
+  },
+  "Tak co, zvládl jste první noc? Výborně.": {
+   "f": "k12.wav",
+   "dur": 2.18
+  },
+  "Návštěvníci tvrdí, že zajíc stál jinde, než jsme ho nechali. To jsou ty efekty.": {
+   "f": "k13.wav",
+   "dur": 4.5
+  },
+  "Hlášení do šesti. Dobrou noc.": {
+   "f": "k14.wav",
+   "dur": 1.86
+  },
+  "Volali mi z muzea. Chtějí toho zajíce koupit! Za majlant.": {
+   "f": "k15.wav",
+   "dur": 3.85
+  },
+  "Jen na něj nekoukejte moc dlouho. Prý se z toho lidem dělá zle.": {
+   "f": "k16.wav",
+   "dur": 3.65
+  },
+  "Jeden brigádník dneska omdlel u zákulisí. Prý slyšel, jak zajíc mluví.": {
+   "f": "k17.wav",
+   "dur": 4.06
+  },
+  "Nesmysl. Ale kdyby vám bylo zle, v šuplíku máte prášky.": {
+   "f": "k18.wav",
+   "dur": 3.32
+  },
+  "Zítra si pro zajíce přijedou. Poslední noc, pak budete mít klid.": {
+   "f": "k19.wav",
+   "dur": 3.8
+  },
+  "A kdyby vám v hlavě něco šeptalo, nevšímejte si toho. Mně taky šeptá.": {
+   "f": "k20.wav",
+   "dur": 4.52
+  },
+  "Vidím tě, hlídači.": {
+   "f": "h0.wav",
+   "dur": 1.55
+  },
+  "Pusť mě ven. Bolí to.": {
+   "f": "h1.wav",
+   "dur": 1.91
+  },
+  "Zámky pořád cvakají.": {
+   "f": "h2.wav",
+   "dur": 51.63
+  },
+  "Proč se díváš? Pojď blíž.": {
+   "f": "h3.wav",
+   "dur": 1.82
+  },
+  "Tady tě nikdo neuslyší.": {
+   "f": "h4.wav",
+   "dur": 1.7
+  },
+  "Otevři dveře.": {
+   "f": "h5.wav",
+   "dur": 1.24
+  },
+  "Jsem uvnitř. Pořád jsem uvnitř.": {
+   "f": "h6.wav",
+   "dur": 2.24
+  },
+  "Mám tě.": {
+   "f": "h7.wav",
+   "dur": 0.58
+  },
+  "Konečně normální práce. A ne nějaký animatronik.": {
+   "f": "p0.wav",
+   "dur": 3.17
+  },
+  "A dneska v zákulisí poskládejte krabice. Zajíc tam musí mít místo.": {
+   "f": "k2_0.wav",
+   "dur": 3.92
+  },
+  "A vytřete podlahu, je celá od bláta. V šuplíku máte prášky.": {
+   "f": "k2_1.wav",
+   "dur": 43.07
+  },
+  "Zajíc má zase jinak hlavu. Asi ho otočili návštěvníci.": {
+   "f": "k2_2.wav",
+   "dur": 3.65
+  },
+  "Nekoukejte na něj moc dlouho. Prý se z toho lidem dělá zle.": {
+   "f": "k2_3.wav",
+   "dur": 3.43
+  },
+  "Zítra přijede muzeum. Projděte dnes všechny exponáty, ať je všechno na místě.": {
+   "f": "k2_4.wav",
+   "dur": 4.49
+  },
+  "Poslední noc. Ráno si zajíce odvezou a budete mít klid.": {
+   "f": "k2_5.wav",
+   "dur": 3.54
+  },
+  "No vida! Tak to jste ten pravý člověk na tuhle práci.": {
+   "f": "k2_6.wav",
+   "dur": 2.91
+  },
+  "Haha! Duchové. To prodáme návštěvníkům.": {
+   "f": "k2_7.wav",
+   "dur": 3.03
+  },
+  "Myslete si svoje. Je to jen oblek se zámky.": {
+   "f": "k2_8.wav",
+   "dur": 2.76
+  },
+  "Haha, a já jsem papež. Pište hlášení a nebojte se.": {
+   "f": "k2_9.wav",
+   "dur": 3.52
+  },
+  "Haha. Myslete si svoje. Zítra je poslední noc.": {
+   "f": "k2_10.wav",
+   "dur": 3.51
+  },
+  "Hlavně ať se nic nerozbije, ano? Dobrou noc.": {
+   "f": "k2_11.wav",
+   "dur": 2.89
+  },
+  "Frights and Hides. Strašidelný dům z věcí po herně Voxie's.": {
+   "f": "p2_0.wav",
+   "dur": 2.85
+  },
+  "Tam, kde jsem kdysi hlídal, je teď jen popel. A tady jsou jeho zbytky.": {
+   "f": "p2_1.wav",
+   "dur": 4.03
+  },
+  "Voxie. Pamatuju si ho, když ještě stál na pódiu.": {
+   "f": "p2_2.wav",
+   "dur": 2.96
+  },
+  "Cocoa. Viděl jsem ji tu noc hořet.": {
+   "f": "p2_3.wav",
+   "dur": 1.95
+  },
+  "Ten zajíc. Má v sobě něco. Cítím to.": {
+   "f": "p2_4.wav",
+   "dur": 2.64
+  },
+  "Tady to někde musí být. Kanystr.": {
+   "f": "p2_5.wav",
+   "dur": 1.98
+  },
+  "Shoř. Shoř i s ním.": {
+   "f": "p2_6.wav",
+   "dur": 1.11
+  },
+  "Pane Kroupo, já tu hernu znám. Hlídal jsem tam, když vyhořela.": {
+   "f": "p2_7.wav",
+   "dur": 3.52
+  },
+  "V té herně jsem viděl ducha Cocoy. Malou holku. Emu.": {
+   "f": "p2_8.wav",
+   "dur": 3.19
+  },
+  "Ten zajíc. Uvnitř je člověk. Myslím, že je to D., ten hlídač, co utekl.": {
+   "f": "p2_9.wav",
+   "dur": 4.78
+  },
+  "D. je mrtvý. Zámky ho rozdrtily, když si ten oblek oblékl. Je pořád uvnitř.": {
+   "f": "p2_10.wav",
+   "dur": 4.6
+  },
+  "Bojím se o život, pane Kroupo. Každou noc chodí blíž.": {
+   "f": "p2_11.wav",
+   "dur": 2.96
+  },
+  "Dnes to skončí. Tak či onak.": {
+   "f": "p2_12.wav",
+   "dur": 1.73
+  },
+  "Emo. Emo, kde jsi?": {
+   "f": "v2_0.wav",
+   "dur": 2.06
+  },
+  "Já jsem Vojtěch. Pomozte mi.": {
+   "f": "v2_1.wav",
+   "dur": 2.28
+  },
+  "Neubližuj mu. On za to nemůže.": {
+   "f": "v2_2.wav",
+   "dur": 48.98
+  },
+  "Já nejsem zajíc.": {
+   "f": "h2_0.wav",
+   "dur": 1.14
+  },
+  "Jmenuju se D. Pamatuješ si mě?": {
+   "f": "h2_1.wav",
+   "dur": 2.66
+  },
+  "Zámky mě rozdrtily.": {
+   "f": "h2_2.wav",
+   "dur": 51.62
+  },
+  "Jsem mrtvý. A pořád tu jsem.": {
+   "f": "h2_3.wav",
+   "dur": 1.99
+  },
+  "Hoří to! Ne! Ne!": {
+   "f": "h2_4.wav",
+   "dur": 2.19
+  },
+  "Já nejsem Vojtěch.": {
+   "f": "s2_0.wav",
+   "dur": 1.71
+  },
+  "Děkuji, žes mě nenechal jako duši v tomhle obleku.": {
+   "f": "v3_0.wav",
+   "dur": 3.58
+  },
+  "Před týdnem jsem ještě hlídal hernu Voxie's.": {
+   "f": "m_0.wav",
+   "dur": 1.89
+  },
+  "V šest ráno jsem odešel. Za pár minut stála celá v plamenech.": {
+   "f": "m_1.wav",
+   "dur": 3.43
+  },
+  "Policie si myslela, že jsem to byl já.": {
+   "f": "m_2.wav",
+   "dur": 2.22
+  },
+  "V roce devadesát sedm zmizela na oslavě malá Ema.": {
+   "f": "m_3.wav",
+   "dur": 2.7
+  },
+  "Její duše skončila v kostýmu Cocoy. Viděl jsem ji. Mluvila se mnou.": {
+   "f": "m_4.wav",
+   "dur": 4.05
+  },
+  "A její táta, pan Vojtěch, zůstal v obleku Voxieho.": {
+   "f": "m_5.wav",
+   "dur": 3.08
+  },
+  "Hlídač D. tehdy věděl všechno. Měl klíč od kanceláře.": {
+   "f": "m_6.wav",
+   "dur": 3.28
+  },
+  "Po požáru ho zatkli. Utekl jim při převozu k soudu.": {
+   "f": "m_7.wav",
+   "dur": 2.94
+  },
+  "Schoval se ve skladu pana Vojtěcha. Do starého obleku Hollow Bunnyho.": {
+   "f": "m_8.wav",
+   "dur": 4.12
+  },
+  "Hollow Bunny byl odstavený od roku osmdesát. Kvůli zámkům.": {
+   "f": "m_9.wav",
+   "dur": 3.59
+  },
+  "Když utíkal, zámky povolily. Jeden po druhém.": {
+   "f": "m_10.wav",
+   "dur": 2.93
+  },
+  "Nikdo ho nenašel. Jen zajíce, který seděl jinak než předtím.": {
+   "f": "m_11.wav",
+   "dur": 3.73
+  },
+  "Kroupa koupil všechno, co přežilo požár. I toho zajíce.": {
+   "f": "m_12.wav",
+   "dur": 3.48
+  },
+  "A teď ho chce prodat do muzea. S D. uvnitř.": {
+   "f": "m_13.wav",
+   "dur": 2.73
+  },
+  "Nemůžu to dovolit. Musí to skončit tady.": {
+   "f": "m_14.wav",
+   "dur": 2.61
+  },
+  "Dnes v noci to skončí.": {
+   "f": "m_15.wav",
+   "dur": 1.05
+  },
+  "Herna vyhořela jednou. Tohle místo vyhoří taky.": {
+   "f": "m_16.wav",
+   "dur": 3.12
+  },
+  "Pro Emu. Pro pana Vojtěcha. I pro D.": {
+   "f": "m_17.wav",
+   "dur": 2.65
+  }
+ }
+}

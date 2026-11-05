@@ -1,0 +1,223 @@
+{
+ "tour": [
+  {
+   "at": "LOBBY",
+   "o": [
+    "Vítejte ve Frights and Hides! Já jsem Kroupa, majitel.",
+    "Všechno, co tady vidíte, jsme vykopali ze sutin té staré herny Voxie's."
+   ]
+  },
+  {
+   "at": "ARC",
+   "o": [
+    "Tady je herna. Automaty jsou ohořelé, ale lidi je milujou."
+   ]
+  },
+  {
+   "at": "HALL",
+   "o": [
+    "A tohle je naše hvězda. Voxie Bear. Teda, co z něj zbylo. Nesahat!"
+   ]
+  },
+  {
+   "at": "COC",
+   "o": [
+    "Hlava Cocoy. Je ve vitríně, protože ji lidi chtěli odnášet domů."
+   ]
+  },
+  {
+   "at": "PIZ",
+   "o": [
+    "Pizzerie. Stoly jsou originál, i ty kloboučky."
+   ]
+  },
+  {
+   "at": "ARCH",
+   "o": [
+    "Archiv. Tahle kresba se našla v bludišti. Někdo na ni napsal táta."
+   ]
+  },
+  {
+   "at": "BACK",
+   "o": [
+    "A vzadu je zákulisí. Včera sem přivezli toho zajíce.",
+    "Říkáme mu Hollow Hare. Ten smrad jsou prý efekty. Nechoďte k němu."
+   ]
+  },
+  {
+   "at": "OFF",
+   "o": [
+    "Tohle je vaše kancelář. Počítač je nový, Windows XP.",
+    "Každou noc mi napíšete hlášení. Bez hlášení žádná výplata.",
+    "Dveře i šachta se dají zavřít, ale pak se tu nedá dýchat. Hodně štěstí."
+   ]
+  }
+ ],
+ "nights": {
+  "2": [
+   "Tak co, zvládl jste první noc? Výborně.",
+   "Návštěvníci tvrdí, že zajíc stál jinde, než jsme ho nechali. To jsou ty efekty."
+  ],
+  "3": [
+   "Volali mi z muzea. Chtějí toho zajíce koupit! Za majlant.",
+   "A dneska v zákulisí poskládejte krabice. Zajíc tam musí mít místo."
+  ],
+  "4": [
+   "Jeden brigádník dneska omdlel u zákulisí. Prý slyšel, jak zajíc mluví.",
+   "A vytřete podlahu, je celá od bláta. V šuplíku máte prášky."
+  ],
+  "5": [
+   "Zajíc má zase jinak hlavu. Asi ho otočili návštěvníci.",
+   "Nekoukejte na něj moc dlouho. Prý se z toho lidem dělá zle."
+  ],
+  "6": [
+   "Zítra přijede muzeum. Projděte dnes všechny exponáty, ať je všechno na místě."
+  ],
+  "7": [
+   "Poslední noc. Ráno si zajíce odvezou a budete mít klid."
+  ]
+ },
+ "hare": [
+  "Vidím tě, hlídači.",
+  "Pusť mě ven. Bolí to.",
+  "Zámky pořád cvakají.",
+  "Proč se díváš? Pojď blíž.",
+  "Tady tě nikdo neuslyší.",
+  "Otevři dveře.",
+  "Jsem uvnitř. Pořád jsem uvnitř.",
+  "Mám tě."
+ ],
+ "arrive": [
+  "Konečně normální práce. A ne nějaký animatronik.",
+  "Frights and Hides. Strašidelný dům z věcí po herně Voxie's.",
+  "Tam, kde jsem kdysi hlídal, je teď jen popel. A tady jsou jeho zbytky."
+ ],
+ "tour_p": {
+  "HALL": "Voxie. Pamatuju si ho, když ještě stál na pódiu.",
+  "COC": "Cocoa. Viděl jsem ji tu noc hořet.",
+  "BACK": "Ten zajíc. Má v sobě něco. Cítím to."
+ },
+ "talk": {
+  "2": [
+   [
+    "P",
+    "Pane Kroupo, já tu hernu znám. Hlídal jsem tam, když vyhořela."
+   ],
+   [
+    "O",
+    "No vida! Tak to jste ten pravý člověk na tuhle práci."
+   ]
+  ],
+  "3": [
+   [
+    "P",
+    "V té herně jsem viděl ducha Cocoy. Malou holku. Emu."
+   ],
+   [
+    "O",
+    "Haha! Duchové. To prodáme návštěvníkům."
+   ]
+  ],
+  "4": [
+   [
+    "P",
+    "Ten zajíc. Uvnitř je člověk. Myslím, že je to D., ten hlídač, co utekl."
+   ],
+   [
+    "O",
+    "Myslete si svoje. Je to jen oblek se zámky."
+   ]
+  ],
+  "5": [
+   [
+    "P",
+    "D. je mrtvý. Zámky ho rozdrtily, když si ten oblek oblékl. Je pořád uvnitř."
+   ],
+   [
+    "O",
+    "Haha, a já jsem papež. Pište hlášení a nebojte se."
+   ]
+  ],
+  "6": [
+   [
+    "P",
+    "Bojím se o život, pane Kroupo. Každou noc chodí blíž."
+   ],
+   [
+    "O",
+    "Haha. Myslete si svoje. Zítra je poslední noc."
+   ]
+  ],
+  "7": [
+   [
+    "P",
+    "Dnes to skončí. Tak či onak."
+   ],
+   [
+    "O",
+    "Hlavně ať se nic nerozbije, ano? Dobrou noc."
+   ]
+  ]
+ },
+ "voxie": [
+  "Emo. Emo, kde jsi?",
+  "Já jsem Vojtěch. Pomozte mi.",
+  "Neubližuj mu. On za to nemůže."
+ ],
+ "hare_n": {
+  "3": [
+   "Já nejsem zajíc."
+  ],
+  "4": [
+   "Jmenuju se D. Pamatuješ si mě?"
+  ],
+  "5": [
+   "Zámky mě rozdrtily."
+  ],
+  "6": [
+   "Jsem mrtvý. A pořád tu jsem."
+  ],
+  "7": [
+   "Hoří to! Ne! Ne!"
+  ]
+ },
+ "shadow": [
+  "Já nejsem Vojtěch."
+ ],
+ "p_misc": [
+  "Tady to někde musí být. Kanystr.",
+  "Shoř. Shoř i s ním."
+ ],
+ "memory": {
+  "2": [
+   "Před týdnem jsem ještě hlídal hernu Voxie's.",
+   "V šest ráno jsem odešel. Za pár minut stála celá v plamenech.",
+   "Policie si myslela, že jsem to byl já."
+  ],
+  "3": [
+   "V roce devadesát sedm zmizela na oslavě malá Ema.",
+   "Její duše skončila v kostýmu Cocoy. Viděl jsem ji. Mluvila se mnou.",
+   "A její táta, pan Vojtěch, zůstal v obleku Voxieho."
+  ],
+  "4": [
+   "Hlídač D. tehdy věděl všechno. Měl klíč od kanceláře.",
+   "Po požáru ho zatkli. Utekl jim při převozu k soudu.",
+   "Schoval se ve skladu pana Vojtěcha. Do starého obleku Hollow Bunnyho."
+  ],
+  "5": [
+   "Hollow Bunny byl odstavený od roku osmdesát. Kvůli zámkům.",
+   "Když utíkal, zámky povolily. Jeden po druhém.",
+   "Nikdo ho nenašel. Jen zajíce, který seděl jinak než předtím."
+  ],
+  "6": [
+   "Kroupa koupil všechno, co přežilo požár. I toho zajíce.",
+   "A teď ho chce prodat do muzea. S D. uvnitř.",
+   "Nemůžu to dovolit. Musí to skončit tady."
+  ],
+  "7": [
+   "Dnes v noci to skončí.",
+   "Herna vyhořela jednou. Tohle místo vyhoří taky.",
+   "Pro Emu. Pro pana Vojtěcha. I pro D."
+  ]
+ }
+}

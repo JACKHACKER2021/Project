@@ -1,0 +1,7 @@
+.godot/
+export/
+*.apk
+*.keystore
+models/*.glb
+models/*.png
+models/*.import

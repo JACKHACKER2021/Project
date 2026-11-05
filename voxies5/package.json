@@ -1,0 +1,13 @@
+{
+  "name": "night-at-voxies-5",
+  "version": "1.1.0",
+  "private": true,
+  "description": "Night at Voxie's 5 – VoxieWorks",
+  "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/core": "^6.1.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.1.2"
+  }
+}
