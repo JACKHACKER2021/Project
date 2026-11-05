@@ -18,7 +18,7 @@
         "sky_color": "#7f9a62"
       },
       "minecraft:water_appearance": {
-        "surface_color": "#375154"
+        "surface_color": "#4f7a2a"
       },
       "minecraft:fog_appearance": {
         "fog_identifier": "minecraft:fog_dappled_forest"

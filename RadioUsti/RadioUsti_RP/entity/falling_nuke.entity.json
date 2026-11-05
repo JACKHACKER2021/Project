@@ -1,0 +1,20 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "radiousti:falling_nuke",
+      "materials": {
+        "default": "entity_alphatest"
+      },
+      "textures": {
+        "default": "textures/entity/radiousti_falling_nuke"
+      },
+      "geometry": {
+        "default": "geometry.radiousti.falling_nuke"
+      },
+      "render_controllers": [
+        "controller.render.default"
+      ]
+    }
+  }
+}

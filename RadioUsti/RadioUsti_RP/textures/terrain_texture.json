@@ -684,6 +684,21 @@
     },
     "radiousti_radioactive_dust": {
       "textures": "textures/blocks/radiousti_radioactive_dust"
+    },
+    "radiousti_asphalt": {
+      "textures": "textures/blocks/radiousti_asphalt"
+    },
+    "radiousti_asphalt_line": {
+      "textures": "textures/blocks/radiousti_asphalt_line"
+    },
+    "radiousti_asphalt_cracked": {
+      "textures": "textures/blocks/radiousti_asphalt_cracked"
+    },
+    "radiousti_sidewalk": {
+      "textures": "textures/blocks/radiousti_sidewalk"
+    },
+    "radiousti_car_rust": {
+      "textures": "textures/blocks/radiousti_car_rust"
     }
   }
 }

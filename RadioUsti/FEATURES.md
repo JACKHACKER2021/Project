@@ -1,4 +1,4 @@
-# RadioÚstí – stav funkcí
+# Zeds World: RadioÚstí 2.0 – stav funkcí
 
 Stavy: **implementováno** · **staticky ověřeno** (JSON schémata, křížové odkazy, typová kontrola skriptů, simulace geometrie) · **otestováno ve hře** · **neúplné** · **nepodporováno**
 
@@ -69,6 +69,12 @@ Verze 1.0.0 byla podle autora otestovaná ve hře a funguje („Otestováno a co
 | G29 | Kontaminovaná sféra: uzavřené dimenze + zásobovací bedna | staticky ověřeno | – | |
 | G30 | Bunkr: bloky odolné atomovce, úkryt před radiací, struktura `bunkr` | staticky ověřeno | – | |
 | G31 | Radioaktivní prach proniká otvory do budov, kontrola utěsnění | staticky ověřeno | – | |
+| H1 | Atomovky: interval 1 min, více padajících bomb, kráter, hřib, záblesk, nový model | staticky ověřeno | – | |
+| H2 | 6 struktur generovaných ve světě + loot | staticky ověřeno | – | structure_template_feature + feature rules |
+| H3 | Přeživší obchodník + zvon osady | staticky ověřeno | – | |
+| H4 | Kontaminované vanilla jídlo, 5 čistých jídel | staticky ověřeno | – | |
+| H5 | Nazelenalá voda, silnější radiace tvorů | staticky ověřeno | – | |
+| H6 | Nový název, logo, verze 2.0.0 | staticky ověřeno | – | |
 | F1 | Validace JSON, geometrií, skriptů, ID, textur | staticky ověřeno | – | `tools/validate.py`: 0 chyb; komunitní JSON schémata: 0 nálezů |
 | F2 | Export .mcaddon + .mcpack | staticky ověřeno | – | `tools/package.py`, kontrola integrity ZIP |
 | F3 | Test v Minecraftu Bedrock 1.26.50 | 1.0.0 načteno a hratelné | ✓ (1.0.0, obecně) | 1.1 čeká na test |

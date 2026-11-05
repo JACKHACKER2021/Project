@@ -9,7 +9,7 @@
         "fog_identifier": "minecraft:fog_extreme_hills_plus_trees"
       },
       "minecraft:water_appearance": {
-        "surface_color": "#0E63AB"
+        "surface_color": "#4f7a2a"
       },
       "minecraft:atmosphere_identifier": {
         "atmosphere_identifier": "radiousti:atmosphere"

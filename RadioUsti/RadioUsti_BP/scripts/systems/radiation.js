@@ -223,7 +223,8 @@ function applyRadiationEffect(e, dose, isPlayer) {
       e.addEffect("slowness", 60, { amplifier: 0, showParticles: false });
       if (isPlayer) e.addEffect("hunger", 60, { amplifier: 1, showParticles: false });
     }
-    if (lvl >= 3) e.applyDamage(lvl === 3 ? 1 : 3, { cause: EntityDamageCause.magic });
+    if (isPlayer && lvl >= 3) e.applyDamage(lvl === 3 ? 1 : 3, { cause: EntityDamageCause.magic });
+    if (!isPlayer && lvl >= 2) e.applyDamage(lvl === 2 ? 1 : lvl === 3 ? 2 : 4, { cause: EntityDamageCause.magic });
   } catch {
     /* entity gone or not damageable */
   }
@@ -263,7 +264,7 @@ export function mobRadiationTick(players) {
         if (w) rate += w * 0.5;
       }
       let dose = Number(e.getDynamicProperty("ru:dose") ?? 0);
-      dose = Math.max(0, Math.min(150, rate > 0 ? dose + rate * cfg.radiationMultiplier : dose - 0.15));
+      dose = Math.max(0, Math.min(150, rate > 0 ? dose + rate * 2 * cfg.radiationMultiplier : dose - 0.15)); // mobs absorb twice as fast
       if (dose <= 0 && rate <= 0) continue;
       e.setDynamicProperty("ru:dose", dose);
       applyRadiationEffect(e, dose, false);

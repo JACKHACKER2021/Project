@@ -191,6 +191,21 @@
     "radiousti_hand_siren": {
       "textures": "textures/items/radiousti_hand_siren"
     },
+    "radiousti_canned_food": {
+      "textures": "textures/items/radiousti_canned_food"
+    },
+    "radiousti_mre_ration": {
+      "textures": "textures/items/radiousti_mre_ration"
+    },
+    "radiousti_purified_water": {
+      "textures": "textures/items/radiousti_purified_water"
+    },
+    "radiousti_decontaminated_bread": {
+      "textures": "textures/items/radiousti_decontaminated_bread"
+    },
+    "radiousti_iodine_soup": {
+      "textures": "textures/items/radiousti_iodine_soup"
+    },
     "radiousti_generator_standard_icon": {
       "textures": "textures/items/radiousti_generator_standard_icon"
     },
@@ -250,6 +265,12 @@
     },
     "radiousti_bunker_door_icon": {
       "textures": "textures/items/radiousti_bunker_door_icon"
+    },
+    "radiousti_car_wreck_icon": {
+      "textures": "textures/items/radiousti_car_wreck_icon"
+    },
+    "radiousti_street_lamp_icon": {
+      "textures": "textures/items/radiousti_street_lamp_icon"
     }
   }
 }

@@ -196,7 +196,7 @@ async function openBook(player, chapters, title, intro, page = -1) {
 }
 
 export async function openHandbook(player) {
-  return openBook(player, HANDBOOK, "Příručka RadioÚstí", "Zeds World • RadioÚstí 2072\nAutor add-onu: Jackhack2021");
+  return openBook(player, HANDBOOK, "Příručka RadioÚstí", "Zeds World: RadioÚstí 2.0\nAutor add-onu: Jackhack2021");
 }
 
 export async function openRegistry(player) {

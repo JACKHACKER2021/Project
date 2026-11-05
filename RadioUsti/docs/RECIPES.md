@@ -6,7 +6,7 @@ _Generováno nástrojem `tools/build.py` z `tools/recipes.py`._
 Laboratorní stanice (zpracování vzorků, palivové tyče…) jsou popsané v README v kapitole Laboratoř.
 
 
-## Pracovní stůl (84)
+## Pracovní stůl (90)
 
 - **Systémový analyzátor RadioÚstí** ×1: vzor ` R  / IPI / ICI` – `R` = redstone, `I` = iron_ingot, `P` = glass_pane, `C` = copper_ingot
 - **Příručka RadioÚstí** ×1: 1× book + 1× yellow_dye
@@ -92,8 +92,14 @@ Laboratorní stanice (zpracování vzorků, palivové tyče…) jsou popsané v 
 - **Muzejní cedulka** ×2: 1× gold_ingot + 1× paper
 - **Muzejní zábrana s provazem** ×2: vzor `GSG / G G` – `G` = gold_ingot, `S` = string
 - **Muzejní lavice** ×2: vzor `PPP / I I` – `P` = libovolné planks, `I` = iron_nugget
+- **Asfalt** ×4: 2× gravel + 1× libovolné coals
+- **Asfalt s čárou** ×1: 1× Asfalt + 1× yellow_dye
+- **Popraskaný asfalt** ×1: 1× Asfalt + 1× flint
+- **Chodník** ×4: vzor `CC / CC` – `C` = Blok cementu
+- **Pouliční lampa** ×1: vzor ` G  /  C  /  C ` – `G` = glowstone, `C` = Blok cementu
+- **Zvon osady přeživších** ×1: vzor `PPP / GBG / P P` – `P` = libovolné planks, `G` = gold_ingot, `B` = bell
 
-## Průmyslový ponk (95)
+## Průmyslový ponk (101)
 
 - **Vodovodní potrubí** ×6: 3× copper_ingot + 1× iron_ingot
 - **Tenké nástěnné vodovodní potrubí** ×8: 1× copper_ingot + 2× iron_nugget
@@ -190,8 +196,14 @@ Laboratorní stanice (zpracování vzorků, palivové tyče…) jsou popsané v 
 - **Vyztužená stěna bunkru** ×4: vzor `BMB / MBM / BMB` – `B` = Beton bunkru, `M` = Ingot Liverocrystal Metal
 - **Pancéřové okno bunkru** ×4: vzor `BHB / HHH / BHB` – `B` = Beton bunkru, `H` = Sklo hermetické komory
 - **Pancéřové dveře bunkru** ×1: vzor `RR / RD / RR` – `R` = Vyztužená stěna bunkru, `D` = Bezpečnostní roletové dveře
+- **Konzerva Zeds Corp** ×2: 2× iron_nugget + 1× cooked_beef
+- **Konzerva Zeds Corp** ×2: 2× iron_nugget + 1× cooked_porkchop
+- **Konzerva Zeds Corp** ×2: 2× iron_nugget + 1× cooked_chicken
+- **Konzerva Zeds Corp** ×2: 2× iron_nugget + 1× cooked_mutton
+- **Vojenská dávka (MRE)** ×1: 1× Konzerva Zeds Corp + 1× bread + 1× paper
+- **Vrak auta** ×1: vzor `III / GIG / WIW` – `I` = iron_block, `G` = glass_pane, `W` = black_wool
 
-## Laboratorní stůl (33)
+## Laboratorní stůl (36)
 
 - **Prázdná laboratorní nádoba** ×3: vzor `G G / G G / GGG` – `G` = glass
 - **Prázdná zkumavka** ×4: vzor `G / G / G` – `G` = glass
@@ -226,6 +238,9 @@ Laboratorní stanice (zpracování vzorků, palivové tyče…) jsou popsané v 
 - **Kádě s biogenním sérem** ×1: vzor `MGM / GSG / MGM` – `M` = Ingot Liverocrystal Metal, `G` = glass, `S` = Biogenní sérum (B-9)
 - **Kbelík – krev** ×1: 1× bucket + 1× Nádoba s krví
 - **Dekontaminační plášť** ×1: vzor `WW / GG / WW` – `W` = white_wool, `G` = Baňka se zeleným činidlem
+- **Filtrovaná voda** ×1: 1× glass_bottle + 1× charcoal + 1× sand
+- **Dekontaminovaný chléb** ×4: 4× bread + 1× Baňka se zeleným činidlem
+- **Jódová polévka** ×1: 1× bowl + 1× dried_kelp + 1× Antiradiační tablety
 
 ## Pec (2)
 

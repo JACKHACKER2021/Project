@@ -51,6 +51,9 @@ export function detonateAt(dim, p) {
   const b = blockAt(dim, p);
   if (b?.typeId === `${NS}:nuke_bomb`) b.setType("minecraft:air");
   const c = { x: p.x + 0.5, y: p.y + 0.5, z: p.z + 0.5 };
+  flash(dim, p);
+  mushroomCloud(dim, c);
+  system.runJob(carveCrater(dim, { x: Math.floor(p.x), y: Math.floor(p.y), z: Math.floor(p.z) }, Config.get().craterRadius ?? 11));
   const key = posKey(dim.id, p);
   try {
     dim.createExplosion(c, 12, { breaksBlocks: true, causesFire: true });
@@ -113,6 +116,70 @@ system.runInterval(() => {
   }
 }, 20);
 
+// ------------------------------------------------------------------ crater, mushroom cloud, flash
+const KEEP = new Set(["minecraft:bedrock", "minecraft:barrier", "minecraft:command_block", "minecraft:structure_block"]);
+
+/** Carves a bowl-shaped crater (generator for system.runJob, a few hundred blocks per tick). */
+function* carveCrater(dim, c, r) {
+  const r2 = r * r;
+  let n = 0;
+  for (let dy = r; dy >= -Math.ceil(r * 0.6); dy--) {
+    for (let dx = -r; dx <= r; dx++) {
+      for (let dz = -r; dz <= r; dz++) {
+        const d2 = dx * dx + dz * dz + (dy < 0 ? (dy * dy) / 0.36 : dy * dy * 0.25);
+        if (d2 > r2) continue;
+        const b = blockAt(dim, { x: c.x + dx, y: c.y + dy, z: c.z + dz });
+        if (!b || b.isAir || KEEP.has(b.typeId) || b.typeId.startsWith(`${NS}:bunker_`)) continue;
+        try {
+          b.setType("minecraft:air");
+        } catch {
+          /* ignore */
+        }
+        if (++n % 200 === 0) yield;
+      }
+    }
+  }
+  // scorched, radioactive rim
+  for (let i = 0; i < r * 14; i++) {
+    const a = Math.random() * Math.PI * 2, rr = r * (0.55 + Math.random() * 0.5);
+    const x = Math.floor(c.x + Math.cos(a) * rr), z = Math.floor(c.z + Math.sin(a) * rr);
+    try {
+      const top = dim.getTopmostBlock({ x, z });
+      if (!top || top.typeId.startsWith(`${NS}:bunker_`)) continue;
+      const roll = Math.random();
+      top.setType(roll < 0.25 ? `${NS}:radioactive_waste` : roll < 0.6 ? `${NS}:contaminated_stone` : "minecraft:blackstone");
+      if (Math.random() < 0.2) dim.getBlock({ x, y: top.location.y + 1, z })?.setType("minecraft:fire");
+    } catch {
+      /* ignore */
+    }
+    if (i % 20 === 0) yield;
+  }
+}
+
+function mushroomCloud(dim, c) {
+  for (let i = 0; i < 40; i++) {
+    system.runTimeout(() => {
+      try {
+        dim.spawnParticle(`${NS}:nuke_cloud`, { x: c.x, y: c.y + Math.min(i, 28), z: c.z });
+        if (i > 18) dim.spawnParticle(`${NS}:nuke_cap`, { x: c.x, y: c.y + 30, z: c.z });
+      } catch {
+        /* particles not loaded */
+      }
+    }, i * 3);
+  }
+}
+
+function flash(dim, p) {
+  for (const pl of world.getAllPlayers()) {
+    if (pl.dimension.id !== dim.id || dist2(pl.location, p) > 160 * 160) continue;
+    try {
+      pl.camera.fade({ fadeColor: { red: 1, green: 1, blue: 0.85 }, fadeTime: { fadeInTime: 0.05, holdTime: 0.6, fadeOutTime: 2.5 } });
+    } catch {
+      /* camera unavailable */
+    }
+  }
+}
+
 // ------------------------------------------------------------------ air-raid event (atomic bombs falling from the sky)
 // /radiousti:atomic_bomb <on|off|strike|status> [minutes]
 let raidUntil = 0;
@@ -121,14 +188,17 @@ export function isAirRaid() {
   return system.currentTick < raidUntil;
 }
 
-function strikeNear(player, delaySec = 20) {
+function strikeNear(player, delaySec = 20, bombs = 3 + Math.floor(Math.random() * 3)) {
   const dim = player.dimension;
   if (dim.id !== "minecraft:overworld") return false;
-  const a = Math.random() * Math.PI * 2;
-  const d = 45 + Math.random() * 50;
-  const x = Math.floor(player.location.x + Math.cos(a) * d), z = Math.floor(player.location.z + Math.sin(a) * d);
+  const targets = [];
+  for (let i = 0; i < bombs; i++) {
+    const a = Math.random() * Math.PI * 2, d = 45 + Math.random() * 70;
+    targets.push({ x: Math.floor(player.location.x + Math.cos(a) * d), z: Math.floor(player.location.z + Math.sin(a) * d) });
+  }
+  const x = targets[0].x, z = targets[0].z;
   raidUntil = system.currentTick + (delaySec + 40) * 20;
-  world.sendMessage(`§4§l☢ LETECKÝ POPLACH!§r §cNad RadioÚstí letí atomová bomba – dopad za ${delaySec} s, směr ${Math.round(x)} ${Math.round(z)}. Do krytu!`);
+  world.sendMessage(`§4§l☢ LETECKÝ POPLACH!§r §cNad RadioÚstí letí ${bombs} atomových bomb – první dopad za ${delaySec} s (např. ${x} ${z}). Do krytu!`);
   for (const pl of world.getAllPlayers()) {
     try {
       pl.playSound("radiousti.siren", { volume: 1 });
@@ -148,28 +218,25 @@ function strikeNear(player, delaySec = 20) {
       }
     }, t * 20);
   }
-  // falling bomb trail during the last 3 seconds
-  for (let i = 0; i < 6; i++) {
+  // bombs fall from the sky as entities and explode on impact (staggered)
+  targets.forEach((t, i) => {
     system.runTimeout(() => {
       try {
-        const top = dim.getTopmostBlock({ x, z });
-        const y = (top?.location.y ?? 64) + 40 - i * 7;
-        dim.spawnParticle("minecraft:basic_flame_particle", { x: x + 0.5, y, z: z + 0.5 });
-        dim.spawnParticle("minecraft:campfire_smoke_particle", { x: x + 0.5, y: y + 1, z: z + 0.5 });
+        const top = dim.getTopmostBlock({ x: t.x, z: t.z });
+        const y = Math.min(318, (top?.location.y ?? 64) + 70);
+        const e = dim.spawnEntity(`${NS}:falling_nuke`, { x: t.x + 0.5, y, z: t.z + 0.5 });
+        falling.set(e.id, { dim, at: system.currentTick });
       } catch {
-        /* ignore */
+        // unloaded target: explode directly at the surface if possible
+        try {
+          const top = dim.getTopmostBlock({ x: t.x, z: t.z });
+          if (top) detonateAt(dim, { x: t.x, y: top.location.y + 1, z: t.z });
+        } catch {
+          /* ignore */
+        }
       }
-    }, (delaySec - 3) * 20 + i * 10);
-  }
-  system.runTimeout(() => {
-    try {
-      const top = dim.getTopmostBlock({ x, z });
-      if (!top) return;
-      detonateAt(dim, { x, y: top.location.y + 1, z });
-    } catch {
-      /* unloaded */
-    }
-  }, delaySec * 20);
+    }, Math.max(0, delaySec - 5) * 20 + i * 60);
+  });
   return true;
 }
 
@@ -179,13 +246,43 @@ export function strikeRandom() {
   return strikeNear(players[Math.floor(Math.random() * players.length)]);
 }
 
+// falling bombs: detonate when they hit the ground (or after 15 s)
+const falling = new Map(); // entity id -> { dim, at }
+system.runInterval(() => {
+  for (const [id, f] of falling) {
+    const e = world.getEntity(id);
+    if (!e || !e.isValid) {
+      falling.delete(id);
+      continue;
+    }
+    try {
+      e.dimension.spawnParticle("minecraft:campfire_smoke_particle", { x: e.location.x, y: e.location.y + 1.5, z: e.location.z });
+    } catch {
+      /* ignore */
+    }
+    const v = e.getVelocity();
+    const landed = e.isOnGround || Math.abs(v.y) < 0.01 || system.currentTick - f.at > 300;
+    if (landed) {
+      const loc = { x: Math.floor(e.location.x), y: Math.floor(e.location.y), z: Math.floor(e.location.z) };
+      falling.delete(id);
+      try {
+        e.remove();
+      } catch {
+        /* ignore */
+      }
+      detonateAt(f.dim, loc);
+    }
+  }
+}, 2);
+
 let lastStrike = 0;
 system.runInterval(() => {
   const cfg = Config.get();
   if (!cfg.atomicEvent) return;
-  const every = Math.max(5, cfg.atomicEveryMinutes ?? 30) * 60 * 20;
+  const every = Math.max(1, cfg.atomicEveryMinutes ?? 30) * 60 * 20;
   if (lastStrike === 0) lastStrike = system.currentTick;
-  if (system.currentTick - lastStrike >= every * (0.7 + Math.random() * 0.6)) {
+  const jitter = every <= 1200 ? 1 : 0.7 + Math.random() * 0.6;
+  if (system.currentTick - lastStrike >= every * jitter) {
     lastStrike = system.currentTick;
     strikeRandom();
   }

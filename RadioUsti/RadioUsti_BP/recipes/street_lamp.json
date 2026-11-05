@@ -1,0 +1,31 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:street_lamp"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      " G ",
+      " C ",
+      " C "
+    ],
+    "key": {
+      "G": {
+        "item": "minecraft:glowstone"
+      },
+      "C": {
+        "item": "radiousti:cement_block"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:street_lamp",
+      "count": 1
+    }
+  }
+}

@@ -9,8 +9,7 @@
         "fog_identifier": "minecraft:fog_warm_ocean"
       },
       "minecraft:water_appearance": {
-        "surface_color": "#02B0E5",
-        "surface_opacity": 0.55
+        "surface_color": "#4f7a2a"
       },
       "minecraft:atmosphere_identifier": {
         "atmosphere_identifier": "radiousti:atmosphere"

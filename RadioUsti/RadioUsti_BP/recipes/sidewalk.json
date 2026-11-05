@@ -1,0 +1,27 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:sidewalk"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "CC",
+      "CC"
+    ],
+    "key": {
+      "C": {
+        "item": "radiousti:cement_block"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:sidewalk",
+      "count": 4
+    }
+  }
+}

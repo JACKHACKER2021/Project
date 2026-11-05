@@ -1,0 +1,26 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:item": {
+    "description": {
+      "identifier": "radiousti:car_wreck",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "textures": {
+          "default": "radiousti_car_wreck_icon"
+        }
+      },
+      "minecraft:display_name": {
+        "value": "Vrak auta"
+      },
+      "minecraft:max_stack_size": 16,
+      "minecraft:block_placer": {
+        "block": "radiousti:car_wreck",
+        "replace_block_item": true
+      }
+    }
+  }
+}

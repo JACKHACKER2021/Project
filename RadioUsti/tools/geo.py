@@ -835,14 +835,37 @@ def bench():
 
 
 def nuke():
-    return [B("root", C(2, 0, 2, 12, 2, 12, "detail"), C(4, 2, 4, 8, 9, 8), C(5, 11, 5, 6, 2, 6), C(6.5, 13, 6.5, 3, 2, 3, "detail"),
-              C(3.5, 6, 3.5, 9, 1.5, 9, "hazard"), C(2, 2, 7, 2, 6, 2, "detail"), C(12, 2, 7, 2, 6, 2, "detail")),
-            B("glow", C(7, 15, 7, 2, 1, 2, "glow"))]
-
-
+    """Atomic bomb lying on a steel cradle: rounded body along z, nose cone, tail fins, hazard band."""
+    body = [C(5, 4, 1, 6, 6, 1.5, "detail"), C(4, 3, 2.5, 8, 8, 10), C(3.5, 3.5, 3, 9, 7, 9), C(4.5, 2.5, 3, 7, 9, 9),
+            C(5, 4, 12.5, 6, 6, 1.5, "detail"), C(6, 5, 14, 4, 4, 1, "detail"),
+            C(3.9, 6.2, 6.5, 8.2, 1.6, 2.2, "hazard"),
+            C(7.5, 11, 12, 1, 3, 3.5, "detail"), C(7.5, 0.5, 12, 1, 2.5, 3.5, "detail"), C(1.5, 6.5, 12, 2.5, 1, 3.5, "detail"),
+            C(12, 6.5, 12, 2.5, 1, 3.5, "detail")]
+    cradle = [C(2, 0, 4, 12, 1, 2), C(2, 0, 10, 12, 1, 2), C(2, 1, 4, 1.5, 2.5, 2), C(12.5, 1, 4, 1.5, 2.5, 2),
+              C(2, 1, 10, 1.5, 2.5, 2), C(12.5, 1, 10, 1.5, 2.5, 2)]
+    return [B("root", *body), B("cradle", *[dict(c, mat="detail") for c in cradle]), B("glow", C(7, 7.5, 0.6, 2, 2, 0.4, "glow"))]
 
 def siren():
     """Air-raid siren on a short post: rotor housing with two horns (front = north)."""
     return [B("root", C(6.5, 0, 6.5, 3, 7, 3, "detail"), C(4, 7, 4, 8, 5, 8), C(3, 7.5, 1, 4, 4, 3.5, "detail"),
               C(9, 7.5, 1, 4, 4, 3.5, "detail"), C(6, 12, 6, 4, 2, 4, "detail")),
             B("glow", C(3.5, 8, 0.8, 3, 3, 0.3, "glow"), C(9.5, 8, 0.8, 3, 3, 0.3, "glow"))]
+
+
+
+def car_wreck():
+    """Rusted Škoda-style car wreck, 2 blocks long along +z (front = north)."""
+    return [B("root", C(1, 1.5, 1, 14, 5, 30), C(2, 6.5, 8, 12, 5, 15), C(2.5, 6.5, 7.5, 11, 4.5, 0.5, "glass"),
+              C(2.5, 6.5, 23, 11, 4.5, 0.5, "glass"), C(1, 0, 3, 2, 3.5, 4, "tyre"), C(13, 0, 3, 2, 3.5, 4, "tyre"),
+              C(1, 0, 24, 2, 3.5, 4, "tyre"), C(13, 0, 24, 2, 3.5, 4, "tyre"), C(3, 3, 0.6, 3, 2, 0.5, "glow"), C(10, 3, 0.6, 3, 2, 0.5, "glow"))]
+
+
+def street_lamp():
+    """Panel-estate street lamp, 2 blocks tall: concrete post with an arm and a lamp head."""
+    return [B("root", C(6.5, 0, 6.5, 3, 1, 3), C(7, 1, 7, 2, 28, 2), C(7, 27, 2, 2, 1.5, 6), C(5.5, 26, 0.5, 5, 2, 4.5, "detail")),
+            B("glow", C(6, 25.6, 1, 4, 0.5, 3.5, "glow"))]
+
+
+def village_bell():
+    return [B("root", C(2, 0, 2, 12, 1, 12, "detail"), C(2.5, 1, 7, 1.5, 14, 2, "detail"), C(12, 1, 7, 1.5, 14, 2, "detail"),
+              C(2.5, 14, 6.5, 11, 1.5, 3, "detail"), C(5.5, 7, 5.5, 5, 6, 5), C(5, 7, 5, 6, 1, 6), C(7.5, 13, 7.5, 1, 1, 1, "detail"))]

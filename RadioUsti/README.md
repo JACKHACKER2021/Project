@@ -1,4 +1,4 @@
-# RadioÚstí – add-on pro Minecraft Bedrock
+# Zeds World: RadioÚstí 2.0 – add-on pro Minecraft Bedrock
 
 **Zeds World • jaderný horor • ÚstíOS Longhorn Edition • zombie apokalypsa • středověká pevnost**
 Autor projektu: **Jackhack2021** · Cíl: **Minecraft Bedrock 1.26.50** · Script API: `@minecraft/server` 2.10.0 a `@minecraft/server-ui` 2.2.0 (stabilní v 1.26.50)
@@ -176,6 +176,34 @@ název, ID, typ, stav, napájení, propojení potrubí a kabelů včetně směr�
 * **Dveře** jsou dva bloky vysoké. Otevřeš je klepnutím na kteroukoli polovinu. Když zničíš jednu polovinu, zmizí obě a vypadne jeden předmět.
 * **Nemocniční lůžko** a **operační stůl** jsou dva bloky dlouhé. Klepnutím na lůžko si nastavíš bod oživení. **Otočná kancelářská židle** se po klepnutí otočí o 90°.
 * **Plakáty, oznámení, papíry, hromada dokumentů a fotografie** si přečteš klepnutím. **Nástěnné hodiny** ukážou herní čas.
+
+## Novinky 2.0 – Zeds World: RadioÚstí (survival)
+* **Nový název a logo:** *Zeds World: RadioÚstí*, verze **2.0.0**. Logo tvoří zelená obloha, atomový hřib nad chladicí věží, symbol radiace a nápis ZW / RADIOÚSTÍ.
+* **Atomovky:**
+  * Interval může být od **1 minuty** (`/radiousti:atomic_bomb on 1`).
+  * Při útoku padá z nebe **3–5 bomb na různá místa** jako viditelné padající bomby s kouřem. Každá při dopadu vybuchne.
+  * Výbuch vytvoří **kráter** (miskovitá díra o poloměru 11 se spáleným a radioaktivním okrajem; podloží a bunkr zůstanou), **atomový hřib** (sloupec a klobouk z vlastních částic) a **oslnivý záblesk** obrazovky do 160 bloků.
+  * Blok atomové bomby má nový model: bombu na ocelovém podstavci s ploutvemi a výstražným pruhem.
+* **Struktury generované ve světě (survival):**
+  * **Zničený panelák:** dvě patra, rozpadlá střecha, truhla.
+  * **Kus silnice** s chodníky, vrakem auta a pouličními lampami.
+  * **Rozpadlý městský blok** 31×31: křižovatka, panelák, obchod s regály a pokladnou, cihlový dům, ordinace, vraky aut, lampy, suť a 5 truhel.
+  * **Opevněná osada přeživších** 31×31: zdi s cimbuřím, sandbagy, 4 strážní věže s reflektory a sirénami, brána s bezpečnostními dveřmi, dekontaminačním pláštěm a tlačítkem, 4 domy se zabarikádovanými okny, studna, zvon osady s obchodníkem.
+  * **Ruina pevnosti** 23×23: věže s ohništi, mříže, hrad uprostřed, bodce, 2 truhly.
+  * **Laboratoř** 17×15: olověné stěny, hermetická skla, kontejnmentové dveře, laboratorní stoly, preparáty, operační stůl, server, 2 truhly.
+  * Generují se jen na souši (ne v oceánu a řekách). Jsou to *structure template features*, které se objevují v nově načtených chunkách.
+* **Loot:** 5 vlastních loot tabulek (dům, město, laboratoř, osada, pevnost).
+* **Přeživší obchodník z RadioÚstí** (postavený na potulném obchodníkovi, nemizí): za nalezené věci prodává bunkrové bloky, ochranný oblek, konzervy, MRE, tablety, sérum, kamery a tablet. Vždy jeden čeká u **zvonu osady**.
+* **Nazelenalá voda** ve všech biomech.
+* **Kontaminované jídlo:** obyčejné jídlo přidá 5 dávky a někdy nevolnost. Čisté jídlo:
+  * **Konzerva Zeds Corp:** 2 železné nugety + pečené maso.
+  * **Vojenská dávka MRE:** konzerva + chléb + papír.
+  * **Filtrovaná voda:** láhev + dřevěné uhlí + písek, −5 dávky.
+  * **Dekontaminovaný chléb:** 4 chleby + zelené činidlo.
+  * **Jódová polévka:** miska + sušená chaluha + antiradiační tablety, −15 dávky.
+  * Vypnutí kontaminace jídla: `… food off`.
+* **Tvorové a radiace:** zvířata a ostatní tvorové sbírají radiaci 2× rychleji a dostávají zranění už od stupně II (1, 2, nebo 4 HP každé 2 s), takže na ni skutečně umírají.
+* **Nové bloky:** asfalt, asfalt s čárou, popraskaný asfalt, chodník, vrak auta (2 bloky), pouliční lampa (2 bloky) a zvon osady.
 
 ## Novinky 1.11 – netěsné budovy
 * **Radioaktivní prach:** kontaminovaný terén zamořuje i vzduch nad podlahou. Na podlahy se usazuje tenká svítící vrstva radioaktivního prachu, která se dál šíří jako sculk.

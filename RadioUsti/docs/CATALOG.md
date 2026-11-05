@@ -3,7 +3,7 @@
 _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 
 
-## Bloky – Stavba (78)
+## Bloky – Stavba (82)
 
 | Název | English | ID | Typ |
 |---|---|---|---|
@@ -85,6 +85,10 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Beton bunkru | Bunker Concrete | `radiousti:bunker_concrete` | bunkr |
 | Vyztužená stěna bunkru | Reinforced Bunker Wall | `radiousti:bunker_reinforced` | bunkr |
 | Pancéřové okno bunkru | Blast-Proof Bunker Window | `radiousti:bunker_window` | bunkr |
+| Asfalt | Asphalt | `radiousti:asphalt` | dekorace |
+| Asfalt s čárou | Asphalt with Road Marking | `radiousti:asphalt_line` | dekorace |
+| Popraskaný asfalt | Cracked Asphalt | `radiousti:asphalt_cracked` | dekorace |
+| Chodník | Sidewalk | `radiousti:sidewalk` | dekorace |
 
 ## Bloky – Vybavení (35)
 
@@ -126,7 +130,7 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Kádě s biogenním sérem | Biogenic Serum Vat | `radiousti:biogenic_serum_vat` | dekorace |
 | Atomová bomba | Nuke Bomb | `radiousti:nuke_bomb` | výbušnina |
 
-## Bloky – Předměty (51)
+## Bloky – Předměty (52)
 
 | Název | English | ID | Typ |
 |---|---|---|---|
@@ -181,6 +185,7 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Muzejní zábrana s provazem | Museum Rope Barrier | `radiousti:museum_rope_barrier` | dekorace |
 | Muzejní lavice | Museum Bench | `radiousti:museum_bench` | dekorace |
 | Siréna | Air-Raid Siren | `radiousti:siren` | alarm |
+| Zvon osady přeživších | Settlement Bell | `radiousti:village_bell` | dekorace |
 
 ## Bloky – Příroda (18)
 
@@ -205,7 +210,7 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Modré krystalické usazeniny | Blue Crystal Residue | `radiousti:blue_crystal_residue` | dekorace |
 | Radioaktivní prach | Radioactive Dust | `radiousti:radioactive_dust` | radioaktivní |
 
-## Bloky – Pokládané laboratorní sklo a multibloky (pokládají se předmětem) (39)
+## Bloky – Pokládané laboratorní sklo a multibloky (pokládají se předmětem) (41)
 
 | Název | English | ID | Typ |
 |---|---|---|---|
@@ -248,8 +253,10 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Mrtvola bezpečnostního technika elektrárny | Dead Plant Safety Technician | `radiousti:dead_technician` | mrtvola / socha |
 | Radiak v mechanickém obleku | Radiak in his Mechanical Suit | `radiousti:radiak_statue` | mrtvola / socha |
 | Pancéřové dveře bunkru | Blast-Proof Bunker Door | `radiousti:bunker_door` | dveře |
+| Vrak auta | Car Wreck | `radiousti:car_wreck` | nábytek |
+| Pouliční lampa | Street Lamp | `radiousti:street_lamp` | nábytek |
 
-## Předměty (63)
+## Předměty (68)
 
 | Název | English | ID | Popis |
 |---|---|---|---|
@@ -316,3 +323,8 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Boty ochranného obleku | Hazmat Boots | `radiousti:hazmat_boots` |  |
 | Bezpečnostní tablet | Security Tablet | `radiousti:security_tablet` |  |
 | Ruční siréna | Hand-Cranked Siren | `radiousti:hand_siren` |  |
+| Konzerva Zeds Corp | Zeds Corp Canned Food | `radiousti:canned_food` |  |
+| Vojenská dávka (MRE) | Military Ration (MRE) | `radiousti:mre_ration` |  |
+| Filtrovaná voda | Purified Water | `radiousti:purified_water` |  |
+| Dekontaminovaný chléb | Decontaminated Bread | `radiousti:decontaminated_bread` |  |
+| Jódová polévka | Iodine Soup | `radiousti:iodine_soup` |  |

@@ -1737,6 +1737,67 @@ export const REGISTRY = {
    "rad": 1,
    "clean": "minecraft:air",
    "dust": true
+  },
+  "radiousti:asphalt": {
+   "kind": "decor",
+   "en": "Asphalt",
+   "cs": "Asfalt"
+  },
+  "radiousti:asphalt_line": {
+   "kind": "decor",
+   "en": "Asphalt with Road Marking",
+   "cs": "Asfalt s čárou"
+  },
+  "radiousti:asphalt_cracked": {
+   "kind": "decor",
+   "en": "Cracked Asphalt",
+   "cs": "Popraskaný asfalt"
+  },
+  "radiousti:sidewalk": {
+   "kind": "decor",
+   "en": "Sidewalk",
+   "cs": "Chodník"
+  },
+  "radiousti:car_wreck": {
+   "kind": "furniture",
+   "en": "Car Wreck",
+   "cs": "Vrak auta",
+   "multiblock": [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     1
+    ]
+   ],
+   "rot": "cardinal"
+  },
+  "radiousti:street_lamp": {
+   "kind": "furniture",
+   "en": "Street Lamp",
+   "cs": "Pouliční lampa",
+   "multiblock": [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     1,
+     0
+    ]
+   ],
+   "rot": "cardinal"
+  },
+  "radiousti:village_bell": {
+   "kind": "decor",
+   "en": "Settlement Bell",
+   "cs": "Zvon osady přeživších"
   }
  },
  "items": {
@@ -2080,6 +2141,33 @@ export const REGISTRY = {
    "kind": "siren",
    "en": "Hand-Cranked Siren",
    "cs": "Ruční siréna"
+  },
+  "radiousti:canned_food": {
+   "kind": "safe_food",
+   "en": "Zeds Corp Canned Food",
+   "cs": "Konzerva Zeds Corp"
+  },
+  "radiousti:mre_ration": {
+   "kind": "safe_food",
+   "en": "Military Ration (MRE)",
+   "cs": "Vojenská dávka (MRE)"
+  },
+  "radiousti:purified_water": {
+   "kind": "safe_food",
+   "en": "Purified Water",
+   "cs": "Filtrovaná voda",
+   "heal_dose": 5
+  },
+  "radiousti:decontaminated_bread": {
+   "kind": "safe_food",
+   "en": "Decontaminated Bread",
+   "cs": "Dekontaminovaný chléb"
+  },
+  "radiousti:iodine_soup": {
+   "kind": "safe_food",
+   "en": "Iodine Soup",
+   "cs": "Jódová polévka",
+   "heal_dose": 15
   }
  }
 };

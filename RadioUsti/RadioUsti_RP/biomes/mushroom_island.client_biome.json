@@ -9,7 +9,7 @@
         "fog_identifier": "minecraft:fog_mushroom_island"
       },
       "minecraft:water_appearance": {
-        "surface_color": "#8a8997"
+        "surface_color": "#4f7a2a"
       },
       "minecraft:atmosphere_identifier": {
         "atmosphere_identifier": "radiousti:atmosphere"

@@ -1,0 +1,298 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:car_wreck",
+      "menu_category": {
+        "category": "none"
+      },
+      "states": {
+        "radiousti:part": [
+          0,
+          1
+        ]
+      },
+      "traits": {
+        "minecraft:placement_direction": {
+          "enabled_states": [
+            "minecraft:cardinal_direction"
+          ],
+          "y_rotation_offset": 180
+        }
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 4
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#7a3a2a",
+      "minecraft:loot": "loot_tables/blocks/radiousti_empty.json",
+      "minecraft:geometry": "geometry.radiousti.car_wreck.p0.north",
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_car_rust",
+          "render_method": "opaque"
+        },
+        "glass": {
+          "texture": "radiousti_glass_solid",
+          "render_method": "opaque"
+        },
+        "tyre": {
+          "texture": "radiousti_fabric_black",
+          "render_method": "opaque"
+        },
+        "glow": {
+          "texture": "radiousti_glow_off",
+          "render_method": "opaque"
+        }
+      },
+      "minecraft:display_name": "Vrak auta"
+    },
+    "permutations": [
+      {
+        "condition": "q.block_state('radiousti:part') == 0 && q.block_state('minecraft:cardinal_direction') == 'north'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.car_wreck.p0.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -7,
+              0,
+              -7.4
+            ],
+            "size": [
+              14,
+              11.5,
+              15.4
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -7,
+              0,
+              -7.4
+            ],
+            "size": [
+              14,
+              11.5,
+              15.4
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 0 && q.block_state('minecraft:cardinal_direction') == 'east'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.car_wreck.p0.east",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -7
+            ],
+            "size": [
+              15.4,
+              11.5,
+              14
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -7
+            ],
+            "size": [
+              15.4,
+              11.5,
+              14
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 0 && q.block_state('minecraft:cardinal_direction') == 'south'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.car_wreck.p0.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -7,
+              0,
+              -8
+            ],
+            "size": [
+              14,
+              11.5,
+              15.4
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -7,
+              0,
+              -8
+            ],
+            "size": [
+              14,
+              11.5,
+              15.4
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 0 && q.block_state('minecraft:cardinal_direction') == 'west'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.car_wreck.p0.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -7.4,
+              0,
+              -7
+            ],
+            "size": [
+              15.4,
+              11.5,
+              14
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -7.4,
+              0,
+              -7
+            ],
+            "size": [
+              15.4,
+              11.5,
+              14
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 1 && q.block_state('minecraft:cardinal_direction') == 'north'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.car_wreck.p1.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -7,
+              0,
+              -8
+            ],
+            "size": [
+              14,
+              11.5,
+              15
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -7,
+              0,
+              -8
+            ],
+            "size": [
+              14,
+              11.5,
+              15
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 1 && q.block_state('minecraft:cardinal_direction') == 'east'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.car_wreck.p1.east",
+          "minecraft:selection_box": {
+            "origin": [
+              -7,
+              0,
+              -7
+            ],
+            "size": [
+              15,
+              11.5,
+              14
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -7,
+              0,
+              -7
+            ],
+            "size": [
+              15,
+              11.5,
+              14
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 1 && q.block_state('minecraft:cardinal_direction') == 'south'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.car_wreck.p1.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -7,
+              0,
+              -7
+            ],
+            "size": [
+              14,
+              11.5,
+              15
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -7,
+              0,
+              -7
+            ],
+            "size": [
+              14,
+              11.5,
+              15
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 1 && q.block_state('minecraft:cardinal_direction') == 'west'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.car_wreck.p1.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -7
+            ],
+            "size": [
+              15,
+              11.5,
+              14
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -7
+            ],
+            "size": [
+              15,
+              11.5,
+              14
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

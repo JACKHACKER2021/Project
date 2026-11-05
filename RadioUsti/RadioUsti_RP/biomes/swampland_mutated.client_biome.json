@@ -9,8 +9,7 @@
         "fog_identifier": "minecraft:fog_swampland_mutated"
       },
       "minecraft:water_appearance": {
-        "surface_color": "#617b64",
-        "surface_opacity": 0.65
+        "surface_color": "#4f7a2a"
       },
       "minecraft:foliage_appearance": {
         "color": {

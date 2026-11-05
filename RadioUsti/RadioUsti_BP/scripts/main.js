@@ -180,6 +180,16 @@ system.beforeEvents.startup.subscribe((ev) => {
       e.player?.onScreenDisplay.setActionBar(r.n ? `§e${r.open ? "Otevírám" : "Zavírám"} bezpečnostní dveře: ${r.n}` : "§7V okruhu 8 bloků nejsou bezpečnostní dveře.");
     }),
   });
+  // settlement bell: keeps one survivor trader around every settlement
+  reg("village_bell", {
+    onTick: safe("bell", (e) => {
+      const l = e.block.location;
+      const near = e.dimension.getEntities({ location: l, maxDistance: 24, type: `${NS}:survivor_trader` });
+      if (near.length === 0 && e.dimension.getPlayers({ location: l, maxDistance: 64 }).length > 0) {
+        e.dimension.spawnEntity(`${NS}:survivor_trader`, { x: l.x + 0.5, y: l.y + 1, z: l.z + 2.5 });
+      }
+    }),
+  });
   reg("nuke", { onPlayerInteract: ui(async (p, b) => interactNuke(p, b)) });
   reg("conduit", { onPlace: safe("conduit", (e) => later(() => updateAround(e.dimension, e.block.location), 1)) });
   reg("liquid", { onTick: safe("liquid", (e) => liquidTick(e.block)) });
@@ -309,9 +319,26 @@ world.afterEvents.itemUse.subscribe(safe("itemUse", (ev) => {
   else if (id === ANALYZER) p.onScreenDisplay.setActionBar(`§eAnalyzátor: klepněte na blok. Vaše dávka radiace: ${getDose(p).toFixed(0)}/150`);
 }));
 
+const VANILLA_FOODS = new Set(["apple", "baked_potato", "beef", "beetroot", "beetroot_soup", "bread", "carrot", "chorus_fruit", "cooked_beef",
+  "cooked_chicken", "cooked_cod", "cooked_mutton", "cooked_porkchop", "cooked_rabbit", "cooked_salmon", "cookie", "dried_kelp", "melon_slice",
+  "mushroom_stew", "mutton", "porkchop", "potato", "pumpkin_pie", "rabbit", "rabbit_stew", "rotten_flesh", "salmon", "cod", "tropical_fish",
+  "sweet_berries", "glow_berries", "honey_bottle", "suspicious_stew", "chicken", "poisonous_potato", "pufferfish"].map((x) => "minecraft:" + x));
+
 world.afterEvents.itemCompleteUse.subscribe(safe("consume", (ev) => {
   const id = ev.itemStack.typeId;
   const p = ev.source;
+  // ordinary food in RadioÚstí is contaminated
+  if (VANILLA_FOODS.has(id) && Config.get().contaminatedFood !== false) {
+    setDose(p, getDose(p) + 5);
+    if (Math.random() < 0.35) p.addEffect("nausea", 160, { amplifier: 0 });
+    p.onScreenDisplay.setActionBar("§e☢ Jídlo bylo kontaminované (+5 dávky). Jez konzervy, MRE nebo dekontaminované jídlo.");
+    return;
+  }
+  const heal = ITEMS[id]?.heal_dose;
+  if (heal) {
+    setDose(p, getDose(p) - heal);
+    p.onScreenDisplay.setActionBar(`§aČisté jídlo – dávka −${heal} (${getDose(p).toFixed(0)})`);
+  }
   if (id === `${NS}:anti_radiation_pills`) {
     setDose(p, getDose(p) - 40);
     p.onScreenDisplay.setActionBar(`§aAntiradiační tablety: dávka ${getDose(p).toFixed(0)}`);
@@ -366,6 +393,7 @@ system.afterEvents.scriptEventReceive.subscribe(safe("scriptevent", (ev) => {
     else if (k === "nuke") c = Config.set({ nuke: on });
     else if (k === "rain") c = Config.set({ frequentRain: on });
     else if (k === "dimensions") c = Config.set({ dimensionsOpen: on });
+    else if (k === "food") c = Config.set({ contaminatedFood: on });
     else if (k === "smog") {
       startSmog(Number(v) || 3);
       c = Config.get();

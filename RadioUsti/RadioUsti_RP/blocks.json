@@ -666,5 +666,26 @@
   },
   "radiousti:radioactive_dust": {
     "sound": "sand"
+  },
+  "radiousti:asphalt": {
+    "sound": "stone"
+  },
+  "radiousti:asphalt_line": {
+    "sound": "stone"
+  },
+  "radiousti:asphalt_cracked": {
+    "sound": "stone"
+  },
+  "radiousti:sidewalk": {
+    "sound": "stone"
+  },
+  "radiousti:car_wreck": {
+    "sound": "metal"
+  },
+  "radiousti:street_lamp": {
+    "sound": "stone"
+  },
+  "radiousti:village_bell": {
+    "sound": "metal"
   }
 }

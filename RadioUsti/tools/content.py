@@ -945,3 +945,38 @@ tex("radioactive_dust", lambda n: (lambda t: (t.speckle(["#9dbb4a", "#c4d94a", "
 block("radioactive_dust", "Radioactive Dust", "Radioaktivní prach", cat="nature", model=("flat_floor", 0.4), tex={"*": "radiousti_radioactive_dust"},
       render="alpha_test", light=2, sound="sand", hardness=0.2, collision=False, kind="radioactive",
       meta={"rad": 1, "clean": "minecraft:air", "dust": True}, comps=[f"{NS}:contamination_spread"], tick=(1200, 2400), loot="empty", mapc="#9dbb4a")
+
+
+# ----------------------------------------------------------------- v2.0: survival food (vanilla food is contaminated)
+def _food(n, sat, drink=False, always=False):
+    return {"minecraft:food": {"nutrition": n, "saturation_modifier": sat, "can_always_eat": always},
+            "minecraft:use_animation": "drink" if drink else "eat",
+            "minecraft:use_modifiers": {"use_duration": 1.4 if not drink else 1.0, "movement_modifier": 0.35}}
+item("canned_food", "Zeds Corp Canned Food", "Konzerva Zeds Corp", ic("canned_food", "container", "#9aa3a8"), stack=16, kind="safe_food", comps=_food(6, 0.6))
+item("mre_ration", "Military Ration (MRE)", "Vojenská dávka (MRE)", ic("mre_ration", "bundle", "#5e6f55"), stack=8, kind="safe_food", comps=_food(10, 0.9))
+item("purified_water", "Purified Water", "Filtrovaná voda", ic("purified_water", "bottle", "#7fb6d6"), stack=16, kind="safe_food", comps=_food(1, 0.2, True, True),
+     meta={"heal_dose": 5})
+item("decontaminated_bread", "Decontaminated Bread", "Dekontaminovaný chléb", ic("decontaminated_bread", "meat", "#c9a26a"), stack=16, kind="safe_food", comps=_food(5, 0.6))
+item("iodine_soup", "Iodine Soup", "Jódová polévka", ic("iodine_soup", "jar", "#d6b24a"), stack=1, kind="safe_food", comps=_food(6, 0.6), meta={"heal_dose": 15})
+
+
+# ----------------------------------------------------------------- v2.0: cities, roads, survivor settlement
+ASPH = tex("asphalt", lambda n: T.Tex(n, base="#3a3b3c").noise(10).speckle(["#2a2b2c", "#55565a"], 30))
+ASPH_L = tex("asphalt_line", lambda n: (lambda t: (t.rect(7, 0, 2, 6, "#d8c25a"), t.rect(7, 10, 2, 6, "#d8c25a"), t)[-1])(T.Tex(n, base="#3a3b3c").noise(10).speckle(["#2a2b2c"], 20)))
+ASPH_C = tex("asphalt_cracked", lambda n: (lambda t: ([t.px(x, (x * 7) % 16, "#1d1d1d") for x in range(16)], t.blobs(["#5f6a3a"], 3, 1), t)[-1])(T.Tex(n, base="#3f4041").noise(14)))
+SIDE = tex("sidewalk", lambda n: (lambda t: (t.hline(0, "#6f6c65"), t.vline(0, "#6f6c65"), t.hline(8, "#6f6c65"), t.vline(8, "#6f6c65"), t)[-1])(T.concrete(n, "#9a978f", cracks=True)))
+for bid, en, cs, tx in (("asphalt", "Asphalt", "Asfalt", ASPH), ("asphalt_line", "Asphalt with Road Marking", "Asfalt s čárou", ASPH_L),
+                        ("asphalt_cracked", "Cracked Asphalt", "Popraskaný asfalt", ASPH_C), ("sidewalk", "Sidewalk", "Chodník", SIDE)):
+    block(bid, en, cs, tex={"*": tx}, hardness=1.5, mapc="#3a3b3c", tags=["stone", "minecraft:is_pickaxe_item_destructible"])
+CARBODY = tex("car_rust", lambda n: T.metal(n, "#7a3a2a", rust=14, rivet=False))
+block("car_wreck", "Car Wreck", "Vrak auta", cat="items", model=("multi", ("car",), [(0, 0, 0), (0, 0, 1)]), rot="cardinal",
+      tex={"*": CARBODY, "glass": S["glass_solid"], "tyre": S["fabric_black"], "glow": S["glow_off"]}, states={f"{NS}:part": [0, 1]},
+      sound="metal", hardness=4, kind="furniture", meta={"multiblock": [(0, 0, 0), (0, 0, 1)]}, loot="empty", mapc="#7a3a2a",
+      placer_icon=("gen_icon", "#7a3a2a"))
+block("street_lamp", "Street Lamp", "Pouliční lampa", cat="items", model=("multi", ("lamp",), [(0, 0, 0), (0, 1, 0)]), rot="cardinal",
+      tex={"*": "radiousti_cement_block", "detail": S["steel_dark"], "glow": S["glow_warm"]}, states={f"{NS}:part": [0, 1]}, light=12,
+      sound="stone", hardness=2, kind="furniture", meta={"multiblock": [(0, 0, 0), (0, 1, 0)]}, loot="empty", mapc="#8d8a82",
+      placer_icon=("statue", "#8d8a82"))
+block("village_bell", "Settlement Bell", "Zvon osady přeživších", cat="items", model=("village_bell",),
+      tex={"*": S["brass"], "detail": S["wood_dark"]}, sound="metal", hardness=3, kind="decor", comps=[f"{NS}:village_bell"], tick=(400, 600),
+      mapc="#b08d3a")

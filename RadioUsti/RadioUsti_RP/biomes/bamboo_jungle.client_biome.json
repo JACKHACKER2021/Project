@@ -9,7 +9,7 @@
         "fog_identifier": "minecraft:fog_bamboo_jungle"
       },
       "minecraft:water_appearance": {
-        "surface_color": "#14A2C5"
+        "surface_color": "#4f7a2a"
       },
       "minecraft:atmosphere_identifier": {
         "atmosphere_identifier": "radiousti:atmosphere"

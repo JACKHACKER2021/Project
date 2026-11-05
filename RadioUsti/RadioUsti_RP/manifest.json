@@ -1,12 +1,12 @@
 {
   "format_version": 2,
   "header": {
-    "name": "RadioÚstí — Resource Pack",
-    "description": "RadioÚstí | Zeds World custom models, textures, sounds and UI foundation.",
+    "name": "Zeds World: RadioÚstí — Resource Pack",
+    "description": "Zeds World: RadioÚstí 2.0 | modely, textury, zvuky a obloha",
     "uuid": "afadd868-792a-4450-9519-e5bc21b03759",
     "version": [
-      1,
-      11,
+      2,
+      0,
       0
     ],
     "min_engine_version": [
@@ -25,5 +25,10 @@
         0
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "authors": [
+      "Jackhack2021"
+    ]
+  }
 }

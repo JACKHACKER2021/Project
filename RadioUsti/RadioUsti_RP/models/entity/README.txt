@@ -1,1 +1,0 @@
-Optional entity geometry.

@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.0.0 – Zeds World: RadioÚstí (2026-11-05)
+**Přidáno**
+- Nový název *Zeds World: RadioÚstí*, nové logo (pack icon), verze 2.0.0.
+- Atomovky: interval od 1 minuty, 3–5 padajících bomb (entita s modelem), kráter, atomový hřib (částice), záblesk (camera fade), nový model bomby.
+- 6 struktur generovaných ve světě (panelák, silnice, městský blok, opevněná osada, pevnost, laboratoř) s 5 loot tabulkami.
+- Přeživší obchodník (bunkrové díly a zásoby za nalezené věci) a zvon osady.
+- Čisté jídlo (5 druhů), kontaminace vanilla jídla.
+- Asfalt, chodník, vrak auta, pouliční lampa.
+- Nazelenalá voda.
+
+**Změněno**
+- Radiace tvorů: 2× rychlejší, zranění od stupně II.
+- Verze balíčků 1.11.0 → 2.0.0.
+
 ## 1.11.0 – netěsné budovy (2026-11-05)
 **Přidáno**
 - Radioaktivní prach: usazuje se na podlahách a otvory proniká do budov. Zavřené dveře a skla ho zastaví.

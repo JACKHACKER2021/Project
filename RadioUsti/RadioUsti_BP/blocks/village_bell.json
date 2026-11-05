@@ -1,0 +1,65 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:village_bell",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 3
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#b08d3a",
+      "radiousti:village_bell": {},
+      "minecraft:tick": {
+        "interval_range": [
+          400,
+          600
+        ],
+        "looping": true
+      },
+      "minecraft:geometry": "geometry.radiousti.village_bell",
+      "minecraft:collision_box": {
+        "origin": [
+          -6,
+          0,
+          -6
+        ],
+        "size": [
+          12,
+          15.5,
+          12
+        ]
+      },
+      "minecraft:selection_box": {
+        "origin": [
+          -6,
+          0,
+          -6
+        ],
+        "size": [
+          12,
+          15.5,
+          12
+        ]
+      },
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_brass",
+          "render_method": "opaque"
+        },
+        "detail": {
+          "texture": "radiousti_wood_dark",
+          "render_method": "opaque"
+        }
+      },
+      "minecraft:display_name": "Zvon osady přeživších"
+    }
+  }
+}
