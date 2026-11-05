@@ -10,10 +10,12 @@ Tenhle dokument je hlavní zdroj pravdy pro příběh všech dílů. Když se te
 - **Hollow Bunny** – žlutý springlock králík z roku 1980, odstavený kvůli nestabilním zámkům.
 - **Cocoa** – králičí maskotka z roku 1997, sestavená D. Je v ní duše Emy.
 - **Hollow Hare** – Hollow Bunny s D. uvnitř po selhání springlocků (NaV3).
+- **Pan Kroupa** – majitel Frights & Hides. **Syn D.**
 
 ## Časová osa
 | Kdy | Co se stalo |
 |---|---|
+| 1979 | Starší verze Voxieho (původní kostičkový medvěd) je nahrazena zlatou verzí. |
 | 1980 | Voxie a Hollow Bunny odstaveni kvůli nestabilním springlockům. |
 | 1980–1997 | D. si i po odstavení obléká Hollow Bunnyho – pár zámků ještě drží. |
 | do 1997 | „Hollow Bunny“ chodí za Emou a hraje s ní na schovávanou. Je to D. Zvuk zapínání dělá taky D., aby Ema neměla podezření. |
@@ -21,12 +23,13 @@ Tenhle dokument je hlavní zdroj pravdy pro příběh všech dílů. Když se te
 | jaro 1997 | **Noční můry Emy** – Nightmare Voxie a Nightmare Hollow Bunny (NaV4, 7 nocí, duben–květen 1997). |
 | jaro 1997 | Den po poslední noční můře je Ema v herně u Hollow Bunnyho. Najednou všechno zhasne – **D. zabije Emu**. |
 | jaro 1997 | Policie Emu hledá, pátrání po čase ukončí. |
-| 1997 | D. poprvé sestaví Cocou. **Už při prvním sestavení je v ní Emina duše.** |
+| 1997 | D. poprvé sestaví Cocou v dílně herny, pan Vojtěch se dívá („Ema by ji milovala. Kdyby tu byla.“). Kovová kostra, nohy, tělo, hlava. **Když Vojtěch odejde, Ema se uvnitř probudí** („Tati? Kde to jsem?“). |
 | 14. 6. 1997 | Oslava v herně. Pan Vojtěch v obleku Voxieho – **springlock ho nepustí a zabije**. D. vyhodí jeho tělo do popelnice. Vojtěch je od té doby nezvěstný. |
 | 2023 | NaV1: hlídač přežije 7 nocí, herna po jeho odchodu vyhoří. |
 | 2023 | NaV2: vyhořelá budova, Hollow Bunny ve skladu, zatčení. |
 | 6 týdnů před F&H | D. uteče z převozu, schová se do Hollow Bunnyho, springlocky povolí → **Hollow Hare**. |
 | F&H | NaV3: Frights & Hides pana Kroupy, 7. noc požár, Hollow Hare shoří. |
+| po požáru F&H | Hasiči hasí trosky. Pan Kroupa u ruin: **„D. byl můj otec. Tohle ti neodpustím.“** |
 
 ## Ema a „divné věty“ ve starších dílech
 Co Ema říká ve starších dílech (schovávaná s Hollow Bunnym, zhasnutí, „táta“, kresba „TÁTA“) jsou její vzpomínky na to, co se jí stalo. Minihry v NaV4 tyto vzpomínky postupně odhalí.

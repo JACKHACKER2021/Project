@@ -23,6 +23,9 @@ var done := false
 var from_extras := false
 var sw_on := true      # odstavení: vypínač
 var sign_on := false
+var sink := 0.0        # bazének: jak hluboko je Ema pod míčky
+var glitch := 0.0      # hororový záblesk (noční můry místo maskotů)
+var heartT := 0.0
 
 const HIDE := [["za stolem", 62], ["za automatem", 132], ["v míčkovém bazénku", 192], ["za oponou", 262]]
 
@@ -40,6 +43,8 @@ func start(k: String, extras := false) -> void:
 	done = false
 	sw_on = true
 	sign_on = false
+	sink = 0.0
+	glitch = 0.0
 	match k:
 		"show":
 			px = 34.0
@@ -68,7 +73,7 @@ func goal_text() -> String:
 		"hide":
 			return "Schovej se! (✋ v úkrytu)" if ph == 0 else ("Ticho… hledá tě." if ph == 1 else "")
 		"pit":
-			return "Jdi za Hollow Bunnym ▶" if ph == 0 else ""
+			return "Jdi za Hollow Bunnym ▶" if ph == 0 else ("…" if ph == 6 else "")
 		"shutdown":
 			return ["Jdi k Hollow Bunnymu ▶", "", "Vypni napájení u rozvaděče ▶ (✋)", "Pověs ceduli ◀ (✋)", ""][mini(ph, 4)]
 	return ""
@@ -120,6 +125,7 @@ func tick(dt: float) -> void:
 		if floor(w0 / PI) != floor(walkT / PI):
 			game.audio.sfx("step", 0.08)
 	scare = maxf(0, scare - dt)
+	glitch = maxf(0, glitch - dt)
 	match kind:
 		"show": _show(dt)
 		"hide": _hide(dt)
@@ -134,6 +140,9 @@ func _show(dt: float) -> void:
 				pt = 0.0
 				say("v", "Vítejte v herně u Voxieho!", 236)
 		1:
+			if (pt > 4.6 and pt - dt <= 4.6) or (pt > 7.6 and pt - dt <= 7.6):
+				glitch = 0.35
+				game.audio.sfx("scare_c", 0.35)
 			if pt > 3.0 and pt - dt <= 3.0:
 				say("b", "Ahoj, děti! Já jsem Hollow Bunny!", 280)
 			if pt > 6.5 and pt - dt <= 6.5:
@@ -143,6 +152,8 @@ func _show(dt: float) -> void:
 				pt = 0.0
 				say("f", "Emo, jdeme domů.", 18)
 		2:
+			if randf() < dt * 0.6:
+				glitch = 0.12
 			if px < 30:
 				ph = 3
 				pt = 0.0
@@ -161,6 +172,12 @@ func _hide(dt: float) -> void:
 			bx = move_toward(bx, to, 55 * dt)
 			if fmod(pt, 0.5) < dt:
 				game.audio.sfx("step", 0.15)
+			heartT -= dt
+			if heartT <= 0:
+				heartT = maxf(0.35, 0.9 - pt * 0.07)
+				game.audio.sfx("heart", 0.3 + pt * 0.05)
+			if randf() < dt * 0.4:
+				glitch = 0.1
 			if seg == 3 and absf(bx - target) < 1 and pt > 7.5:
 				ph = 2
 				pt = 0.0
@@ -184,9 +201,29 @@ func _pit(dt: float) -> void:
 				game.audio.sfx("whoosh", 0.4)
 		1:
 			# Ema skočí do míčků, Bunny se nad ní skloní
-			px = move_toward(px, 236, 30 * dt)
-			bx = move_toward(bx, 222, 20 * dt)
+			px = move_toward(px, 194, 30 * dt)
+			bx = move_toward(bx, 214, 20 * dt)
 			if pt > 2.2:
+				ph = 5
+				pt = 0.0
+				game.audio.sfx("servo", 0.8)
+		5:
+			# oči zbělají, natáhne ruku a stáhne Emu pod míčky
+			if pt > 0.8 and pt - dt <= 0.8:
+				game.audio.sfx("scare_c", 0.9)
+			if pt > 1.2:
+				sink = minf(26.0, sink + dt * 9.0)
+				if fmod(pt, 0.3) < dt:
+					game.audio.sfx("hurt", 0.35)
+			if pt > 4.6:
+				ph = 6
+				pt = 0.0
+				game.audio.sfx("whoosh", 0.3)
+		6:
+			# ticho; míčky se uklidní, Bunny se otočí k nám
+			if pt > 0.4 and pt - dt <= 0.4:
+				game.audio.sfx("heart", 0.6)
+			if pt > 3.0:
 				ph = 2
 				pt = 0.0
 		2:
@@ -215,7 +252,10 @@ func _shutdown(dt: float) -> void:
 		4:
 			if pt > 1.2 and pt - dt <= 1.2:
 				game.audio.sfx("servo", 0.4)
-			if pt > 4.0:
+			if pt > 2.2 and pt - dt <= 2.2:
+				glitch = 0.6
+				game.audio.sfx("scare_c", 0.5)
+			if pt > 4.6:
 				done = true
 
 # ================================================================== kreslení
@@ -251,12 +291,23 @@ func draw(hud) -> void:
 				_ema(HIDE[spot][1])
 			_hide_covers()
 		"pit":
-			_bunny(bx, false, true)
+			var lean = ph == 5 or ph == 6
+			_bunny(bx, false, true, false, ph == 5 or ph == 6)
+			if lean and ph == 5 and pt > 0.8:
+				# natažená ruka k Emě
+				P(bx - 22, 128 + minf(sink, 12), 16, 3, "#c8a432")
 			if ph == 0:
 				_ema(px)
 			else:
-				_ema(px, true)
-			_pit_front()
+				_ema(px, true, sink)
+			_pit_front(sink > 0 and ph == 5)
+			# podlaha kolem bazénku přes potápějící se Emu
+			for yy in 3:
+				for xx in range(17, 22):
+					P(xx * 10, 150 + yy * 10, 10, 10, "#2a2828" if (xx + yy) % 2 == 0 else "#0a0a0a")
+			if ph == 5 and sink > 16 and sink < 25:
+				# poslední ručička nad míčky
+				P(px - 1, 128 - (25 - sink), 2, 5, "#f0c8a0")
 		"shutdown":
 			_bunny(196, false, sw_on, true)
 			_guard(110)
@@ -264,6 +315,8 @@ func draw(hud) -> void:
 			if sign_on:
 				P(184, 112, 26, 10, "#e8e0d0")
 				P(185, 113, 24, 8, "#c02020")
+	if glitch > 0:
+		_nightmare_flash()
 	# tma (zavírací doba / zhasnutí)
 	if dark > 0:
 		hud.rect(0, 0, hud.HW, hud.HH, Color(0, 0, 0, dark * 0.95))
@@ -372,9 +425,13 @@ func label_px(x: float, y: float, s: String, c) -> void:
 	h.txt(s, OX + x * S, y * S + 10, 6 * S, c, "center")
 
 # ---------- postavy (x = střed u nohou, zem y = 150)
-func _ema(x: float, inpit := false) -> void:
+func _ema(x: float, inpit := false, sk := 0.0) -> void:
 	var w = sin(walkT) * 1.2 if hold != 0 or game.keys.get("a") or game.keys.get("d") else 0.0
-	var y0 = 150 if not inpit else 146
+	var y0 = (150 if not inpit else 146) + sk
+	if inpit and sk > 0 and sk < 26:
+		x += randf_range(-1.5, 1.5)
+	if sk >= 26:
+		return
 	if not inpit:
 		P(x - 3, y0 - 1, 2, 1, "#4a2a2a")
 		P(x + 1, y0 - 1, 2, 1, "#4a2a2a")
@@ -447,7 +504,7 @@ func _voxie(x: float, dance: bool) -> void:
 	P(x - 1, 110 - b, 2, 1, "#202020")
 	P(x - 3, 116 - b, 6, 3, "#c02040")
 
-func _bunny(x: float, dance: bool, stare: bool, off := false) -> void:
+func _bunny(x: float, dance: bool, stare: bool, off := false, white := false) -> void:
 	var b = absf(sin(t * 4 + 1)) * 2 if dance else 0.0
 	var ye = "#e8c64a"
 	var yd = "#c8a432"
@@ -465,10 +522,14 @@ func _bunny(x: float, dance: bool, stare: bool, off := false) -> void:
 	# oči: černé důlky s bílou tečkou; při zírání se otočí na Emu, odstavený zhasne
 	P(x - 5, 106 - b, 4, 4, "#0a0608")
 	P(x + 1, 106 - b, 4, 4, "#0a0608")
-	if not off or sw_on:
+	if white or (kind == "hide" and ph == 1):
+		# zbělalé svítící oči
+		P(x - 5, 106 - b, 4, 4, "#ffffff")
+		P(x + 1, 106 - b, 4, 4, "#ffffff")
+	elif not off or sw_on or (kind == "shutdown" and glitch > 0):
 		var dx = -1 if stare and px < x else (1 if stare else 0)
-		P(x - 4 + dx + 1, 107 - b, 1, 1, "#ffffff")
-		P(x + 2 + dx + 1, 107 - b, 1, 1, "#ffffff")
+		P(x - 4 + dx + 1, 107 - b, 1, 1, "#ffffff" if glitch <= 0 else "#ff2020")
+		P(x + 2 + dx + 1, 107 - b, 1, 1, "#ffffff" if glitch <= 0 else "#ff2020")
 	P(x - 2, 111 - b, 4, 2, "#f2e6d0")
 	P(x - 1, 113 - b, 1, 2, "#ffffff")
 	P(x + 1, 113 - b, 1, 2, "#ffffff")
@@ -493,10 +554,29 @@ func _hide_covers() -> void:
 			3:
 				P(x - 6, 36, 14, 114, "#a01828")
 
-func _pit_front() -> void:
+func _pit_front(shake := false) -> void:
 	P(176, 138, 34, 12, "#101830")
-	for i in 16:
-		P(178 + (i * 7) % 30, 134 + (i * 3) % 6, 3, 3, "#181818")
+	for i in 22:
+		var j = randf_range(-1.5, 1.5) if shake else 0.0
+		P(178 + (i * 7) % 30 + j, 132 + (i * 3) % 8 + j, 3, 3, ["#3a1818", "#18283a", "#3a3418", "#183a20"][i % 4])
+
+func _nightmare_flash() -> void:
+	h.rect(0, 0, h.HW, h.HH, Color(0.25, 0.0, 0.0, 0.35))
+	h.noise(0.3)
+	var xs = []
+	match kind:
+		"show": xs = [236, 280]
+		"hide", "pit": xs = [bx]
+		"shutdown": xs = [196]
+	for x in xs:
+		# tmavá silueta s ostrými zuby a rudýma očima
+		P(x - 9, 92, 18, 58, "#0a0406")
+		P(x - 6, 104, 4, 4, "#ff2020")
+		P(x + 2, 104, 4, 4, "#ff2020")
+		P(x - 6, 112, 12, 4, "#3a0a0a")
+		for i in 6:
+			P(x - 6 + i * 2, 112, 1, 3, "#f0e8d0")
+	h.txt("ZAČNI SE BÁT" if kind != "shutdown" else "NIKDY SE NEVYPNE", h.HW / 2 + randf_range(-4, 4), h.HH / 2, 46, "#ff2020", "center")
 
 func _scare_face() -> void:
 	var a = clampf(scare / 0.9, 0, 1)

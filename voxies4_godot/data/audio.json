@@ -146,6 +146,30 @@
   "Rozhodl jsem se. Hollow Bunny bude odstaven.": {
    "f": "m5f2.wav",
    "dur": 2.42
+  },
+  "Tak tohle bude Cocoa?": {
+   "f": "n7f0.wav",
+   "dur": 1.04
+  },
+  "Ema by ji milovala. Kdyby tu byla.": {
+   "f": "n7f1.wav",
+   "dur": 2.41
+  },
+  "Bude to nejlepší maskotka, pane Vojtěchu.": {
+   "f": "n7g0.wav",
+   "dur": 2.29
+  },
+  "Tak. Teď už tu budeš navždy.": {
+   "f": "n7g1.wav",
+   "dur": 1.42
+  },
+  "Tati? Kde to jsem?": {
+   "f": "n7e0.wav",
+   "dur": 1.25
+  },
+  "Je tu tma. Nemůžu se hýbat.": {
+   "f": "n7e1.wav",
+   "dur": 1.75
   }
  }
 }

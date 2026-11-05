@@ -39,6 +39,7 @@ var moon: OmniLight3D
 var rain_player: AudioStreamPlayer
 var plush: Node3D
 var mini
+var build
 var DEV := {"god": false}
 var scene_from_extras := false
 const MINI := {1: "show", 2: "hide", 3: "pit", 5: "shutdown"}
@@ -55,6 +56,9 @@ func _ready() -> void:
 	_build()
 	mini = preload("res://scripts/mini.gd").new()
 	mini.game = self
+	build = preload("res://scripts/build.gd").new()
+	build.game = self
+	add_child(build)
 	hud = preload("res://scripts/hud.gd").new()
 	hud.game = self
 	var pl = CanvasLayer.new()
@@ -182,6 +186,7 @@ func _build() -> void:
 		var pl = load("res://models/cocoa_plush.glb").instantiate()
 		pl.name = "CocoaPlushNew"
 		add_child(pl)
+		preload("res://scripts/build.gd").clean_mat(pl, "res://tex/plush_diff.pngdata")
 		pl.rotation = Vector3(-0.2, PI, 0.1)
 		var bb = _gaabb(pl)
 		var k = 0.42 / maxf(0.01, bb.size.y)
@@ -284,6 +289,9 @@ func tick_lines(dt: float) -> void:
 		var d = audio.voice(n[1], 0.8) if audio.AUD.voice.has(n[1]) else clampf(n[1].length() * 0.06, 2.0, 5.0)
 		line = {"who": n[0], "t": n[1], "dur": maxf(d + 0.9, 2.2), "age": 0.0}
 
+func talking(who: String) -> bool:
+	return line != null and line.who == who and line.age < line.dur - 0.4
+
 # ------------------------------------------------------------------ noc
 func new_night(n: int) -> void:
 	var lv = (n - 1) * 0.7
@@ -321,6 +329,17 @@ func start_night(n: int) -> void:
 		return
 	S = "intro"
 	scene_t = 0.0
+func start_build(extras := false) -> void:
+	S = "build"
+	scene_t = 0.0
+	scene_from_extras = extras
+	if G == null:
+		new_night(7)
+	vox.visible = false
+	bun.visible = false
+	torch.light_energy = 0
+	audio.stop_menu_song()
+	build.start(extras)
 func start_mini(kind: String, extras := false) -> void:
 	S = "mini"
 	scene_t = 0.0
@@ -420,6 +439,7 @@ func _set_open(side: String, k: float) -> void:
 
 # ---------- noční můry: Voxie (levé/pravé dveře), Hollow Bunny (skříň; v 7. noci všechny tři strany)
 func _place(n: Node3D, side: String, k: float) -> void:
+	n.visible = k > 0.12
 	if side == "closet":
 		n.position = Vector3(0, -0.45, -2.6)
 		n.rotation = Vector3.ZERO
@@ -465,7 +485,6 @@ func _enemy_tick(who: String, dt: float) -> void:
 				if randf() < 0.3 and E.side != "closet":
 					say("E", "Něco je za dveřmi.")
 		2:
-			node.visible = true
 			_place(node, E.side, ease_io(E.open))
 			if E.flinch > 0:
 				# couvá před světlem, pak dveře zabouchne
@@ -522,9 +541,15 @@ func _nm_pose(n: Node3D, dt: float, k: float, flinch := 0.0) -> void:
 	p.chest.scale = Vector3(1, 1.0 + sin(t_now * 2.2) * 0.02, 1)
 	p.head.rotation = b.head + Vector3(sin(t_now * 1.3) * 0.06 - k * 0.15, sin(t_now * 0.7) * 0.2 + tw, 0.25 * k + tw * 0.5)
 	p.jaw.rotation = b.jaw + Vector3(0.1 + k * 0.45 + absf(sin(t_now * 6)) * 0.08 * k, 0, 0)
-	# levá ruka drží hranu dveří, pravá se natahuje
-	p.arm_L.rotation = b.arm_L + Vector3(-1.2 * k, 0.4 * k, -0.5 * k)
-	p.arm_R.rotation = b.arm_R + Vector3(-0.5 * k + sin(t_now * 3) * 0.12 * k, 0, 0.2 * k)
+	# ruce jsou pořád v pohybu: pomalé kývání, škubnutí, natahování; levá při otevírání drží hranu dveří
+	var ph = n.get_instance_id() % 7
+	var sway_l = Vector3(sin(t_now * 1.6 + ph) * 0.35 + tw * 0.8, sin(t_now * 0.9 + ph) * 0.15, sin(t_now * 1.2) * 0.18)
+	var sway_r = Vector3(sin(t_now * 1.9 + ph + 1.5) * 0.4 - tw * 0.6, 0, -sin(t_now * 1.4 + ph) * 0.2)
+	p.arm_L.rotation = b.arm_L + Vector3(-1.2 * k, 0.4 * k, -0.5 * k) + sway_l * (1.0 - k * 0.6)
+	p.arm_R.rotation = b.arm_R + Vector3(-0.6 * k + sin(t_now * 3) * 0.2 * k, 0, 0.2 * k) + sway_r
+	for side in ["arm_L", "arm_R"]:
+		var fore = p[side].get_node("forearm")
+		fore.rotation.x = -0.6 + sin(t_now * 2.3 + (0.0 if side == "arm_L" else 1.7)) * 0.35
 	if flinch > 0:
 		var f = clampf(flinch / 0.3, 0, 1)
 		p.arm_L.rotation = b.arm_L + Vector3(-2.4 * f, 0, 0.6 * f)
@@ -552,9 +577,14 @@ func jumpscare(who: String) -> void:
 	audio.sfx("scare", 1.3)
 	audio.sfx("scare_v" if who == "vox" else "scare_c", 1.0)
 func win_night() -> void:
+	rain_player.stop()
+	if G.night == 7:
+		st_set("v4_night", 7)
+		st_set("v4_end", true)
+		start_build(false)
+		return
 	S = "win"
 	scene_t = 0.0
-	rain_player.stop()
 	audio.sfx("chime", 1.0)
 	audio.voice("Už je ráno. Byl to jen sen.", 0.8)
 	var n: int = G.night
@@ -590,6 +620,16 @@ func _process(delta: float) -> void:
 		"play": play_tick(dt)
 		"d7": d7_tick(dt)
 		"d4": d4_tick(dt)
+		"build":
+			build.tick(dt)
+			if build.done:
+				build.finish()
+				if scene_from_extras:
+					S = "extras"
+					audio.start_menu_song()
+				else:
+					S = "win"
+				scene_t = 0.0
 		"mini":
 			mini.tick(dt)
 			if mini.done:
@@ -626,6 +666,9 @@ func render(dt: float) -> void:
 			_set_open("closet", 0.25)
 		"mini":
 			vig = 0.3
+		"build":
+			vig = 0.9 + (0.4 if build.ph >= 2 else 0.0)
+			glitch = 0.25 if build.ph == 2 and randf() < 0.1 else 0.0
 		"extras":
 			vig = 0.9
 		"d4", "d7":
