@@ -157,7 +157,14 @@ název, ID, typ, stav, napájení, propojení potrubí a kabelů včetně směr�
 ## Radiace a kontaminace
 * **Zdroje:** uranová ruda a bloky, kontaminovaný terén, radioaktivní odpad, poškozené jádro, běžící nebo unikající reaktor a radioaktivní předměty v inventáři.
 * Každé 2 s se dávka přičte podle zdrojů v okruhu 4 bloků. Nad lištou se zobrazí míra a dávka a ozve se Geigerův počítač. Mimo zdroje dávka pomalu klesá.
-* **Účinky:** od 25 nevolnost, od 50 slabost a hlad, od 75 otrava, od 100 wither. Maximum je 150.
+* **Efekt Radiace (1.5):** vlastní stav ve 4 stupních, zobrazený pod středem obrazovky jako „☢ Radiace I–IV“ a zelenými jiskrami kolem postižených:
+  * **I** (dávka 25): nevolnost.
+  * **II** (50): slabost, zpomalení a hlad.
+  * **III** (75): radiační zásahy za 1 HP každé 2 s.
+  * **IV** (100): smrtelné zásahy za 3 HP každé 2 s.
+  * Maximum dávky je 150.
+  * Bedrock add-ony neumí zaregistrovat vlastní efekt do seznamu efektů s ikonou, proto ho řídí skript.
+* **Zvířata a tvorové (1.5):** všichni živí tvorové do 32 bloků od hráče (zvířata, vesničané, příšery kromě nemrtvých) sbírají dávku v radioaktivním dešti pod otevřeným nebem, na zamořené zemi a v radioaktivních tekutinách. Ve stupni III a IV dostávají zásahy a umírají. Nemrtví (zombie, kostlivci) jsou imunní, protože patří k Zedům. Vypnutí: `/scriptevent radiousti:config mobradiation off`.
 * **Ochrana:** plynová maska −30 %, ochranný oblek −50 %, obojí dohromady −65 %. **Léčba:** antiradiační tablety (−40), sérum Zed (−10 a regenerace), dekontaminace osoby.
 * **Šíření:** radioaktivní odpad zhruba každých 30–60 s zamoří náhodný blok v okruhu 2. Kontaminovanou hlínu, trávu a kámen vyčistí **dekontaminační souprava** (32 použití).
 * **Nastavení** (příkazy jako operátor):
@@ -193,7 +200,9 @@ název, ID, typ, stav, napájení, propojení potrubí a kabelů včetně směr�
 
 **3D rudy:** uranová, hlubinná uranová a liverocrystalová ruda mají vlastní model s krystalky, které vystupují ze všech stran kamene.
 
-**Oprava názvů:** v 1.0–1.3 se u některých bloků a předmětů ukazovaly klíče typu `item.radiousti…`. Názvy jsou teď přímo v definicích (česky), takže se zobrazí vždy.
+**Oprava názvů (1.5):** jazykové soubory teď obsahují všechny tvary klíčů, které hra může použít (`item.radiousti:…`, `item.radiousti:….name`, `tile.radiousti:….name`), a k tomu je název zapsaný přímo v definici.
+
+**Oprava názvů (1.4):** v 1.0–1.3 se u některých bloků a předmětů ukazovaly klíče typu `item.radiousti…`. Názvy jsou teď přímo v definicích (česky), takže se zobrazí vždy.
 
 ## Liverocrystal, biogenní sérum a tekutiny (1.3)
 * **Liverocrystalová ruda** se generuje hluboko pod zemí (y −60 až −10, nahrazuje kámen, deepslate i tuff) a dává 1–2 **úlomky Liverocrystalu**.

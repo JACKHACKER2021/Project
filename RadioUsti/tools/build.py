@@ -348,8 +348,9 @@ def emit_block(b, geo_files, blocks_json, lang, registry):
     wjson(os.path.join(BP, "blocks", f"{b['id']}.json"), data)
 
     blocks_json[bid] = {"sound": b["sound"]}
-    lang["en"][f"tile.{bid}.name"] = b["en"]
-    lang["cs"][f"tile.{bid}.name"] = b["cs"]
+    for k in (f"tile.{bid}.name", f"tile.{bid}", f"item.{bid}.name", f"item.{bid}"):
+        lang["en"][k] = b["en"]
+        lang["cs"][k] = b["cs"]
 
     meta = dict(b["meta"])
     reg = {"kind": b["kind"], "en": b["en"], "cs": b["cs"], **meta}
@@ -384,8 +385,9 @@ def emit_item(it, lang, registry):
     data = {"format_version": FMT_ITEM, "minecraft:item": {
         "description": {"identifier": iid, "menu_category": {"category": it["cat"]}}, "components": comps}}
     wjson(os.path.join(BP, "items", f"{it['id']}.json"), data)
-    lang["en"][f"item.{NS}.{it['id']}.name"] = it["en"]
-    lang["cs"][f"item.{NS}.{it['id']}.name"] = it["cs"]
+    for k in (f"item.{NS}.{it['id']}.name", f"item.{iid}.name", f"item.{iid}"):
+        lang["en"][k] = it["en"]
+        lang["cs"][k] = it["cs"]
     registry["items"][iid] = {"kind": it["kind"], "en": it["en"], "cs": it["cs"], **it["meta"]}
 
 

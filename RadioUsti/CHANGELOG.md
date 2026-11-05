@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.5.0 – efekt Radiace a oprava názvů (2026-11-05)
+**Přidáno**
+- Efekt Radiace I–IV (řízený skriptem): ukazatel na obrazovce, zelené částice, slabost a zpomalení, radiační zásahy (1 a 3 HP / 2 s).
+- Radiace zasahuje i zvířata a ostatní tvory do 32 bloků od hráče (déšť, zamořená země, radioaktivní tekutiny). Nemrtví jsou imunní. Nastavení `mobradiation`.
+
+**Změněno**
+- Otrava a wither při vysoké dávce nahrazeny radiačními zásahy.
+
+**Opraveno**
+- Názvy předmětů: jazykové soubory obsahují všechny tvary klíčů (`item.radiousti:id`, `item.radiousti:id.name`, `tile.radiousti:id.name`).
+- Verze balíčků 1.4.0 → 1.5.0.
+
 ## 1.4.0 – prostředí, lokace a 3D rudy (2026-11-05)
 **Přidáno**
 - Systém prostředí: trvale nazelenalá obloha (client biomy založené na vanilla souborech z Mojang/bedrock-samples), mlha podle denní doby (zelená, načervenalá, rudá), atmosféra pro Vibrant Visuals, náhodný smog, radioaktivní déšť (dávka pod otevřeným nebem, kontaminace trávy).

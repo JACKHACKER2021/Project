@@ -2,7 +2,7 @@
 //   /scriptevent radiousti:config radiation off|on
 //   /scriptevent radiousti:config multiplier 0.5
 //   /scriptevent radiousti:config wastespread off|on
-import { BlockVolume, BlockPermutation, EquipmentSlot } from "@minecraft/server";
+import { BlockVolume, BlockPermutation, EquipmentSlot, EntityDamageCause } from "@minecraft/server";
 import { NS, BLOCKS, ITEMS, blockAt, dist2, sound } from "../lib/util.js";
 import { Machines, Config, Logs } from "../lib/store.js";
 
@@ -142,16 +142,74 @@ export function radiationTick(players) {
       const bar = "§a" + "|".repeat(Math.min(20, Math.round(dose / 5))) + "§8" + "|".repeat(Math.max(0, 20 - Math.round(dose / 5)));
       p.onScreenDisplay.setActionBar(`§e☢ ${rate.toFixed(2)} mSv/s  §fdávka ${dose.toFixed(0)}/150 ${bar}`);
     }
+    applyRadiationEffect(p, dose, true);
+  }
+}
+
+// ------------------------------------------------------------------ "Radiace" status effect
+// Bedrock add-ons cannot register new status effects, so Radiace is script-driven:
+// levels I-IV by dose, HUD indicator, side effects and lethal radiation hits.
+export const RAD_LEVELS = ["", "I", "II", "III", "IV"];
+
+export function radiationLevel(dose) {
+  return dose >= 100 ? 4 : dose >= 75 ? 3 : dose >= 50 ? 2 : dose >= 25 ? 1 : 0;
+}
+
+function applyRadiationEffect(e, dose, isPlayer) {
+  const lvl = radiationLevel(dose);
+  if (!lvl) return;
+  try {
+    const l = e.location;
+    e.dimension.spawnParticle("minecraft:villager_happy", { x: l.x, y: l.y + 1.2, z: l.z });
+    if (isPlayer) e.addEffect("nausea", 120, { amplifier: 0, showParticles: false });
+    if (lvl >= 2) {
+      e.addEffect("weakness", 60, { amplifier: lvl - 2, showParticles: false });
+      e.addEffect("slowness", 60, { amplifier: 0, showParticles: false });
+      if (isPlayer) e.addEffect("hunger", 60, { amplifier: 1, showParticles: false });
+    }
+    if (lvl >= 3) e.applyDamage(lvl === 3 ? 1 : 3, { cause: EntityDamageCause.magic });
+  } catch {
+    /* entity gone or not damageable */
+  }
+  if (isPlayer) {
+    const col = ["", "§a", "§e", "§6", "§c"][lvl];
+    e.onScreenDisplay.setTitle(" ", { subtitle: `${col}☢ Radiace ${RAD_LEVELS[lvl]}`, fadeInDuration: 0, stayDuration: 30, fadeOutDuration: 10 });
+  }
+}
+
+const MOB_EXCLUDE = ["player", "inanimate", "undead"];
+const ITEMLIKE = ["minecraft:item", "minecraft:xp_orb", "minecraft:arrow", "minecraft:armor_stand", "minecraft:painting", "minecraft:boat",
+  "minecraft:minecart", "minecraft:falling_block", "minecraft:tnt"];
+
+/** Animals and other living mobs near players also absorb radiation (rain, radioactive ground, radioactive liquids). */
+export function mobRadiationTick(players) {
+  const cfg = Config.get();
+  if (!cfg.radiation || cfg.mobRadiation === false) return;
+  const raining = cfg.rainRadiation !== false && isRaining();
+  const seen = new Set();
+  for (const p of players) {
+    let list = [];
     try {
-      if (dose >= 25) p.addEffect("nausea", 120, { amplifier: 0, showParticles: false });
-      if (dose >= 50) {
-        p.addEffect("weakness", 60, { amplifier: 0, showParticles: false });
-        p.addEffect("hunger", 60, { amplifier: 1, showParticles: false });
-      }
-      if (dose >= 75) p.addEffect("poison", 50, { amplifier: 0, showParticles: false });
-      if (dose >= 100) p.addEffect("wither", 50, { amplifier: 0, showParticles: false });
+      list = p.dimension.getEntities({ location: p.location, maxDistance: 32, excludeFamilies: MOB_EXCLUDE, excludeTypes: ITEMLIKE });
     } catch {
-      /* effects unavailable */
+      continue;
+    }
+    for (const e of list) {
+      if (seen.has(e.id) || !e.isValid) continue;
+      seen.add(e.id);
+      let rate = 0;
+      if (raining && e.dimension.id === "minecraft:overworld" && underSky(e)) rate += 0.6;
+      const l = e.location;
+      for (const dy of [-1, 0]) {
+        const b = blockAt(e.dimension, { x: l.x, y: l.y + dy, z: l.z });
+        const w = b && RAD_W[b.typeId];
+        if (w) rate += w * 0.5;
+      }
+      let dose = Number(e.getDynamicProperty("ru:dose") ?? 0);
+      dose = Math.max(0, Math.min(150, rate > 0 ? dose + rate * cfg.radiationMultiplier : dose - 0.15));
+      if (dose <= 0 && rate <= 0) continue;
+      e.setDynamicProperty("ru:dose", dose);
+      applyRadiationEffect(e, dose, false);
     }
   }
 }

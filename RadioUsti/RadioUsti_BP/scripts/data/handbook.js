@@ -82,7 +82,7 @@ export const HANDBOOK = [
     title: "10. Radiace a kontaminace",
     text:
       "Zdroje: uranová ruda a bloky, kontaminovaný terén, radioaktivní odpad, běžící nebo unikající reaktor, radioaktivní předměty v inventáři.\n" +
-      "Dávka se zobrazuje nad lištou. 25 = nevolnost, 50 = slabost a hlad, 75 = otrava, 100 = wither. Mimo zdroje dávka pomalu klesá.\n" +
+      "Dávka se zobrazuje nad lištou. Efekt RADIACE: I (dávka 25) nevolnost, II (50) slabost, zpomalení, hlad, III (75) radiační zásahy 1 HP / 2 s, IV (100) smrtelné zásahy 3 HP / 2 s. Mimo zdroje dávka pomalu klesá.\nRadiaci dostávají i zvířata a další tvorové venku v radioaktivním dešti nebo na zamořené zemi – při stupni III a IV umírají. Nemrtví (zombie, kostlivci) jsou imunní.\n" +
       "Ochrana: plynová maska −30 %, ochranný oblek −50 % (spolu −65 %). Léčba: antiradiační tablety (−40), sérum Zed (−10 + regenerace), dekontaminace osoby.\n" +
       "Radioaktivní odpad pomalu zamořuje okolí (okruh 2). Dekontaminační souprava vyčistí kontaminovanou hlínu, trávu a kámen.\n" +
       "Nastavení (operátor): /scriptevent radiousti:config radiation off | on, multiplier 0.5, wastespread off.",

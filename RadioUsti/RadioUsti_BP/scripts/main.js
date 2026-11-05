@@ -10,7 +10,7 @@ import { buildMultiblock, breakMultiblock, buildDoor, breakDoor, toggleDoor, ori
 import { startNetworkLoop, ensureMachine, findCoreNear } from "./systems/network.js";
 import "./systems/reactor.js";
 import { startSmog } from "./systems/environment.js";
-import { radiationTick, wasteSpreadTick, decontaminate, getDose, setDose } from "./systems/radiation.js";
+import { radiationTick, mobRadiationTick, wasteSpreadTick, decontaminate, getDose, setDose } from "./systems/radiation.js";
 import { toggleLight, interactAlarm, pressScram } from "./systems/devices.js";
 import { openStation } from "./systems/lab.js";
 import { liquidTick, pourBucket, fillBucket, isLiquid } from "./systems/liquids.js";
@@ -301,6 +301,7 @@ system.afterEvents.scriptEventReceive.subscribe(safe("scriptevent", (ev) => {
     else if (k === "zeddrops") c = Config.set({ zedDrops: on });
     else if (k === "environment") c = Config.set({ environment: on });
     else if (k === "rainradiation") c = Config.set({ rainRadiation: on });
+    else if (k === "mobradiation") c = Config.set({ mobRadiation: on });
     else if (k === "smog") {
       startSmog(Number(v) || 3);
       c = Config.get();
@@ -315,6 +316,7 @@ system.afterEvents.scriptEventReceive.subscribe(safe("scriptevent", (ev) => {
 // ------------------------------------------------------------------ loops
 startNetworkLoop();
 system.runInterval(safe("radiation", () => radiationTick(world.getAllPlayers())), 40);
+system.runInterval(safe("mobRadiation", () => mobRadiationTick(world.getAllPlayers())), 40);
 
 world.afterEvents.worldLoad.subscribe(() => {
   console.warn(`[RadioÚstí] Načteno: ${Object.keys(BLOCKS).length} bloků, ${Object.keys(ITEMS).length} předmětů, strojů ve světě ${Machines.all().size}.`);

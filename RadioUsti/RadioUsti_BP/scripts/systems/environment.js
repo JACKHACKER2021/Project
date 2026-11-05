@@ -57,10 +57,10 @@ function applyFog(player, id) {
 }
 
 /** Under the open sky (no block above the player's head)? */
-export function underSky(player) {
+export function underSky(entity) {
   try {
-    const top = player.dimension.getTopmostBlock({ x: player.location.x, z: player.location.z });
-    return !top || top.location.y < player.location.y + 1;
+    const top = entity.dimension.getTopmostBlock({ x: entity.location.x, z: entity.location.z });
+    return !top || top.location.y < entity.location.y + 1;
   } catch {
     return false;
   }

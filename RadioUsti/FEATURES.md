@@ -48,6 +48,8 @@ Verze 1.0.0 byla podle autora otestovaná ve hře a funguje („Otestováno a co
 | G9 | 30 bloků pro lokace Pennov a RadioÚstí, částice | staticky ověřeno | – | ID částic ověřena proti vanilla RP |
 | G10 | 3D modely rud s krystalky | staticky ověřeno | – | |
 | G11 | Oprava názvů (`item.…` místo jména) | staticky ověřeno | – | nahlášeno autorem, ověřit ve hře |
+| G12 | Efekt Radiace I–IV (hráči), radiační zásahy | staticky ověřeno | – | skriptový efekt, Bedrock nepovoluje vlastní efekty |
+| G13 | Radiace u zvířat a tvorů (déšť, zamořená země, tekutiny) | staticky ověřeno | – | |
 | F1 | Validace JSON, geometrií, skriptů, ID, textur | staticky ověřeno | – | `tools/validate.py`: 0 chyb; komunitní JSON schémata: 0 nálezů |
 | F2 | Export .mcaddon + .mcpack | staticky ověřeno | – | `tools/package.py`, kontrola integrity ZIP |
 | F3 | Test v Minecraftu Bedrock 1.26.50 | 1.0.0 načteno a hratelné | ✓ (1.0.0, obecně) | 1.1 čeká na test |
