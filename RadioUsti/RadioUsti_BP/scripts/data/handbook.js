@@ -98,7 +98,7 @@ export const HANDBOOK = [
     title: "12. Nábytek, nemocnice, dokumenty",
     text:
       "Nemocniční lůžko a operační stůl jsou dva bloky dlouhé. Klepnutím na nemocniční lůžko si nastavíte bod oživení.\nOtočná kancelářská židle se po klepnutí otočí o 90°.\n" +
-      "Registr experimentů – Projekt Apokalypsa (kniha + červená barva + inkoust): kniha postav a experimentů Zeds World ve 12 kapitolách. Najdete ho i v ÚstíOS v Dokumentech.\n" +
+      "Registr experimentů – Projekt Apokalypsa (kniha + červená barva + inkoust): kniha postav a experimentů Zeds World ve 13 kapitolách. Najdete ho i v ÚstíOS v Dokumentech.\n" +
       "Plakáty, oznámení, rozházené papíry, hromady dokumentů a fotografie si přečtete klepnutím. Dokumenty v inventáři přečtete použitím. Nástěnné hodiny ukážou herní čas.",
   },
   {

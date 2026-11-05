@@ -17,6 +17,14 @@ export const EXPERIMENTS = [
       "Sektory: RadioÚstí, Pennov, Jackovanie, CWT a Boleslavský IT uzel.",
   },
   {
+    title: "0. První subjekty: Rogerovy děti",
+    text:
+      "Úplně prvními subjekty Projektu Apokalypsa nebyly animatronici, ale vlastní děti Rogera Smitha. Vznikly v roce 2071, rok před první vlnou EX, ve skleněných inkubačních válcích kryogenického bloku – Roger je nepočal jako otec, ale vypěstoval jako experiment.\n\n" +
+      "§lLazy Bunny§r – syn Rogera Smitha, první vypěstovaný vzor (od 2071). Králičí humanoid s dlouhými skleslými ušima, těžkými víčky a silnýma zadníma nohama. Působí líně a apaticky, ve skutečnosti je neurochemicky vyčerpaný z laboratorních sér.\n\n" +
+      "§lSofty the Cat§r – dcera Rogera Smitha, vypěstovaná hned po bratrovi ze stejné buněčné linie. Štíhlá a pružná, s hustou sněhobílou až stříbřitou srstí a kočičíma očima. Je neustále nervózní a její nervy pálí při každé změně teploty v laboratoři.\n\n" +
+      "Jsou to pokrevní sourozenci a navzájem jsou si jediným bezpečným útočištěm v laboratořích. Roger je nikdy nebral jako rodinu, jen jako 'inkubační vzory' pro všechno, co přišlo potom.",
+  },
+  {
     title: "I. Vedení a personál",
     text:
       "§lRoger Smith§r – Hlavní architekt Projektu Apokalypsa. Chladný vědec, který věří, že lidské tělo je jen surovina. Řídí laboratoře v Pennově i RadioÚstí a podepisuje každý protokol.\n\n" +
@@ -118,7 +126,6 @@ export const EXPERIMENTS = [
       "• Liverocrystalci z Pennova\n" +
       "• Pennov Škola a Jídelna – selekční protokoly\n" +
       "• Subjekty 52, 55 a 56\n" +
-      "• Divize inkubačních fúzí (Softy, Lazy Bunny)\n" +
       "• Spis Blandy & Rizzy\n" +
       "• Složka TO GO!! Corporation (Cocoa, Rudie)\n" +
       "• Protokol Bezintimit\n\n" +
