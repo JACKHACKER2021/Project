@@ -1,0 +1,61 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:emergency_shutdown_button",
+      "menu_category": {
+        "category": "equipment"
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 2
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#e0a800",
+      "radiousti:scram_button": {},
+      "minecraft:geometry": "geometry.radiousti.emergency_shutdown_button",
+      "minecraft:collision_box": {
+        "origin": [
+          -4,
+          0,
+          -4
+        ],
+        "size": [
+          8,
+          5,
+          8
+        ]
+      },
+      "minecraft:selection_box": {
+        "origin": [
+          -4,
+          0,
+          -4
+        ],
+        "size": [
+          8,
+          5,
+          8
+        ]
+      },
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_hazard",
+          "render_method": "opaque"
+        },
+        "detail": {
+          "texture": "radiousti_steel_dark",
+          "render_method": "opaque"
+        },
+        "glow": {
+          "texture": "radiousti_glow_red",
+          "render_method": "opaque"
+        }
+      }
+    }
+  }
+}

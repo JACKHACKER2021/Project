@@ -1,0 +1,28 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:empty_test_tube"
+    },
+    "tags": [
+      "radiousti_lab"
+    ],
+    "pattern": [
+      "G",
+      "G",
+      "G"
+    ],
+    "key": {
+      "G": {
+        "item": "minecraft:glass"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:empty_test_tube",
+      "count": 4
+    }
+  }
+}

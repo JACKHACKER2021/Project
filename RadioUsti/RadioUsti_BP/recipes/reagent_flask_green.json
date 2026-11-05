@@ -1,0 +1,29 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "radiousti:reagent_flask_green"
+    },
+    "tags": [
+      "radiousti_lab"
+    ],
+    "ingredients": [
+      {
+        "item": "radiousti:empty_flask"
+      },
+      {
+        "item": "minecraft:green_dye"
+      },
+      {
+        "item": "minecraft:slime_ball"
+      }
+    ],
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:reagent_flask_green",
+      "count": 1
+    }
+  }
+}

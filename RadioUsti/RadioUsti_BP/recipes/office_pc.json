@@ -1,0 +1,26 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "radiousti:office_pc"
+    },
+    "tags": [
+      "radiousti_industrial"
+    ],
+    "ingredients": [
+      {
+        "item": "radiousti:old_pc"
+      },
+      {
+        "item": "minecraft:white_dye"
+      }
+    ],
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:office_pc",
+      "count": 1
+    }
+  }
+}

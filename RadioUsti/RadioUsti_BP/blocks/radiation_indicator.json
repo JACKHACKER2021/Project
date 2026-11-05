@@ -1,0 +1,232 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:radiation_indicator",
+      "menu_category": {
+        "category": "equipment"
+      },
+      "states": {
+        "radiousti:level": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "traits": {
+        "minecraft:placement_direction": {
+          "enabled_states": [
+            "minecraft:cardinal_direction"
+          ],
+          "y_rotation_offset": 180
+        }
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 1.5
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#c9bfa4",
+      "radiousti:indicator": {},
+      "minecraft:geometry": "geometry.radiousti.radiation_indicator.north",
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_cabinet_beige",
+          "render_method": "opaque"
+        },
+        "screen": {
+          "texture": "radiousti_screen_dial",
+          "render_method": "opaque"
+        },
+        "glow": {
+          "texture": "radiousti_lamp_green",
+          "render_method": "opaque"
+        }
+      }
+    },
+    "permutations": [
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'north'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.radiation_indicator.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -5,
+              2,
+              4.5
+            ],
+            "size": [
+              10,
+              12,
+              3.5
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -5,
+              2,
+              4.5
+            ],
+            "size": [
+              10,
+              12,
+              3.5
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'east'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.radiation_indicator.east",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              2,
+              -5
+            ],
+            "size": [
+              3.5,
+              12,
+              10
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              2,
+              -5
+            ],
+            "size": [
+              3.5,
+              12,
+              10
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'south'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.radiation_indicator.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -5,
+              2,
+              -8
+            ],
+            "size": [
+              10,
+              12,
+              3.5
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -5,
+              2,
+              -8
+            ],
+            "size": [
+              10,
+              12,
+              3.5
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'west'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.radiation_indicator.west",
+          "minecraft:selection_box": {
+            "origin": [
+              4.5,
+              2,
+              -5
+            ],
+            "size": [
+              3.5,
+              12,
+              10
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              4.5,
+              2,
+              -5
+            ],
+            "size": [
+              3.5,
+              12,
+              10
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:level') == 1",
+        "components": {
+          "minecraft:material_instances": {
+            "*": {
+              "texture": "radiousti_cabinet_beige",
+              "render_method": "opaque"
+            },
+            "screen": {
+              "texture": "radiousti_screen_dial",
+              "render_method": "opaque"
+            },
+            "glow": {
+              "texture": "radiousti_glow_yellow",
+              "render_method": "opaque"
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:level') == 2",
+        "components": {
+          "minecraft:material_instances": {
+            "*": {
+              "texture": "radiousti_cabinet_beige",
+              "render_method": "opaque"
+            },
+            "screen": {
+              "texture": "radiousti_screen_dial",
+              "render_method": "opaque"
+            },
+            "glow": {
+              "texture": "radiousti_glow_orange",
+              "render_method": "opaque"
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:level') == 3",
+        "components": {
+          "minecraft:material_instances": {
+            "*": {
+              "texture": "radiousti_cabinet_beige",
+              "render_method": "opaque"
+            },
+            "screen": {
+              "texture": "radiousti_screen_dial",
+              "render_method": "opaque"
+            },
+            "glow": {
+              "texture": "radiousti_glow_red",
+              "render_method": "opaque"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:old_glass",
+      "menu_category": {
+        "category": "construction"
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 0.6
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#b8d6d9",
+      "minecraft:geometry": "geometry.radiousti.old_glass",
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_old_glass",
+          "render_method": "blend",
+          "ambient_occlusion": false
+        }
+      }
+    }
+  }
+}

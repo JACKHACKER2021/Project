@@ -1,0 +1,56 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:lab_waste_bin",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 1
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#b3170f",
+      "minecraft:geometry": "geometry.radiousti.lab_waste_bin",
+      "minecraft:collision_box": {
+        "origin": [
+          -5.5,
+          0,
+          -5.5
+        ],
+        "size": [
+          11.0,
+          13,
+          11.0
+        ]
+      },
+      "minecraft:selection_box": {
+        "origin": [
+          -5.5,
+          0,
+          -5.5
+        ],
+        "size": [
+          11.0,
+          13,
+          11.0
+        ]
+      },
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_waste_bin",
+          "render_method": "opaque"
+        },
+        "detail": {
+          "texture": "radiousti_steel_dark",
+          "render_method": "opaque"
+        }
+      }
+    }
+  }
+}

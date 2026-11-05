@@ -1,0 +1,26 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "radiousti:flesh_growth"
+    },
+    "tags": [
+      "radiousti_lab"
+    ],
+    "ingredients": [
+      {
+        "item": "radiousti:flesh_block"
+      },
+      {
+        "item": "radiousti:organic_material"
+      }
+    ],
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:flesh_growth",
+      "count": 2
+    }
+  }
+}

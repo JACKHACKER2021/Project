@@ -1,0 +1,32 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "radiousti:molten_valve"
+    },
+    "tags": [
+      "radiousti_industrial"
+    ],
+    "ingredients": [
+      {
+        "item": "radiousti:molten_pipe"
+      },
+      {
+        "item": "minecraft:iron_ingot"
+      },
+      {
+        "item": "minecraft:red_dye"
+      },
+      {
+        "item": "minecraft:lever"
+      }
+    ],
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:molten_valve",
+      "count": 1
+    }
+  }
+}

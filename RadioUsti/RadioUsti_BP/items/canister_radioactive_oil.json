@@ -1,0 +1,22 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:item": {
+    "description": {
+      "identifier": "radiousti:canister_radioactive_oil",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "textures": {
+          "default": "radiousti_canister_radioactive"
+        }
+      },
+      "minecraft:display_name": {
+        "value": "item.radiousti.canister_radioactive_oil.name"
+      },
+      "minecraft:max_stack_size": 16
+    }
+  }
+}

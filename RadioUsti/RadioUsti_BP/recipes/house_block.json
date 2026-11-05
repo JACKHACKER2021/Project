@@ -1,0 +1,31 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:house_block"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "CCC",
+      "CPC",
+      "CCC"
+    ],
+    "key": {
+      "C": {
+        "item": "radiousti:cement_block"
+      },
+      "P": {
+        "item": "minecraft:glass_pane"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:house_block",
+      "count": 8
+    }
+  }
+}

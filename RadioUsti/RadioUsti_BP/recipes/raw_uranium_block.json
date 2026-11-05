@@ -1,0 +1,28 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:raw_uranium_block"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "UUU",
+      "UUU",
+      "UUU"
+    ],
+    "key": {
+      "U": {
+        "item": "radiousti:raw_uranium"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:raw_uranium_block",
+      "count": 1
+    }
+  }
+}

@@ -1,0 +1,176 @@
+{
+  "format_version": "1.20.20",
+  "sound_definitions": {
+    "radiousti.alarm": {
+      "category": "block",
+      "sounds": [
+        {
+          "name": "sounds/radiousti/alarm",
+          "volume": 1.0
+        }
+      ],
+      "max_distance": 24
+    },
+    "radiousti.radiation_alarm": {
+      "category": "block",
+      "sounds": [
+        {
+          "name": "sounds/radiousti/radiation_alarm",
+          "volume": 1.0
+        }
+      ],
+      "max_distance": 24
+    },
+    "radiousti.geiger": {
+      "category": "player",
+      "sounds": [
+        {
+          "name": "sounds/radiousti/geiger",
+          "volume": 0.7
+        }
+      ],
+      "max_distance": 24
+    },
+    "radiousti.valve": {
+      "category": "block",
+      "sounds": [
+        {
+          "name": "sounds/radiousti/valve",
+          "volume": 1.0
+        }
+      ],
+      "max_distance": 24
+    },
+    "radiousti.pc_boot": {
+      "category": "block",
+      "sounds": [
+        {
+          "name": "sounds/radiousti/pc_boot",
+          "volume": 1.0
+        }
+      ],
+      "max_distance": 24
+    },
+    "radiousti.pc_click": {
+      "category": "block",
+      "sounds": [
+        {
+          "name": "sounds/radiousti/pc_click",
+          "volume": 1.0
+        }
+      ],
+      "max_distance": 24
+    },
+    "radiousti.pc_error": {
+      "category": "block",
+      "sounds": [
+        {
+          "name": "sounds/radiousti/pc_error",
+          "volume": 1.0
+        }
+      ],
+      "max_distance": 24
+    },
+    "radiousti.generator_hum": {
+      "category": "block",
+      "sounds": [
+        {
+          "name": "sounds/radiousti/generator_hum",
+          "volume": 0.6
+        }
+      ],
+      "max_distance": 24
+    },
+    "radiousti.generator_start": {
+      "category": "block",
+      "sounds": [
+        {
+          "name": "sounds/radiousti/generator_start",
+          "volume": 1.0
+        }
+      ],
+      "max_distance": 24
+    },
+    "radiousti.reactor_start": {
+      "category": "block",
+      "sounds": [
+        {
+          "name": "sounds/radiousti/reactor_start",
+          "volume": 1.0
+        }
+      ],
+      "max_distance": 24
+    },
+    "radiousti.reactor_scram": {
+      "category": "block",
+      "sounds": [
+        {
+          "name": "sounds/radiousti/reactor_scram",
+          "volume": 1.0
+        }
+      ],
+      "max_distance": 24
+    },
+    "radiousti.door_open": {
+      "category": "block",
+      "sounds": [
+        {
+          "name": "sounds/radiousti/door_open",
+          "volume": 1.0
+        }
+      ],
+      "max_distance": 24
+    },
+    "radiousti.door_close": {
+      "category": "block",
+      "sounds": [
+        {
+          "name": "sounds/radiousti/door_close",
+          "volume": 1.0
+        }
+      ],
+      "max_distance": 24
+    },
+    "radiousti.scanner_beep": {
+      "category": "block",
+      "sounds": [
+        {
+          "name": "sounds/radiousti/scanner_beep",
+          "volume": 1.0
+        }
+      ],
+      "max_distance": 24
+    },
+    "radiousti.light_switch": {
+      "category": "block",
+      "sounds": [
+        {
+          "name": "sounds/radiousti/light_switch",
+          "volume": 1.0
+        }
+      ],
+      "max_distance": 24
+    },
+    "radiousti.lab_process": {
+      "category": "block",
+      "sounds": [
+        {
+          "name": "sounds/radiousti/lab_process",
+          "volume": 1.0
+        }
+      ],
+      "max_distance": 24
+    },
+    "radiousti.record_radiousti": {
+      "category": "record",
+      "sounds": [
+        {
+          "name": "sounds/radiousti/record_radiousti",
+          "volume": 1.0,
+          "stream": true
+        }
+      ],
+      "max_distance": 64
+    }
+  }
+}

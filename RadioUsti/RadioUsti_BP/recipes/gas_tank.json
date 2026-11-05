@@ -1,0 +1,31 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:gas_tank"
+    },
+    "tags": [
+      "radiousti_industrial"
+    ],
+    "pattern": [
+      "III",
+      "IGI",
+      "III"
+    ],
+    "key": {
+      "I": {
+        "item": "minecraft:iron_ingot"
+      },
+      "G": {
+        "item": "radiousti:gas_canister"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:gas_tank",
+      "count": 1
+    }
+  }
+}

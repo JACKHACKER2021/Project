@@ -1,0 +1,194 @@
+# Recepty RadioÚstí
+
+_Generováno nástrojem `tools/build.py` z `tools/recipes.py`._
+
+
+Laboratorní stanice (zpracování vzorků, palivové tyče…) jsou popsané v README v kapitole Laboratoř.
+
+
+## Pracovní stůl (75)
+
+- **Systémový analyzátor RadioÚstí** ×1: vzor ` R  / IPI / ICI` – `R` = redstone, `I` = iron_ingot, `P` = glass_pane, `C` = copper_ingot
+- **Příručka RadioÚstí** ×1: 1× book + 1× yellow_dye
+- **Realistický krumpáč** ×1: vzor `ICI /  S  /  S ` – `I` = iron_ingot, `C` = copper_ingot, `S` = stick
+- **Průmyslový ponk** ×1: vzor `III / CTC / P P` – `I` = iron_ingot, `C` = copper_ingot, `T` = crafting_table, `P` = libovolné planks
+- **Laboratorní stůl** ×1: vzor `WWW / ITI / I I` – `W` = white_concrete, `I` = iron_ingot, `T` = crafting_table
+- **Prázdný kanystr** ×2: vzor ` I  / I I / III` – `I` = iron_ingot
+- **Blok cementu** ×4: vzor `SG / GS` – `S` = sand, `G` = gravel
+- **Žlutý starý cementový blok** ×1: 1× Blok cementu + 1× yellow_dye
+- **Starý cihlový blok** ×1: 1× brick_block + 1× gravel
+- **Stará cihlová zeď** ×6: vzor `OOO / OOO` – `O` = Starý cihlový blok
+- **Československá průmyslová stěna** ×1: 1× Blok cementu + 1× green_dye
+- **Blok domu (panelák)** ×8: vzor `CCC / CPC / CCC` – `C` = Blok cementu, `P` = glass_pane
+- **Starý skleněný blok (luxfery)** ×4: vzor `GG / GG` – `G` = glass
+- **Sklo s nápisem HELP** ×1: 1× Starý skleněný blok (luxfery) + 1× red_dye
+- **Hradní mříže** ×2: 1× iron_bars + 1× cobblestone
+- **Skladové bedny** ×1: 1× chest + 1× libovolné planks
+- **Starý světelný blok** ×2: vzor `IGI / GLG / IGI` – `I` = iron_nugget, `G` = glass, `L` = glowstone
+- **Blok s výstražnými pruhy** ×2: 1× Blok cementu + 1× yellow_dye + 1× black_dye
+- **Zakrvácený beton** ×2: 1× Blok cementu + 1× Láhev plná krve
+- **Spálená prkna** ×1: 1× libovolné planks + 1× libovolné coals
+- **Kámen pevnosti** ×4: vzor `SS / SS` – `S` = stone_bricks
+- **Popraskaný kámen pevnosti** ×1: 1× Kámen pevnosti + 1× gravel
+- **Zarostlý kámen pevnosti** ×1: 1× Kámen pevnosti + 1× vine
+- **Boční blok hradu** ×1: 1× Kámen pevnosti + 1× iron_bars
+- **Cimbuří pevnosti** ×4: vzor `S S / SSS` – `S` = Kámen pevnosti
+- **Dřevěná barikáda** ×2: vzor `PSP / PSP` – `P` = libovolné planks, `S` = stick
+- **Ostnatý drát** ×3: vzor `N N /  N  / N N` – `N` = iron_nugget
+- **Pytle s pískem** ×2: vzor `LSL` – `L` = leather, `S` = sand
+- **Dřevěné bodce** ×2: vzor `S S / SPS` – `S` = stick, `P` = libovolné planks
+- **Suť** ×3: 1× gravel + 1× cobblestone + 1× Blok cementu
+- **Blok uranu** ×1: vzor `UUU / UUU / UUU` – `U` = Uranový ingot
+- **Uranový ingot** ×9: 1× Blok uranu
+- **Blok surového uranu** ×1: vzor `UUU / UUU / UUU` – `U` = Surový uran
+- **Surový uran** ×9: 1× Blok surového uranu
+- **Výstražná cedule – radiace** ×1: vzor `YBY` – `Y` = yellow_dye, `B` = black_dye
+- **Cedule – biologické nebezpečí** ×1: 1× Výstražná cedule – radiace + 1× red_dye
+- **Výstražná cedule ZÓNA ZED** ×1: 1× Výstražná cedule – radiace + 1× Infikované maso
+- **Plynová maska** ×1: vzor `LIL / GSG /  C ` – `L` = leather, `I` = iron_ingot, `G` = glass_pane, `S` = string, `C` = charcoal
+- **Ochranný oblek (hazmat)** ×1: vzor `Y Y / YIY / YYY` – `Y` = yellow_wool, `I` = iron_ingot
+- **Dekontaminační souprava** ×1: 1× iron_ingot + 1× Baňka se zeleným činidlem + 1× white_wool
+- **Plakát: Nákaza RadioÚstí 2072** ×1: 2× paper + 1× red_dye + 1× black_dye
+- **Plakát: Evakuační příkaz** ×1: 2× paper + 1× yellow_dye + 1× black_dye
+- **Plakát: Radiační poplach 2072** ×1: 2× paper + 1× lime_dye + 1× black_dye
+- **Plakát: Vítejte v Zédově světě** ×1: 2× paper + 1× green_dye + 1× black_dye
+- **Plakát: Kolaps** ×1: 2× paper + 1× gray_dye + 1× black_dye
+- **Plakát: Pevnost RadioÚstí 1472** ×1: 2× paper + 1× light_blue_dye + 1× black_dye
+- **Rozházené papíry** ×2: 2× paper
+- **Nástěnné oznámení** ×1: 1× paper + 1× black_dye + 1× iron_nugget
+- **Hromada dokumentů** ×1: 3× paper + 1× book
+- **Nástěnné hodiny** ×1: 1× clock + 1× libovolné planks
+- **Historická fotografie** ×1: 1× Historická fotografie + 1× frame
+- **Historická fotografie** ×1: 1× paper + 1× ink_sac + 1× gray_dye
+- **Laboratorní zpráva** ×1: 1× paper + 1× ink_sac + 1× blue_dye
+- **Evakuační příkaz 2072** ×1: 1× paper + 1× ink_sac + 1× red_dye
+- **Záznam z výzkumu** ×1: 1× paper + 1× ink_sac + 1× green_dye
+- **Pokyny pro případ nouze** ×1: 1× paper + 1× ink_sac + 1× yellow_dye
+- **Počítačový výpis** ×1: 1× paper + 1× ink_sac + 1× light_blue_dye
+- **Zpráva o kontaminaci** ×1: 1× paper + 1× ink_sac + 1× lime_dye
+- **Svazek dokumentů** ×1: 1× Laboratorní zpráva + 1× Záznam z výzkumu + 1× Počítačový výpis + 1× string
+- **Dřevěný stůl** ×2: vzor `PPP / S S` – `P` = libovolné planks, `S` = stick
+- **Kovový stůl** ×2: vzor `III / N N` – `I` = iron_ingot, `N` = iron_nugget
+- **Kancelářský stůl** ×1: vzor `PPP / C P` – `P` = libovolné planks, `C` = chest
+- **Dřevěná židle** ×2: vzor `P   / PPP / S S` – `P` = libovolné planks, `S` = stick
+- **Kovová židle** ×2: vzor `N   / NNN / N N` – `N` = iron_nugget
+- **Otočná kancelářská židle** ×1: vzor ` W  / WWW /  I ` – `W` = black_wool, `I` = iron_ingot
+- **Laboratorní židle** ×1: vzor `WWW /  I  / NIN` – `W` = blue_wool, `I` = iron_ingot, `N` = iron_nugget
+- **Nemocniční lůžko** ×1: vzor `WWW / III` – `W` = white_wool, `I` = iron_ingot
+- **Operační stůl** ×1: vzor `GGG / III / I I` – `G` = green_wool, `I` = iron_ingot
+- **Vyšetřovací lehátko** ×1: vzor `GG / II` – `G` = green_wool, `I` = iron_ingot
+- **Infuzní stojan** ×1: vzor `NBN /  I  / NIN` – `N` = iron_nugget, `B` = glass_bottle, `I` = iron_ingot
+- **Lékařský monitor** ×1: vzor `IPI / IRI /  I ` – `I` = iron_ingot, `P` = glass_pane, `R` = redstone
+- **Lékárnička – skříň** ×1: vzor `III / IRI / III` – `I` = iron_ingot, `R` = red_dye
+- **Kartotéka** ×1: vzor `III / PPP / III` – `I` = iron_ingot, `P` = paper
+- **Stará šatní skříňka** ×1: vzor `II / II / II` – `I` = iron_ingot
+- **Kontejner zdravotnického materiálu** ×1: vzor `IRI / ICI` – `I` = iron_ingot, `R` = red_dye, `C` = chest
+
+## Průmyslový ponk (70)
+
+- **Vodovodní potrubí** ×6: 3× copper_ingot + 1× iron_ingot
+- **Tenké nástěnné vodovodní potrubí** ×8: 1× copper_ingot + 2× iron_nugget
+- **Plynové potrubí** ×6: 3× iron_ingot + 1× yellow_dye
+- **Laboratorní plynové potrubí** ×8: 1× glass + 1× iron_ingot + 1× white_dye
+- **Potrubí na roztavený materiál** ×4: 2× iron_ingot + 2× nether_brick
+- **Potrubí na radioaktivní kapalinu** ×6: 2× iron_ingot + 1× Uranový ingot + 1× lime_dye
+- **Průmyslové olejové potrubí** ×8: 3× iron_ingot + 1× Kanystr – černý strojní olej
+- **Vodovodní ventil** ×1: 1× Vodovodní potrubí + 1× iron_ingot + 1× red_dye + 1× lever
+- **Plynový ventil** ×1: 1× Plynové potrubí + 1× iron_ingot + 1× red_dye + 1× lever
+- **Ventil roztaveného materiálu** ×1: 1× Potrubí na roztavený materiál + 1× iron_ingot + 1× red_dye + 1× lever
+- **Ventil radioaktivní kapaliny** ×1: 1× Potrubí na radioaktivní kapalinu + 1× iron_ingot + 1× red_dye + 1× lever
+- **Ventil průmyslového oleje** ×1: 1× Průmyslové olejové potrubí + 1× iron_ingot + 1× red_dye + 1× lever
+- **Elektrický kabel** ×8: 2× copper_ingot + 1× black_wool
+- **Vysokonapěťový kabel** ×6: 3× copper_ingot + 1× iron_ingot + 1× orange_dye
+- **Laboratorní kabel** ×8: 2× copper_ingot + 1× white_wool
+- **Kabel nouzového napájení** ×8: 2× copper_ingot + 1× red_wool
+- **Počítačový síťový kabel** ×8: 1× copper_ingot + 1× redstone + 1× blue_dye
+- **Poškozený kabel** ×1: 1× Elektrický kabel + 1× flint
+- **Plynová bomba** ×1: 1× Prázdný kanystr + 4× libovolné coals
+- **Kanystr – průmyslový olej** ×1: 1× Prázdný kanystr + 3× dried_kelp + 1× libovolné coals
+- **Kanystr – černý strojní olej** ×1: 1× Kanystr – průmyslový olej + 1× ink_sac
+- **Kanystr – žlutý hydraulický olej** ×1: 1× Kanystr – průmyslový olej + 1× yellow_dye + 1× slime_ball
+- **Kanystr – červený laboratorní olej** ×1: 1× Kanystr – průmyslový olej + 1× redstone + 1× red_dye
+- **Kanystr – zelený kontaminovaný olej** ×1: 1× Kanystr – průmyslový olej + 1× Kontaminovaná hlína
+- **Kanystr – radioaktivní olej** ×1: 1× Kanystr – průmyslový olej + 2× Surový uran
+- **Standardní generátor** ×1: vzor `IBI / FRF / ICI` – `I` = iron_block, `B` = Kanystr – černý strojní olej, `F` = furnace, `R` = redstone_block, `C` = copper_block
+- **Průmyslový generátor** ×1: vzor `IBI / GRG / ICI` – `I` = iron_block, `B` = Kanystr – černý strojní olej, `G` = Standardní generátor, `R` = redstone_block, `C` = copper_block
+- **Jaderný generátor** ×1: vzor `IHI / URU / ICI` – `I` = iron_block, `H` = Vysokonapěťový kabel, `U` = Uranový ingot, `R` = redstone_block, `C` = copper_block
+- **Záložní generátor** ×1: vzor `IBI / IFI` – `I` = iron_ingot, `B` = Kanystr – černý strojní olej, `F` = blast_furnace
+- **Laboratorní napájecí jednotka** ×1: vzor `IRI / RCR / IRI` – `I` = iron_ingot, `R` = redstone_block, `C` = Laboratorní kabel
+- **Serverová napájecí jednotka (UPS)** ×1: vzor `IRI / RNR / IRI` – `I` = iron_ingot, `R` = redstone_block, `N` = Počítačový síťový kabel
+- **Plášť reaktoru** ×4: vzor `ICI / C C / ICI` – `I` = iron_ingot, `C` = Blok cementu
+- **Průhledové sklo reaktoru** ×1: 1× Plášť reaktoru + 1× glass
+- **Chladicí port reaktoru** ×1: 1× Plášť reaktoru + 1× Vodovodní potrubí
+- **Energetický port reaktoru** ×1: 1× Plášť reaktoru + 1× Vysokonapěťový kabel
+- **Odpadní port reaktoru** ×1: 1× Plášť reaktoru + 1× Potrubí na radioaktivní kapalinu
+- **Jádro reaktoru** ×1: vzor `UIU / IRI / UIU` – `U` = Blok uranu, `I` = iron_block, `R` = redstone_block
+- **Řídicí panel reaktoru** ×1: vzor `PRP / HCH` – `P` = Starý počítač, `R` = redstone, `H` = Kanystr – žlutý hydraulický olej, `C` = Plášť reaktoru
+- **Chladicí jednotka reaktoru** ×1: vzor `IWI / WBW / IWI` – `I` = iron_ingot, `W` = Vodovodní potrubí, `B` = Kanystr – černý strojní olej
+- **Tlačítko nouzového odstavení** ×1: 1× stone_button + 1× red_dye + 1× iron_ingot
+- **Indikátor radiace** ×1: 1× copper_ingot + 1× glass_pane + 1× redstone + 1× Surový uran
+- **Vodní čerpadlo** ×1: vzor `IPI / WBW / III` – `I` = iron_ingot, `P` = piston, `W` = Vodovodní potrubí, `B` = Kanystr – černý strojní olej
+- **Plynová nádrž** ×1: vzor `III / IGI / III` – `I` = iron_ingot, `G` = Plynová bomba
+- **Kontejner na radioaktivní odpad** ×1: vzor `ICI / C C / ICI` – `I` = iron_block, `C` = Plášť reaktoru
+- **Sud – průmyslový olej** ×1: vzor `I I / ICI / III` – `I` = iron_ingot, `C` = Kanystr – průmyslový olej
+- **Sud – černý strojní olej** ×1: vzor `I I / ICI / III` – `I` = iron_ingot, `C` = Kanystr – černý strojní olej
+- **Sud – žlutý hydraulický olej** ×1: vzor `I I / ICI / III` – `I` = iron_ingot, `C` = Kanystr – žlutý hydraulický olej
+- **Sud – červený laboratorní olej** ×1: vzor `I I / ICI / III` – `I` = iron_ingot, `C` = Kanystr – červený laboratorní olej
+- **Sud – zelený kontaminovaný olej** ×1: vzor `I I / ICI / III` – `I` = iron_ingot, `C` = Kanystr – zelený kontaminovaný olej
+- **Sud – radioaktivní olej** ×1: vzor `I I / ICI / III` – `I` = iron_ingot, `C` = Kanystr – radioaktivní olej
+- **Starý počítač** ×1: vzor `IPI / IRI / CCC` – `I` = iron_ingot, `P` = glass_pane, `R` = redstone, `C` = copper_ingot
+- **Kancelářský počítač** ×1: 1× Starý počítač + 1× white_dye
+- **Laboratorní počítač** ×1: 1× Starý počítač + 1× light_gray_dye
+- **Průmyslový terminál** ×1: 1× Starý počítač + 1× green_dye
+- **Serverový rack** ×1: vzor `INI / IPI / INI` – `I` = iron_ingot, `N` = Počítačový síťový kabel, `P` = Starý počítač
+- **Stará průmyslová lampa** ×2: vzor ` N  / IGI` – `N` = iron_chain, `I` = iron_ingot, `G` = glowstone
+- **Nástěnné světlo** ×2: vzor `IG` – `I` = iron_ingot, `G` = glowstone_dust
+- **Stropní světlo** ×2: vzor `III / GGG` – `I` = iron_ingot, `G` = glowstone_dust
+- **Laboratorní světlo** ×2: vzor `WWW / GGG` – `W` = white_concrete, `G` = glowstone_dust
+- **Nouzové světlo** ×1: 1× Nástěnné světlo + 1× red_dye
+- **Výstražný maják** ×1: vzor ` G  / IOI` – `G` = glowstone, `I` = iron_ingot, `O` = orange_dye
+- **Poplachová siréna** ×1: vzor `INI / IRI` – `I` = iron_ingot, `N` = noteblock, `R` = redstone
+- **Radiační výstražný alarm** ×1: 1× Poplachová siréna + 1× Surový uran
+- **Laboratorní dveře** ×1: vzor `IG / IG / II` – `I` = iron_ingot, `G` = glass
+- **Průmyslové dveře** ×1: vzor `II / IB / II` – `I` = iron_ingot, `B` = Kanystr – černý strojní olej
+- **Kontejnmentové dveře** ×1: vzor `IH / II / II` – `I` = iron_block, `H` = Kanystr – žlutý hydraulický olej
+- **Dveře pevnosti** ×1: vzor `PP / PI / PP` – `P` = libovolné planks, `I` = iron_ingot
+- **Průmyslový větrací blok** ×4: vzor `III / BBB / III` – `I` = iron_nugget, `B` = iron_bars
+- **Pojistková skříň** ×1: 1× iron_ingot + 1× redstone + 2× copper_ingot
+- **VHS kazeta: RadioÚstí 2072** ×1: 1× paper + 1× black_dye + 1× Počítačový síťový kabel + 1× redstone
+
+## Laboratorní stůl (28)
+
+- **Prázdná laboratorní nádoba** ×3: vzor `G G / G G / GGG` – `G` = glass
+- **Prázdná zkumavka** ×4: vzor `G / G / G` – `G` = glass
+- **Erlenmeyerova baňka** ×2: vzor ` G  / G G / GGG` – `G` = glass
+- **Vzorkovnice** ×4: vzor `NGN / G G / GGG` – `N` = iron_nugget, `G` = glass
+- **Baňka s červeným činidlem** ×1: 1× Erlenmeyerova baňka + 1× red_dye + 1× redstone
+- **Baňka se zeleným činidlem** ×1: 1× Erlenmeyerova baňka + 1× green_dye + 1× slime_ball
+- **Baňka s modrým činidlem** ×1: 1× Erlenmeyerova baňka + 1× lapis_lazuli + 1× sugar
+- **Nádoba s krví** ×1: 1× Prázdná laboratorní nádoba + 2× Láhev plná krve
+- **Preparátová nádoba** ×1: 1× Prázdná laboratorní nádoba + 1× iron_nugget
+- **Sada laboratorních baněk** ×1: 3× Erlenmeyerova baňka
+- **Stojan na zkumavky** ×1: vzor `TTT / PPP` – `T` = Prázdná zkumavka, `P` = libovolné planks
+- **Esence duše** ×1: 1× soul_sand + 1× Erlenmeyerova baňka
+- **Esence duše** ×1: 1× soul_soil + 1× Erlenmeyerova baňka
+- **Duší prostoupený kámen** ×2: 1× stone + 1× Esence duše
+- **Krystal duše** ×1: 2× Esence duše + 1× amethyst_shard
+- **Blok masa** ×1: vzor `FFF / FFF / FFF` – `F` = Infikované maso
+- **Infikované maso** ×9: 1× Blok masa
+- **Prožilkovaný blok masa** ×1: 1× Blok masa + 1× Láhev plná krve
+- **Pozorující blok masa** ×1: 1× Blok masa + 2× spider_eye
+- **Masový výrůstek** ×2: 1× Blok masa + 1× Organický materiál
+- **Koš na laboratorní odpad** ×1: vzor `I I / IWI / III` – `I` = iron_ingot, `W` = Laboratorní odpad
+- **Kaluž krve** ×2: 1× Láhev plná krve
+- **Stůl chemické analýzy** ×1: 1× Laboratorní stůl + 1× Baňka s červeným činidlem + 1× redstone
+- **Stůl biologického výzkumu** ×1: 1× Laboratorní stůl + 1× Baňka s modrým činidlem + 1× redstone
+- **Stůl jaderného výzkumu** ×1: 1× Laboratorní stůl + 1× Uranový ingot + 1× redstone
+- **Stanice testování kontaminace** ×1: 1× Laboratorní stůl + 1× Vzorek kontaminované půdy + 1× redstone
+- **Stůl přípravy vzorků** ×1: 1× Laboratorní stůl + 1× Prázdná zkumavka + 1× redstone
+- **Počítačová pracovní stanice** ×1: 1× Laboratorní stůl + 1× Starý počítač
+
+## Pec (2)
+
+- **Uranový ingot**: vypálit Surový uran
+- **Kus masa**: vypálit Infikované maso

@@ -1,0 +1,26 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "radiousti:reactor_glass"
+    },
+    "tags": [
+      "radiousti_industrial"
+    ],
+    "ingredients": [
+      {
+        "item": "radiousti:reactor_casing"
+      },
+      {
+        "item": "minecraft:glass"
+      }
+    ],
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:reactor_glass",
+      "count": 1
+    }
+  }
+}

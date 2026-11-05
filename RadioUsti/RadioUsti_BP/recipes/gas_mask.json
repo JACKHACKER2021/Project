@@ -1,0 +1,40 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:gas_mask"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "LIL",
+      "GSG",
+      " C "
+    ],
+    "key": {
+      "L": {
+        "item": "minecraft:leather"
+      },
+      "I": {
+        "item": "minecraft:iron_ingot"
+      },
+      "G": {
+        "item": "minecraft:glass_pane"
+      },
+      "S": {
+        "item": "minecraft:string"
+      },
+      "C": {
+        "item": "minecraft:charcoal"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:gas_mask",
+      "count": 1
+    }
+  }
+}

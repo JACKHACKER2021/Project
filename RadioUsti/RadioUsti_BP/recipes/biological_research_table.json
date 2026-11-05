@@ -1,0 +1,29 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "radiousti:biological_research_table"
+    },
+    "tags": [
+      "radiousti_lab"
+    ],
+    "ingredients": [
+      {
+        "item": "radiousti:lab_table"
+      },
+      {
+        "item": "radiousti:reagent_flask_blue"
+      },
+      {
+        "item": "minecraft:redstone"
+      }
+    ],
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:biological_research_table",
+      "count": 1
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "radiousti:gas_pipe"
+    },
+    "tags": [
+      "radiousti_industrial"
+    ],
+    "ingredients": [
+      {
+        "item": "minecraft:iron_ingot",
+        "count": 3
+      },
+      {
+        "item": "minecraft:yellow_dye"
+      }
+    ],
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:gas_pipe",
+      "count": 6
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "radiousti:damaged_cable"
+    },
+    "tags": [
+      "radiousti_industrial"
+    ],
+    "ingredients": [
+      {
+        "item": "radiousti:electrical_cable"
+      },
+      {
+        "item": "minecraft:flint"
+      }
+    ],
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:damaged_cable",
+      "count": 1
+    }
+  }
+}

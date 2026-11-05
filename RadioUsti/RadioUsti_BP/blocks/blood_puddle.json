@@ -1,0 +1,42 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:blood_puddle",
+      "menu_category": {
+        "category": "nature"
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 0.1
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#7a0e12",
+      "minecraft:geometry": "geometry.radiousti.blood_puddle",
+      "minecraft:collision_box": false,
+      "minecraft:selection_box": {
+        "origin": [
+          -7.5,
+          0,
+          -7.5
+        ],
+        "size": [
+          15.0,
+          1,
+          15.0
+        ]
+      },
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_blood_puddle",
+          "render_method": "alpha_test",
+          "ambient_occlusion": false
+        }
+      }
+    }
+  }
+}

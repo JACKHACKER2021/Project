@@ -1,0 +1,31 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:industrial_door"
+    },
+    "tags": [
+      "radiousti_industrial"
+    ],
+    "pattern": [
+      "II",
+      "IB",
+      "II"
+    ],
+    "key": {
+      "I": {
+        "item": "minecraft:iron_ingot"
+      },
+      "B": {
+        "item": "radiousti:canister_black_oil"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:industrial_door",
+      "count": 1
+    }
+  }
+}

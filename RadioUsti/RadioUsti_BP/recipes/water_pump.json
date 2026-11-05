@@ -1,0 +1,37 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:water_pump"
+    },
+    "tags": [
+      "radiousti_industrial"
+    ],
+    "pattern": [
+      "IPI",
+      "WBW",
+      "III"
+    ],
+    "key": {
+      "I": {
+        "item": "minecraft:iron_ingot"
+      },
+      "P": {
+        "item": "minecraft:piston"
+      },
+      "W": {
+        "item": "radiousti:water_pipe"
+      },
+      "B": {
+        "item": "radiousti:canister_black_oil"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:water_pump",
+      "count": 1
+    }
+  }
+}

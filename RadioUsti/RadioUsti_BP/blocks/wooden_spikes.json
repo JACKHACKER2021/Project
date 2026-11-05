@@ -1,0 +1,57 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:wooden_spikes",
+      "menu_category": {
+        "category": "construction"
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 1
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#8a6a43",
+      "radiousti:spikes": {},
+      "minecraft:geometry": "geometry.radiousti.wooden_spikes",
+      "minecraft:collision_box": {
+        "origin": [
+          -8,
+          0,
+          -8
+        ],
+        "size": [
+          16,
+          9,
+          16
+        ]
+      },
+      "minecraft:selection_box": {
+        "origin": [
+          -8,
+          0,
+          -8
+        ],
+        "size": [
+          16,
+          9,
+          16
+        ]
+      },
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_wood",
+          "render_method": "opaque"
+        },
+        "detail": {
+          "texture": "radiousti_wood_dark",
+          "render_method": "opaque"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:metal_chair"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "N  ",
+      "NNN",
+      "N N"
+    ],
+    "key": {
+      "N": {
+        "item": "minecraft:iron_nugget"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:metal_chair",
+      "count": 2
+    }
+  }
+}

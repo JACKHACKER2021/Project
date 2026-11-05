@@ -1,0 +1,38 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:contaminated_grass",
+      "menu_category": {
+        "category": "nature"
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 0.7
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#6f7d2f",
+      "tag:dirt": {},
+      "tag:grass": {},
+      "minecraft:loot": "loot_tables/blocks/contaminated_grass.json",
+      "minecraft:geometry": "minecraft:geometry.full_block",
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_contaminated_grass_side",
+          "render_method": "opaque"
+        },
+        "up": {
+          "texture": "radiousti_contaminated_grass_top",
+          "render_method": "opaque"
+        },
+        "down": {
+          "texture": "radiousti_contaminated_dirt",
+          "render_method": "opaque"
+        }
+      }
+    }
+  }
+}

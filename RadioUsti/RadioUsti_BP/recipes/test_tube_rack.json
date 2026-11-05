@@ -1,0 +1,30 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:test_tube_rack"
+    },
+    "tags": [
+      "radiousti_lab"
+    ],
+    "pattern": [
+      "TTT",
+      "PPP"
+    ],
+    "key": {
+      "T": {
+        "item": "radiousti:empty_test_tube"
+      },
+      "P": {
+        "tag": "minecraft:planks"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:test_tube_rack",
+      "count": 1
+    }
+  }
+}

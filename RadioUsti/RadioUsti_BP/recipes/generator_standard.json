@@ -1,0 +1,40 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:generator_standard"
+    },
+    "tags": [
+      "radiousti_industrial"
+    ],
+    "pattern": [
+      "IBI",
+      "FRF",
+      "ICI"
+    ],
+    "key": {
+      "I": {
+        "item": "minecraft:iron_block"
+      },
+      "B": {
+        "item": "radiousti:canister_black_oil"
+      },
+      "F": {
+        "item": "minecraft:furnace"
+      },
+      "R": {
+        "item": "minecraft:redstone_block"
+      },
+      "C": {
+        "item": "minecraft:copper_block"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:generator_standard",
+      "count": 1
+    }
+  }
+}

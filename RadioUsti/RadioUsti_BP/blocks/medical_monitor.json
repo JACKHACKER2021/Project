@@ -1,0 +1,167 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:medical_monitor",
+      "menu_category": {
+        "category": "items"
+      },
+      "traits": {
+        "minecraft:placement_direction": {
+          "enabled_states": [
+            "minecraft:cardinal_direction"
+          ],
+          "y_rotation_offset": 180
+        }
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 1.5
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#8a6a43",
+      "tag:metal": {},
+      "minecraft:geometry": "geometry.radiousti.medical_monitor.north",
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_cabinet_beige",
+          "render_method": "opaque"
+        },
+        "detail": {
+          "texture": "radiousti_steel",
+          "render_method": "opaque"
+        },
+        "screen": {
+          "texture": "radiousti_screen_medical",
+          "render_method": "opaque"
+        }
+      }
+    },
+    "permutations": [
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'north'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.medical_monitor.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -5,
+              0,
+              -3
+            ],
+            "size": [
+              10,
+              15,
+              6
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -5,
+              0,
+              -3
+            ],
+            "size": [
+              10,
+              15,
+              6
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'east'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.medical_monitor.east",
+          "minecraft:selection_box": {
+            "origin": [
+              -3,
+              0,
+              -5
+            ],
+            "size": [
+              6,
+              15,
+              10
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -3,
+              0,
+              -5
+            ],
+            "size": [
+              6,
+              15,
+              10
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'south'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.medical_monitor.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -5,
+              0,
+              -3
+            ],
+            "size": [
+              10,
+              15,
+              6
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -5,
+              0,
+              -3
+            ],
+            "size": [
+              10,
+              15,
+              6
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'west'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.medical_monitor.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -3,
+              0,
+              -5
+            ],
+            "size": [
+              6,
+              15,
+              10
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -3,
+              0,
+              -5
+            ],
+            "size": [
+              6,
+              15,
+              10
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

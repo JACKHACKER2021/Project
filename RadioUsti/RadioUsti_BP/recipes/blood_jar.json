@@ -1,0 +1,27 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "radiousti:blood_jar"
+    },
+    "tags": [
+      "radiousti_lab"
+    ],
+    "ingredients": [
+      {
+        "item": "radiousti:empty_jar"
+      },
+      {
+        "item": "radiousti:blood_bottle",
+        "count": 2
+      }
+    ],
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:blood_jar",
+      "count": 1
+    }
+  }
+}

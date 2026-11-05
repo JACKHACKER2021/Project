@@ -1,0 +1,105 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:water_pipe",
+      "menu_category": {
+        "category": "construction"
+      },
+      "states": {
+        "radiousti:n": [
+          false,
+          true
+        ],
+        "radiousti:s": [
+          false,
+          true
+        ],
+        "radiousti:e": [
+          false,
+          true
+        ],
+        "radiousti:w": [
+          false,
+          true
+        ],
+        "radiousti:u": [
+          false,
+          true
+        ],
+        "radiousti:d": [
+          false,
+          true
+        ],
+        "radiousti:joint": [
+          false,
+          true
+        ]
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 1.0
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#4f6d8a",
+      "tag:metal": {},
+      "tag:radiousti:industrial": {},
+      "minecraft:geometry": {
+        "identifier": "geometry.radiousti.water_pipe",
+        "bone_visibility": {
+          "n": "q.block_state('radiousti:n')",
+          "fl_n": "q.block_state('radiousti:n')",
+          "s": "q.block_state('radiousti:s')",
+          "fl_s": "q.block_state('radiousti:s')",
+          "e": "q.block_state('radiousti:e')",
+          "fl_e": "q.block_state('radiousti:e')",
+          "w": "q.block_state('radiousti:w')",
+          "fl_w": "q.block_state('radiousti:w')",
+          "u": "q.block_state('radiousti:u')",
+          "fl_u": "q.block_state('radiousti:u')",
+          "d": "q.block_state('radiousti:d')",
+          "fl_d": "q.block_state('radiousti:d')",
+          "joint": "q.block_state('radiousti:joint')"
+        }
+      },
+      "minecraft:collision_box": {
+        "origin": [
+          -3,
+          5,
+          -3
+        ],
+        "size": [
+          6,
+          6,
+          6
+        ]
+      },
+      "minecraft:selection_box": {
+        "origin": [
+          -4,
+          4,
+          -4
+        ],
+        "size": [
+          8,
+          8,
+          8
+        ]
+      },
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_water_pipe",
+          "render_method": "opaque"
+        },
+        "detail": {
+          "texture": "radiousti_steel_dark",
+          "render_method": "opaque"
+        }
+      }
+    }
+  }
+}

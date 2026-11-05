@@ -1,0 +1,439 @@
+{
+  "format_version": [
+    1,
+    1,
+    0
+  ],
+  "radiousti:water_pipe": {
+    "sound": "metal"
+  },
+  "radiousti:water_pipe_thin": {
+    "sound": "metal"
+  },
+  "radiousti:gas_pipe": {
+    "sound": "metal"
+  },
+  "radiousti:lab_pipe": {
+    "sound": "metal"
+  },
+  "radiousti:molten_pipe": {
+    "sound": "metal"
+  },
+  "radiousti:radioactive_pipe": {
+    "sound": "metal"
+  },
+  "radiousti:industrial_pipe": {
+    "sound": "metal"
+  },
+  "radiousti:water_valve": {
+    "sound": "metal"
+  },
+  "radiousti:gas_valve": {
+    "sound": "metal"
+  },
+  "radiousti:molten_valve": {
+    "sound": "metal"
+  },
+  "radiousti:radioactive_valve": {
+    "sound": "metal"
+  },
+  "radiousti:oil_valve": {
+    "sound": "metal"
+  },
+  "radiousti:electrical_cable": {
+    "sound": "cloth"
+  },
+  "radiousti:high_voltage_cable": {
+    "sound": "cloth"
+  },
+  "radiousti:lab_cable": {
+    "sound": "cloth"
+  },
+  "radiousti:emergency_cable": {
+    "sound": "cloth"
+  },
+  "radiousti:damaged_cable": {
+    "sound": "cloth"
+  },
+  "radiousti:network_cable": {
+    "sound": "cloth"
+  },
+  "radiousti:generator_standard": {
+    "sound": "metal"
+  },
+  "radiousti:generator_industrial": {
+    "sound": "metal"
+  },
+  "radiousti:generator_nuclear": {
+    "sound": "metal"
+  },
+  "radiousti:generator_backup": {
+    "sound": "metal"
+  },
+  "radiousti:lab_power_unit": {
+    "sound": "metal"
+  },
+  "radiousti:server_power_unit": {
+    "sound": "metal"
+  },
+  "radiousti:reactor_casing": {
+    "sound": "metal"
+  },
+  "radiousti:reactor_glass": {
+    "sound": "glass"
+  },
+  "radiousti:reactor_port_coolant": {
+    "sound": "metal"
+  },
+  "radiousti:reactor_port_power": {
+    "sound": "metal"
+  },
+  "radiousti:reactor_port_waste": {
+    "sound": "metal"
+  },
+  "radiousti:reactor_core": {
+    "sound": "metal"
+  },
+  "radiousti:reactor_control_panel": {
+    "sound": "metal"
+  },
+  "radiousti:reactor_cooling_unit": {
+    "sound": "metal"
+  },
+  "radiousti:emergency_shutdown_button": {
+    "sound": "metal"
+  },
+  "radiousti:radiation_indicator": {
+    "sound": "metal"
+  },
+  "radiousti:water_pump": {
+    "sound": "metal"
+  },
+  "radiousti:gas_tank": {
+    "sound": "metal"
+  },
+  "radiousti:radioactive_waste_container": {
+    "sound": "metal"
+  },
+  "radiousti:oil_barrel_industrial": {
+    "sound": "metal"
+  },
+  "radiousti:oil_barrel_black": {
+    "sound": "metal"
+  },
+  "radiousti:oil_barrel_hydraulic": {
+    "sound": "metal"
+  },
+  "radiousti:oil_barrel_lab": {
+    "sound": "metal"
+  },
+  "radiousti:oil_barrel_contaminated": {
+    "sound": "metal"
+  },
+  "radiousti:oil_barrel_radioactive": {
+    "sound": "metal"
+  },
+  "radiousti:old_pc": {
+    "sound": "metal"
+  },
+  "radiousti:office_pc": {
+    "sound": "metal"
+  },
+  "radiousti:lab_pc": {
+    "sound": "metal"
+  },
+  "radiousti:industrial_terminal": {
+    "sound": "metal"
+  },
+  "radiousti:server_rack": {
+    "sound": "metal"
+  },
+  "radiousti:lab_table": {
+    "sound": "metal"
+  },
+  "radiousti:chemical_analysis_table": {
+    "sound": "metal"
+  },
+  "radiousti:biological_research_table": {
+    "sound": "metal"
+  },
+  "radiousti:nuclear_research_table": {
+    "sound": "metal"
+  },
+  "radiousti:contamination_testing_station": {
+    "sound": "metal"
+  },
+  "radiousti:sample_preparation_table": {
+    "sound": "metal"
+  },
+  "radiousti:industrial_workbench": {
+    "sound": "wood"
+  },
+  "radiousti:computer_workstation": {
+    "sound": "metal"
+  },
+  "radiousti:industrial_light": {
+    "sound": "metal"
+  },
+  "radiousti:wall_light": {
+    "sound": "metal"
+  },
+  "radiousti:ceiling_light": {
+    "sound": "metal"
+  },
+  "radiousti:lab_light": {
+    "sound": "metal"
+  },
+  "radiousti:emergency_light": {
+    "sound": "metal"
+  },
+  "radiousti:warning_beacon": {
+    "sound": "metal"
+  },
+  "radiousti:old_light_block": {
+    "sound": "glass"
+  },
+  "radiousti:alarm": {
+    "sound": "metal"
+  },
+  "radiousti:radiation_alarm": {
+    "sound": "metal"
+  },
+  "radiousti:lab_door": {
+    "sound": "metal"
+  },
+  "radiousti:industrial_door": {
+    "sound": "metal"
+  },
+  "radiousti:containment_door": {
+    "sound": "metal"
+  },
+  "radiousti:fortress_door": {
+    "sound": "wood"
+  },
+  "radiousti:uranium_ore": {
+    "sound": "stone"
+  },
+  "radiousti:deepslate_uranium_ore": {
+    "sound": "stone"
+  },
+  "radiousti:uranium_block": {
+    "sound": "stone"
+  },
+  "radiousti:raw_uranium_block": {
+    "sound": "stone"
+  },
+  "radiousti:contaminated_dirt": {
+    "sound": "gravel"
+  },
+  "radiousti:contaminated_grass": {
+    "sound": "grass"
+  },
+  "radiousti:contaminated_stone": {
+    "sound": "stone"
+  },
+  "radiousti:radioactive_waste": {
+    "sound": "slime"
+  },
+  "radiousti:damaged_reactor_core": {
+    "sound": "stone"
+  },
+  "radiousti:radiation_sign": {
+    "sound": "metal"
+  },
+  "radiousti:biohazard_sign": {
+    "sound": "metal"
+  },
+  "radiousti:zed_warning_sign": {
+    "sound": "metal"
+  },
+  "radiousti:warning_stripes": {
+    "sound": "stone"
+  },
+  "radiousti:cement_block": {
+    "sound": "stone"
+  },
+  "radiousti:yellow_old_cement": {
+    "sound": "stone"
+  },
+  "radiousti:old_brick": {
+    "sound": "stone"
+  },
+  "radiousti:czechoslovak_industrial_wall": {
+    "sound": "stone"
+  },
+  "radiousti:house_block": {
+    "sound": "stone"
+  },
+  "radiousti:industrial_vent": {
+    "sound": "metal"
+  },
+  "radiousti:fuse_box": {
+    "sound": "metal"
+  },
+  "radiousti:blood_stained_concrete": {
+    "sound": "stone"
+  },
+  "radiousti:burnt_planks": {
+    "sound": "wood"
+  },
+  "radiousti:fortress_stone": {
+    "sound": "stone"
+  },
+  "radiousti:fortress_stone_cracked": {
+    "sound": "stone"
+  },
+  "radiousti:fortress_stone_mossy": {
+    "sound": "stone"
+  },
+  "radiousti:castle_side": {
+    "sound": "stone"
+  },
+  "radiousti:old_brick_wall": {
+    "sound": "stone"
+  },
+  "radiousti:old_glass": {
+    "sound": "glass"
+  },
+  "radiousti:help_glass": {
+    "sound": "glass"
+  },
+  "radiousti:castle_bars": {
+    "sound": "metal"
+  },
+  "radiousti:storage_boxes": {
+    "sound": "wood"
+  },
+  "radiousti:fortress_battlement": {
+    "sound": "stone"
+  },
+  "radiousti:barricade": {
+    "sound": "wood"
+  },
+  "radiousti:barbed_wire": {
+    "sound": "metal"
+  },
+  "radiousti:sandbags": {
+    "sound": "sand"
+  },
+  "radiousti:wooden_spikes": {
+    "sound": "wood"
+  },
+  "radiousti:rubble": {
+    "sound": "stone"
+  },
+  "radiousti:wooden_table": {
+    "sound": "wood"
+  },
+  "radiousti:metal_table": {
+    "sound": "metal"
+  },
+  "radiousti:office_desk": {
+    "sound": "wood"
+  },
+  "radiousti:wooden_chair": {
+    "sound": "wood"
+  },
+  "radiousti:metal_chair": {
+    "sound": "metal"
+  },
+  "radiousti:office_chair": {
+    "sound": "cloth"
+  },
+  "radiousti:lab_chair": {
+    "sound": "metal"
+  },
+  "radiousti:exam_table": {
+    "sound": "cloth"
+  },
+  "radiousti:iv_stand": {
+    "sound": "metal"
+  },
+  "radiousti:medical_monitor": {
+    "sound": "metal"
+  },
+  "radiousti:medical_cabinet": {
+    "sound": "metal"
+  },
+  "radiousti:filing_cabinet": {
+    "sound": "metal"
+  },
+  "radiousti:locker": {
+    "sound": "metal"
+  },
+  "radiousti:medical_container": {
+    "sound": "metal"
+  },
+  "radiousti:hospital_bed": {
+    "sound": "metal"
+  },
+  "radiousti:operating_table": {
+    "sound": "metal"
+  },
+  "radiousti:poster_outbreak_2072": {
+    "sound": "cloth"
+  },
+  "radiousti:poster_evacuation": {
+    "sound": "cloth"
+  },
+  "radiousti:poster_radiation": {
+    "sound": "cloth"
+  },
+  "radiousti:poster_zeds_world": {
+    "sound": "cloth"
+  },
+  "radiousti:poster_collapse": {
+    "sound": "cloth"
+  },
+  "radiousti:poster_fortress": {
+    "sound": "cloth"
+  },
+  "radiousti:scattered_papers": {
+    "sound": "cloth"
+  },
+  "radiousti:wall_notice": {
+    "sound": "cloth"
+  },
+  "radiousti:document_pile": {
+    "sound": "cloth"
+  },
+  "radiousti:wall_clock": {
+    "sound": "wood"
+  },
+  "radiousti:photo_frame": {
+    "sound": "wood"
+  },
+  "radiousti:specimen_jar": {
+    "sound": "glass"
+  },
+  "radiousti:flask_set": {
+    "sound": "glass"
+  },
+  "radiousti:test_tube_rack": {
+    "sound": "glass"
+  },
+  "radiousti:flesh_block": {
+    "sound": "slime"
+  },
+  "radiousti:flesh_block_veiny": {
+    "sound": "slime"
+  },
+  "radiousti:flesh_block_eyes": {
+    "sound": "slime"
+  },
+  "radiousti:flesh_growth": {
+    "sound": "slime"
+  },
+  "radiousti:lab_waste_bin": {
+    "sound": "metal"
+  },
+  "radiousti:blood_puddle": {
+    "sound": "slime"
+  },
+  "radiousti:soul_block": {
+    "sound": "stone"
+  },
+  "radiousti:soul_crystal": {
+    "sound": "glass"
+  }
+}

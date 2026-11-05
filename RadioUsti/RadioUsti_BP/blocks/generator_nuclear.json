@@ -1,0 +1,1045 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:generator_nuclear",
+      "menu_category": {
+        "category": "none"
+      },
+      "states": {
+        "radiousti:part": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "radiousti:active": [
+          false,
+          true
+        ]
+      },
+      "traits": {
+        "minecraft:placement_direction": {
+          "enabled_states": [
+            "minecraft:cardinal_direction"
+          ],
+          "y_rotation_offset": 180
+        }
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 4
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 12
+      },
+      "minecraft:map_color": "#c7c3b4",
+      "tag:metal": {},
+      "tag:radiousti:industrial": {},
+      "radiousti:machine": {},
+      "minecraft:loot": "loot_tables/blocks/radiousti_empty.json",
+      "minecraft:geometry": "geometry.radiousti.generator_nuclear.p0.north",
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_generator_nuclear",
+          "render_method": "opaque"
+        },
+        "detail": {
+          "texture": "radiousti_steel_dark",
+          "render_method": "opaque"
+        },
+        "screen": {
+          "texture": "radiousti_screen_off",
+          "render_method": "opaque"
+        }
+      }
+    },
+    "permutations": [
+      {
+        "condition": "q.block_state('radiousti:part') == 0 && q.block_state('minecraft:cardinal_direction') == 'north'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p0.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 0 && q.block_state('minecraft:cardinal_direction') == 'east'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p0.east",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 0 && q.block_state('minecraft:cardinal_direction') == 'south'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p0.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 0 && q.block_state('minecraft:cardinal_direction') == 'west'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p0.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 1 && q.block_state('minecraft:cardinal_direction') == 'north'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p1.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 1 && q.block_state('minecraft:cardinal_direction') == 'east'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p1.east",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 1 && q.block_state('minecraft:cardinal_direction') == 'south'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p1.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 1 && q.block_state('minecraft:cardinal_direction') == 'west'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p1.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 2 && q.block_state('minecraft:cardinal_direction') == 'north'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p2.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 2 && q.block_state('minecraft:cardinal_direction') == 'east'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p2.east",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 2 && q.block_state('minecraft:cardinal_direction') == 'south'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p2.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 2 && q.block_state('minecraft:cardinal_direction') == 'west'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p2.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 3 && q.block_state('minecraft:cardinal_direction') == 'north'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p3.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 3 && q.block_state('minecraft:cardinal_direction') == 'east'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p3.east",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 3 && q.block_state('minecraft:cardinal_direction') == 'south'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p3.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 3 && q.block_state('minecraft:cardinal_direction') == 'west'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p3.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 4 && q.block_state('minecraft:cardinal_direction') == 'north'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p4.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -6,
+              0,
+              -6.1
+            ],
+            "size": [
+              14,
+              16,
+              14.1
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -6,
+              0,
+              -6.1
+            ],
+            "size": [
+              14,
+              16,
+              14.1
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 4 && q.block_state('minecraft:cardinal_direction') == 'east'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p4.east",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -6
+            ],
+            "size": [
+              14.1,
+              16,
+              14
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -6
+            ],
+            "size": [
+              14.1,
+              16,
+              14
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 4 && q.block_state('minecraft:cardinal_direction') == 'south'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p4.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              14,
+              16,
+              14.1
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              14,
+              16,
+              14.1
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 4 && q.block_state('minecraft:cardinal_direction') == 'west'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p4.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -6.1,
+              0,
+              -8
+            ],
+            "size": [
+              14.1,
+              16,
+              14
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -6.1,
+              0,
+              -8
+            ],
+            "size": [
+              14.1,
+              16,
+              14
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 5 && q.block_state('minecraft:cardinal_direction') == 'north'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p5.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -6.1
+            ],
+            "size": [
+              14,
+              16,
+              14.1
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -6.1
+            ],
+            "size": [
+              14,
+              16,
+              14.1
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 5 && q.block_state('minecraft:cardinal_direction') == 'east'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p5.east",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              14.1,
+              16,
+              14
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              14.1,
+              16,
+              14
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 5 && q.block_state('minecraft:cardinal_direction') == 'south'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p5.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -6,
+              0,
+              -8
+            ],
+            "size": [
+              14,
+              16,
+              14.1
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -6,
+              0,
+              -8
+            ],
+            "size": [
+              14,
+              16,
+              14.1
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 5 && q.block_state('minecraft:cardinal_direction') == 'west'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p5.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -6.1,
+              0,
+              -6
+            ],
+            "size": [
+              14.1,
+              16,
+              14
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -6.1,
+              0,
+              -6
+            ],
+            "size": [
+              14.1,
+              16,
+              14
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 6 && q.block_state('minecraft:cardinal_direction') == 'north'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p6.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -6,
+              0,
+              -8
+            ],
+            "size": [
+              14,
+              16,
+              14
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -6,
+              0,
+              -8
+            ],
+            "size": [
+              14,
+              16,
+              14
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 6 && q.block_state('minecraft:cardinal_direction') == 'east'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p6.east",
+          "minecraft:selection_box": {
+            "origin": [
+              -6,
+              0,
+              -6
+            ],
+            "size": [
+              14,
+              16,
+              14
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -6,
+              0,
+              -6
+            ],
+            "size": [
+              14,
+              16,
+              14
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 6 && q.block_state('minecraft:cardinal_direction') == 'south'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p6.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -6
+            ],
+            "size": [
+              14,
+              16,
+              14
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -6
+            ],
+            "size": [
+              14,
+              16,
+              14
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 6 && q.block_state('minecraft:cardinal_direction') == 'west'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p6.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              14,
+              16,
+              14
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              14,
+              16,
+              14
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 7 && q.block_state('minecraft:cardinal_direction') == 'north'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p7.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              14,
+              16,
+              14
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              14,
+              16,
+              14
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 7 && q.block_state('minecraft:cardinal_direction') == 'east'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p7.east",
+          "minecraft:selection_box": {
+            "origin": [
+              -6,
+              0,
+              -8
+            ],
+            "size": [
+              14,
+              16,
+              14
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -6,
+              0,
+              -8
+            ],
+            "size": [
+              14,
+              16,
+              14
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 7 && q.block_state('minecraft:cardinal_direction') == 'south'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p7.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -6,
+              0,
+              -6
+            ],
+            "size": [
+              14,
+              16,
+              14
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -6,
+              0,
+              -6
+            ],
+            "size": [
+              14,
+              16,
+              14
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:part') == 7 && q.block_state('minecraft:cardinal_direction') == 'west'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.generator_nuclear.p7.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -6
+            ],
+            "size": [
+              14,
+              16,
+              14
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -6
+            ],
+            "size": [
+              14,
+              16,
+              14
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:active') == true",
+        "components": {
+          "minecraft:material_instances": {
+            "*": {
+              "texture": "radiousti_generator_nuclear",
+              "render_method": "opaque"
+            },
+            "detail": {
+              "texture": "radiousti_steel_dark",
+              "render_method": "opaque"
+            },
+            "screen": {
+              "texture": "radiousti_screen_terminal",
+              "render_method": "opaque"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

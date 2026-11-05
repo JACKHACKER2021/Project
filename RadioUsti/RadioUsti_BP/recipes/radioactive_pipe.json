@@ -1,0 +1,30 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "radiousti:radioactive_pipe"
+    },
+    "tags": [
+      "radiousti_industrial"
+    ],
+    "ingredients": [
+      {
+        "item": "minecraft:iron_ingot",
+        "count": 2
+      },
+      {
+        "item": "radiousti:uranium_ingot"
+      },
+      {
+        "item": "minecraft:lime_dye"
+      }
+    ],
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:radioactive_pipe",
+      "count": 6
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:soul_crystal",
+      "menu_category": {
+        "category": "nature"
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 1.5
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#5ae3e6",
+      "minecraft:light_emission": 9,
+      "minecraft:geometry": "geometry.radiousti.soul_crystal",
+      "minecraft:collision_box": {
+        "origin": [
+          -6,
+          0,
+          -5
+        ],
+        "size": [
+          12,
+          12,
+          11
+        ]
+      },
+      "minecraft:selection_box": {
+        "origin": [
+          -6,
+          0,
+          -5
+        ],
+        "size": [
+          12,
+          12,
+          11
+        ]
+      },
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_soul_crystal",
+          "render_method": "blend",
+          "ambient_occlusion": false
+        }
+      }
+    }
+  }
+}

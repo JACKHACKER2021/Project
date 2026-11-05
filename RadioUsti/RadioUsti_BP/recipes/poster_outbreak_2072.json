@@ -1,0 +1,30 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "radiousti:poster_outbreak_2072"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "ingredients": [
+      {
+        "item": "minecraft:paper",
+        "count": 2
+      },
+      {
+        "item": "minecraft:red_dye"
+      },
+      {
+        "item": "minecraft:black_dye"
+      }
+    ],
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:poster_outbreak_2072",
+      "count": 1
+    }
+  }
+}

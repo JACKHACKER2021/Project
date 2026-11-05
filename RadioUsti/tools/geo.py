@@ -1,0 +1,529 @@
+"""Geometry helpers and model library for RadioÚstí.
+
+Models are written in block-local pixel coordinates:
+  x: 0..16 west->east, y: 0..16 bottom->top, z: 0..16 north->south.
+The FRONT of every directional model faces NORTH (-Z). Rotations are applied
+here in Python (not via minecraft:transformation) so that the geometry, the
+collision boxes and the script-side multiblock offsets all share one rotation
+convention (see rot_xz / DIRS, mirrored in scripts/lib/util.js).
+"""
+
+DIRS = ["north", "east", "south", "west"]
+
+
+def rot_vec(d, x, z):
+    """Rotate a direction-vector (x,z) from local (front=north) to world facing d."""
+    if d == "north":
+        return x, z
+    if d == "south":
+        return -x, -z
+    if d == "west":
+        return z, -x
+    if d == "east":
+        return -z, x
+    raise ValueError(d)
+
+
+FACE_VEC = {"north": (0, -1), "south": (0, 1), "west": (-1, 0), "east": (1, 0)}
+VEC_FACE = {v: k for k, v in FACE_VEC.items()}
+
+
+def rot_face(d, face):
+    if face in ("up", "down"):
+        return face
+    x, z = FACE_VEC[face]
+    return VEC_FACE[rot_vec(d, x, z)]
+
+
+def C(x, y, z, w, h, d, mat=None, faces=None):
+    """A cube: origin (min corner) + size. mat = material instance name for all faces."""
+    return {"o": (x, y, z), "s": (w, h, d), "mat": mat, "faces": faces}
+
+
+def B(name, *cubes):
+    return {"name": name, "cubes": list(cubes)}
+
+
+def rot_cube(c, d, cx=8, cz=8):
+    (x, y, z), (w, h, dd) = c["o"], c["s"]
+    pts = []
+    for px in (x, x + w):
+        for pz in (z, z + dd):
+            rx, rz = rot_vec(d, px - cx, pz - cz)
+            pts.append((rx + cx, rz + cz))
+    xs = [p[0] for p in pts]
+    zs = [p[1] for p in pts]
+    faces = None
+    if c.get("faces"):
+        faces = {rot_face(d, f): m for f, m in c["faces"].items()}
+    return {"o": (min(xs), y, min(zs)), "s": (max(xs) - min(xs), h, max(zs) - min(zs)),
+            "mat": c["mat"], "faces": faces}
+
+
+def rot_model(bones, d):
+    if d == "north":
+        return bones
+    return [{"name": b["name"], "cubes": [rot_cube(c, d) for c in b["cubes"]]} for b in bones]
+
+
+def _uv(face, o, s):
+    x, y, z = o
+    w, h, d = s
+
+    def fit(a, size):
+        size = min(max(size, 0), 16)
+        a = a % 16
+        if a + size > 16:
+            a = 16 - size
+        return round(a, 3), round(size, 3)
+
+    if face in ("north", "south"):
+        u, uw = fit(x, w)
+        v, vh = fit(16 - (y + h), h)
+    elif face in ("east", "west"):
+        u, uw = fit(z, d)
+        v, vh = fit(16 - (y + h), h)
+    else:
+        u, uw = fit(x, w)
+        v, vh = fit(z, d)
+    return [u, v], [uw, vh]
+
+
+def cube_json(c):
+    o, s = c["o"], c["s"]
+    uv = {}
+    for f in ("north", "south", "east", "west", "up", "down"):
+        u, us = _uv(f, o, s)
+        e = {"uv": u, "uv_size": us}
+        m = (c.get("faces") or {}).get(f, c["mat"])
+        if m:
+            e["material_instance"] = m
+        uv[f] = e
+    return {"origin": [round(o[0] - 8, 3), round(o[1], 3), round(o[2] - 8, 3)],
+            "size": [round(s[0], 3), round(s[1], 3), round(s[2], 3)], "uv": uv}
+
+
+def geometry_entry(ident, bones):
+    out = []
+    for b in bones:
+        out.append({"name": b["name"], "pivot": [0, 0, 0],
+                    "cubes": [cube_json(c) for c in b["cubes"]]})
+    return {"description": {"identifier": ident, "texture_width": 16, "texture_height": 16,
+                            "visible_bounds_width": 3, "visible_bounds_height": 3,
+                            "visible_bounds_offset": [0, 1, 0]},
+            "bones": out}
+
+
+def bbox(bones):
+    xs0, ys0, zs0, xs1, ys1, zs1 = [], [], [], [], [], []
+    for b in bones:
+        for c in b["cubes"]:
+            (x, y, z), (w, h, d) = c["o"], c["s"]
+            xs0.append(x); ys0.append(y); zs0.append(z)
+            xs1.append(x + w); ys1.append(y + h); zs1.append(z + d)
+    if not xs0:
+        return None
+    x0 = max(0, min(xs0)); y0 = max(0, min(ys0)); z0 = max(0, min(zs0))
+    x1 = min(16, max(xs1)); y1 = min(16, max(ys1)); z1 = min(16, max(zs1))
+    if x1 - x0 < 1:
+        x1 = min(16, x0 + 1)
+    if y1 - y0 < 1:
+        y1 = min(16, y0 + 1)
+    if z1 - z0 < 1:
+        z1 = min(16, z0 + 1)
+    return {"origin": [round(x0 - 8, 3), round(y0, 3), round(z0 - 8, 3)],
+            "size": [round(x1 - x0, 3), round(y1 - y0, 3), round(z1 - z0, 3)]}
+
+
+def slice_model(bones, dx, dy, dz):
+    """Cut a multi-block model (coords may exceed 16) into the part at offset (dx,dy,dz)."""
+    x0, y0, z0 = dx * 16, dy * 16, dz * 16
+    out = []
+    for b in bones:
+        cubes = []
+        for c in b["cubes"]:
+            (x, y, z), (w, h, d) = c["o"], c["s"]
+            ax0, ay0, az0 = max(x, x0), max(y, y0), max(z, z0)
+            ax1, ay1, az1 = min(x + w, x0 + 16), min(y + h, y0 + 16), min(z + d, z0 + 16)
+            if ax1 - ax0 <= 0 or ay1 - ay0 <= 0 or az1 - az0 <= 0:
+                continue
+            cubes.append({"o": (ax0 - x0, ay0 - y0, az0 - z0),
+                          "s": (ax1 - ax0, ay1 - ay0, az1 - az0), "mat": c["mat"],
+                          "faces": c.get("faces")})
+        if cubes:
+            out.append({"name": b["name"], "cubes": cubes})
+    if not out:  # keep geometry valid even for an empty slice
+        out = [{"name": "root", "cubes": [C(7.9, 0, 7.9, 0.2, 0.2, 0.2)]}]
+    return out
+
+
+# ---------------------------------------------------------------- pipes/cables
+
+def pipe_model(r, flange=True, bracket=False, joint=True):
+    """Connectable pipe. r = half thickness in px. Bones: core,n,s,e,w,u,d (+ joint, fl_*)."""
+    a, b = 8 - r, 8 + r
+    t = 2 * r
+    bones = [B("core", C(a, a, a, t, t, t))]
+    bones += [
+        B("n", C(a, a, 0, t, t, a)),
+        B("s", C(a, a, b, t, t, 16 - b)),
+        B("w", C(0, a, a, a, t, t)),
+        B("e", C(b, a, a, 16 - b, t, t)),
+        B("d", C(a, 0, a, t, a, t)),
+        B("u", C(a, b, a, t, 16 - b, t)),
+    ]
+    if flange:
+        f = r + 1
+        fa, ft = 8 - f, 2 * f
+        bones += [
+            B("fl_n", C(fa, fa, 0, ft, ft, 1.5, "detail")),
+            B("fl_s", C(fa, fa, 14.5, ft, ft, 1.5, "detail")),
+            B("fl_w", C(0, fa, fa, 1.5, ft, ft, "detail")),
+            B("fl_e", C(14.5, fa, fa, 1.5, ft, ft, "detail")),
+            B("fl_d", C(fa, 0, fa, ft, 1.5, ft, "detail")),
+            B("fl_u", C(fa, 14.5, fa, ft, 1.5, ft, "detail")),
+        ]
+    if joint:
+        j = r + 1.5
+        bones.append(B("joint", C(8 - j, 8 - j, 8 - j, 2 * j, 2 * j, 2 * j, "detail")))
+    if bracket:
+        bones.append(B("bracket", C(7, 0, 7, 2, 8 - r, 2, "detail")))
+    return bones
+
+
+def valve_model(r):
+    bones = pipe_model(r, flange=True, joint=False)
+    j = r + 1
+    bones.append(B("body", C(8 - j, 8 - j, 8 - j, 2 * j, 2 * j, 2 * j, "detail")))
+    # stem + wheel (open: wheel parallel to pipe, closed: across)
+    bones.append(B("stem", C(7.5, 8 + j, 7.5, 1, 2.5, 1, "detail")))
+    bones.append(B("wheel_open", C(4.5, 8 + j + 2.5, 7, 7, 1, 2, "wheel"), C(7, 8 + j + 2.5, 4.5, 2, 1, 7, "wheel")))
+    bones.append(B("wheel_closed", C(5, 8 + j + 2.5, 5, 6, 1, 6, "wheel")))
+    bones.append(B("lamp_open", C(8 + j, 8 + j - 1.5, 7, 1, 1.5, 2, "lamp_green")))
+    bones.append(B("lamp_closed", C(8 + j, 8 + j - 1.5, 7, 1, 1.5, 2, "lamp_red")))
+    return bones
+
+
+# ---------------------------------------------------------------- generic shapes
+
+def full():
+    return [B("root", C(0, 0, 0, 16, 16, 16))]
+
+
+def slab_wall(th=8):
+    return [B("root", C(0, 0, 8 - th / 2, 16, 16, th))]
+
+
+def table(top_y=14, top_th=2, inset=1, leg=2, extra=None, top_mat=None):
+    cubes = [C(0, top_y, 0, 16, top_th, 16, top_mat)]
+    for lx in (inset, 16 - inset - leg):
+        for lz in (inset, 16 - inset - leg):
+            cubes.append(C(lx, 0, lz, leg, top_y, leg))
+    bones = [B("root", *cubes)]
+    if extra:
+        bones += extra
+    return bones
+
+
+def chair(seat_y=7, back=True, mat=None):
+    cubes = [C(2, seat_y, 2, 12, 2, 12, mat)]
+    for lx in (2, 12):
+        for lz in (2, 12):
+            cubes.append(C(lx, 0, lz, 2, seat_y, 2))
+    if back:
+        cubes.append(C(2, seat_y + 2, 12, 12, 16 - seat_y - 2, 2, mat))
+    return [B("root", *cubes)]
+
+
+def office_chair():
+    return [B("root",
+              C(7, 0, 2, 2, 1, 12), C(2, 0, 7, 12, 1, 2),          # star base
+              C(7, 1, 7, 2, 5, 2, "detail"),                        # gas lift
+              C(2, 6, 2, 12, 2, 12, "fabric"),                      # seat
+              C(3, 8, 12, 10, 8, 2, "fabric"),                      # backrest (front = north)
+              C(1, 8, 4, 1, 3, 7), C(14, 8, 4, 1, 3, 7))]           # arm rests
+
+
+def stool():
+    return [B("root", C(4, 9, 4, 8, 1, 8, "fabric"), C(7, 0, 7, 2, 9, 2, "detail"),
+              C(4, 0, 7, 8, 1, 2), C(7, 0, 4, 2, 1, 8))]
+
+
+def cabinet(h=16, drawers=True):
+    cubes = [C(1, 0, 1, 14, h, 14)]
+    if drawers:
+        for i in range(3):
+            cubes.append(C(6, 2 + i * (h // 3), 0.5, 4, 1, 0.5, "detail"))
+    return [B("root", *cubes)]
+
+
+def crate_stack():
+    return [B("root", C(0, 0, 0, 9, 8, 9), C(9, 0, 1, 7, 7, 7), C(2, 8, 2, 7, 6, 7), C(1, 0, 10, 8, 6, 6))]
+
+
+def pc_model(variant="old"):
+    if variant == "terminal":
+        return [B("root", C(1, 0, 3, 14, 10, 12), C(2, 10, 5, 12, 6, 10)),
+                B("screen", C(3, 11, 4.9, 10, 4, 0.2, "screen")),
+                B("keys", C(2, 7, 1, 12, 2, 3, "keys"))]
+    if variant == "lab":
+        return [B("root", C(2, 0, 4, 12, 1, 10), C(3, 1, 6, 10, 10, 9)),
+                B("screen", C(4, 2.5, 5.9, 8, 7, 0.2, "screen")),
+                B("keys", C(2, 0, 0.5, 12, 1, 3.5, "keys"))]
+    if variant == "office":
+        return [B("root", C(1, 0, 3, 14, 3, 12), C(3, 3, 6, 10, 9, 9)),
+                B("screen", C(4, 4, 5.9, 8, 7, 0.2, "screen")),
+                B("keys", C(2, 0, 0, 12, 1, 3, "keys"))]
+    # old: CRT monitor on a desktop case + keyboard
+    return [B("root", C(1, 0, 2, 14, 4, 13), C(2, 4, 4, 12, 10, 11), C(4, 6, 14.9, 8, 6, 1)),
+            B("screen", C(3, 5.5, 3.9, 10, 7.5, 0.2, "screen")),
+            B("keys", C(2, 0, 0, 12, 1, 2, "keys"))]
+
+
+def server_rack():
+    return [B("root", C(1, 0, 1, 14, 16, 14)), B("leds", C(2, 2, 0.8, 12, 12, 0.2, "screen"))]
+
+
+def lamp_hanging():
+    return [B("root", C(7.5, 10, 7.5, 1, 6, 1, "detail"), C(4, 6, 4, 8, 4, 8), C(5, 5, 5, 6, 1, 6, "glow"))]
+
+
+def lamp_wall():
+    # mounted on the SOUTH face (back), light faces north
+    return [B("root", C(5, 4, 14, 6, 8, 2, "detail"), C(5.5, 5, 10, 5, 6, 4), C(6, 6, 9.5, 4, 4, 0.5, "glow"))]
+
+
+def lamp_ceiling():
+    return [B("root", C(2, 14, 2, 12, 2, 12), C(3, 13.5, 3, 10, 0.5, 10, "glow"))]
+
+
+def lamp_floor_beacon():
+    return [B("root", C(4, 0, 4, 8, 2, 8, "detail"), C(5, 2, 5, 6, 6, 6, "glow"), C(4.5, 8, 4.5, 7, 1, 7, "detail"))]
+
+
+def alarm_model():
+    return [B("root", C(4, 4, 13, 8, 8, 3, "detail"), C(5, 5, 10, 6, 6, 3), C(5.5, 5.5, 9.5, 5, 5, 0.5, "glow"))]
+
+
+def button_model():
+    return [B("root", C(4, 0, 4, 8, 3, 8, "detail"), C(5.5, 3, 5.5, 5, 2, 5, "glow"))]
+
+
+def indicator_model():
+    return [B("root", C(3, 2, 13, 10, 12, 3)), B("dial", C(4, 6, 12.8, 8, 7, 0.2, "screen")),
+            B("lamp", C(6, 3, 12.5, 4, 2, 0.5, "glow"))]
+
+
+def clock_model():
+    return [B("root", C(3, 3, 15, 10, 10, 1)), B("face", C(4, 4, 14.8, 8, 8, 0.2, "screen"))]
+
+
+def flat_wall(th=0.5):
+    return [B("root", C(0.5, 0.5, 16 - th, 15, 15, th))]
+
+
+def flat_floor(th=0.25):
+    return [B("root", C(0.5, 0, 0.5, 15, th, 15))]
+
+
+def door_model(open_):
+    if open_:
+        return [B("root", C(0, 0, 0, 3, 16, 16))]
+    return [B("root", C(0, 0, 0, 16, 16, 3))]
+
+
+def bars_model():
+    cubes = [C(0, 0, 7, 16, 2, 2), C(0, 14, 7, 16, 2, 2)]
+    for x in (1, 5, 9, 13):
+        cubes.append(C(x, 0, 7.25, 1.5, 16, 1.5))
+    return [B("root", *cubes)]
+
+
+def battlement():
+    return [B("root", C(0, 0, 0, 16, 8, 16), C(0, 8, 0, 6, 8, 16), C(10, 8, 0, 6, 8, 16))]
+
+
+def barricade():
+    return [B("root", C(0, 2, 6, 16, 4, 2), C(0, 9, 6, 16, 4, 2), C(2, 0, 8, 2, 15, 2, "detail"), C(12, 0, 8, 2, 15, 2, "detail"))]
+
+
+def barbed_wire():
+    cubes = []
+    for i in range(4):
+        cubes.append(C(0, 2 + i * 3, 7.5, 16, 0.5, 0.5))
+        cubes.append(C(7.5, 2 + i * 3, 0, 0.5, 0.5, 16))
+    cubes += [C(1, 0, 1, 1, 14, 1, "detail"), C(14, 0, 14, 1, 14, 1, "detail")]
+    return [B("root", *cubes)]
+
+
+def sandbags():
+    return [B("root", C(0, 0, 2, 8, 4, 12), C(8, 0, 2, 8, 4, 12), C(4, 4, 2, 8, 4, 12))]
+
+
+def spikes():
+    cubes = [C(0, 0, 0, 16, 2, 16, "detail")]
+    for x in (2, 7, 12):
+        for z in (2, 7, 12):
+            cubes.append(C(x + 0.5, 2, z + 0.5, 1.5, 7, 1.5))
+    return [B("root", *cubes)]
+
+
+def rubble():
+    return [B("root", C(0, 0, 0, 16, 3, 16), C(2, 3, 3, 6, 3, 5), C(9, 3, 8, 5, 2, 6), C(5, 5, 9, 3, 2, 3))]
+
+
+def jar(h=10, w=8):
+    a = 8 - w / 2
+    return [B("root", C(a, 0, a, w, 1, w, "detail"), C(a + 0.5, 1, a + 0.5, w - 1, h - 2, w - 1),
+              C(a, h - 1, a, w, 1.5, w, "detail")),
+            B("fill", C(a + 1, 1, a + 1, w - 2, (h - 3) * 0.8, w - 2, "fill"))]
+
+
+def flask_set():
+    return [B("root", C(2, 0, 2, 4, 5, 4), C(3, 5, 3, 2, 3, 2), C(9, 0, 3, 5, 4, 5), C(10.5, 4, 4.5, 2, 4, 2),
+              C(4, 0, 10, 3, 7, 3), C(10, 0, 10, 3, 3, 3))]
+
+
+def tube_rack():
+    cubes = [C(2, 0, 5, 12, 1, 6, "detail"), C(2, 4, 5, 12, 1, 6, "detail"),
+             C(2, 0, 5, 1, 5, 6, "detail"), C(13, 0, 5, 1, 5, 6, "detail")]
+    for x in (3.5, 6.5, 9.5, 12):
+        cubes.append(C(x, 1, 7, 1.5, 7, 1.5))
+    return [B("root", *cubes)]
+
+
+def growth():
+    return [B("root", C(1, 0, 1, 14, 4, 14), C(3, 4, 3, 9, 5, 8), C(5, 9, 6, 5, 4, 4), C(10, 4, 9, 4, 6, 4))]
+
+
+def crystal():
+    return [B("root", C(6, 0, 6, 4, 12, 4), C(2, 0, 3, 3, 7, 3), C(11, 0, 9, 3, 8, 3), C(3, 0, 11, 3, 5, 3))]
+
+
+def bin_model():
+    return [B("root", C(3, 0, 3, 10, 12, 10), C(2.5, 12, 2.5, 11, 1, 11, "detail"))]
+
+
+def iv_stand():
+    return [B("root", C(4, 0, 7, 8, 1, 2), C(7, 0, 4, 2, 1, 8), C(7.5, 1, 7.5, 1, 15, 1, "detail"),
+              C(5, 14, 7.5, 6, 0.5, 1, "detail"), C(5, 9, 7, 3, 5, 2, "fill"))]
+
+
+def med_monitor():
+    return [B("root", C(5, 0, 5, 6, 1, 6), C(7.5, 1, 7.5, 1, 7, 1, "detail"), C(3, 8, 6, 10, 7, 4)),
+            B("screen", C(4, 9, 5.9, 8, 5, 0.2, "screen"))]
+
+
+def bed_long():
+    # 2-block long bed (16 x 32), headboard at the far end (local south/back)
+    return [B("root", C(0, 3, 0, 16, 3, 32, "frame"), C(0, 0, 0, 2, 3, 2, "frame"), C(14, 0, 0, 2, 3, 2, "frame"),
+              C(0, 0, 30, 2, 3, 2, "frame"), C(14, 0, 30, 2, 3, 2, "frame"),
+              C(1, 6, 1, 14, 3, 30), C(2, 9, 24, 12, 2, 6, "fabric"), C(0, 3, 31, 16, 11, 1, "frame"))]
+
+
+def operating_table():
+    return [B("root", C(1, 9, 0, 14, 2, 32), C(6, 0, 6, 4, 9, 4, "frame"), C(6, 0, 22, 4, 9, 4, "frame"),
+              C(3, 0, 4, 10, 1, 8, "frame"), C(3, 0, 20, 10, 1, 8, "frame"), C(2, 11, 26, 12, 1, 5, "fabric"))]
+
+
+def exam_table():
+    return [B("root", C(0, 0, 0, 16, 7, 16, "frame"), C(0, 7, 0, 16, 2, 16), C(1, 9, 10, 14, 4, 6))]
+
+
+def tank(h=16):
+    return [B("root", C(2, 0, 2, 12, 1, 12, "detail"), C(2, 1, 2, 12, h - 2, 12), C(5, h - 1, 5, 6, 1, 6, "detail")),
+            B("gauge", C(6, 8, 1.9, 4, 4, 0.2, "screen"))]
+
+
+def barrel():
+    return [B("root", C(2, 0, 2, 12, 14, 12), C(1.5, 3, 1.5, 13, 1, 13, "detail"), C(1.5, 10, 1.5, 13, 1, 13, "detail"),
+              C(6, 14, 6, 4, 1, 4, "detail"))]
+
+
+def pump():
+    return [B("root", C(0, 0, 0, 16, 2, 16, "detail"), C(2, 2, 3, 9, 8, 10), C(11, 4, 5, 4, 6, 6, "detail"),
+              C(4, 10, 6, 5, 4, 4, "detail"))]
+
+
+def cooling_unit():
+    return [B("root", C(0.5, 0, 0.5, 15, 15.5, 15)), B("fan", C(2, 2, 0.2, 12, 12, 0.2, "screen"), C(2, 15.6, 2, 12, 0.2, 12, "screen"))]
+
+
+def waste_container():
+    return [B("root", C(1, 0, 1, 14, 13, 14), C(0.5, 13, 0.5, 15, 2, 15, "detail")), B("gauge", C(5, 5, 0.9, 6, 4, 0.2, "screen"))]
+
+
+def lab_table_kit(kind):
+    extra = []
+    if kind == "chemical":
+        extra = [B("kit", C(2, 16 - 0.01, 3, 3, 0.01, 3), C(2.5, 16, 3.5, 2, 4, 2, "glass"), C(9, 16, 9, 4, 3, 4, "glass"),
+                   C(10.5, 19, 10.5, 1, 3, 1, "glass"))]
+    elif kind == "bio":
+        extra = [B("kit", C(3, 16, 3, 6, 2, 4, "detail"), C(5, 18, 4, 2, 5, 2, "detail"), C(4, 23, 3.5, 4, 1, 3, "detail"),
+                   C(10, 16, 9, 4, 4, 4, "glass"))]
+    elif kind == "nuclear":
+        extra = [B("kit", C(3, 16, 3, 10, 6, 6, "detail"), C(4, 17, 2.9, 8, 4, 0.2, "screen"))]
+    elif kind == "contamination":
+        extra = [B("kit", C(2, 16, 8, 12, 8, 6, "detail"), C(3, 17, 7.9, 10, 6, 0.2, "screen"), C(4, 16, 2, 4, 3, 4, "glass"))]
+    elif kind == "prep":
+        extra = [B("kit", C(2, 16, 2, 5, 1, 5, "detail"), C(9, 16, 3, 1.5, 5, 1.5, "glass"), C(11, 16, 3, 1.5, 5, 1.5, "glass"),
+                   C(9, 16, 9, 5, 3, 5, "glass"))]
+    elif kind == "workstation":
+        extra = [B("screen_box", C(3, 16, 7, 10, 8, 7, "detail")), B("screen", C(4, 17, 6.9, 8, 6, 0.2, "screen")),
+                 B("keys", C(3, 16, 2, 10, 0.8, 3, "keys"))]
+    elif kind == "industrial":
+        extra = [B("kit", C(1, 16, 10, 14, 1, 5, "detail"), C(2, 16, 2, 4, 3, 3, "detail"), C(11, 16, 3, 3, 2, 5, "detail"))]
+    elif kind == "standard":
+        extra = [B("kit", C(3, 16, 4, 3, 5, 3, "glass"), C(10, 16, 9, 3, 3, 3, "glass"))]
+    # lab tables: solid lower cabinet + worktop (y 10..12), front = north.
+    # Kits are authored on a y=16 worktop; shift them down 4 px and clip to the block (<= 16 px).
+    base = [B("root", C(0, 10, 0, 16, 2, 16, "top"), C(1, 0, 1, 14, 10, 14))]
+    out = []
+    for b in extra:
+        cubes = []
+        for c in b["cubes"]:
+            (x, y, z), (w, h, d) = c["o"], c["s"]
+            y -= 4
+            h = min(h, 16 - y)
+            if h > 0:
+                cubes.append({"o": (x, y, z), "s": (w, h, d), "mat": c["mat"], "faces": c.get("faces")})
+        if cubes:
+            out.append({"name": b["name"], "cubes": cubes})
+    return base + out
+
+
+# ---------------------------------------------------------------- multiblock models (up to 32x32x32)
+
+def gen_model(kind):
+    if kind == "standard":
+        return [B("root", C(0, 0, 0, 32, 3, 32, "detail"), C(2, 3, 2, 28, 20, 28), C(4, 23, 4, 10, 6, 10, "detail"),
+                  C(6, 29, 6, 6, 3, 6, "detail"), C(18, 23, 18, 10, 4, 10)),
+                B("panel", C(4, 8, 1.9, 24, 10, 0.2, "screen"))]
+    if kind == "industrial":
+        return [B("root", C(0, 0, 0, 32, 4, 32, "detail"), C(1, 4, 1, 30, 22, 30), C(3, 26, 3, 26, 3, 26, "detail"),
+                  C(22, 29, 4, 6, 3, 6, "detail"), C(4, 29, 22, 6, 3, 6, "detail")),
+                B("panel", C(3, 8, 0.9, 26, 12, 0.2, "screen"))]
+    if kind == "nuclear":
+        return [B("root", C(0, 0, 0, 32, 4, 32, "detail"), C(2, 4, 2, 28, 26, 28), C(0, 12, 0, 32, 3, 32, "detail"),
+                  C(10, 30, 10, 12, 2, 12, "detail")),
+                B("panel", C(4, 16, 1.9, 24, 10, 0.2, "screen"))]
+    if kind == "backup":
+        return [B("root", C(0, 0, 0, 32, 2, 32, "detail"), C(2, 2, 2, 28, 12, 28), C(22, 14, 22, 5, 2, 5, "detail")),
+                B("panel", C(4, 4, 1.9, 16, 8, 0.2, "screen"))]
+    if kind == "lab":
+        return [B("root", C(1, 0, 1, 30, 14, 30), C(0, 14, 0, 32, 2, 32, "detail")),
+                B("panel", C(4, 3, 0.9, 24, 9, 0.2, "screen"))]
+    if kind == "server":
+        return [B("root", C(1, 0, 1, 14, 16, 30), C(17, 0, 1, 14, 16, 30)),
+                B("panel", C(2, 2, 0.9, 12, 12, 0.2, "screen"), C(18, 2, 0.9, 12, 12, 0.2, "screen"))]
+    raise ValueError(kind)
+
+
+def desk():
+    return [B("root", C(0, 14, 0, 16, 2, 16), C(0, 0, 1, 6, 14, 14, "detail"), C(14, 0, 1, 2, 14, 14),
+              C(1, 10, 0.5, 4, 1, 0.5), C(1, 5, 0.5, 4, 1, 0.5))]
+
+
+def doc_pile():
+    return [B("root", C(2, 0, 2, 11, 2, 10), C(3, 2, 3, 10, 1.5, 9, "detail"), C(4, 3.5, 2.5, 9, 1, 9),
+              C(9, 0, 9, 6, 3, 6, "detail"))]

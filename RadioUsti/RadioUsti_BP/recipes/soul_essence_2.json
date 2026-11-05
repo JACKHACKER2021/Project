@@ -1,0 +1,26 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "radiousti:soul_essence_2"
+    },
+    "tags": [
+      "radiousti_lab"
+    ],
+    "ingredients": [
+      {
+        "item": "minecraft:soul_soil"
+      },
+      {
+        "item": "radiousti:empty_flask"
+      }
+    ],
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:soul_essence",
+      "count": 1
+    }
+  }
+}

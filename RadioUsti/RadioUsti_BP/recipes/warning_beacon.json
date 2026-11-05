@@ -1,0 +1,33 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:warning_beacon"
+    },
+    "tags": [
+      "radiousti_industrial"
+    ],
+    "pattern": [
+      " G ",
+      "IOI"
+    ],
+    "key": {
+      "G": {
+        "item": "minecraft:glowstone"
+      },
+      "I": {
+        "item": "minecraft:iron_ingot"
+      },
+      "O": {
+        "item": "minecraft:orange_dye"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:warning_beacon",
+      "count": 1
+    }
+  }
+}

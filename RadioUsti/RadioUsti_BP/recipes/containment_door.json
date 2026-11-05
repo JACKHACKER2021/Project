@@ -1,0 +1,31 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:containment_door"
+    },
+    "tags": [
+      "radiousti_industrial"
+    ],
+    "pattern": [
+      "IH",
+      "II",
+      "II"
+    ],
+    "key": {
+      "I": {
+        "item": "minecraft:iron_block"
+      },
+      "H": {
+        "item": "radiousti:canister_hydraulic_oil"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:containment_door",
+      "count": 1
+    }
+  }
+}

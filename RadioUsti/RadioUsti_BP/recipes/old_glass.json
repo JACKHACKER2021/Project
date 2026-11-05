@@ -1,0 +1,27 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:old_glass"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "GG",
+      "GG"
+    ],
+    "key": {
+      "G": {
+        "item": "minecraft:glass"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:old_glass",
+      "count": 4
+    }
+  }
+}

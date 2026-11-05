@@ -1,0 +1,32 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "radiousti:document_bundle"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "ingredients": [
+      {
+        "item": "radiousti:document_lab_report"
+      },
+      {
+        "item": "radiousti:document_research_record"
+      },
+      {
+        "item": "radiousti:document_printout"
+      },
+      {
+        "item": "minecraft:string"
+      }
+    ],
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:document_bundle",
+      "count": 1
+    }
+  }
+}

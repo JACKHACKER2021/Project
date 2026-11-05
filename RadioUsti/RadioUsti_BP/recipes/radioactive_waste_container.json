@@ -1,0 +1,31 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:radioactive_waste_container"
+    },
+    "tags": [
+      "radiousti_industrial"
+    ],
+    "pattern": [
+      "ICI",
+      "C C",
+      "ICI"
+    ],
+    "key": {
+      "I": {
+        "item": "minecraft:iron_block"
+      },
+      "C": {
+        "item": "radiousti:reactor_casing"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:radioactive_waste_container",
+      "count": 1
+    }
+  }
+}

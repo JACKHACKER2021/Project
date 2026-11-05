@@ -1,0 +1,33 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:alarm"
+    },
+    "tags": [
+      "radiousti_industrial"
+    ],
+    "pattern": [
+      "INI",
+      "IRI"
+    ],
+    "key": {
+      "I": {
+        "item": "minecraft:iron_ingot"
+      },
+      "N": {
+        "item": "minecraft:noteblock"
+      },
+      "R": {
+        "item": "minecraft:redstone"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:alarm",
+      "count": 1
+    }
+  }
+}

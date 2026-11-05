@@ -1,0 +1,27 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "radiousti:flesh_block_eyes"
+    },
+    "tags": [
+      "radiousti_lab"
+    ],
+    "ingredients": [
+      {
+        "item": "radiousti:flesh_block"
+      },
+      {
+        "item": "minecraft:spider_eye",
+        "count": 2
+      }
+    ],
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:flesh_block_eyes",
+      "count": 1
+    }
+  }
+}

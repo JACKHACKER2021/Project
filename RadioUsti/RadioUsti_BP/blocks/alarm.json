@@ -1,0 +1,252 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:alarm",
+      "menu_category": {
+        "category": "items"
+      },
+      "states": {
+        "radiousti:lit": [
+          false,
+          true
+        ]
+      },
+      "traits": {
+        "minecraft:placement_position": {
+          "enabled_states": [
+            "minecraft:block_face"
+          ]
+        }
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 1.5
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#b3170f",
+      "radiousti:alarm": {},
+      "minecraft:geometry": "geometry.radiousti.alarm.north",
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_alarm",
+          "render_method": "opaque"
+        },
+        "detail": {
+          "texture": "radiousti_steel_dark",
+          "render_method": "opaque"
+        },
+        "glow": {
+          "texture": "radiousti_glow_off",
+          "render_method": "opaque"
+        }
+      }
+    },
+    "permutations": [
+      {
+        "condition": "q.block_state('minecraft:block_face') == 'north'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.alarm.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -4,
+              4,
+              1.5
+            ],
+            "size": [
+              8,
+              8,
+              6.5
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -4,
+              4,
+              1.5
+            ],
+            "size": [
+              8,
+              8,
+              6.5
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:block_face') == 'south'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.alarm.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -4,
+              4,
+              -8
+            ],
+            "size": [
+              8,
+              8,
+              6.5
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -4,
+              4,
+              -8
+            ],
+            "size": [
+              8,
+              8,
+              6.5
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:block_face') == 'east'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.alarm.east",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              4,
+              -4
+            ],
+            "size": [
+              6.5,
+              8,
+              8
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              4,
+              -4
+            ],
+            "size": [
+              6.5,
+              8,
+              8
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:block_face') == 'west'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.alarm.west",
+          "minecraft:selection_box": {
+            "origin": [
+              1.5,
+              4,
+              -4
+            ],
+            "size": [
+              6.5,
+              8,
+              8
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              1.5,
+              4,
+              -4
+            ],
+            "size": [
+              6.5,
+              8,
+              8
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:block_face') == 'up'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.alarm.up",
+          "minecraft:selection_box": {
+            "origin": [
+              -4,
+              0,
+              -4
+            ],
+            "size": [
+              8,
+              6.5,
+              8
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -4,
+              0,
+              -4
+            ],
+            "size": [
+              8,
+              6.5,
+              8
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:block_face') == 'down'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.alarm.down",
+          "minecraft:selection_box": {
+            "origin": [
+              -4,
+              9.5,
+              -4
+            ],
+            "size": [
+              8,
+              6.5,
+              8
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -4,
+              9.5,
+              -4
+            ],
+            "size": [
+              8,
+              6.5,
+              8
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:lit') == true",
+        "components": {
+          "minecraft:material_instances": {
+            "*": {
+              "texture": "radiousti_alarm",
+              "render_method": "opaque"
+            },
+            "detail": {
+              "texture": "radiousti_steel_dark",
+              "render_method": "opaque"
+            },
+            "glow": {
+              "texture": "radiousti_glow_red",
+              "render_method": "opaque"
+            }
+          },
+          "minecraft:light_emission": 8
+        }
+      }
+    ]
+  }
+}

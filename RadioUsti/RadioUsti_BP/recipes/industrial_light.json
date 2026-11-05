@@ -1,0 +1,33 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:industrial_light"
+    },
+    "tags": [
+      "radiousti_industrial"
+    ],
+    "pattern": [
+      " N ",
+      "IGI"
+    ],
+    "key": {
+      "N": {
+        "item": "minecraft:iron_chain"
+      },
+      "I": {
+        "item": "minecraft:iron_ingot"
+      },
+      "G": {
+        "item": "minecraft:glowstone"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:industrial_light",
+      "count": 2
+    }
+  }
+}

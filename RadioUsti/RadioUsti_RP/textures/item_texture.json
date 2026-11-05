@@ -1,0 +1,177 @@
+{
+  "resource_pack_name": "radiousti",
+  "texture_name": "atlas.items",
+  "texture_data": {
+    "radiousti_system_analyzer": {
+      "textures": "textures/items/radiousti_system_analyzer"
+    },
+    "radiousti_handbook": {
+      "textures": "textures/items/radiousti_handbook"
+    },
+    "radiousti_realistic_pickaxe": {
+      "textures": "textures/items/radiousti_realistic_pickaxe"
+    },
+    "radiousti_raw_uranium": {
+      "textures": "textures/items/radiousti_raw_uranium"
+    },
+    "radiousti_uranium_ingot": {
+      "textures": "textures/items/radiousti_uranium_ingot"
+    },
+    "radiousti_uranium_fuel_rod": {
+      "textures": "textures/items/radiousti_uranium_fuel_rod"
+    },
+    "radiousti_empty_canister": {
+      "textures": "textures/items/radiousti_empty_canister"
+    },
+    "radiousti_canister_industrial": {
+      "textures": "textures/items/radiousti_canister_industrial"
+    },
+    "radiousti_canister_black": {
+      "textures": "textures/items/radiousti_canister_black"
+    },
+    "radiousti_canister_hydraulic": {
+      "textures": "textures/items/radiousti_canister_hydraulic"
+    },
+    "radiousti_canister_lab": {
+      "textures": "textures/items/radiousti_canister_lab"
+    },
+    "radiousti_canister_contaminated": {
+      "textures": "textures/items/radiousti_canister_contaminated"
+    },
+    "radiousti_canister_radioactive": {
+      "textures": "textures/items/radiousti_canister_radioactive"
+    },
+    "radiousti_gas_canister": {
+      "textures": "textures/items/radiousti_gas_canister"
+    },
+    "radiousti_empty_jar": {
+      "textures": "textures/items/radiousti_empty_jar"
+    },
+    "radiousti_blood_jar": {
+      "textures": "textures/items/radiousti_blood_jar"
+    },
+    "radiousti_blood_bottle": {
+      "textures": "textures/items/radiousti_blood_bottle"
+    },
+    "radiousti_empty_test_tube": {
+      "textures": "textures/items/radiousti_empty_test_tube"
+    },
+    "radiousti_blood_sample": {
+      "textures": "textures/items/radiousti_blood_sample"
+    },
+    "radiousti_sample_container": {
+      "textures": "textures/items/radiousti_sample_container"
+    },
+    "radiousti_tissue_sample": {
+      "textures": "textures/items/radiousti_tissue_sample"
+    },
+    "radiousti_soil_sample": {
+      "textures": "textures/items/radiousti_soil_sample"
+    },
+    "radiousti_empty_flask": {
+      "textures": "textures/items/radiousti_empty_flask"
+    },
+    "radiousti_reagent_red": {
+      "textures": "textures/items/radiousti_reagent_red"
+    },
+    "radiousti_reagent_green": {
+      "textures": "textures/items/radiousti_reagent_green"
+    },
+    "radiousti_reagent_blue": {
+      "textures": "textures/items/radiousti_reagent_blue"
+    },
+    "radiousti_infected_flesh": {
+      "textures": "textures/items/radiousti_infected_flesh"
+    },
+    "radiousti_meat_piece": {
+      "textures": "textures/items/radiousti_meat_piece"
+    },
+    "radiousti_organic_material": {
+      "textures": "textures/items/radiousti_organic_material"
+    },
+    "radiousti_lab_waste": {
+      "textures": "textures/items/radiousti_lab_waste"
+    },
+    "radiousti_soul_essence": {
+      "textures": "textures/items/radiousti_soul_essence"
+    },
+    "radiousti_anti_radiation_pills": {
+      "textures": "textures/items/radiousti_anti_radiation_pills"
+    },
+    "radiousti_zed_serum": {
+      "textures": "textures/items/radiousti_zed_serum"
+    },
+    "radiousti_decontamination_kit": {
+      "textures": "textures/items/radiousti_decontamination_kit"
+    },
+    "radiousti_gas_mask": {
+      "textures": "textures/items/radiousti_gas_mask"
+    },
+    "radiousti_hazmat_suit": {
+      "textures": "textures/items/radiousti_hazmat_suit"
+    },
+    "radiousti_document_lab_report": {
+      "textures": "textures/items/radiousti_document_lab_report"
+    },
+    "radiousti_document_evacuation": {
+      "textures": "textures/items/radiousti_document_evacuation"
+    },
+    "radiousti_document_research_record": {
+      "textures": "textures/items/radiousti_document_research_record"
+    },
+    "radiousti_document_emergency_instructions": {
+      "textures": "textures/items/radiousti_document_emergency_instructions"
+    },
+    "radiousti_document_printout": {
+      "textures": "textures/items/radiousti_document_printout"
+    },
+    "radiousti_document_contamination_report": {
+      "textures": "textures/items/radiousti_document_contamination_report"
+    },
+    "radiousti_document_bundle": {
+      "textures": "textures/items/radiousti_document_bundle"
+    },
+    "radiousti_historical_photo": {
+      "textures": "textures/items/radiousti_historical_photo"
+    },
+    "radiousti_vhs_radiousti": {
+      "textures": "textures/items/radiousti_vhs_radiousti"
+    },
+    "radiousti_generator_standard_icon": {
+      "textures": "textures/items/radiousti_generator_standard_icon"
+    },
+    "radiousti_generator_industrial_icon": {
+      "textures": "textures/items/radiousti_generator_industrial_icon"
+    },
+    "radiousti_generator_nuclear_icon": {
+      "textures": "textures/items/radiousti_generator_nuclear_icon"
+    },
+    "radiousti_generator_backup_icon": {
+      "textures": "textures/items/radiousti_generator_backup_icon"
+    },
+    "radiousti_lab_power_unit_icon": {
+      "textures": "textures/items/radiousti_lab_power_unit_icon"
+    },
+    "radiousti_server_power_unit_icon": {
+      "textures": "textures/items/radiousti_server_power_unit_icon"
+    },
+    "radiousti_lab_door_icon": {
+      "textures": "textures/items/radiousti_lab_door_icon"
+    },
+    "radiousti_industrial_door_icon": {
+      "textures": "textures/items/radiousti_industrial_door_icon"
+    },
+    "radiousti_containment_door_icon": {
+      "textures": "textures/items/radiousti_containment_door_icon"
+    },
+    "radiousti_fortress_door_icon": {
+      "textures": "textures/items/radiousti_fortress_door_icon"
+    },
+    "radiousti_hospital_bed_icon": {
+      "textures": "textures/items/radiousti_hospital_bed_icon"
+    },
+    "radiousti_operating_table_icon": {
+      "textures": "textures/items/radiousti_operating_table_icon"
+    }
+  }
+}

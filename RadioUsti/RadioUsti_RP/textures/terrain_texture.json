@@ -1,0 +1,491 @@
+{
+  "resource_pack_name": "radiousti",
+  "texture_name": "atlas.terrain",
+  "padding": 8,
+  "num_mip_levels": 4,
+  "texture_data": {
+    "radiousti_steel": {
+      "textures": "textures/blocks/radiousti_steel"
+    },
+    "radiousti_steel_dark": {
+      "textures": "textures/blocks/radiousti_steel_dark"
+    },
+    "radiousti_steel_rusty": {
+      "textures": "textures/blocks/radiousti_steel_rusty"
+    },
+    "radiousti_detail": {
+      "textures": "textures/blocks/radiousti_detail"
+    },
+    "radiousti_brass": {
+      "textures": "textures/blocks/radiousti_brass"
+    },
+    "radiousti_glass_clear": {
+      "textures": "textures/blocks/radiousti_glass_clear"
+    },
+    "radiousti_glass_solid": {
+      "textures": "textures/blocks/radiousti_glass_solid"
+    },
+    "radiousti_lamp_green": {
+      "textures": "textures/blocks/radiousti_lamp_green"
+    },
+    "radiousti_lamp_red": {
+      "textures": "textures/blocks/radiousti_lamp_red"
+    },
+    "radiousti_lamp_off": {
+      "textures": "textures/blocks/radiousti_lamp_off"
+    },
+    "radiousti_glow_warm": {
+      "textures": "textures/blocks/radiousti_glow_warm"
+    },
+    "radiousti_glow_cold": {
+      "textures": "textures/blocks/radiousti_glow_cold"
+    },
+    "radiousti_glow_red": {
+      "textures": "textures/blocks/radiousti_glow_red"
+    },
+    "radiousti_glow_orange": {
+      "textures": "textures/blocks/radiousti_glow_orange"
+    },
+    "radiousti_glow_off": {
+      "textures": "textures/blocks/radiousti_glow_off"
+    },
+    "radiousti_glow_yellow": {
+      "textures": "textures/blocks/radiousti_glow_yellow"
+    },
+    "radiousti_glow_green": {
+      "textures": "textures/blocks/radiousti_glow_green"
+    },
+    "radiousti_screen_off": {
+      "textures": "textures/blocks/radiousti_screen_off"
+    },
+    "radiousti_screen_longhorn": {
+      "textures": "textures/blocks/radiousti_screen_longhorn"
+    },
+    "radiousti_screen_terminal": {
+      "textures": "textures/blocks/radiousti_screen_terminal"
+    },
+    "radiousti_screen_leds": {
+      "textures": "textures/blocks/radiousti_screen_leds"
+    },
+    "radiousti_screen_gauge": {
+      "textures": "textures/blocks/radiousti_screen_gauge"
+    },
+    "radiousti_screen_medical": {
+      "textures": "textures/blocks/radiousti_screen_medical"
+    },
+    "radiousti_screen_dial": {
+      "textures": "textures/blocks/radiousti_screen_dial"
+    },
+    "radiousti_screen_clock": {
+      "textures": "textures/blocks/radiousti_screen_clock"
+    },
+    "radiousti_screen_fan": {
+      "textures": "textures/blocks/radiousti_screen_fan"
+    },
+    "radiousti_keys": {
+      "textures": "textures/blocks/radiousti_keys"
+    },
+    "radiousti_wood": {
+      "textures": "textures/blocks/radiousti_wood"
+    },
+    "radiousti_wood_dark": {
+      "textures": "textures/blocks/radiousti_wood_dark"
+    },
+    "radiousti_fabric_white": {
+      "textures": "textures/blocks/radiousti_fabric_white"
+    },
+    "radiousti_fabric_blue": {
+      "textures": "textures/blocks/radiousti_fabric_blue"
+    },
+    "radiousti_fabric_green": {
+      "textures": "textures/blocks/radiousti_fabric_green"
+    },
+    "radiousti_fabric_black": {
+      "textures": "textures/blocks/radiousti_fabric_black"
+    },
+    "radiousti_lab_top": {
+      "textures": "textures/blocks/radiousti_lab_top"
+    },
+    "radiousti_lab_top_black": {
+      "textures": "textures/blocks/radiousti_lab_top_black"
+    },
+    "radiousti_cabinet_beige": {
+      "textures": "textures/blocks/radiousti_cabinet_beige"
+    },
+    "radiousti_cabinet_green": {
+      "textures": "textures/blocks/radiousti_cabinet_green"
+    },
+    "radiousti_hazard": {
+      "textures": "textures/blocks/radiousti_hazard"
+    },
+    "radiousti_blood_fill": {
+      "textures": "textures/blocks/radiousti_blood_fill"
+    },
+    "radiousti_flesh_fill": {
+      "textures": "textures/blocks/radiousti_flesh_fill"
+    },
+    "radiousti_soul_fill": {
+      "textures": "textures/blocks/radiousti_soul_fill"
+    },
+    "radiousti_empty_fill": {
+      "textures": "textures/blocks/radiousti_empty_fill"
+    },
+    "radiousti_iv_fill": {
+      "textures": "textures/blocks/radiousti_iv_fill"
+    },
+    "radiousti_water_pipe": {
+      "textures": "textures/blocks/radiousti_water_pipe"
+    },
+    "radiousti_water_pipe_thin": {
+      "textures": "textures/blocks/radiousti_water_pipe_thin"
+    },
+    "radiousti_gas_pipe": {
+      "textures": "textures/blocks/radiousti_gas_pipe"
+    },
+    "radiousti_lab_pipe": {
+      "textures": "textures/blocks/radiousti_lab_pipe"
+    },
+    "radiousti_molten_pipe": {
+      "textures": "textures/blocks/radiousti_molten_pipe"
+    },
+    "radiousti_radioactive_pipe": {
+      "textures": "textures/blocks/radiousti_radioactive_pipe"
+    },
+    "radiousti_industrial_pipe": {
+      "textures": "textures/blocks/radiousti_industrial_pipe"
+    },
+    "radiousti_water_valve": {
+      "textures": "textures/blocks/radiousti_water_valve"
+    },
+    "radiousti_water_valve_wheel": {
+      "textures": "textures/blocks/radiousti_water_valve_wheel"
+    },
+    "radiousti_gas_valve": {
+      "textures": "textures/blocks/radiousti_gas_valve"
+    },
+    "radiousti_gas_valve_wheel": {
+      "textures": "textures/blocks/radiousti_gas_valve_wheel"
+    },
+    "radiousti_molten_valve": {
+      "textures": "textures/blocks/radiousti_molten_valve"
+    },
+    "radiousti_molten_valve_wheel": {
+      "textures": "textures/blocks/radiousti_molten_valve_wheel"
+    },
+    "radiousti_radioactive_valve": {
+      "textures": "textures/blocks/radiousti_radioactive_valve"
+    },
+    "radiousti_radioactive_valve_wheel": {
+      "textures": "textures/blocks/radiousti_radioactive_valve_wheel"
+    },
+    "radiousti_oil_valve": {
+      "textures": "textures/blocks/radiousti_oil_valve"
+    },
+    "radiousti_oil_valve_wheel": {
+      "textures": "textures/blocks/radiousti_oil_valve_wheel"
+    },
+    "radiousti_electrical_cable": {
+      "textures": "textures/blocks/radiousti_electrical_cable"
+    },
+    "radiousti_high_voltage_cable": {
+      "textures": "textures/blocks/radiousti_high_voltage_cable"
+    },
+    "radiousti_lab_cable": {
+      "textures": "textures/blocks/radiousti_lab_cable"
+    },
+    "radiousti_emergency_cable": {
+      "textures": "textures/blocks/radiousti_emergency_cable"
+    },
+    "radiousti_damaged_cable": {
+      "textures": "textures/blocks/radiousti_damaged_cable"
+    },
+    "radiousti_network_cable": {
+      "textures": "textures/blocks/radiousti_network_cable"
+    },
+    "radiousti_generator_standard": {
+      "textures": "textures/blocks/radiousti_generator_standard"
+    },
+    "radiousti_generator_industrial": {
+      "textures": "textures/blocks/radiousti_generator_industrial"
+    },
+    "radiousti_generator_nuclear": {
+      "textures": "textures/blocks/radiousti_generator_nuclear"
+    },
+    "radiousti_generator_backup": {
+      "textures": "textures/blocks/radiousti_generator_backup"
+    },
+    "radiousti_lab_power_unit": {
+      "textures": "textures/blocks/radiousti_lab_power_unit"
+    },
+    "radiousti_server_power_unit": {
+      "textures": "textures/blocks/radiousti_server_power_unit"
+    },
+    "radiousti_reactor_casing": {
+      "textures": "textures/blocks/radiousti_reactor_casing"
+    },
+    "radiousti_reactor_glass": {
+      "textures": "textures/blocks/radiousti_reactor_glass"
+    },
+    "radiousti_reactor_port_coolant": {
+      "textures": "textures/blocks/radiousti_reactor_port_coolant"
+    },
+    "radiousti_reactor_port_power": {
+      "textures": "textures/blocks/radiousti_reactor_port_power"
+    },
+    "radiousti_reactor_port_waste": {
+      "textures": "textures/blocks/radiousti_reactor_port_waste"
+    },
+    "radiousti_reactor_core": {
+      "textures": "textures/blocks/radiousti_reactor_core"
+    },
+    "radiousti_reactor_core_on": {
+      "textures": "textures/blocks/radiousti_reactor_core_on"
+    },
+    "radiousti_reactor_panel": {
+      "textures": "textures/blocks/radiousti_reactor_panel"
+    },
+    "radiousti_cooling_unit": {
+      "textures": "textures/blocks/radiousti_cooling_unit"
+    },
+    "radiousti_pump": {
+      "textures": "textures/blocks/radiousti_pump"
+    },
+    "radiousti_gas_tank": {
+      "textures": "textures/blocks/radiousti_gas_tank"
+    },
+    "radiousti_waste_container": {
+      "textures": "textures/blocks/radiousti_waste_container"
+    },
+    "radiousti_barrel_industrial": {
+      "textures": "textures/blocks/radiousti_barrel_industrial"
+    },
+    "radiousti_barrel_black": {
+      "textures": "textures/blocks/radiousti_barrel_black"
+    },
+    "radiousti_barrel_hydraulic": {
+      "textures": "textures/blocks/radiousti_barrel_hydraulic"
+    },
+    "radiousti_barrel_lab": {
+      "textures": "textures/blocks/radiousti_barrel_lab"
+    },
+    "radiousti_barrel_contaminated": {
+      "textures": "textures/blocks/radiousti_barrel_contaminated"
+    },
+    "radiousti_barrel_radioactive": {
+      "textures": "textures/blocks/radiousti_barrel_radioactive"
+    },
+    "radiousti_old_pc": {
+      "textures": "textures/blocks/radiousti_old_pc"
+    },
+    "radiousti_office_pc": {
+      "textures": "textures/blocks/radiousti_office_pc"
+    },
+    "radiousti_lab_pc": {
+      "textures": "textures/blocks/radiousti_lab_pc"
+    },
+    "radiousti_industrial_terminal": {
+      "textures": "textures/blocks/radiousti_industrial_terminal"
+    },
+    "radiousti_server_rack": {
+      "textures": "textures/blocks/radiousti_server_rack"
+    },
+    "radiousti_old_light_block": {
+      "textures": "textures/blocks/radiousti_old_light_block"
+    },
+    "radiousti_old_light_block_on": {
+      "textures": "textures/blocks/radiousti_old_light_block_on"
+    },
+    "radiousti_alarm": {
+      "textures": "textures/blocks/radiousti_alarm"
+    },
+    "radiousti_radiation_alarm": {
+      "textures": "textures/blocks/radiousti_radiation_alarm"
+    },
+    "radiousti_lab_door_top": {
+      "textures": "textures/blocks/radiousti_lab_door_top"
+    },
+    "radiousti_lab_door_bottom": {
+      "textures": "textures/blocks/radiousti_lab_door_bottom"
+    },
+    "radiousti_industrial_door_top": {
+      "textures": "textures/blocks/radiousti_industrial_door_top"
+    },
+    "radiousti_industrial_door_bottom": {
+      "textures": "textures/blocks/radiousti_industrial_door_bottom"
+    },
+    "radiousti_containment_door_top": {
+      "textures": "textures/blocks/radiousti_containment_door_top"
+    },
+    "radiousti_containment_door_bottom": {
+      "textures": "textures/blocks/radiousti_containment_door_bottom"
+    },
+    "radiousti_fortress_door_top": {
+      "textures": "textures/blocks/radiousti_fortress_door_top"
+    },
+    "radiousti_fortress_door_bottom": {
+      "textures": "textures/blocks/radiousti_fortress_door_bottom"
+    },
+    "radiousti_uranium_ore": {
+      "textures": "textures/blocks/radiousti_uranium_ore"
+    },
+    "radiousti_deepslate_uranium_ore": {
+      "textures": "textures/blocks/radiousti_deepslate_uranium_ore"
+    },
+    "radiousti_uranium_block": {
+      "textures": "textures/blocks/radiousti_uranium_block"
+    },
+    "radiousti_raw_uranium_block": {
+      "textures": "textures/blocks/radiousti_raw_uranium_block"
+    },
+    "radiousti_contaminated_dirt": {
+      "textures": "textures/blocks/radiousti_contaminated_dirt"
+    },
+    "radiousti_contaminated_grass_side": {
+      "textures": "textures/blocks/radiousti_contaminated_grass_side"
+    },
+    "radiousti_contaminated_grass_top": {
+      "textures": "textures/blocks/radiousti_contaminated_grass_top"
+    },
+    "radiousti_contaminated_stone": {
+      "textures": "textures/blocks/radiousti_contaminated_stone"
+    },
+    "radiousti_radioactive_waste": {
+      "textures": "textures/blocks/radiousti_radioactive_waste"
+    },
+    "radiousti_damaged_core": {
+      "textures": "textures/blocks/radiousti_damaged_core"
+    },
+    "radiousti_radiation_sign": {
+      "textures": "textures/blocks/radiousti_radiation_sign"
+    },
+    "radiousti_biohazard_sign": {
+      "textures": "textures/blocks/radiousti_biohazard_sign"
+    },
+    "radiousti_zed_warning_sign": {
+      "textures": "textures/blocks/radiousti_zed_warning_sign"
+    },
+    "radiousti_cement_block": {
+      "textures": "textures/blocks/radiousti_cement_block"
+    },
+    "radiousti_yellow_old_cement": {
+      "textures": "textures/blocks/radiousti_yellow_old_cement"
+    },
+    "radiousti_old_brick": {
+      "textures": "textures/blocks/radiousti_old_brick"
+    },
+    "radiousti_czechoslovak_industrial_wall": {
+      "textures": "textures/blocks/radiousti_czechoslovak_industrial_wall"
+    },
+    "radiousti_house_block": {
+      "textures": "textures/blocks/radiousti_house_block"
+    },
+    "radiousti_industrial_vent": {
+      "textures": "textures/blocks/radiousti_industrial_vent"
+    },
+    "radiousti_fuse_box": {
+      "textures": "textures/blocks/radiousti_fuse_box"
+    },
+    "radiousti_blood_stained_concrete": {
+      "textures": "textures/blocks/radiousti_blood_stained_concrete"
+    },
+    "radiousti_burnt_planks": {
+      "textures": "textures/blocks/radiousti_burnt_planks"
+    },
+    "radiousti_fortress_stone": {
+      "textures": "textures/blocks/radiousti_fortress_stone"
+    },
+    "radiousti_fortress_stone_cracked": {
+      "textures": "textures/blocks/radiousti_fortress_stone_cracked"
+    },
+    "radiousti_fortress_stone_mossy": {
+      "textures": "textures/blocks/radiousti_fortress_stone_mossy"
+    },
+    "radiousti_castle_side": {
+      "textures": "textures/blocks/radiousti_castle_side"
+    },
+    "radiousti_old_glass": {
+      "textures": "textures/blocks/radiousti_old_glass"
+    },
+    "radiousti_help_glass": {
+      "textures": "textures/blocks/radiousti_help_glass"
+    },
+    "radiousti_castle_bars": {
+      "textures": "textures/blocks/radiousti_castle_bars"
+    },
+    "radiousti_storage_boxes": {
+      "textures": "textures/blocks/radiousti_storage_boxes"
+    },
+    "radiousti_sandbag": {
+      "textures": "textures/blocks/radiousti_sandbag"
+    },
+    "radiousti_medical_cabinet": {
+      "textures": "textures/blocks/radiousti_medical_cabinet"
+    },
+    "radiousti_locker": {
+      "textures": "textures/blocks/radiousti_locker"
+    },
+    "radiousti_med_container": {
+      "textures": "textures/blocks/radiousti_med_container"
+    },
+    "radiousti_poster_outbreak_2072": {
+      "textures": "textures/blocks/radiousti_poster_outbreak_2072"
+    },
+    "radiousti_poster_evacuation": {
+      "textures": "textures/blocks/radiousti_poster_evacuation"
+    },
+    "radiousti_poster_radiation": {
+      "textures": "textures/blocks/radiousti_poster_radiation"
+    },
+    "radiousti_poster_zeds_world": {
+      "textures": "textures/blocks/radiousti_poster_zeds_world"
+    },
+    "radiousti_poster_collapse": {
+      "textures": "textures/blocks/radiousti_poster_collapse"
+    },
+    "radiousti_poster_fortress": {
+      "textures": "textures/blocks/radiousti_poster_fortress"
+    },
+    "radiousti_papers_0": {
+      "textures": "textures/blocks/radiousti_papers_0"
+    },
+    "radiousti_papers_1": {
+      "textures": "textures/blocks/radiousti_papers_1"
+    },
+    "radiousti_papers_2": {
+      "textures": "textures/blocks/radiousti_papers_2"
+    },
+    "radiousti_papers_3": {
+      "textures": "textures/blocks/radiousti_papers_3"
+    },
+    "radiousti_photo_frame": {
+      "textures": "textures/blocks/radiousti_photo_frame"
+    },
+    "radiousti_flask_glass": {
+      "textures": "textures/blocks/radiousti_flask_glass"
+    },
+    "radiousti_tube_glass": {
+      "textures": "textures/blocks/radiousti_tube_glass"
+    },
+    "radiousti_flesh_block": {
+      "textures": "textures/blocks/radiousti_flesh_block"
+    },
+    "radiousti_flesh_veiny": {
+      "textures": "textures/blocks/radiousti_flesh_veiny"
+    },
+    "radiousti_flesh_eyes": {
+      "textures": "textures/blocks/radiousti_flesh_eyes"
+    },
+    "radiousti_waste_bin": {
+      "textures": "textures/blocks/radiousti_waste_bin"
+    },
+    "radiousti_blood_puddle": {
+      "textures": "textures/blocks/radiousti_blood_puddle"
+    },
+    "radiousti_soul_block": {
+      "textures": "textures/blocks/radiousti_soul_block"
+    },
+    "radiousti_soul_crystal": {
+      "textures": "textures/blocks/radiousti_soul_crystal"
+    }
+  }
+}

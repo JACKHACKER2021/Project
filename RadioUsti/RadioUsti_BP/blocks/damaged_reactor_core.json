@@ -1,0 +1,29 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:damaged_reactor_core",
+      "menu_category": {
+        "category": "nature"
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 10
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 60
+      },
+      "minecraft:map_color": "#2a2a22",
+      "minecraft:light_emission": 9,
+      "tag:metal": {},
+      "minecraft:geometry": "minecraft:geometry.full_block",
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_damaged_core",
+          "render_method": "opaque"
+        }
+      }
+    }
+  }
+}

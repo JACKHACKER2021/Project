@@ -1,0 +1,36 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:reactor_control_panel"
+    },
+    "tags": [
+      "radiousti_industrial"
+    ],
+    "pattern": [
+      "PRP",
+      "HCH"
+    ],
+    "key": {
+      "P": {
+        "item": "radiousti:old_pc"
+      },
+      "R": {
+        "item": "minecraft:redstone"
+      },
+      "H": {
+        "item": "radiousti:canister_hydraulic_oil"
+      },
+      "C": {
+        "item": "radiousti:reactor_casing"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:reactor_control_panel",
+      "count": 1
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:fortress_door"
+    },
+    "tags": [
+      "radiousti_industrial"
+    ],
+    "pattern": [
+      "PP",
+      "PI",
+      "PP"
+    ],
+    "key": {
+      "P": {
+        "tag": "minecraft:planks"
+      },
+      "I": {
+        "item": "minecraft:iron_ingot"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:fortress_door",
+      "count": 1
+    }
+  }
+}

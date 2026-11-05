@@ -1,0 +1,30 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "radiousti:canister_industrial_oil"
+    },
+    "tags": [
+      "radiousti_industrial"
+    ],
+    "ingredients": [
+      {
+        "item": "radiousti:empty_canister"
+      },
+      {
+        "item": "minecraft:dried_kelp",
+        "count": 3
+      },
+      {
+        "tag": "minecraft:coals"
+      }
+    ],
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:canister_industrial_oil",
+      "count": 1
+    }
+  }
+}

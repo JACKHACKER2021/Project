@@ -1,0 +1,193 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:old_pc",
+      "menu_category": {
+        "category": "equipment"
+      },
+      "states": {
+        "radiousti:active": [
+          false,
+          true
+        ]
+      },
+      "traits": {
+        "minecraft:placement_direction": {
+          "enabled_states": [
+            "minecraft:cardinal_direction"
+          ],
+          "y_rotation_offset": 180
+        }
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 2
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#cbc3a8",
+      "radiousti:computer": {},
+      "minecraft:geometry": "geometry.radiousti.old_pc.north",
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_old_pc",
+          "render_method": "opaque"
+        },
+        "screen": {
+          "texture": "radiousti_screen_off",
+          "render_method": "opaque"
+        },
+        "keys": {
+          "texture": "radiousti_keys",
+          "render_method": "opaque"
+        }
+      }
+    },
+    "permutations": [
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'north'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.old_pc.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -7,
+              0,
+              -8
+            ],
+            "size": [
+              14,
+              14,
+              15.9
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -7,
+              0,
+              -8
+            ],
+            "size": [
+              14,
+              14,
+              15.9
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'east'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.old_pc.east",
+          "minecraft:selection_box": {
+            "origin": [
+              -7.9,
+              0,
+              -7
+            ],
+            "size": [
+              15.9,
+              14,
+              14
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -7.9,
+              0,
+              -7
+            ],
+            "size": [
+              15.9,
+              14,
+              14
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'south'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.old_pc.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -7,
+              0,
+              -7.9
+            ],
+            "size": [
+              14,
+              14,
+              15.9
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -7,
+              0,
+              -7.9
+            ],
+            "size": [
+              14,
+              14,
+              15.9
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'west'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.old_pc.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -7
+            ],
+            "size": [
+              15.9,
+              14,
+              14
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -7
+            ],
+            "size": [
+              15.9,
+              14,
+              14
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:active') == true",
+        "components": {
+          "minecraft:material_instances": {
+            "*": {
+              "texture": "radiousti_old_pc",
+              "render_method": "opaque"
+            },
+            "screen": {
+              "texture": "radiousti_screen_longhorn",
+              "render_method": "opaque"
+            },
+            "keys": {
+              "texture": "radiousti_keys",
+              "render_method": "opaque"
+            }
+          },
+          "minecraft:light_emission": 4
+        }
+      }
+    ]
+  }
+}

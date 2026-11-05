@@ -1,0 +1,14 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_furnace": {
+    "description": {
+      "identifier": "radiousti:uranium_ingot_2_smelt"
+    },
+    "tags": [
+      "furnace",
+      "blast_furnace"
+    ],
+    "input": "radiousti:raw_uranium",
+    "output": "radiousti:uranium_ingot"
+  }
+}

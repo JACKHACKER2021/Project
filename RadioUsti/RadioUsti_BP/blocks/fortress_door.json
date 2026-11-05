@@ -1,0 +1,301 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:fortress_door",
+      "menu_category": {
+        "category": "none"
+      },
+      "states": {
+        "radiousti:upper": [
+          false,
+          true
+        ],
+        "radiousti:open": [
+          false,
+          true
+        ]
+      },
+      "traits": {
+        "minecraft:placement_direction": {
+          "enabled_states": [
+            "minecraft:cardinal_direction"
+          ],
+          "y_rotation_offset": 180
+        }
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 3
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 10
+      },
+      "minecraft:map_color": "#5e4528",
+      "radiousti:door": {},
+      "minecraft:loot": "loot_tables/blocks/radiousti_empty.json",
+      "minecraft:geometry": "geometry.radiousti.fortress_door.closed.north",
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_fortress_door_bottom",
+          "render_method": "opaque"
+        }
+      }
+    },
+    "permutations": [
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'north' && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.fortress_door.closed.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              3
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              3
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'north' && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.fortress_door.open.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              3,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              3,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'east' && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.fortress_door.closed.east",
+          "minecraft:selection_box": {
+            "origin": [
+              5,
+              0,
+              -8
+            ],
+            "size": [
+              3,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              5,
+              0,
+              -8
+            ],
+            "size": [
+              3,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'east' && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.fortress_door.open.east",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              3
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              3
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'south' && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.fortress_door.closed.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              5
+            ],
+            "size": [
+              16,
+              16,
+              3
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              5
+            ],
+            "size": [
+              16,
+              16,
+              3
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'south' && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.fortress_door.open.south",
+          "minecraft:selection_box": {
+            "origin": [
+              5,
+              0,
+              -8
+            ],
+            "size": [
+              3,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              5,
+              0,
+              -8
+            ],
+            "size": [
+              3,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'west' && q.block_state('radiousti:open') == false",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.fortress_door.closed.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              3,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              3,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'west' && q.block_state('radiousti:open') == true",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.fortress_door.open.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              5
+            ],
+            "size": [
+              16,
+              16,
+              3
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              5
+            ],
+            "size": [
+              16,
+              16,
+              3
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:upper') == true",
+        "components": {
+          "minecraft:material_instances": {
+            "*": {
+              "texture": "radiousti_fortress_door_top",
+              "render_method": "opaque"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

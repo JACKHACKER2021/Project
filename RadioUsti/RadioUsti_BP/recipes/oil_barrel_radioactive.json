@@ -1,0 +1,31 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:oil_barrel_radioactive"
+    },
+    "tags": [
+      "radiousti_industrial"
+    ],
+    "pattern": [
+      "I I",
+      "ICI",
+      "III"
+    ],
+    "key": {
+      "I": {
+        "item": "minecraft:iron_ingot"
+      },
+      "C": {
+        "item": "radiousti:canister_radioactive_oil"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:oil_barrel_radioactive",
+      "count": 1
+    }
+  }
+}

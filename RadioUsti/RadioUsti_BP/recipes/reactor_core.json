@@ -1,0 +1,34 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:reactor_core"
+    },
+    "tags": [
+      "radiousti_industrial"
+    ],
+    "pattern": [
+      "UIU",
+      "IRI",
+      "UIU"
+    ],
+    "key": {
+      "U": {
+        "item": "radiousti:uranium_block"
+      },
+      "I": {
+        "item": "minecraft:iron_block"
+      },
+      "R": {
+        "item": "minecraft:redstone_block"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:reactor_core",
+      "count": 1
+    }
+  }
+}

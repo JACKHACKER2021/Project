@@ -1,0 +1,89 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:scattered_papers",
+      "menu_category": {
+        "category": "items"
+      },
+      "states": {
+        "radiousti:variant": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 0.1
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#e8e0c8",
+      "radiousti:papers": {},
+      "minecraft:geometry": "geometry.radiousti.scattered_papers",
+      "minecraft:collision_box": false,
+      "minecraft:selection_box": {
+        "origin": [
+          -7.5,
+          0,
+          -7.5
+        ],
+        "size": [
+          15.0,
+          1,
+          15.0
+        ]
+      },
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_papers_0",
+          "render_method": "alpha_test",
+          "ambient_occlusion": false
+        }
+      }
+    },
+    "permutations": [
+      {
+        "condition": "q.block_state('radiousti:variant') == 1",
+        "components": {
+          "minecraft:material_instances": {
+            "*": {
+              "texture": "radiousti_papers_1",
+              "render_method": "alpha_test",
+              "ambient_occlusion": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:variant') == 2",
+        "components": {
+          "minecraft:material_instances": {
+            "*": {
+              "texture": "radiousti_papers_2",
+              "render_method": "alpha_test",
+              "ambient_occlusion": false
+            }
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:variant') == 3",
+        "components": {
+          "minecraft:material_instances": {
+            "*": {
+              "texture": "radiousti_papers_3",
+              "render_method": "alpha_test",
+              "ambient_occlusion": false
+            }
+          }
+        }
+      }
+    ]
+  }
+}

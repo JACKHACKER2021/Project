@@ -1,0 +1,31 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:industrial_vent"
+    },
+    "tags": [
+      "radiousti_industrial"
+    ],
+    "pattern": [
+      "III",
+      "BBB",
+      "III"
+    ],
+    "key": {
+      "I": {
+        "item": "minecraft:iron_nugget"
+      },
+      "B": {
+        "item": "minecraft:iron_bars"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:industrial_vent",
+      "count": 4
+    }
+  }
+}

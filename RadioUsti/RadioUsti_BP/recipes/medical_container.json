@@ -1,0 +1,33 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:medical_container"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "IRI",
+      "ICI"
+    ],
+    "key": {
+      "I": {
+        "item": "minecraft:iron_ingot"
+      },
+      "R": {
+        "item": "minecraft:red_dye"
+      },
+      "C": {
+        "item": "minecraft:chest"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:medical_container",
+      "count": 1
+    }
+  }
+}

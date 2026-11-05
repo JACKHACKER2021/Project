@@ -1,0 +1,28 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:flesh_block"
+    },
+    "tags": [
+      "radiousti_lab"
+    ],
+    "pattern": [
+      "FFF",
+      "FFF",
+      "FFF"
+    ],
+    "key": {
+      "F": {
+        "item": "radiousti:infected_flesh"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:flesh_block",
+      "count": 1
+    }
+  }
+}

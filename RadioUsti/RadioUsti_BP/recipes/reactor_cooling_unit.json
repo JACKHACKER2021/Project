@@ -1,0 +1,34 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:reactor_cooling_unit"
+    },
+    "tags": [
+      "radiousti_industrial"
+    ],
+    "pattern": [
+      "IWI",
+      "WBW",
+      "IWI"
+    ],
+    "key": {
+      "I": {
+        "item": "minecraft:iron_ingot"
+      },
+      "W": {
+        "item": "radiousti:water_pipe"
+      },
+      "B": {
+        "item": "radiousti:canister_black_oil"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:reactor_cooling_unit",
+      "count": 1
+    }
+  }
+}

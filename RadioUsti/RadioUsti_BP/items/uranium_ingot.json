@@ -1,0 +1,22 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:item": {
+    "description": {
+      "identifier": "radiousti:uranium_ingot",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "textures": {
+          "default": "radiousti_uranium_ingot"
+        }
+      },
+      "minecraft:display_name": {
+        "value": "item.radiousti.uranium_ingot.name"
+      },
+      "minecraft:max_stack_size": 64
+    }
+  }
+}

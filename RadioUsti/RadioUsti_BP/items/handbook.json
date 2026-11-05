@@ -1,0 +1,22 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:item": {
+    "description": {
+      "identifier": "radiousti:handbook",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "textures": {
+          "default": "radiousti_handbook"
+        }
+      },
+      "minecraft:display_name": {
+        "value": "item.radiousti.handbook.name"
+      },
+      "minecraft:max_stack_size": 1
+    }
+  }
+}

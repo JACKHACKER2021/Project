@@ -1,0 +1,27 @@
+{
+  "format_version": "1.13.0",
+  "minecraft:ore_feature": {
+    "description": {
+      "identifier": "radiousti:uranium_ore_feature"
+    },
+    "count": 5,
+    "replace_rules": [
+      {
+        "places_block": "radiousti:uranium_ore",
+        "may_replace": [
+          "minecraft:stone",
+          "minecraft:andesite",
+          "minecraft:diorite",
+          "minecraft:granite",
+          "minecraft:tuff"
+        ]
+      },
+      {
+        "places_block": "radiousti:deepslate_uranium_ore",
+        "may_replace": [
+          "minecraft:deepslate"
+        ]
+      }
+    ]
+  }
+}

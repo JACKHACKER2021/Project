@@ -1,0 +1,29 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:radiation_sign"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "YBY"
+    ],
+    "key": {
+      "Y": {
+        "item": "minecraft:yellow_dye"
+      },
+      "B": {
+        "item": "minecraft:black_dye"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:radiation_sign",
+      "count": 1
+    }
+  }
+}

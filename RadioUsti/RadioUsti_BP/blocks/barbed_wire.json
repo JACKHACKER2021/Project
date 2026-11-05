@@ -1,0 +1,46 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:barbed_wire",
+      "menu_category": {
+        "category": "construction"
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 1
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#7a6f66",
+      "radiousti:barbed_wire": {},
+      "minecraft:geometry": "geometry.radiousti.barbed_wire",
+      "minecraft:collision_box": false,
+      "minecraft:selection_box": {
+        "origin": [
+          -8,
+          0,
+          -8
+        ],
+        "size": [
+          16,
+          14,
+          16
+        ]
+      },
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_steel_rusty",
+          "render_method": "opaque"
+        },
+        "detail": {
+          "texture": "radiousti_wood_dark",
+          "render_method": "opaque"
+        }
+      }
+    }
+  }
+}

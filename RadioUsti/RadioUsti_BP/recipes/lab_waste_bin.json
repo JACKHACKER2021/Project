@@ -1,0 +1,31 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:lab_waste_bin"
+    },
+    "tags": [
+      "radiousti_lab"
+    ],
+    "pattern": [
+      "I I",
+      "IWI",
+      "III"
+    ],
+    "key": {
+      "I": {
+        "item": "minecraft:iron_ingot"
+      },
+      "W": {
+        "item": "radiousti:lab_waste"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:lab_waste_bin",
+      "count": 1
+    }
+  }
+}

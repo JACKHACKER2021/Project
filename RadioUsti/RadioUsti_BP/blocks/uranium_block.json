@@ -1,0 +1,30 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:uranium_block",
+      "menu_category": {
+        "category": "construction"
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 5
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#4fbf3a",
+      "minecraft:light_emission": 7,
+      "tag:metal": {},
+      "tag:minecraft:is_pickaxe_item_destructible": {},
+      "minecraft:geometry": "minecraft:geometry.full_block",
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_uranium_block",
+          "render_method": "opaque"
+        }
+      }
+    }
+  }
+}

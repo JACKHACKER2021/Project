@@ -1,0 +1,50 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:reactor_core",
+      "menu_category": {
+        "category": "equipment"
+      },
+      "states": {
+        "radiousti:active": [
+          false,
+          true
+        ]
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 8
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 60
+      },
+      "minecraft:map_color": "#3c4246",
+      "tag:metal": {},
+      "tag:radiousti:industrial": {},
+      "radiousti:machine": {},
+      "minecraft:geometry": "minecraft:geometry.full_block",
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_reactor_core",
+          "render_method": "opaque"
+        }
+      }
+    },
+    "permutations": [
+      {
+        "condition": "q.block_state('radiousti:active') == true",
+        "components": {
+          "minecraft:material_instances": {
+            "*": {
+              "texture": "radiousti_reactor_core_on",
+              "render_method": "opaque"
+            }
+          },
+          "minecraft:light_emission": 10
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:item": {
+    "description": {
+      "identifier": "radiousti:operating_table",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "textures": {
+          "default": "radiousti_operating_table_icon"
+        }
+      },
+      "minecraft:display_name": {
+        "value": "item.radiousti.operating_table.name"
+      },
+      "minecraft:max_stack_size": 16,
+      "minecraft:block_placer": {
+        "block": "radiousti:operating_table",
+        "replace_block_item": true
+      }
+    }
+  }
+}

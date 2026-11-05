@@ -1,0 +1,29 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "radiousti:chemical_analysis_table"
+    },
+    "tags": [
+      "radiousti_lab"
+    ],
+    "ingredients": [
+      {
+        "item": "radiousti:lab_table"
+      },
+      {
+        "item": "radiousti:reagent_flask_red"
+      },
+      {
+        "item": "minecraft:redstone"
+      }
+    ],
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:chemical_analysis_table",
+      "count": 1
+    }
+  }
+}

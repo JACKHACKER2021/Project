@@ -1,0 +1,22 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:item": {
+    "description": {
+      "identifier": "radiousti:sample_container",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "textures": {
+          "default": "radiousti_sample_container"
+        }
+      },
+      "minecraft:display_name": {
+        "value": "item.radiousti.sample_container.name"
+      },
+      "minecraft:max_stack_size": 64
+    }
+  }
+}
