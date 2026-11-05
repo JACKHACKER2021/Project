@@ -744,7 +744,7 @@ KIND_CS = {"pipe": "potrubí", "valve": "ventil", "cable": "kabel", "machine": "
            "radioactive": "radioaktivní", "decor": "dekorace", "furniture": "nábytek", "document": "dokument", "clock": "hodiny",
            "jar": "nádoba", "organic": "organické", "soul": "duše", "control": "ovládání", "craft_table": "pracovní stůl",
            "station": "stanice", "glassware": "laboratorní sklo", "toxic": "toxický materiál", "liquid": "tekutina",
-           "corpse": "mrtvola / socha", "nuke": "výbušnina", "barricade": "barikáda", "camera": "kamera"}
+           "corpse": "mrtvola / socha", "nuke": "výbušnina", "bunker": "bunkr", "barricade": "barikáda", "camera": "kamera"}
 CAT_CS = {"construction": "Stavba", "equipment": "Vybavení", "items": "Předměty", "nature": "Příroda",
           "none": "Pokládané laboratorní sklo a multibloky (pokládají se předmětem)"}
 TABLE_CS = {"crafting_table": "Pracovní stůl", "radiousti_industrial": "Průmyslový ponk", "radiousti_lab": "Laboratorní stůl"}
@@ -856,6 +856,10 @@ def main():
     print(f"structure reaktor: {nblocks} blocks, {pal} palette entries")
     pal, nblocks = STR.build(os.path.join(BP, "structures", "muzeum.mcstructure"), STR.museum_layout, STR.MSIZE)
     print(f"structure muzeum: {nblocks} blocks, {pal} palette entries")
+    STR.CHEST = STR.BUNKER_CHEST
+    pal, nblocks = STR.build(os.path.join(BP, "structures", "bunkr.mcstructure"), STR.bunker_layout, STR.BSIZE)
+    STR.CHEST = None
+    print(f"structure bunkr: {nblocks} blocks, {pal} palette entries")
     write_lang(lang)
     write_docs()
 

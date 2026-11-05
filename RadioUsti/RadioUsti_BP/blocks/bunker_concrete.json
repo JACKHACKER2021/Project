@@ -1,0 +1,30 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:bunker_concrete",
+      "menu_category": {
+        "category": "construction"
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 25
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 3600000
+      },
+      "minecraft:map_color": "#74726b",
+      "tag:stone": {},
+      "tag:minecraft:is_pickaxe_item_destructible": {},
+      "minecraft:geometry": "minecraft:geometry.full_block",
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_bunker_concrete",
+          "render_method": "opaque"
+        }
+      },
+      "minecraft:display_name": "Beton bunkru"
+    }
+  }
+}

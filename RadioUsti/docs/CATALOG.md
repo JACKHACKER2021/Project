@@ -3,7 +3,7 @@
 _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 
 
-## Bloky – Stavba (75)
+## Bloky – Stavba (78)
 
 | Název | English | ID | Typ |
 |---|---|---|---|
@@ -82,6 +82,9 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Výpusť páry | Steam Vent | `radiousti:steam_vent` | dekorace |
 | Pult velínu | Control Room Console | `radiousti:control_console` | dekorace |
 | Okenní barikáda | Window Barricade | `radiousti:window_barricade` | barikáda |
+| Beton bunkru | Bunker Concrete | `radiousti:bunker_concrete` | bunkr |
+| Vyztužená stěna bunkru | Reinforced Bunker Wall | `radiousti:bunker_reinforced` | bunkr |
+| Pancéřové okno bunkru | Blast-Proof Bunker Window | `radiousti:bunker_window` | bunkr |
 
 ## Bloky – Vybavení (35)
 
@@ -201,7 +204,7 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Shluk Liverocrystalu | Liverocrystal Cluster | `radiousti:liverocrystal_cluster` | toxický materiál |
 | Modré krystalické usazeniny | Blue Crystal Residue | `radiousti:blue_crystal_residue` | dekorace |
 
-## Bloky – Pokládané laboratorní sklo a multibloky (pokládají se předmětem) (38)
+## Bloky – Pokládané laboratorní sklo a multibloky (pokládají se předmětem) (39)
 
 | Název | English | ID | Typ |
 |---|---|---|---|
@@ -243,6 +246,7 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Mrtvola starosty | Corpse of the Dead Mayor | `radiousti:dead_mayor` | mrtvola / socha |
 | Mrtvola bezpečnostního technika elektrárny | Dead Plant Safety Technician | `radiousti:dead_technician` | mrtvola / socha |
 | Radiak v mechanickém obleku | Radiak in his Mechanical Suit | `radiousti:radiak_statue` | mrtvola / socha |
+| Pancéřové dveře bunkru | Blast-Proof Bunker Door | `radiousti:bunker_door` | dveře |
 
 ## Předměty (63)
 

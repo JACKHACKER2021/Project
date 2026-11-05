@@ -919,3 +919,22 @@ block("siren", "Air-Raid Siren", "Siréna", cat="items", model=("siren",), rot="
       meta={"trigger": "air_raid"}, comps=[f"{NS}:alarm"], mapc="#a3471f")
 item("hand_siren", "Hand-Cranked Siren", "Ruční siréna", ic("hand_siren", "gascan", "#a3471f"), cat="equipment", stack=1, kind="siren",
      comps={"minecraft:cooldown": {"category": "radiousti_siren", "duration": 4}})
+
+
+# ----------------------------------------------------------------- v1.10: blast-proof bunker
+BUNK = tex("bunker_concrete", lambda n: (lambda t: ([t.hline(y, "#55534e") for y in (0, 8)], [t.vline(x, "#55534e") for x in (0, 8)], t)[-1])(T.concrete(n, "#74726b", cracks=False)))
+BUNK_R = tex("bunker_reinforced", lambda n: (lambda t: (t.rect(0, 0, 16, 3, P["hazard"]), t.rect(3, 0, 3, 3, P["black"]), t.rect(10, 0, 3, 3, P["black"]),
+                                                          t.rivets("#c0c7cc", 4), t)[-1])(T.metal(n, "#5f625e", rivet=True)))
+BUNK_W = tex("bunker_window", lambda n: (lambda t: (t.frame("#3a3c3a", 3), t.rect(7, 3, 2, 10, "#3a3c3a"), t)[-1])(T.Tex(n, base="#8fb8b0", alpha=120)))
+BUNK_D = tex("bunker_door", lambda n: (lambda t: (t.rect(2, 2, 12, 12, "#4e514d"), t.rect(6, 6, 4, 4, "#3a3c3a"), t.rect(7, 7, 2, 2, P["hazard"]), t)[-1])(T.metal(n, "#5f625e")))
+BUNKER_RESIST = 3600000
+block("bunker_concrete", "Bunker Concrete", "Beton bunkru", tex={"*": BUNK}, hardness=25, resist=BUNKER_RESIST, kind="bunker",
+      meta={"bunker": True}, tags=["stone", "minecraft:is_pickaxe_item_destructible"], mapc="#74726b")
+block("bunker_reinforced", "Reinforced Bunker Wall", "Vyztužená stěna bunkru", tex={"*": BUNK_R}, sound="metal", hardness=30, resist=BUNKER_RESIST,
+      kind="bunker", meta={"bunker": True}, tags=["metal", "minecraft:is_pickaxe_item_destructible"], mapc="#5f625e")
+block("bunker_window", "Blast-Proof Bunker Window", "Pancéřové okno bunkru", tex={"*": BUNK_W}, model=("full_clear",), render="blend", sound="glass",
+      hardness=20, resist=BUNKER_RESIST, kind="bunker", meta={"bunker": True}, mapc="#8fb8b0")
+block("bunker_door", "Blast-Proof Bunker Door", "Pancéřové dveře bunkru", cat="construction", model=("door",), rot="cardinal",
+      tex={"*": BUNK_D, "detail": S["steel_dark"]}, tex_upper={"*": BUNK_D}, states={f"{NS}:upper": [False, True], f"{NS}:open": [False, True]},
+      sound="metal", hardness=30, resist=BUNKER_RESIST, kind="door", comps=[f"{NS}:door"], loot="empty", mapc="#5f625e",
+      placer_icon=("door_icon", "#5f625e"), door_style="shutter", meta={"security": True, "bunker": True})

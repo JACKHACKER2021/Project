@@ -3,7 +3,7 @@ import { world, system } from "@minecraft/server";
 import { MessageFormData } from "@minecraft/server-ui";
 import { NS, posKey, parseKey, dimOf, blockAt, sound, dist2 } from "../lib/util.js";
 import { Logs, Config } from "../lib/store.js";
-import { contaminateArea, getDose, setDose, fullHazmat } from "./radiation.js";
+import { contaminateArea, getDose, setDose, fullHazmat, inBunker } from "./radiation.js";
 import { startSmog } from "./environment.js";
 
 const COUNTDOWN = 30;
@@ -72,7 +72,8 @@ export function detonateAt(dim, p) {
     for (const pl of world.getAllPlayers()) {
       if (pl.dimension.id !== dim.id) continue;
       const d = Math.sqrt(dist2(pl.location, p));
-      if (d < 64 && !fullHazmat(pl)) setDose(pl, getDose(pl) + (64 - d) * 1.5);
+      if (d < 64 && !fullHazmat(pl) && !inBunker(pl)) setDose(pl, getDose(pl) + (64 - d) * 1.5);
+      else if (d < 64 && inBunker(pl)) pl.onScreenDisplay.setActionBar("§aBunkr vydržel – jsi v bezpečí.");
     }
     try {
       dim.runCommand("weather rain 9000");

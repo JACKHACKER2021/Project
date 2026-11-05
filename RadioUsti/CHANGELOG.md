@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.10.0 – bunkr (2026-11-05)
+**Přidáno**
+- Beton bunkru, vyztužená stěna, pancéřové okno a pancéřové dveře (odolnost proti výbuchu 3 600 000).
+- Úkryt v bunkru: žádná radiace z výbuchu ani z prostředí.
+- Struktura `bunkr` se zásobami.
+
+**Změněno**
+- Verze balíčků 1.9.0 → 1.10.0.
+
 ## 1.9.0 – Kontaminovaná sféra (2026-11-05)
 **Přidáno**
 - Uzavření Netheru, Endu a všech ostatních dimenzí: blokování zapálení portálu a vkládání očí Endu, návrat do overworldu, odstraňování portálových bloků.

@@ -195,7 +195,15 @@ def resolve_conduits(B):
             st[f"{NS}:joint"] = len(on) >= 3 or (len(on) == 2 and not straight)
 
 
+BUNKER_CHEST = [("minecraft:bread", 16), ("minecraft:cooked_beef", 8), ("minecraft:water_bucket", 1), (f"{NS}:anti_radiation_pills", 16),
+                (f"{NS}:zed_serum", 2), (f"{NS}:gas_mask", 1), (f"{NS}:hazmat_suit", 1), (f"{NS}:hazmat_pants", 1), (f"{NS}:hazmat_boots", 1),
+                (f"{NS}:security_tablet", 1), (f"{NS}:hand_siren", 1)]
+CHEST = None
+
+
 def chest_items():
+    if CHEST is not None:
+        return [{"Count": Byte(n), "Damage": Short(0), "Name": name, "Slot": Byte(i), "WasPickedUp": Byte(0)} for i, (name, n) in enumerate(CHEST)]
     items = [(f"{NS}:uranium_fuel_rod", 4), (f"{NS}:system_analyzer", 1), (f"{NS}:handbook", 1), (f"{NS}:gas_mask", 1),
              (f"{NS}:hazmat_suit", 1), (f"{NS}:hazmat_pants", 1), (f"{NS}:hazmat_boots", 1), (f"{NS}:anti_radiation_pills", 8),
              (f"{NS}:experiment_registry", 1)]
@@ -306,4 +314,43 @@ def museum_layout():
     put(9, 1, 10, "museum_bench", **{"minecraft:cardinal_direction": "north"})
     put(13, 2, 2, "security_camera", **{"minecraft:block_face": "west"})
     put(1, 1, 11, "radiation_sign", **{"minecraft:block_face": "east"})
+    return B
+
+
+# ---------------------------------------------------------------- Bunkr (/structure load bunkr)
+BSIZE = (9, 6, 9)
+
+
+def bunker_layout():
+    X, Y, Z = BSIZE
+    B = {}
+
+    def put(x, y, z, name, **st):
+        B[(x, y, z)] = (name if ":" in name else f"{NS}:{name}", st)
+
+    for x in range(X):
+        for z in range(Z):
+            put(x, 0, z, "bunker_reinforced")
+            put(x, 5, z, "bunker_reinforced")
+    for y in range(1, 5):
+        for x in range(X):
+            for z in range(Z):
+                if x in (0, X - 1) or z in (0, Z - 1):
+                    put(x, y, z, "bunker_concrete")
+    put(4, 1, 0, "bunker_door", **{"minecraft:cardinal_direction": "south", f"{NS}:upper": False, f"{NS}:open": False})
+    put(4, 2, 0, "bunker_door", **{"minecraft:cardinal_direction": "south", f"{NS}:upper": True, f"{NS}:open": False})
+    for x in (2, 6):
+        put(x, 2, 0, "bunker_window")
+    put(0, 2, 4, "bunker_window")
+    put(X - 1, 2, 4, "bunker_window")
+    put(4, 4, 4, "ceiling_light", **{f"{NS}:lit": True})
+    put(1, 1, 6, "hospital_bed", **{f"{NS}:part": 0, "minecraft:cardinal_direction": "north"})
+    put(1, 1, 7, "hospital_bed", **{f"{NS}:part": 1, "minecraft:cardinal_direction": "north"})
+    put(7, 1, 7, "minecraft:chest", **{"minecraft:cardinal_direction": "west"})
+    put(7, 1, 6, "storage_boxes", **{"minecraft:cardinal_direction": "west"})
+    put(4, 1, 7, "metal_table", **{"minecraft:cardinal_direction": "north"})
+    put(5, 1, 7, "metal_chair", **{"minecraft:cardinal_direction": "south"})
+    put(1, 1, 1, "radiation_indicator", **{"minecraft:cardinal_direction": "south", f"{NS}:level": 0})
+    put(7, 2, 1, "siren", **{"minecraft:cardinal_direction": "south", f"{NS}:lit": False})
+    put(4, 3, 8, "poster_evacuation", **{"minecraft:block_face": "north"})
     return B

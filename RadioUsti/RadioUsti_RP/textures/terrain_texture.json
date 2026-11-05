@@ -669,6 +669,18 @@
     },
     "radiousti_siren_body": {
       "textures": "textures/blocks/radiousti_siren_body"
+    },
+    "radiousti_bunker_concrete": {
+      "textures": "textures/blocks/radiousti_bunker_concrete"
+    },
+    "radiousti_bunker_reinforced": {
+      "textures": "textures/blocks/radiousti_bunker_reinforced"
+    },
+    "radiousti_bunker_window": {
+      "textures": "textures/blocks/radiousti_bunker_window"
+    },
+    "radiousti_bunker_door": {
+      "textures": "textures/blocks/radiousti_bunker_door"
     }
   }
 }

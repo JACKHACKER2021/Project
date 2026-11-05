@@ -651,5 +651,17 @@
   },
   "radiousti:siren": {
     "sound": "metal"
+  },
+  "radiousti:bunker_concrete": {
+    "sound": "stone"
+  },
+  "radiousti:bunker_reinforced": {
+    "sound": "metal"
+  },
+  "radiousti:bunker_window": {
+    "sound": "glass"
+  },
+  "radiousti:bunker_door": {
+    "sound": "metal"
   }
 }

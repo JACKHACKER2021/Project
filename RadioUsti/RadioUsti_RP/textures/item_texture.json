@@ -247,6 +247,9 @@
     },
     "radiousti_radiak_statue_icon": {
       "textures": "textures/items/radiousti_radiak_statue_icon"
+    },
+    "radiousti_bunker_door_icon": {
+      "textures": "textures/items/radiousti_bunker_door_icon"
     }
   }
 }

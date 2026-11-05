@@ -93,7 +93,7 @@ Laboratorní stanice (zpracování vzorků, palivové tyče…) jsou popsané v 
 - **Muzejní zábrana s provazem** ×2: vzor `GSG / G G` – `G` = gold_ingot, `S` = string
 - **Muzejní lavice** ×2: vzor `PPP / I I` – `P` = libovolné planks, `I` = iron_nugget
 
-## Průmyslový ponk (91)
+## Průmyslový ponk (95)
 
 - **Vodovodní potrubí** ×6: 3× copper_ingot + 1× iron_ingot
 - **Tenké nástěnné vodovodní potrubí** ×8: 1× copper_ingot + 2× iron_nugget
@@ -186,6 +186,10 @@ Laboratorní stanice (zpracování vzorků, palivové tyče…) jsou popsané v 
 - **Atomová bomba** ×1: vzor `UTU / TCT / UTU` – `U` = Blok uranu, `T` = tnt, `C` = Jádro reaktoru
 - **Siréna** ×1: vzor `INI /  R  /  I ` – `I` = iron_ingot, `N` = noteblock, `R` = redstone
 - **Ruční siréna** ×1: vzor ` I  / INI /  S ` – `I` = iron_ingot, `N` = noteblock, `S` = stick
+- **Beton bunkru** ×8: vzor `CIC / ILI / CIC` – `C` = Blok cementu, `I` = iron_ingot, `L` = Olověná stěna
+- **Vyztužená stěna bunkru** ×4: vzor `BMB / MBM / BMB` – `B` = Beton bunkru, `M` = Ingot Liverocrystal Metal
+- **Pancéřové okno bunkru** ×4: vzor `BHB / HHH / BHB` – `B` = Beton bunkru, `H` = Sklo hermetické komory
+- **Pancéřové dveře bunkru** ×1: vzor `RR / RD / RR` – `R` = Vyztužená stěna bunkru, `D` = Bezpečnostní roletové dveře
 
 ## Laboratorní stůl (33)
 

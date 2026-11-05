@@ -1,0 +1,31 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "radiousti:bunker_door"
+    },
+    "tags": [
+      "radiousti_industrial"
+    ],
+    "pattern": [
+      "RR",
+      "RD",
+      "RR"
+    ],
+    "key": {
+      "R": {
+        "item": "radiousti:bunker_reinforced"
+      },
+      "D": {
+        "item": "radiousti:security_door"
+      }
+    },
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:bunker_door",
+      "count": 1
+    }
+  }
+}

@@ -134,6 +134,7 @@ export const HANDBOOK = [
       "ČASTĚJŠÍ DÉŠŤ: za suchého počasí zhruba každých 10 minut začne pršet (radioaktivně).\n" +
       "RADIAKŮV REAKTOROVÝ SLIZ: svítivý sliz, který ozařuje každého do 2,5 bloku.\n" +
       "KONTAMINOVANÁ SFÉRA: Nether, End i všechny další dimenze jsou uzavřené – portál nejde zapálit ani naplnit očima. Kdo se do jiné dimenze dostane, vrátí se do overworldu. Při prvním pokusu dostanete zásobovací bednu Zeds Corp s věcmi z Netheru a Endu (blaze rody, ender perly, nether wart, glowstone, quartz, ghast tear, netherite scrap, shulker shelly, elytru…). Otevření dimenzí (operátor): /scriptevent radiousti:config dimensions on\n" +
+      "BUNKR: beton bunkru, vyztužená stěna, pancéřové okno a pancéřové dveře mají odolnost proti výbuchu jako podloží – atomovka je nezničí. Uvnitř bunkru (strop a aspoň 3 stěny z bunkrových bloků) vás nezasáhne radiace z výbuchu ani z okolí. Hotový bunkr: /structure load bunkr ~ ~ ~\n" +
       "MUZEUM: /structure load muzeum ~ ~ ~ – expozice s Radiakem v obleku, mrtvolami starosty, pošťáka a technika, vitrínami a plakáty.",
   },
   {

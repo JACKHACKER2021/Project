@@ -177,6 +177,12 @@ název, ID, typ, stav, napájení, propojení potrubí a kabelů včetně směr�
 * **Nemocniční lůžko** a **operační stůl** jsou dva bloky dlouhé. Klepnutím na lůžko si nastavíš bod oživení. **Otočná kancelářská židle** se po klepnutí otočí o 90°.
 * **Plakáty, oznámení, papíry, hromada dokumentů a fotografie** si přečteš klepnutím. **Nástěnné hodiny** ukážou herní čas.
 
+## Novinky 1.10 – bunkr
+* **Bloky bunkru:** beton bunkru, vyztužená stěna bunkru, pancéřové okno bunkru a **pancéřové dveře bunkru**. Dveře jsou dva bloky vysoké a otevírají se vysunutím nahoru. Ovládá je i tlačítko ovládání dveří a bezpečnostní tablet.
+* Všechny mají **odolnost proti výbuchu jako podloží** (3 600 000), takže je atomová bomba nezničí. Zedi pancéřové okno nerozbijí.
+* **Úkryt:** kdo je uvnitř bunkru, toho nezasáhne radiace z jaderného výbuchu ani z okolí (déšť, denní radiace, zamořené bloky). Uvnitř bunkru znamená, že nad hlavou (do 8 bloků) je bunkrový blok a aspoň 3 ze 4 stran (do 6 bloků) mají bunkrovou stěnu.
+* **Hotový bunkr:** `/structure load bunkr ~ ~ ~`. Je to bunkr 9×6×9 s pancéřovými dveřmi a okny, lůžkem, světlem, sirénou, indikátorem radiace a truhlou se zásobami (jídlo, voda, antiradiační tablety, sérum, kompletní ochranný oblek, tablet, ruční siréna).
+
 ## Novinky 1.9 – Kontaminovaná sféra (uzavřené dimenze)
 * **Nether, End i všechny ostatní dimenze** (i budoucí a vlastní) jsou uzavřené, protože jsou za **Kontaminovanou sférou**:
   * Portál do Netheru nejde zapálit křesadlem ani ohnivou koulí a do rámu portálu do Endu nejde vložit oko Endu.

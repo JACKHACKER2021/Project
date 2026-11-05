@@ -100,9 +100,29 @@ export function fullHazmat(player) {
   }
 }
 
+export const BUNKER_BLOCKS = Object.entries(BLOCKS).filter(([, v]) => v.bunker).map(([k]) => k);
+
+/** Inside a bunker: a bunker block above the head and bunker walls around (within 6 blocks). */
+export function inBunker(entity) {
+  try {
+    const l = entity.location;
+    const roof = entity.dimension.containsBlock(new BlockVolume({ x: l.x, y: l.y + 1, z: l.z }, { x: l.x, y: l.y + 8, z: l.z }), { includeTypes: BUNKER_BLOCKS }, false);
+    if (!roof) return false;
+    let walls = 0;
+    for (const [dx, dz] of [[6, 0], [-6, 0], [0, 6], [0, -6]]) {
+      const v = new BlockVolume({ x: l.x, y: l.y, z: l.z }, { x: l.x + dx, y: l.y + 1, z: l.z + dz });
+      if (entity.dimension.containsBlock(v, { includeTypes: BUNKER_BLOCKS }, false)) walls++;
+    }
+    return walls >= 3;
+  } catch {
+    return false;
+  }
+}
+
 export function protectionOf(player) {
   let m = 1;
   if (fullHazmat(player)) return 0; // complete hazmat set: immune to environmental radiation
+  if (inBunker(player)) return 0;   // bunker shelter
   try {
     const eq = player.getComponent("minecraft:equippable");
     if (eq?.getEquipment(EquipmentSlot.Head)?.typeId === `${NS}:gas_mask`) m *= 0.7;

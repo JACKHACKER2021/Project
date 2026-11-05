@@ -1703,6 +1703,32 @@ export const REGISTRY = {
    "cs": "Siréna",
    "trigger": "air_raid",
    "rot": "cardinal"
+  },
+  "radiousti:bunker_concrete": {
+   "kind": "bunker",
+   "en": "Bunker Concrete",
+   "cs": "Beton bunkru",
+   "bunker": true
+  },
+  "radiousti:bunker_reinforced": {
+   "kind": "bunker",
+   "en": "Reinforced Bunker Wall",
+   "cs": "Vyztužená stěna bunkru",
+   "bunker": true
+  },
+  "radiousti:bunker_window": {
+   "kind": "bunker",
+   "en": "Blast-Proof Bunker Window",
+   "cs": "Pancéřové okno bunkru",
+   "bunker": true
+  },
+  "radiousti:bunker_door": {
+   "kind": "door",
+   "en": "Blast-Proof Bunker Door",
+   "cs": "Pancéřové dveře bunkru",
+   "security": true,
+   "bunker": true,
+   "rot": "cardinal"
   }
  },
  "items": {
