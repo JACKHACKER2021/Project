@@ -15,9 +15,9 @@ var bench := []            # díly na ponku
 var lamp: OmniLight3D
 var eye_l: OmniLight3D
 
-const STAND := Vector3(19.0, 0, -207.0)
+const STAND := Vector3(19.0, 0, -7.0)
 const BENCH_X := 11.6
-const LINE_Z := -205.2
+const LINE_Z := -5.2
 var dx := 13.0
 var step := 0              # kolik dílů je nasazených (0..4)
 var holding := false
@@ -47,6 +47,19 @@ static func clean_mat(n: Node3D, path: String) -> void:
 	m.vertex_color_use_as_albedo = false
 	for mi in n.find_children("*", "MeshInstance3D", true, false):
 		mi.material_override = m
+
+## dodaný model je v T-póze: ruce spustit podél těla
+static func pose_cocoa(c: Node3D) -> void:
+	for s in c.find_children("*", "Skeleton3D", true, false):
+		for nm in [["Bone.009_r", 1.25], ["Bone.009_l", -1.25]]:
+			var b = s.find_bone(nm[0])
+			if b < 0:
+				continue
+			var gr = s.get_bone_global_rest(b)
+			var pg = s.get_bone_global_rest(s.get_bone_parent(b))
+			var ng = Basis(Vector3(0, 0, 1), nm[1]) * gr.basis
+			var lb = pg.basis.inverse() * ng
+			s.set_bone_pose_rotation(b, lb.get_rotation_quaternion())
 
 func _mat(c: String, rough := 0.8, metal := 0.0, emit := 0.0) -> StandardMaterial3D:
 	var m = StandardMaterial3D.new()
@@ -81,38 +94,41 @@ func start(extras := false) -> void:
 		root.queue_free()
 	root = Node3D.new()
 	game.add_child(root)
-	root.add_child(load("res://models/building.glb").instantiate())
+	var w = load("res://models/remaster_world.glb").instantiate()
+	root.add_child(w)
+	for l in w.find_children("*", "Light3D", true, false):
+		l.queue_free()
 	lamp = OmniLight3D.new()
 	lamp.light_color = Color("#ffd8a0")
 	lamp.light_energy = 4.0
 	lamp.omni_range = 9
-	lamp.position = Vector3(16, 2.8, -206)
+	lamp.position = Vector3(16, 2.8, -6)
 	root.add_child(lamp)
 	var fill = OmniLight3D.new()
 	fill.light_color = Color("#8090c0")
 	fill.light_energy = 1.4
 	fill.omni_range = 12
-	fill.position = Vector3(13, 2.6, -203)
+	fill.position = Vector3(13, 2.6, -3)
 	root.add_child(fill)
 	# stojan
 	_box(root, Vector3(1.2, 0.12, 1.2), STAND + Vector3(0, 0.06, 0), _mat("#3a3a40", 0.5, 0.6))
 	_box(root, Vector3(0.08, 2.2, 0.08), STAND + Vector3(0, 1.1, -0.45), _mat("#3a3a40", 0.5, 0.6))
 	# ponk s díly
-	_box(root, Vector3(1.0, 0.08, 2.4), Vector3(BENCH_X - 0.3, 0.85, -206.0), _mat("#6a4a2a"))
-	for z in [-207.0, -205.0]:
+	_box(root, Vector3(1.0, 0.08, 2.4), Vector3(BENCH_X - 0.3, 0.85, -6.0), _mat("#6a4a2a"))
+	for z in [-7.0, -5.0]:
 		_box(root, Vector3(0.08, 0.85, 0.08), Vector3(BENCH_X - 0.3, 0.42, z), _mat("#4a3218"))
 	bench = []
 	var cols = ["#8a8a92", "#7a4a2a", "#7a4a2a", "#7a4a2a"]
 	for i in 4:
-		var b = _box(root, Vector3(0.4, 0.25 + i * 0.05, 0.4), Vector3(BENCH_X - 0.3, 1.0 + i * 0.02, -207.0 + i * 0.6), _mat(cols[i], 0.6, 0.8 if i == 0 else 0.0))
+		var b = _box(root, Vector3(0.4, 0.25 + i * 0.05, 0.4), Vector3(BENCH_X - 0.3, 1.0 + i * 0.02, -7.0 + i * 0.6), _mat(cols[i], 0.6, 0.8 if i == 0 else 0.0))
 		bench.append(b)
 	# Cocoa (dodaný model) s čistou texturou; zpočátku schovaná
 	cocoa = load("res://models/cocoa_dw.glb").instantiate()
 	root.add_child(cocoa)
-	clean_mat(cocoa, "res://tex/cocoa_diff.pngdata")
 	cocoa.scale = Vector3.ONE * 0.3
 	cocoa.position = STAND + Vector3(0, 0.95, 0)
-	cocoa.rotation.y = PI / 2
+	cocoa.rotation.y = 0.0
+	pose_cocoa(cocoa)
 	cocoa_parts = cocoa.find_children("*", "MeshInstance3D", true, false)
 	cocoa_parts.sort_custom(func(a, b): return a.get_aabb().get_center().y < b.get_aabb().get_center().y)
 	for mi in cocoa_parts:
@@ -137,7 +153,7 @@ func start(extras := false) -> void:
 	eye_l.light_color = Color("#60ff70")
 	eye_l.light_energy = 0
 	eye_l.omni_range = 2.5
-	eye_l.position = STAND + Vector3(0.5, 1.8, 0)
+	eye_l.position = STAND + Vector3(0, 1.6, 0.7)
 	root.add_child(eye_l)
 	# D. a pan Vojtěch
 	var P = preload("res://scripts/people.gd")
@@ -145,7 +161,7 @@ func start(extras := false) -> void:
 	root.add_child(dman.root)
 	voj = P.person("Vojtěch", Color("#3a5aa0"), Color("#2a3050"), Color("#f0c8a0"), Color("#4a3020"), 1.8, false)
 	root.add_child(voj.root)
-	voj.root.position = Vector3(20.6, 0, -203.6)
+	voj.root.position = Vector3(20.6, 0, -3.6)
 	voj.root.rotation.y = atan2(STAND.x - 20.6, STAND.z + 203.6)
 	carry = null
 	game.Q.clear()
@@ -214,14 +230,14 @@ func tick(dt: float) -> void:
 	var cam: Camera3D = game.cam
 	match ph:
 		0:
-			cam.position = Vector3(dx - 0.6, 2.3, -202.7)
-			cam.look_at(Vector3((dx + STAND.x) / 2, 1.1, -206.6))
+			cam.position = Vector3(dx - 0.6, 2.3, -2.7)
+			cam.look_at(Vector3((dx + STAND.x) / 2, 1.1, -6.6))
 		1:
 			# pan Vojtěch odchází, D. zůstane sám s Cocoou
-			cam.position = Vector3(15.5, 1.9, -202.7)
+			cam.position = Vector3(15.5, 1.9, -2.7)
 			cam.look_at(STAND + Vector3(0, 1.4, 0))
 			if pt > 3.0:
-				voj.root.position = voj.root.position.move_toward(Vector3(23.5, 0, -203.0), dt * 1.2)
+				voj.root.position = voj.root.position.move_toward(Vector3(23.5, 0, -3.0), dt * 1.2)
 				voj.root.rotation.y = PI / 2
 			if pt > 6.0 and pt - dt <= 6.0:
 				voj.root.visible = false
@@ -235,14 +251,14 @@ func tick(dt: float) -> void:
 		2:
 			# Ema se probouzí uvnitř Cocoy
 			lamp.light_energy = 0.25 + (0.6 if randf() < 0.05 else 0.0)
-			cam.position = STAND + Vector3(1.4, 1.75, 0.2 + sin(pt * 0.4) * 0.05)
-			cam.look_at(STAND + Vector3(0, 1.55, 0))
-			eye_l.light_energy = clampf(pt / 2.0, 0, 1) * (0.8 + 0.2 * sin(game.t_now * 7))
+			cam.position = STAND + Vector3(0.25 + sin(pt * 0.4) * 0.05, 1.7, 1.5)
+			cam.look_at(STAND + Vector3(0, 1.45, 0))
+			eye_l.light_energy = clampf(pt / 2.0, 0, 1) * (0.35 + 0.1 * sin(game.t_now * 7))
 			if pt > 1.5 and pt - dt <= 1.5:
 				game.audio.sfx("whisper", 0.7)
 				game.say("E", "Tati? Kde to jsem?")
 				game.say("E", "Je tu tma. Nemůžu se hýbat.")
-			cocoa.rotation.y = PI / 2 + (sin(game.t_now * 19) * 0.03 if pt > 2.0 else 0.0)
+			cocoa.rotation.y = (sin(game.t_now * 19) * 0.03 if pt > 2.0 else 0.0)
 			if pt > 9.5:
 				ph = 3
 				pt = 0.0

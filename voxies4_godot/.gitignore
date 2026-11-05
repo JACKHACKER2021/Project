@@ -5,4 +5,3 @@ export/
 models/*.glb
 models/*.png
 models/*.import
-tex/

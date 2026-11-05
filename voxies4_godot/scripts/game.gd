@@ -186,7 +186,6 @@ func _build() -> void:
 		var pl = load("res://models/cocoa_plush.glb").instantiate()
 		pl.name = "CocoaPlushNew"
 		add_child(pl)
-		preload("res://scripts/build.gd").clean_mat(pl, "res://tex/plush_diff.pngdata")
 		pl.rotation = Vector3(-0.2, PI, 0.1)
 		var bb = _gaabb(pl)
 		var k = 0.42 / maxf(0.01, bb.size.y)

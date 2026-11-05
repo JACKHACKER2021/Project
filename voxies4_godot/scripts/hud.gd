@@ -224,7 +224,7 @@ func draw_menu(t: float) -> void:
 	txt("NIGHT AT", 60, 110, 40, "#e0b0ff")
 	neon("VOXIE'S 4", 60, 196, 84, "#c040ff", 18, "left")
 	neon("NIGHTMARE", 64, 250, 34, "#ff3060", 14, "left")
-	txt("PREVIEW 0.7.0", 420, 250, 18, "#ffe46b")
+	txt("PREVIEW 0.7.1", 420, 250, 18, "#ffe46b")
 	if game.st_get("v4_end", false):
 		txt("★ Všech 7 nocí přežito.", 480, 472, 16, "#ffe46b")
 	txt("Ema, jaro 1997. Bouřka. A něco v domě, co umí otevírat dveře.", 64, 290, 17, "#cccccc")
@@ -248,7 +248,7 @@ func draw_menu(t: float) -> void:
 	for i in lines.size():
 		txt(lines[i], 64, 520 + i * 28, 15, "#e8d8f8")
 	txt("Nightmare Voxie · Nightmare Hollow Bunny", HW - 24, 680, 14, "#a080c0", "right")
-	txt("v0.7.0 preview · Godot", HW - 24, 704, 13, "#666666", "right")
+	txt("v0.7.1 preview · Godot", HW - 24, 704, 13, "#666666", "right")
 
 func draw_intro() -> void:
 	var st: float = game.scene_t
