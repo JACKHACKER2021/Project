@@ -1,0 +1,14 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "item",
+          "name": "radiousti:reagent_flask_blue",
+          "weight": 1
+        }
+      ]
+    }
+  ]
+}

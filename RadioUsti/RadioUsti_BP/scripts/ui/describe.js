@@ -7,7 +7,7 @@ export const KIND_CS = {
   pipe: "potrubí", valve: "ventil", cable: "kabel", machine: "stroj", reactor_shell: "část reaktoru", reactor_port: "port reaktoru",
   door: "dveře", light: "světlo", alarm: "alarm", indicator: "indikátor", radioactive: "radioaktivní materiál", decor: "dekorace",
   furniture: "nábytek", document: "dokument", clock: "hodiny", jar: "laboratorní nádoba", organic: "organický materiál", soul: "duše",
-  control: "ovládací prvek", craft_table: "pracovní stůl", station: "laboratorní stanice",
+  control: "ovládací prvek", glassware: "laboratorní sklo", craft_table: "pracovní stůl", station: "laboratorní stanice",
 };
 
 export const FAMILY_CS = {
@@ -73,7 +73,7 @@ export function describeMachine(key, rec) {
   } else if (i.kind === "light") {
     L.push(`Ruční zapnutí: ${yes(rec.manual)}, automatika: ${yes(rec.autoActive)}`);
   }
-  if (net && (i.role !== undefined)) L.push(`Energetická síť: výroba ${net.supply}, spotřeba ${net.demand}, strojů ${net.members}`);
+  if (net && (i.role !== undefined)) L.push(`Energetická síť: výroba ${net.supply}${net.redstone ? ` (z toho redstone ${net.redstone})` : ""}, spotřeba ${net.demand}, strojů ${net.members}`);
   return L;
 }
 

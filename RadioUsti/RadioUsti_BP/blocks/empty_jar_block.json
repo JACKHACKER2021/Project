@@ -1,0 +1,64 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:empty_jar_block",
+      "menu_category": {
+        "category": "none"
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 0.2
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 0.5
+      },
+      "minecraft:map_color": "#d6eef2",
+      "minecraft:loot": "loot_tables/blocks/glassware/empty_jar_block.json",
+      "minecraft:geometry": "geometry.radiousti.empty_jar_block",
+      "minecraft:collision_box": {
+        "origin": [
+          -3.0,
+          0,
+          -3.0
+        ],
+        "size": [
+          6.0,
+          8.5,
+          6.0
+        ]
+      },
+      "minecraft:selection_box": {
+        "origin": [
+          -3.0,
+          0,
+          -3.0
+        ],
+        "size": [
+          6.0,
+          8.5,
+          6.0
+        ]
+      },
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_glass_flask",
+          "render_method": "blend",
+          "ambient_occlusion": false
+        },
+        "detail": {
+          "texture": "radiousti_brass",
+          "render_method": "blend",
+          "ambient_occlusion": false
+        },
+        "fill": {
+          "texture": "radiousti_empty_fill",
+          "render_method": "blend",
+          "ambient_occlusion": false
+        }
+      }
+    }
+  }
+}

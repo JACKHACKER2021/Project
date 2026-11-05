@@ -46,7 +46,7 @@ Pokud import celého `.mcaddon` selže, nainstaluj zvlášť `dist/RadioUsti_RP.
 
 ## Co add-on obsahuje
 
-144 bloků a 57 předmětů (45 samostatných předmětů a 12 předmětů, kterými se pokládají multibloky a dveře). Úplný seznam s ID je v [docs/CATALOG.md](docs/CATALOG.md).
+153 bloků a 57 předmětů (45 samostatných předmětů a 12 předmětů, kterými se pokládají multibloky a dveře; 9 bloků laboratorního skla se pokládá jeho předměty). Úplný seznam s ID je v [docs/CATALOG.md](docs/CATALOG.md).
 
 | Oblast | Obsah |
 |---|---|
@@ -55,7 +55,7 @@ Pokud import celého `.mcaddon` selže, nainstaluj zvlášť `dist/RadioUsti_RP.
 | **Generátory (multibloky)** | standardní, průmyslový, jaderný (2×2×2), záložní, laboratorní napájecí jednotka, serverová UPS (2×2) |
 | **Reaktor** | jádro, plášť, průhledové sklo, chladicí, energetický a odpadní port, řídicí panel, chladicí jednotka, tlačítko nouzového odstavení, indikátor radiace, vodní čerpadlo, kontejner na odpad |
 | **Počítače** | Starý počítač, kancelářský, laboratorní, průmyslový terminál, počítačová pracovní stanice, serverový rack |
-| **Laboratoř** | 8 stolů (laboratorní, chemická analýza, biologický výzkum, jaderný výzkum, testování kontaminace, příprava vzorků, průmyslový ponk, pracovní stanice), baňky, zkumavky, preparátové nádoby |
+| **Laboratoř** | pokládané baňky, zkumavky, láhve a nádoby (9 bloků), 8 stolů (laboratorní, chemická analýza, biologický výzkum, jaderný výzkum, testování kontaminace, příprava vzorků, průmyslový ponk, pracovní stanice), baňky, zkumavky, preparátové nádoby |
 | **Uran a radiace** | uranová ruda (i hlubinná, generuje se ve světě), uranové bloky, kontaminovaná hlína, tráva a kámen, radioaktivní odpad, výstražné cedule |
 | **Oleje** | průmyslový, černý strojní, žlutý hydraulický, červený laboratorní, zelený kontaminovaný, radioaktivní; každý má vlastní sud a kanystr |
 | **Stavba** | blok cementu, žlutý starý cement, staré cihly a cihlová zeď, československá průmyslová stěna, blok domu (panelák), luxfery, HELP sklo, větrací blok, pojistková skříň |
@@ -88,6 +88,7 @@ Pokud import celého `.mcaddon` selže, nainstaluj zvlášť `dist/RadioUsti_RP.
 * Rodiny: **voda** (vodovodní a tenké nástěnné), **plyn** (plynové a laboratorní), **roztavený materiál**, **radioaktivní kapalina** a **olej** (průmyslové).
 * **Ventil:** klepnutím ho otevřeš (zelená kontrolka) nebo zavřeš (červená). Zavřený ventil přeruší síť, takže stroje za ním přestanou látku dostávat.
 * Kapaliny se **nezobrazují**. Simulace je zjednodušená: každé 2 s si stroje vezmou jednotky ze zdrojů v propojené síti.
+* **Redstone jako zdroj energie (1.1):** **blok ruditu** položený vedle kabelu nebo přímo vedle stroje dodává do sítě stále **10 jednotek**. **Rudit (redstone prach)**, redstone pochodeň, páka, opakovač a komparátor dodávají jen tehdy, když vedou signál: **síla signálu ÷ 3, zaokrouhleno nahoru, max 5 jednotek** (plný signál 15 = 5 jednotek). Kabely se k těmto blokům samy napojí. Analyzátor i ÚstíOS ukazují, kolik energie jde z redstonu.
 * **Kabely:** elektrický, vysokonapěťový, laboratorní a nouzový tvoří jednu energetickou síť. Délka sítě je omezená na 160 bodů, přičemž úsek vysokonapěťového kabelu se počítá jako 0,25 bodu. **Poškozený kabel** se sice napojí, ale energii nepřenáší. **Síťový kabel** přenáší jen data.
 
 ## Generátory a napájení
@@ -149,6 +150,7 @@ název, ID, typ, stav, napájení, propojení potrubí a kabelů včetně směr�
 | Jaderný výzkum | 5 | 2 uranové ingoty + radioaktivní olej → palivová tyč · 4 surový uran + červený olej → 3 uranové ingoty · měření radiace |
 | Testování kontaminace | 3 | vzorek půdy + červené činidlo → zpráva o kontaminaci · zelený olej + zelené činidlo → průmyslový olej · dekontaminace osoby (−25 dávky) |
 
+* **Laboratorní sklo jako bloky (1.1):** Erlenmeyerova baňka, baňky s červeným, zeleným a modrým činidlem (kulaté dno), zkumavka, vzorek krve (zkumavka ve stojánku), láhev krve, prázdná nádoba a nádoba s krví se **pokládají jako bloky** s vlastním 3D modelem a průhledným sklem s viditelnou náplní. Polož je klepnutím předmětem na blok (na stůl nebo na zem). Po rozbití vrátí stejný předmět, takže je dál můžeš používat v receptech a na stanicích.
 * **Preparátová nádoba:** naplníš ji klepnutím s lahví krve, infikovaným masem nebo esencí duše. Krev z ní vybereš skleněnou lahví.
 * **Oleje mají každý jinou funkci:** průmyslový je palivo standardního generátoru · černý strojní je surovina pro generátory, čerpadla a těžké dveře · žlutý hydraulický je surovina pro kontejnmentové dveře a řídicí panel · červený laboratorní slouží jako náplň chemické analýzy a k obohacování uranu · zelený kontaminovaný se dekontaminuje na průmyslový · radioaktivní je potřeba na palivové tyče.
 

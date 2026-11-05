@@ -639,3 +639,31 @@ for did, en, cs, col in DOCS:
 item("document_bundle", "Document Bundle", "Svazek dokumentů", ic("document_bundle", "bundle", "#8f1d18"), stack=16, kind="document")
 item("historical_photo", "Historical Photograph", "Historická fotografie", ic("historical_photo", "photo"), stack=16, kind="document")
 item("vhs_radiousti", "VHS Tape: RadioÚstí 2072", "VHS kazeta: RadioÚstí 2072", ic("vhs_radiousti", "vhs", "#b3170f"), stack=1, kind="vhs")
+
+
+# ----------------------------------------------------------------- placeable glassware (v1.1)
+# Each glassware ITEM gets minecraft:block_placer -> its block; the block drops the item back.
+S["fill_red"] = tex("fill_red", lambda n: T.Tex(n, base="#c23b22", alpha=225).noise(8))
+S["fill_green"] = tex("fill_green", lambda n: T.Tex(n, base="#5f8f2a", alpha=225).noise(8))
+S["fill_blue"] = tex("fill_blue", lambda n: T.Tex(n, base="#2f6d9e", alpha=225).noise(8))
+S["glass_flask"] = tex("glass_flask", lambda n: T.Tex(n, base="#d6eef2", alpha=95).frame("#a9c8ce", a=150))
+GLASSWARE = [
+    # block id, item id, en, cs, model, fill texture (None = empty)
+    ("flask_empty_block", "empty_flask", "Erlenmeyer Flask (placed)", "Erlenmeyerova baňka (položená)", "erlenmeyer", None),
+    ("flask_red_block", "reagent_flask_red", "Red Reagent Flask (placed)", "Baňka s červeným činidlem (položená)", "erlenmeyer", S["fill_red"]),
+    ("flask_green_block", "reagent_flask_green", "Green Reagent Flask (placed)", "Baňka se zeleným činidlem (položená)", "round_flask", S["fill_green"]),
+    ("flask_blue_block", "reagent_flask_blue", "Blue Reagent Flask (placed)", "Baňka s modrým činidlem (položená)", "round_flask", S["fill_blue"]),
+    ("test_tube_block", "empty_test_tube", "Test Tube (placed)", "Zkumavka (položená)", "tube_stand", None),
+    ("blood_sample_block", "blood_sample", "Blood Sample (placed)", "Vzorek krve (položený)", "tube_stand", S["blood_fill"]),
+    ("blood_bottle_block", "blood_bottle", "Blood-Filled Bottle (placed)", "Láhev plná krve (položená)", "bottle", S["blood_fill"]),
+    ("empty_jar_block", "empty_jar", "Empty Laboratory Jar (placed)", "Prázdná laboratorní nádoba (položená)", "jar_small", None),
+    ("blood_jar_block", "blood_jar", "Blood Jar (placed)", "Nádoba s krví (položená)", "jar_small", S["blood_fill"]),
+]
+for bid, iid, en, cs, mdl, fill in GLASSWARE:
+    tx = {"*": S["glass_flask"], "detail": S["wood"] if mdl == "tube_stand" else S["brass"], "fill": fill or S["empty_fill"]}
+    block(bid, en, cs, cat="none", model=(mdl, fill is not None), tex=tx, render="blend", sound="glass", hardness=0.2,
+          resist=0.5, kind="glassware", meta={"item": f"{NS}:{iid}"}, loot=f"loot_tables/blocks/glassware/{bid}.json",
+          collision="auto", mapc="#d6eef2")
+    for it in ITEMS:
+        if it["id"] == iid:
+            it["comps"]["minecraft:block_placer"] = {"block": f"{NS}:{bid}"}

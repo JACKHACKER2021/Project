@@ -1,0 +1,64 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:flask_blue_block",
+      "menu_category": {
+        "category": "none"
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 0.2
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 0.5
+      },
+      "minecraft:map_color": "#d6eef2",
+      "minecraft:loot": "loot_tables/blocks/glassware/flask_blue_block.json",
+      "minecraft:geometry": "geometry.radiousti.flask_blue_block",
+      "minecraft:collision_box": {
+        "origin": [
+          -4,
+          0,
+          -4
+        ],
+        "size": [
+          8,
+          11.6,
+          8
+        ]
+      },
+      "minecraft:selection_box": {
+        "origin": [
+          -4,
+          0,
+          -4
+        ],
+        "size": [
+          8,
+          11.6,
+          8
+        ]
+      },
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_glass_flask",
+          "render_method": "blend",
+          "ambient_occlusion": false
+        },
+        "detail": {
+          "texture": "radiousti_brass",
+          "render_method": "blend",
+          "ambient_occlusion": false
+        },
+        "fill": {
+          "texture": "radiousti_fill_blue",
+          "render_method": "blend",
+          "ambient_occlusion": false
+        }
+      }
+    }
+  }
+}

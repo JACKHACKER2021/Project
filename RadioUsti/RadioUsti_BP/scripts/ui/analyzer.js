@@ -33,6 +33,7 @@ export function inspectLines(block) {
     if (i.damaged) L.push("§cKabel je poškozený: připojí se, ale nepřenáší energii.§r");
     const net = scanNetwork(dim, [block.location], fam);
     L.push(`Síť: ${net.conduits + 1} úseků, ${net.machines.size} strojů, zavřené ventily ${net.closedValves}, poškozené kabely ${net.damaged}${net.truncated ? ", §esíť je příliš dlouhá§r" : ""}`);
+    if (fam === "power") L.push(`Redstone v síti: ${net.redstone ? "§a" + net.redstone + " jednotek§r (zdrojů " + net.redstoneSources + ")" : "§7žádný§r"}`);
     if (fam === "water") L.push(`Zdroj vody v síti: ${waterSource(net) ? "§aano§r" : "§cne§r"}`);
     if (fam === "molten") L.push(`Láva v síti: ${net.vanilla.has("minecraft:lava") ? "§aano§r" : "§cne§r"}`);
     if (net.machines.size) {

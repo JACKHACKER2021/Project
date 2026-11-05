@@ -18,6 +18,27 @@ const VANILLA_FLUID = {
   "minecraft:flowing_lava": "molten",
 };
 
+/**
+ * Vanilla redstone blocks that feed a power network (cables connect to them visually too).
+ * Redstone block = constant 10 units; other blocks give ceil(signal / 3) units (max 5) while powered.
+ */
+export const REDSTONE_SOURCES = new Set([
+  "minecraft:redstone_block", "minecraft:redstone_wire", "minecraft:redstone_torch", "minecraft:lever",
+  "minecraft:unpowered_repeater", "minecraft:powered_repeater", "minecraft:unpowered_comparator", "minecraft:powered_comparator",
+]);
+
+export function redstoneUnits(block) {
+  if (!block || !REDSTONE_SOURCES.has(block.typeId)) return 0;
+  if (block.typeId === "minecraft:redstone_block") return 10;
+  let sig = 0;
+  try {
+    sig = block.getRedstonePower() ?? 0;
+  } catch {
+    sig = 0;
+  }
+  return sig > 0 ? Math.min(5, Math.ceil(sig / 3)) : 0;
+}
+
 export function isConduit(typeId) {
   const i = BLOCKS[typeId];
   return !!i && (i.kind === "pipe" || i.kind === "valve" || i.kind === "cable");
@@ -31,7 +52,7 @@ export function familyOf(typeId) {
 /** Does a non-conduit block accept the given family? */
 export function acceptsFamily(typeId, fam) {
   const i = BLOCKS[typeId];
-  if (!i) return VANILLA_FLUID[typeId] === fam;
+  if (!i) return VANILLA_FLUID[typeId] === fam || (fam === "power" && REDSTONE_SOURCES.has(typeId));
   if (fam === "power") {
     if (i.kind === "reactor_port") return i.family === "power";
     if (i.kind !== "machine") return false;

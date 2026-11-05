@@ -119,6 +119,7 @@ async function powerView(player, block, key, vis) {
   const L = [];
   const rec = Machines.get(key);
   L.push(`Tato stanice: výroba ${rec.net?.supply ?? 0}, spotřeba ${rec.net?.demand ?? 0}`);
+  if (rec.net?.redstone) L.push(`Redstone zdroje: ${rec.net.redstone} jednotek`);
   for (const [k, v] of vis.list) {
     const i = info(v.rec.t);
     if (i?.role === "generator") L.push(`${machineLabel(k, v.rec)}: ${v.rec.running ? "§abeží " + v.rec.output + "§r" : "§cstojí§r"}`);

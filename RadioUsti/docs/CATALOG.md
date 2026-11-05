@@ -3,7 +3,7 @@
 _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 
 
-## Bloky – Stavba (50)
+## Bloky – Stavba (46)
 
 | Název | English | ID | Typ |
 |---|---|---|---|
@@ -26,10 +26,6 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Poškozený kabel | Damaged Cable | `radiousti:damaged_cable` | kabel |
 | Počítačový síťový kabel | Computer Network Cable | `radiousti:network_cable` | kabel |
 | Starý světelný blok | Old Light Block | `radiousti:old_light_block` | světlo |
-| Laboratorní dveře | Laboratory Door | `radiousti:lab_door` | dveře |
-| Průmyslové dveře | Industrial Door | `radiousti:industrial_door` | dveře |
-| Kontejnmentové dveře | Containment Door | `radiousti:containment_door` | dveře |
-| Dveře pevnosti | Fortress Door | `radiousti:fortress_door` | dveře |
 | Blok uranu | Block of Uranium | `radiousti:uranium_block` | radioaktivní |
 | Blok surového uranu | Block of Raw Uranium | `radiousti:raw_uranium_block` | radioaktivní |
 | Blok s výstražnými pruhy | Warning Stripe Block | `radiousti:warning_stripes` | dekorace |
@@ -58,16 +54,10 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Dřevěné bodce | Wooden Spike Trap | `radiousti:wooden_spikes` | dekorace |
 | Suť | Rubble | `radiousti:rubble` | dekorace |
 
-## Bloky – Vybavení (38)
+## Bloky – Vybavení (32)
 
 | Název | English | ID | Typ |
 |---|---|---|---|
-| Standardní generátor | Standard Generator | `radiousti:generator_standard` | stroj |
-| Průmyslový generátor | Industrial Generator | `radiousti:generator_industrial` | stroj |
-| Jaderný generátor | Nuclear Generator | `radiousti:generator_nuclear` | stroj |
-| Záložní generátor | Backup Generator | `radiousti:generator_backup` | stroj |
-| Laboratorní napájecí jednotka | Laboratory Power Unit | `radiousti:lab_power_unit` | stroj |
-| Serverová napájecí jednotka (UPS) | Server Power Unit | `radiousti:server_power_unit` | stroj |
 | Plášť reaktoru | Reactor Casing | `radiousti:reactor_casing` | plášť reaktoru |
 | Průhledové sklo reaktoru | Reactor Viewing Glass | `radiousti:reactor_glass` | plášť reaktoru |
 | Chladicí port reaktoru | Reactor Coolant Port | `radiousti:reactor_port_coolant` | port reaktoru |
@@ -101,7 +91,7 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Průmyslový ponk | Industrial Workbench | `radiousti:industrial_workbench` | pracovní stůl |
 | Počítačová pracovní stanice | Computer Workstation | `radiousti:computer_workstation` | stroj |
 
-## Bloky – Předměty (42)
+## Bloky – Předměty (40)
 
 | Název | English | ID | Typ |
 |---|---|---|---|
@@ -130,8 +120,6 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Kartotéka | Filing Cabinet | `radiousti:filing_cabinet` | nábytek |
 | Stará šatní skříňka | Old Locker | `radiousti:locker` | nábytek |
 | Kontejner zdravotnického materiálu | Medical Supply Container | `radiousti:medical_container` | nábytek |
-| Nemocniční lůžko | Hospital Bed | `radiousti:hospital_bed` | nábytek |
-| Operační stůl | Operating Table | `radiousti:operating_table` | nábytek |
 | Plakát: Nákaza RadioÚstí 2072 | Poster: RadioÚstí Outbreak 2072 | `radiousti:poster_outbreak_2072` | dokument |
 | Plakát: Evakuační příkaz | Poster: Evacuation Order | `radiousti:poster_evacuation` | dokument |
 | Plakát: Radiační poplach 2072 | Poster: Radiation Alert 2072 | `radiousti:poster_radiation` | dokument |
@@ -166,6 +154,32 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Kaluž krve | Blood Puddle | `radiousti:blood_puddle` | dekorace |
 | Duší prostoupený kámen | Soul-Infused Stone | `radiousti:soul_block` | duše |
 | Krystal duše | Soul Crystal | `radiousti:soul_crystal` | duše |
+
+## Bloky – Pokládané laboratorní sklo a multibloky (pokládají se předmětem) (21)
+
+| Název | English | ID | Typ |
+|---|---|---|---|
+| Standardní generátor | Standard Generator | `radiousti:generator_standard` | stroj |
+| Průmyslový generátor | Industrial Generator | `radiousti:generator_industrial` | stroj |
+| Jaderný generátor | Nuclear Generator | `radiousti:generator_nuclear` | stroj |
+| Záložní generátor | Backup Generator | `radiousti:generator_backup` | stroj |
+| Laboratorní napájecí jednotka | Laboratory Power Unit | `radiousti:lab_power_unit` | stroj |
+| Serverová napájecí jednotka (UPS) | Server Power Unit | `radiousti:server_power_unit` | stroj |
+| Laboratorní dveře | Laboratory Door | `radiousti:lab_door` | dveře |
+| Průmyslové dveře | Industrial Door | `radiousti:industrial_door` | dveře |
+| Kontejnmentové dveře | Containment Door | `radiousti:containment_door` | dveře |
+| Dveře pevnosti | Fortress Door | `radiousti:fortress_door` | dveře |
+| Nemocniční lůžko | Hospital Bed | `radiousti:hospital_bed` | nábytek |
+| Operační stůl | Operating Table | `radiousti:operating_table` | nábytek |
+| Erlenmeyerova baňka (položená) | Erlenmeyer Flask (placed) | `radiousti:flask_empty_block` | laboratorní sklo |
+| Baňka s červeným činidlem (položená) | Red Reagent Flask (placed) | `radiousti:flask_red_block` | laboratorní sklo |
+| Baňka se zeleným činidlem (položená) | Green Reagent Flask (placed) | `radiousti:flask_green_block` | laboratorní sklo |
+| Baňka s modrým činidlem (položená) | Blue Reagent Flask (placed) | `radiousti:flask_blue_block` | laboratorní sklo |
+| Zkumavka (položená) | Test Tube (placed) | `radiousti:test_tube_block` | laboratorní sklo |
+| Vzorek krve (položený) | Blood Sample (placed) | `radiousti:blood_sample_block` | laboratorní sklo |
+| Láhev plná krve (položená) | Blood-Filled Bottle (placed) | `radiousti:blood_bottle_block` | laboratorní sklo |
+| Prázdná laboratorní nádoba (položená) | Empty Laboratory Jar (placed) | `radiousti:empty_jar_block` | laboratorní sklo |
+| Nádoba s krví (položená) | Blood Jar (placed) | `radiousti:blood_jar_block` | laboratorní sklo |
 
 ## Předměty (45)
 

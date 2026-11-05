@@ -527,3 +527,40 @@ def desk():
 def doc_pile():
     return [B("root", C(2, 0, 2, 11, 2, 10), C(3, 2, 3, 10, 1.5, 9, "detail"), C(4, 3.5, 2.5, 9, 1, 9),
               C(9, 0, 9, 6, 3, 6, "detail"))]
+
+
+# ---------------------------------------------------------------- placeable laboratory glassware
+
+def erlenmeyer(fill=True):
+    """Conical (Erlenmeyer) flask, ~10 px tall."""
+    bones = [B("root", C(4, 0, 4, 8, 0.5, 8), C(4, 0.5, 4, 8, 2.5, 8), C(4.5, 3, 4.5, 7, 2, 7), C(5.5, 5, 5.5, 5, 1.5, 5),
+               C(6.5, 6.5, 6.5, 3, 1.5, 3), C(7, 8, 7, 2, 2.5, 2), C(6.5, 10.5, 6.5, 3, 0.7, 3))]
+    if fill:
+        bones.append(B("fill", C(4.6, 0.6, 4.6, 6.8, 2.6, 6.8, "fill"), C(5.1, 3, 5.1, 5.8, 1.4, 5.8, "fill")))
+    return bones
+
+
+def round_flask(fill=True):
+    """Round-bottom flask with a long neck."""
+    bones = [B("root", C(5, 0, 5, 6, 0.5, 6), C(4, 0.5, 4.5, 8, 4, 7), C(4.5, 0.5, 4, 7, 4, 8), C(5, 4.5, 5, 6, 1, 6),
+               C(7, 5.5, 7, 2, 5.5, 2), C(6.5, 11, 6.5, 3, 0.6, 3))]
+    if fill:
+        bones.append(B("fill", C(4.6, 0.6, 5.1, 6.8, 2.8, 5.8, "fill"), C(5.1, 0.6, 4.6, 5.8, 2.8, 6.8, "fill")))
+    return bones
+
+
+def tube_stand(fill=True):
+    """One test tube held by a small wooden stand."""
+    bones = [B("root", C(5, 0, 6, 6, 1, 4, "detail"), C(5, 5, 6, 6, 1, 4, "detail"), C(5, 1, 6, 1, 4, 4, "detail"),
+               C(10, 1, 6, 1, 4, 4, "detail"), C(7.25, 1, 7.25, 1.5, 9, 1.5))]
+    if fill:
+        bones.append(B("fill", C(7.5, 1.3, 7.5, 1, 4, 1, "fill")))
+    return bones
+
+
+def bottle(fill=True):
+    """Glass bottle with a cork."""
+    bones = [B("root", C(5, 0, 5, 6, 6, 6), C(6, 6, 6, 4, 1.5, 4), C(7, 7.5, 7, 2, 2.5, 2), C(6.75, 10, 6.75, 2.5, 1.5, 2.5, "detail"))]
+    if fill:
+        bones.append(B("fill", C(5.6, 0.6, 5.6, 4.8, 4.5, 4.8, "fill")))
+    return bones

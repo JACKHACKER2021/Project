@@ -435,5 +435,32 @@
   },
   "radiousti:soul_crystal": {
     "sound": "glass"
+  },
+  "radiousti:flask_empty_block": {
+    "sound": "glass"
+  },
+  "radiousti:flask_red_block": {
+    "sound": "glass"
+  },
+  "radiousti:flask_green_block": {
+    "sound": "glass"
+  },
+  "radiousti:flask_blue_block": {
+    "sound": "glass"
+  },
+  "radiousti:test_tube_block": {
+    "sound": "glass"
+  },
+  "radiousti:blood_sample_block": {
+    "sound": "glass"
+  },
+  "radiousti:blood_bottle_block": {
+    "sound": "glass"
+  },
+  "radiousti:empty_jar_block": {
+    "sound": "glass"
+  },
+  "radiousti:blood_jar_block": {
+    "sound": "glass"
   }
 }

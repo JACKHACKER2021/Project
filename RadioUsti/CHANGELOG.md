@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.0 – redstone a laboratorní sklo (2026-11-05)
+**Přidáno**
+- Redstone jako zdroj energie: blok ruditu (10 jednotek) a rudit, redstone pochodeň, páka, opakovač a komparátor, když vedou signál (signál ÷ 3, max 5). Napájí kabely i stroje, které se ho přímo dotýkají. Kabely se k redstonu vizuálně napojí.
+- Analyzátor a ÚstíOS ukazují energii z redstonu.
+- 9 bloků laboratorního skla s vlastními modely: Erlenmeyerova baňka, baňky s činidly (červená, zelená, modrá), zkumavka, vzorek krve, láhev krve, prázdná nádoba a nádoba s krví. Pokládají se svými předměty a po rozbití je vrátí.
+
+**Změněno**
+- Verze balíčků 1.0.0 → 1.1.0, aby Minecraft při importu nahradil starou verzi.
+
 ## 1.0.0 – první úplná verze (2026-11-05)
 Postaveno nad starter projektem *RadioUsti_Starter*. Zachované zůstaly UUID manifestů, závislost BP→RP, cílová verze 1.26.50, moduly Script API 2.0.0 a vstupní bod `scripts/main.js`.
 

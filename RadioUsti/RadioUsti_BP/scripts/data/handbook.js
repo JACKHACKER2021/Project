@@ -20,6 +20,7 @@ export const HANDBOOK = [
       "Elektrické, vysokonapěťové, laboratorní a nouzové kabely tvoří jednu energetickou síť. Vysokonapěťový kabel se do délky sítě počítá jen čtvrtinou (dlouhé trasy). Maximální délka sítě je 160 bodů.\n" +
       "Poškozený kabel se napojí, ale energii NEPŘENÁŠÍ – analyzátor ho nahlásí.\n" +
       "Síťový (modrý) kabel přenáší jen data: spojuje počítače, servery a stroje kvůli monitorování.\n\n" +
+      "REDSTONE: blok ruditu vedle kabelu nebo stroje dodává stále 10 jednotek. Rudit (redstone prach), pochodeň, páka, opakovač a komparátor dodávají jen když vedou signál: síla signálu / 3 (max 5 jednotek). Kabely se k nim samy napojí.\n\n" +
       "Spotřeba: počítač 2, server 5, laboratorní stoly 3 (jaderný 5). Napájeno = výroba ≥ spotřeba. Baterie (laboratorní jednotka 2000, serverová UPS 4000) se nabíjejí přebytkem a kryjí výpadky.",
   },
   {
@@ -74,6 +75,7 @@ export const HANDBOOK = [
       "• Chemická analýza (proud + plyn + náplň červeného oleje): antiradiační tablety, chemická analýza krve.\n" +
       "• Jaderný výzkum: 2 uranové ingoty + kanystr radioaktivního oleje → palivová tyč.\n" +
       "• Testování kontaminace: test půdy, dekontaminace oleje, dekontaminace osoby.\n" +
+      "Laboratorní sklo jde položit: baňky (prázdná, červená, zelená, modrá), zkumavka, vzorek krve, láhev krve a nádoby se pokládají jako bloky s vlastním modelem. Po rozbití vrátí stejný předmět.\n" +
       "Krev a maso: zombie (a jejich varianty) občas upustí infikované maso a láhev krve. Infikované maso v peci → kus masa.",
   },
   {

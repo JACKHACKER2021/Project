@@ -2,7 +2,7 @@
 
 Stavy: **implementováno** · **staticky ověřeno** (JSON schémata, křížové odkazy, typová kontrola skriptů, simulace geometrie) · **otestováno ve hře** · **neúplné** · **nepodporováno**
 
-Do sloupce „Ve hře“ se zatím nic nedoplnilo, protože balíček zatím nikdo nespustil v Minecraftu. Po testu na Androidu nebo iOS (Jackhack2021) ho doplníme.
+Verze 1.0.0 byla podle autora otestovaná ve hře a funguje („Otestováno a cool“). Podrobný výsledek jednotlivých bodů zatím nemáme, proto sloupec „Ve hře“ zůstává prázdný, dokud autor nepotvrdí konkrétní funkce. Novinky 1.1 (G1, G2) zatím ve hře otestované nejsou.
 
 | # | Funkce | Stav | Ve hře | Poznámka |
 |---|---|---|---|---|
@@ -37,9 +37,11 @@ Do sloupce „Ve hře“ se zatím nic nedoplnilo, protože balíček zatím nik
 | E7 | Realistický krumpáč | staticky ověřeno | – | výdrž snižuje skript (riziko dvojího opotřebení – ověřit) |
 | E8 | Zvuky (17), VHS kazeta | staticky ověřeno | – | .ogg (Vorbis) generované, přehrávání neověřeno |
 | E9 | Plynová maska a ochranný oblek (zbroj + ochrana proti radiaci) | neúplné | – | vzhled na hráči je jen jednoduchá textura vanilla geometrie |
+| G1 | Redstone jako zdroj: blok ruditu (10), rudit / pochodeň / páka / opakovač / komparátor (signál ÷ 3, max 5) | staticky ověřeno | – | `Block.getRedstonePower()` (stabilní 2.0.0); kabely se napojují i vizuálně |
+| G2 | Pokládané laboratorní sklo – 9 bloků s modely (baňky, zkumavky, láhev, nádoby) | staticky ověřeno | – | předmět → `minecraft:block_placer`, blok vrací předmět |
 | F1 | Validace JSON, geometrií, skriptů, ID, textur | staticky ověřeno | – | `tools/validate.py`: 0 chyb; komunitní JSON schémata: 0 nálezů |
 | F2 | Export .mcaddon + .mcpack | staticky ověřeno | – | `tools/package.py`, kontrola integrity ZIP |
-| F3 | Test v Minecraftu Bedrock 1.26.50 | **neúplné** | – | čeká na test autora |
+| F3 | Test v Minecraftu Bedrock 1.26.50 | 1.0.0 načteno a hratelné | ✓ (1.0.0, obecně) | 1.1 čeká na test |
 | X1 | Sezení na židlích | nepodporováno | – | vyžadovalo by vlastní entitu; místo toho se kancelářská židle otáčí |
 | X2 | Zobrazení tekoucích kapalin v potrubí | nepodporováno | – | stabilní API to neumožňuje, náhradou je zjednodušená síť |
 | X3 | Vlastní hudební disk | nepodporováno | – | náhradou je VHS v ÚstíOS |

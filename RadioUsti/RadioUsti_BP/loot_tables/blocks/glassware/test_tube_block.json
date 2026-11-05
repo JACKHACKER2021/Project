@@ -1,0 +1,14 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "item",
+          "name": "radiousti:empty_test_tube",
+          "weight": 1
+        }
+      ]
+    }
+  ]
+}

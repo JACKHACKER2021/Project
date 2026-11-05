@@ -12,7 +12,7 @@
 import { world, system, BlockPermutation } from "@minecraft/server";
 import { NS, DIRS6, add, posKey, parseKey, blockAt, dimOf, info, stateOf, setState, sound, dist2, dropItem } from "../lib/util.js";
 import { Machines, Logs } from "../lib/store.js";
-import { isConduit, familyOf, acceptsFamily } from "./connections.js";
+import { isConduit, familyOf, acceptsFamily, REDSTONE_SOURCES, redstoneUnits } from "./connections.js";
 import { originOf, partPositions, missingParts, breakMultiblock } from "./structures.js";
 
 export const CYCLE_TICKS = 40;
@@ -89,7 +89,8 @@ export function unregisterAt(dim, loc, typeId) {
 export function scanNetwork(dim, parts, family) {
   const seen = new Set();
   const partSet = new Set(parts.map((p) => posKey(dim.id, p)));
-  const res = { machines: new Set(), conduits: 0, closedValves: 0, damaged: 0, vanilla: new Set(), ports: [], cost: 0, truncated: false };
+  const res = { machines: new Set(), conduits: 0, closedValves: 0, damaged: 0, vanilla: new Set(), ports: [], cost: 0, truncated: false,
+    redstone: 0, redstoneSources: 0 };
   const queue = [];
   const visitNeighbour = (p, fromConduit) => {
     const k = posKey(dim.id, p);
@@ -100,6 +101,15 @@ export function scanNetwork(dim, parts, family) {
       if (familyOf(b.typeId) !== family) return;
       seen.add(k);
       queue.push(b);
+      return;
+    }
+    if (family === "power" && REDSTONE_SOURCES.has(b.typeId)) {
+      // redstone feeds both cables and machines touching it directly
+      seen.add(k);
+      const u = redstoneUnits(b);
+      res.redstone += u;
+      if (u > 0) res.redstoneSources++;
+      res.vanilla.add(b.typeId);
       return;
     }
     if (!fromConduit) return;
@@ -359,7 +369,8 @@ function powerStep() {
     members.forEach((k) => visited.add(k));
     const recs = members.map((k) => [k, Machines.get(k)]).filter(([, r]) => !!r);
     const reactorRunning = recs.some(([, r]) => info(r.t)?.role === "reactor" && r.running);
-    let supply = 0, demand = 0;
+    let supply = net?.redstone ?? 0, demand = 0;
+    const redstone = supply;
     for (const [k, r] of recs) {
       const ri = info(r.t);
       const c = live.get(k);
@@ -411,7 +422,7 @@ function powerStep() {
       const wasPowered = r.powered;
       r.powered = ri.role === "generator" ? !!r.running : ri.role === "battery" ? (r.charge ?? 0) > 0 : powered && demandOf(r) > 0;
       if (ri.role === "reactor") r.powered = powered;
-      r.net = { supply, demand, members: members.length };
+      r.net = { supply, demand, members: members.length, redstone };
       if (ri.role === "generator") setActive(c, !!r.running);
       else if (ri.role === "battery") setActive(c, (r.charge ?? 0) > 0);
       else if (ri.role === "computer" || ri.role === "server") {

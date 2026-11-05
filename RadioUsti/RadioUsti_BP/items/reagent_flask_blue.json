@@ -16,7 +16,10 @@
       "minecraft:display_name": {
         "value": "item.radiousti.reagent_flask_blue.name"
       },
-      "minecraft:max_stack_size": 64
+      "minecraft:max_stack_size": 64,
+      "minecraft:block_placer": {
+        "block": "radiousti:flask_blue_block"
+      }
     }
   }
 }

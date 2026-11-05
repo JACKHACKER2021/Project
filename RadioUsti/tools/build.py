@@ -59,7 +59,8 @@ def resolve_model(m):
         "spikes": G.spikes, "rubble": G.rubble, "desk": G.desk, "chair": G.chair, "office_chair": G.office_chair,
         "stool": G.stool, "exam": G.exam_table, "iv": G.iv_stand, "med_monitor": G.med_monitor, "doc_pile": G.doc_pile,
         "clock": G.clock_model, "jar": G.jar, "flask_set": G.flask_set, "tube_rack": G.tube_rack, "growth": G.growth,
-        "bin": G.bin_model, "crystal": G.crystal,
+        "bin": G.bin_model, "crystal": G.crystal, "erlenmeyer": G.erlenmeyer, "round_flask": G.round_flask,
+        "tube_stand": G.tube_stand, "bottle": G.bottle, "jar_small": lambda fill=True: G.jar(8, 6),
     }
     if k in table:
         return table[k](*a)
@@ -381,6 +382,9 @@ def emit_loot():
     wjson(os.path.join(d, "uranium_ore.json"), {"pools": [{"rolls": 1, "entries": [
         {"type": "item", "name": f"{NS}:raw_uranium", "weight": 1,
          "functions": [{"function": "set_count", "count": {"min": 1, "max": 2}}]}]}]})
+    for b in CT.BLOCKS:
+        if b["kind"] == "glassware":
+            wjson(os.path.join(BP, b["loot"]), {"pools": [{"rolls": 1, "entries": [{"type": "item", "name": b["meta"]["item"], "weight": 1}]}]})
     wjson(os.path.join(d, "contaminated_grass.json"), {"pools": [{"rolls": 1, "entries": [
         {"type": "item", "name": f"{NS}:contaminated_dirt", "weight": 1}]}]})
 
@@ -461,8 +465,9 @@ KIND_CS = {"pipe": "potrubí", "valve": "ventil", "cable": "kabel", "machine": "
            "reactor_port": "port reaktoru", "door": "dveře", "light": "světlo", "alarm": "alarm", "indicator": "indikátor",
            "radioactive": "radioaktivní", "decor": "dekorace", "furniture": "nábytek", "document": "dokument", "clock": "hodiny",
            "jar": "nádoba", "organic": "organické", "soul": "duše", "control": "ovládání", "craft_table": "pracovní stůl",
-           "station": "stanice"}
-CAT_CS = {"construction": "Stavba", "equipment": "Vybavení", "items": "Předměty", "nature": "Příroda"}
+           "station": "stanice", "glassware": "laboratorní sklo"}
+CAT_CS = {"construction": "Stavba", "equipment": "Vybavení", "items": "Předměty", "nature": "Příroda",
+          "none": "Pokládané laboratorní sklo a multibloky (pokládají se předmětem)"}
 TABLE_CS = {"crafting_table": "Pracovní stůl", "radiousti_industrial": "Průmyslový ponk", "radiousti_lab": "Laboratorní stůl"}
 
 
@@ -472,8 +477,8 @@ def write_docs():
     d = os.path.join(ROOT, "docs")
     os.makedirs(d, exist_ok=True)
     L = ["# Katalog RadioÚstí\n", "_Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._\n"]
-    for cat in ("construction", "equipment", "items", "nature"):
-        rows = [b for b in CT.BLOCKS if b["cat"] == cat]
+    for cat in ("construction", "equipment", "items", "nature", "none"):
+        rows = [b for b in CT.BLOCKS if (b["cat"] if not b.get("placer_icon") else "none") == cat]
         L.append(f"\n## Bloky – {CAT_CS[cat]} ({len(rows)})\n\n| Název | English | ID | Typ |\n|---|---|---|---|")
         for b in rows:
             L.append(f"| {b['cs']} | {b['en']} | `{NS}:{b['id']}` | {KIND_CS.get(b['kind'], b['kind'])} |")

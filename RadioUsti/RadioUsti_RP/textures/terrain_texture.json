@@ -486,6 +486,18 @@
     },
     "radiousti_soul_crystal": {
       "textures": "textures/blocks/radiousti_soul_crystal"
+    },
+    "radiousti_fill_red": {
+      "textures": "textures/blocks/radiousti_fill_red"
+    },
+    "radiousti_fill_green": {
+      "textures": "textures/blocks/radiousti_fill_green"
+    },
+    "radiousti_fill_blue": {
+      "textures": "textures/blocks/radiousti_fill_blue"
+    },
+    "radiousti_glass_flask": {
+      "textures": "textures/blocks/radiousti_glass_flask"
     }
   }
 }

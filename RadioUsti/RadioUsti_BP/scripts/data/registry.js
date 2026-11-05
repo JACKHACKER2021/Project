@@ -1205,6 +1205,60 @@ export const REGISTRY = {
    "kind": "soul",
    "en": "Soul Crystal",
    "cs": "Krystal duše"
+  },
+  "radiousti:flask_empty_block": {
+   "kind": "glassware",
+   "en": "Erlenmeyer Flask (placed)",
+   "cs": "Erlenmeyerova baňka (položená)",
+   "item": "radiousti:empty_flask"
+  },
+  "radiousti:flask_red_block": {
+   "kind": "glassware",
+   "en": "Red Reagent Flask (placed)",
+   "cs": "Baňka s červeným činidlem (položená)",
+   "item": "radiousti:reagent_flask_red"
+  },
+  "radiousti:flask_green_block": {
+   "kind": "glassware",
+   "en": "Green Reagent Flask (placed)",
+   "cs": "Baňka se zeleným činidlem (položená)",
+   "item": "radiousti:reagent_flask_green"
+  },
+  "radiousti:flask_blue_block": {
+   "kind": "glassware",
+   "en": "Blue Reagent Flask (placed)",
+   "cs": "Baňka s modrým činidlem (položená)",
+   "item": "radiousti:reagent_flask_blue"
+  },
+  "radiousti:test_tube_block": {
+   "kind": "glassware",
+   "en": "Test Tube (placed)",
+   "cs": "Zkumavka (položená)",
+   "item": "radiousti:empty_test_tube"
+  },
+  "radiousti:blood_sample_block": {
+   "kind": "glassware",
+   "en": "Blood Sample (placed)",
+   "cs": "Vzorek krve (položený)",
+   "item": "radiousti:blood_sample"
+  },
+  "radiousti:blood_bottle_block": {
+   "kind": "glassware",
+   "en": "Blood-Filled Bottle (placed)",
+   "cs": "Láhev plná krve (položená)",
+   "item": "radiousti:blood_bottle"
+  },
+  "radiousti:empty_jar_block": {
+   "kind": "glassware",
+   "en": "Empty Laboratory Jar (placed)",
+   "cs": "Prázdná laboratorní nádoba (položená)",
+   "item": "radiousti:empty_jar"
+  },
+  "radiousti:blood_jar_block": {
+   "kind": "glassware",
+   "en": "Blood Jar (placed)",
+   "cs": "Nádoba s krví (položená)",
+   "item": "radiousti:blood_jar"
   }
  },
  "items": {
