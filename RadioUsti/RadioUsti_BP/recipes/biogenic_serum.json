@@ -1,0 +1,29 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "radiousti:biogenic_serum"
+    },
+    "tags": [
+      "radiousti_lab"
+    ],
+    "ingredients": [
+      {
+        "item": "radiousti:empty_flask"
+      },
+      {
+        "item": "radiousti:organic_material"
+      },
+      {
+        "item": "radiousti:soul_essence"
+      }
+    ],
+    "unlock": {
+      "context": "AlwaysUnlocked"
+    },
+    "result": {
+      "item": "radiousti:biogenic_serum",
+      "count": 1
+    }
+  }
+}

@@ -50,26 +50,26 @@
           "minecraft:geometry": "geometry.radiousti.gas_tank.north",
           "minecraft:selection_box": {
             "origin": [
-              -6,
+              -5.7,
               0,
-              -6.1
+              -5.7
             ],
             "size": [
-              12,
+              11.2,
               16,
-              12.1
+              11.2
             ]
           },
           "minecraft:collision_box": {
             "origin": [
-              -6,
+              -5.7,
               0,
-              -6.1
+              -5.7
             ],
             "size": [
-              12,
+              11.2,
               16,
-              12.1
+              11.2
             ]
           }
         }
@@ -80,26 +80,26 @@
           "minecraft:geometry": "geometry.radiousti.gas_tank.east",
           "minecraft:selection_box": {
             "origin": [
-              -6,
+              -5.5,
               0,
-              -6
+              -5.7
             ],
             "size": [
-              12.1,
+              11.2,
               16,
-              12
+              11.2
             ]
           },
           "minecraft:collision_box": {
             "origin": [
-              -6,
+              -5.5,
               0,
-              -6
+              -5.7
             ],
             "size": [
-              12.1,
+              11.2,
               16,
-              12
+              11.2
             ]
           }
         }
@@ -110,26 +110,26 @@
           "minecraft:geometry": "geometry.radiousti.gas_tank.south",
           "minecraft:selection_box": {
             "origin": [
-              -6,
+              -5.5,
               0,
-              -6
+              -5.5
             ],
             "size": [
-              12,
+              11.2,
               16,
-              12.1
+              11.2
             ]
           },
           "minecraft:collision_box": {
             "origin": [
-              -6,
+              -5.5,
               0,
-              -6
+              -5.5
             ],
             "size": [
-              12,
+              11.2,
               16,
-              12.1
+              11.2
             ]
           }
         }
@@ -140,26 +140,26 @@
           "minecraft:geometry": "geometry.radiousti.gas_tank.west",
           "minecraft:selection_box": {
             "origin": [
-              -6.1,
+              -5.7,
               0,
-              -6
+              -5.5
             ],
             "size": [
-              12.1,
+              11.2,
               16,
-              12
+              11.2
             ]
           },
           "minecraft:collision_box": {
             "origin": [
-              -6.1,
+              -5.7,
               0,
-              -6
+              -5.5
             ],
             "size": [
-              12.1,
+              11.2,
               16,
-              12
+              11.2
             ]
           }
         }

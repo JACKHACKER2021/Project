@@ -1,0 +1,145 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:contaminated_oil_liquid",
+      "menu_category": {
+        "category": "none"
+      },
+      "states": {
+        "radiousti:level": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 100
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 100
+      },
+      "minecraft:map_color": "#5f8f2a",
+      "minecraft:light_emission": 3,
+      "radiousti:liquid": {},
+      "minecraft:tick": {
+        "interval_range": [
+          10,
+          10
+        ],
+        "looping": true
+      },
+      "minecraft:loot": "loot_tables/blocks/radiousti_empty.json",
+      "minecraft:geometry": "geometry.radiousti.contaminated_oil_liquid.l0",
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_liquid_contaminated_oil",
+          "render_method": "blend",
+          "ambient_occlusion": false
+        }
+      }
+    },
+    "permutations": [
+      {
+        "condition": "q.block_state('radiousti:level') == 0",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.contaminated_oil_liquid.l0",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              14,
+              16
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:level') == 1",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.contaminated_oil_liquid.l1",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              12,
+              16
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:level') == 2",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.contaminated_oil_liquid.l2",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              9,
+              16
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:level') == 3",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.contaminated_oil_liquid.l3",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              6,
+              16
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('radiousti:level') == 4",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.contaminated_oil_liquid.l4",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              3,
+              16
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      }
+    ]
+  }
+}

@@ -214,7 +214,7 @@ export function pullGas(key, rec, units) {
   if (!net) return false;
   for (const mk of net.machines) {
     const m = Machines.get(mk);
-    if (m && m.t === `${NS}:gas_tank` && (m.gas ?? 0) >= units) {
+    if (m && info(m.t)?.role === "tank" && info(m.t)?.family === "gas" && (m.gas ?? 0) >= units) {
       m.gas -= units;
       Machines.save(mk);
       return true;

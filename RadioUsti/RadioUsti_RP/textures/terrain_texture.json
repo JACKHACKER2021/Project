@@ -498,6 +498,45 @@
     },
     "radiousti_glass_flask": {
       "textures": "textures/blocks/radiousti_glass_flask"
+    },
+    "radiousti_lc_ore": {
+      "textures": "textures/blocks/radiousti_lc_ore"
+    },
+    "radiousti_lc_crystal": {
+      "textures": "textures/blocks/radiousti_lc_crystal"
+    },
+    "radiousti_lc_metal": {
+      "textures": "textures/blocks/radiousti_lc_metal"
+    },
+    "radiousti_lc_armor": {
+      "textures": "textures/blocks/radiousti_lc_armor"
+    },
+    "radiousti_lc_gas_tank": {
+      "textures": "textures/blocks/radiousti_lc_gas_tank"
+    },
+    "radiousti_serum_fill": {
+      "textures": "textures/blocks/radiousti_serum_fill"
+    },
+    "radiousti_liquid_blood": {
+      "textures": "textures/blocks/radiousti_liquid_blood"
+    },
+    "radiousti_liquid_industrial_oil": {
+      "textures": "textures/blocks/radiousti_liquid_industrial_oil"
+    },
+    "radiousti_liquid_black_oil": {
+      "textures": "textures/blocks/radiousti_liquid_black_oil"
+    },
+    "radiousti_liquid_hydraulic_oil": {
+      "textures": "textures/blocks/radiousti_liquid_hydraulic_oil"
+    },
+    "radiousti_liquid_lab_oil": {
+      "textures": "textures/blocks/radiousti_liquid_lab_oil"
+    },
+    "radiousti_liquid_contaminated_oil": {
+      "textures": "textures/blocks/radiousti_liquid_contaminated_oil"
+    },
+    "radiousti_liquid_radioactive_oil": {
+      "textures": "textures/blocks/radiousti_liquid_radioactive_oil"
     }
   }
 }

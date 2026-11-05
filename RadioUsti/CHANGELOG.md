@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.3.0 – vzhled, Liverocrystal, sérum a tekutiny (2026-11-05)
+**Přidáno**
+- Liverocrystal: ruda (generuje se y −60 až −10), úlomek, ingot, blok, pancéřová deska, shluk, kanystr a nádrž Liverocrystal Gas (3000 jednotek plynu). Toxické výpary bez plynové masky.
+- Biogenní sérum B-9 (pitelné a pokládané), kádě se sérem.
+- 7 tekutin (krev a 6 olejů) jako skriptem tekoucí bloky s 5 úrovněmi hladiny, 7 kbelíků, efekty při pobytu v tekutině.
+
+**Vylepšeno**
+- Nové modely: 4 počítače, serverový rack, dveře (horní a dolní polovina, klika, rám), plynová nádrž, vodní čerpadlo, chladicí jednotka, generátory.
+- Kovové textury se zkosením, ikony předmětů s obrysem a odleskem.
+- Plynové nádrže fungují obecně (každá nádrž s rodinou „plyn“).
+
+**Změněno**
+- Verze balíčků 1.2.0 → 1.3.0.
+
 ## 1.2.0 – Registr experimentů (2026-11-05)
 **Přidáno**
 - Předmět a kniha *Registr experimentů – Projekt Apokalypsa* se 13 kapitolami o postavách, materiálech a místech Zeds World. Je dostupná také v ÚstíOS → Dokumenty.

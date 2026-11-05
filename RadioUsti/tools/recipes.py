@@ -210,6 +210,20 @@ shaped("industrial_vent", ["III", "BBB", "III"], {"I": NUG, "B": M + "iron_bars"
 shapeless("fuse_box", [IRON, RS, COPPER, COPPER], 1, IW)
 
 shapeless("vhs_radiousti", [M + "paper", M + "black_dye", "network_cable", RS], 1, IW)
+# --- Liverocrystal & serum (v1.3)
+shapeless("liverocrystal_metal_ingot", ["liverocrystal_shard", "liverocrystal_shard", "liverocrystal_shard", "liverocrystal_shard", IRON], 1, IW)
+shaped("liverocrystal_metal_block", ["MMM", "MMM", "MMM"], {"M": "liverocrystal_metal_ingot"}, 1, IW)
+shapeless("liverocrystal_metal_ingot", ["liverocrystal_metal_block"], 9, IW)
+shaped("liverocrystal_armor_plate", ["MIM", "IMI", "MIM"], {"M": "liverocrystal_metal_ingot", "I": M + "iron_block"}, 2, IW)
+shapeless("liverocrystal_gas_canister", ["empty_canister", "liverocrystal_shard", "liverocrystal_shard", "liverocrystal_shard"], 1, IW)
+shaped("liverocrystal_gas_tank", ["MMM", "MGM", "MMM"], {"M": "liverocrystal_metal_ingot", "G": "liverocrystal_gas_canister"}, 1, IW)
+shaped("liverocrystal_cluster", ["SS", "SS"], {"S": "liverocrystal_shard"}, 1, LT)
+shapeless("biogenic_serum", ["empty_flask", "organic_material", "soul_essence"], 1, LT)
+shaped("biogenic_serum_vat", ["MGM", "GSG", "MGM"], {"M": "liverocrystal_metal_ingot", "G": GLASS, "S": "biogenic_serum"}, 1, LT)
+# --- liquid buckets (v1.3)
+shapeless("blood_bucket", [M + "bucket", "blood_jar"], 1, LT)
+for key in ("industrial", "black", "hydraulic", "lab", "contaminated", "radioactive"):
+    shapeless(f"{key}_oil_bucket" if key != "black" else "black_oil_bucket", [M + "bucket", f"canister_{key}_oil"], 1, IW)
 furnace("raw_uranium", "uranium_ingot")
 furnace("infected_flesh", "meat_piece")
 

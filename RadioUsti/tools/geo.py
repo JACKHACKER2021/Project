@@ -263,26 +263,36 @@ def crate_stack():
 
 def pc_model(variant="old"):
     if variant == "terminal":
-        return [B("root", C(1, 0, 3, 14, 10, 12), C(2, 10, 5, 12, 6, 10)),
-                B("screen", C(3, 11, 4.9, 10, 4, 0.2, "screen")),
-                B("keys", C(2, 7, 1, 12, 2, 3, "keys"))]
+        # industrial terminal: angled console on a steel pedestal
+        return [B("root", C(2, 0, 4, 12, 1, 10, "detail"), C(4, 1, 6, 8, 6, 7), C(1, 7, 3, 14, 3, 12), C(2, 10, 6, 12, 6, 9),
+                  C(3, 16 - 0.01, 8, 10, 0.01, 5, "detail"), C(13, 11, 4.5, 1.5, 4, 1, "detail")),
+                B("screen", C(3, 10.8, 5.9, 10, 4.4, 0.2, "screen")),
+                B("keys", C(2, 9.5, 2.8, 12, 0.8, 3, "keys"), C(11, 10.3, 3.3, 2, 0.6, 1, "detail"))]
     if variant == "lab":
-        return [B("root", C(2, 0, 4, 12, 1, 10), C(3, 1, 6, 10, 10, 9)),
-                B("screen", C(4, 2.5, 5.9, 8, 7, 0.2, "screen")),
-                B("keys", C(2, 0, 0.5, 12, 1, 3.5, "keys"))]
+        # flat monitor on a stand + tower case on the side
+        return [B("root", C(2, 0, 7, 6, 1, 6, "detail"), C(4.25, 1, 9, 1.5, 3, 1.5, "detail"), C(0.5, 4, 8, 9, 7, 2.5),
+                  C(11, 0, 4, 4.5, 11, 10), C(11.8, 8, 3.9, 2.8, 0.4, 0.2, "detail"), C(12.6, 2, 3.9, 1.2, 1.2, 0.2, "detail")),
+                B("screen", C(1, 4.5, 7.9, 8, 6, 0.2, "screen")),
+                B("keys", C(1, 0, 1.5, 9, 0.8, 3.5, "keys"), C(10.5, 0, 2, 1.5, 0.8, 2, "detail"))]
     if variant == "office":
-        return [B("root", C(1, 0, 3, 14, 3, 12), C(3, 3, 6, 10, 9, 9)),
-                B("screen", C(4, 4, 5.9, 8, 7, 0.2, "screen")),
-                B("keys", C(2, 0, 0, 12, 1, 3, "keys"))]
-    # old: CRT monitor on a desktop case + keyboard
-    return [B("root", C(1, 0, 2, 14, 4, 13), C(2, 4, 4, 12, 10, 11), C(4, 6, 14.9, 8, 6, 1)),
-            B("screen", C(3, 5.5, 3.9, 10, 7.5, 0.2, "screen")),
-            B("keys", C(2, 0, 0, 12, 1, 2, "keys"))]
-
+        # beige desktop case lying under a CRT, separate keyboard and mouse
+        return [B("root", C(1, 0, 4, 14, 3.5, 11), C(2, 0.8, 3.9, 5, 0.8, 0.2, "detail"), C(10, 1, 3.9, 3, 1, 0.2, "detail"),
+                  C(2.5, 3.5, 5, 11, 9, 2.5), C(3.5, 4.5, 7.5, 9, 7, 3.5), C(5, 5.5, 11, 6, 5, 3)),
+                B("screen", C(3.5, 4.5, 4.9, 9, 7, 0.2, "screen")),
+                B("keys", C(1.5, 0, 0.3, 10, 0.8, 3.2, "keys"), C(12.5, 0, 0.8, 1.5, 0.7, 2, "detail"))]
+    # old: heavy CRT with a bezel and tapered tube, desktop case with floppy drive
+    return [B("root", C(1, 0, 3, 14, 4, 12), C(2, 1.6, 2.9, 4.5, 0.6, 0.2, "detail"), C(10.5, 1.2, 2.9, 3, 1.4, 0.2, "detail"),
+              C(12.8, 2.8, 2.9, 0.8, 0.4, 0.2, "screen"),
+              C(1.5, 4, 3.5, 13, 11, 2), C(2.5, 5, 5.5, 11, 9, 4), C(4, 6, 9.5, 8, 7, 3), C(5.5, 7, 12.5, 5, 5, 2)),
+            B("screen", C(2.5, 5, 3.3, 11, 9, 0.2, "screen")),
+            B("keys", C(1.5, 0, 0, 11, 0.9, 2.8, "keys"), C(13, 0, 0.5, 1.6, 0.7, 2.2, "detail"))]
 
 def server_rack():
-    return [B("root", C(1, 0, 1, 14, 16, 14)), B("leds", C(2, 2, 0.8, 12, 12, 0.2, "screen"))]
-
+    cubes = [C(1, 0, 1, 14, 16, 14), C(0.5, 0, 0.5, 1, 16, 1, "detail"), C(14.5, 0, 0.5, 1, 16, 1, "detail"),
+             C(0.5, 0, 14.5, 1, 16, 1, "detail"), C(14.5, 0, 14.5, 1, 16, 1, "detail")]
+    for y in (1, 5, 9, 13):
+        cubes.append(C(2, y + 2.6, 0.6, 12, 0.4, 0.4, "detail"))
+    return [B("root", *cubes), B("leds", C(2, 1, 0.8, 12, 14, 0.2, "screen"))]
 
 def lamp_hanging():
     return [B("root", C(7.5, 10, 7.5, 1, 6, 1, "detail"), C(4, 6, 4, 8, 4, 8), C(5, 5, 5, 6, 1, 6, "glow"))]
@@ -326,11 +336,17 @@ def flat_floor(th=0.25):
     return [B("root", C(0.5, 0, 0.5, 15, th, 15))]
 
 
-def door_model(open_):
+def door_model(open_, upper=False):
+    """Door panel with a frame strip and (lower half) a handle on both sides."""
     if open_:
-        return [B("root", C(0, 0, 0, 3, 16, 16))]
-    return [B("root", C(0, 0, 0, 16, 16, 3))]
-
+        cubes = [C(0, 0, 0, 3, 16, 16), C(0, 0, 0, 3.2, 16, 1, "detail")]
+        if not upper:
+            cubes += [C(3, 7, 12.5, 0.8, 1, 2.5, "detail"), C(-0.8 + 0.8, 7, 12.5, 0.01, 1, 2.5, "detail")]
+        return [B("root", *cubes)]
+    cubes = [C(0, 0, 0, 16, 16, 3), C(0, 0, 0, 1, 16, 3.2, "detail")]
+    if not upper:
+        cubes += [C(12.5, 7, 3, 2.5, 1, 0.8, "detail"), C(12.5, 7, 0, 2.5, 1, 0.01, "detail")]
+    return [B("root", *cubes)]
 
 def bars_model():
     cubes = [C(0, 0, 7, 16, 2, 2), C(0, 14, 7, 16, 2, 2)]
@@ -431,9 +447,11 @@ def exam_table():
 
 
 def tank(h=16):
-    return [B("root", C(2, 0, 2, 12, 1, 12, "detail"), C(2, 1, 2, 12, h - 2, 12), C(5, h - 1, 5, 6, 1, 6, "detail")),
-            B("gauge", C(6, 8, 1.9, 4, 4, 0.2, "screen"))]
-
+    """Upright gas cylinder: two crossed boxes read as a round tank, with domed cap and valve."""
+    return [B("root", C(3, 0, 3, 10, 1, 10, "detail"), C(2.5, 1, 4, 11, h - 4, 8), C(4, 1, 2.5, 8, h - 4, 11),
+              C(3.5, h - 3, 4.5, 9, 1.5, 7), C(4.5, h - 3, 3.5, 7, 1.5, 9), C(6.5, h - 1.5, 6.5, 3, 1, 3, "detail"),
+              C(7.5, h - 0.5, 5, 1, 0.5, 6, "detail"), C(2.3, 4, 6, 0.4, 1, 4, "detail"), C(2.3, 10, 6, 0.4, 1, 4, "detail")),
+            B("gauge", C(6, 7, 2.3, 4, 4, 0.2, "screen"))]
 
 def barrel():
     return [B("root", C(2, 0, 2, 12, 14, 12), C(1.5, 3, 1.5, 13, 1, 13, "detail"), C(1.5, 10, 1.5, 13, 1, 13, "detail"),
@@ -441,13 +459,20 @@ def barrel():
 
 
 def pump():
-    return [B("root", C(0, 0, 0, 16, 2, 16, "detail"), C(2, 2, 3, 9, 8, 10), C(11, 4, 5, 4, 6, 6, "detail"),
-              C(4, 10, 6, 5, 4, 4, "detail"))]
-
+    """Electric water pump: motor with cooling fins, volute casing and pipe stubs."""
+    cubes = [C(0, 0, 1, 16, 2, 14, "detail"), C(1, 2, 4, 7, 7, 8)]
+    for x in (1.5, 3.5, 5.5):
+        cubes.append(C(x, 9, 4.5, 1, 0.6, 7, "detail"))
+    cubes += [C(8, 2, 3, 6, 9, 10), C(9, 11, 6, 4, 3, 4, "detail"), C(14, 4, 6, 2, 4, 4, "detail"), C(10, 3, 1, 3, 4, 2, "detail")]
+    return [B("root", *cubes)]
 
 def cooling_unit():
-    return [B("root", C(0.5, 0, 0.5, 15, 15.5, 15)), B("fan", C(2, 2, 0.2, 12, 12, 0.2, "screen"), C(2, 15.6, 2, 12, 0.2, 12, "screen"))]
-
+    """Cooling unit: louvred housing, top fan, coolant stubs on both sides."""
+    cubes = [C(0.5, 0, 0.5, 15, 15.5, 15)]
+    for y in (3, 6, 9, 12):
+        cubes.append(C(1.5, y, 0.2, 13, 0.6, 0.3, "detail"))
+    cubes += [C(0, 6, 6, 0.5, 4, 4, "detail"), C(15.5, 6, 6, 0.5, 4, 4, "detail")]
+    return [B("root", *cubes), B("fan", C(2, 15.6, 2, 12, 0.2, 12, "screen"))]
 
 def waste_container():
     return [B("root", C(1, 0, 1, 14, 13, 14), C(0.5, 13, 0.5, 15, 2, 15, "detail")), B("gauge", C(5, 5, 0.9, 6, 4, 0.2, "screen"))]
@@ -497,19 +522,20 @@ def lab_table_kit(kind):
 def gen_model(kind):
     if kind == "standard":
         return [B("root", C(0, 0, 0, 32, 3, 32, "detail"), C(2, 3, 2, 28, 20, 28), C(4, 23, 4, 10, 6, 10, "detail"),
-                  C(6, 29, 6, 6, 3, 6, "detail"), C(18, 23, 18, 10, 4, 10)),
-                B("panel", C(4, 8, 1.9, 24, 10, 0.2, "screen"))]
+                  C(6, 29, 6, 6, 3, 6, "detail"), C(18, 23, 18, 10, 4, 10), C(0.5, 8, 6, 1.5, 3, 20, "detail"),
+                  C(30, 8, 6, 1.5, 3, 20, "detail"), C(24, 27, 24, 3, 5, 3, "detail")),
+                B("panel", C(4, 8, 1.9, 24, 10, 0.2, "screen"), C(4, 19, 1.9, 24, 2, 0.2, "hazard"))]
     if kind == "industrial":
         return [B("root", C(0, 0, 0, 32, 4, 32, "detail"), C(1, 4, 1, 30, 22, 30), C(3, 26, 3, 26, 3, 26, "detail"),
                   C(22, 29, 4, 6, 3, 6, "detail"), C(4, 29, 22, 6, 3, 6, "detail")),
-                B("panel", C(3, 8, 0.9, 26, 12, 0.2, "screen"))]
+                B("panel", C(3, 8, 0.9, 26, 12, 0.2, "screen"), C(3, 22, 0.9, 26, 2, 0.2, "hazard"))]
     if kind == "nuclear":
         return [B("root", C(0, 0, 0, 32, 4, 32, "detail"), C(2, 4, 2, 28, 26, 28), C(0, 12, 0, 32, 3, 32, "detail"),
                   C(10, 30, 10, 12, 2, 12, "detail")),
-                B("panel", C(4, 16, 1.9, 24, 10, 0.2, "screen"))]
+                B("panel", C(4, 16, 1.9, 24, 10, 0.2, "screen"), C(4, 5, 1.9, 24, 3, 0.2, "hazard"))]
     if kind == "backup":
         return [B("root", C(0, 0, 0, 32, 2, 32, "detail"), C(2, 2, 2, 28, 12, 28), C(22, 14, 22, 5, 2, 5, "detail")),
-                B("panel", C(4, 4, 1.9, 16, 8, 0.2, "screen"))]
+                B("panel", C(4, 4, 1.9, 16, 8, 0.2, "screen"), C(22, 4, 1.9, 6, 8, 0.2, "hazard"))]
     if kind == "lab":
         return [B("root", C(1, 0, 1, 30, 14, 30), C(0, 14, 0, 32, 2, 32, "detail")),
                 B("panel", C(4, 3, 0.9, 24, 9, 0.2, "screen"))]
@@ -564,3 +590,16 @@ def bottle(fill=True):
     if fill:
         bones.append(B("fill", C(5.6, 0.6, 5.6, 4.8, 4.5, 4.8, "fill")))
     return bones
+
+
+def vat():
+    """Tall glass vat with fluid, steel base and lid."""
+    return [B("root", C(1, 0, 1, 14, 2, 14, "detail"), C(2, 2, 2, 12, 12, 12), C(1, 14, 1, 14, 2, 14, "detail"),
+              C(7, 15.5, 7, 2, 0.5, 2, "detail")),
+            B("fill", C(2.6, 2, 2.6, 10.8, 9, 10.8, "fill"))]
+
+
+def liquid(level):
+    """Pseudo-liquid surface: level 0 = source (14 px) ... 4 = thin film."""
+    h = {0: 14, 1: 12, 2: 9, 3: 6, 4: 3}[level]
+    return [B("root", C(0, 0, 0, 16, h, 16))]

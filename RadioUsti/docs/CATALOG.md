@@ -3,7 +3,7 @@
 _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 
 
-## Bloky – Stavba (46)
+## Bloky – Stavba (48)
 
 | Název | English | ID | Typ |
 |---|---|---|---|
@@ -53,8 +53,10 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Pytle s pískem | Sandbags | `radiousti:sandbags` | dekorace |
 | Dřevěné bodce | Wooden Spike Trap | `radiousti:wooden_spikes` | dekorace |
 | Suť | Rubble | `radiousti:rubble` | dekorace |
+| Blok Liverocrystal Metal | Block of Liverocrystal Metal | `radiousti:liverocrystal_metal_block` | dekorace |
+| Pancéřová deska z Liverocrystal Metal | Liverocrystal Armour Plate | `radiousti:liverocrystal_armor_plate` | dekorace |
 
-## Bloky – Vybavení (32)
+## Bloky – Vybavení (34)
 
 | Název | English | ID | Typ |
 |---|---|---|---|
@@ -90,6 +92,8 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Stůl přípravy vzorků | Sample Preparation Table | `radiousti:sample_preparation_table` | stroj |
 | Průmyslový ponk | Industrial Workbench | `radiousti:industrial_workbench` | pracovní stůl |
 | Počítačová pracovní stanice | Computer Workstation | `radiousti:computer_workstation` | stroj |
+| Nádrž Liverocrystal Gas (Blue Gasoline) | Liverocrystal Gas Tank (Blue Gasoline) | `radiousti:liverocrystal_gas_tank` | stroj |
+| Kádě s biogenním sérem | Biogenic Serum Vat | `radiousti:biogenic_serum_vat` | dekorace |
 
 ## Bloky – Předměty (40)
 
@@ -136,7 +140,7 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Stojan na zkumavky | Test Tube Rack | `radiousti:test_tube_rack` | dekorace |
 | Koš na laboratorní odpad | Laboratory Waste Bin | `radiousti:lab_waste_bin` | dekorace |
 
-## Bloky – Příroda (14)
+## Bloky – Příroda (16)
 
 | Název | English | ID | Typ |
 |---|---|---|---|
@@ -154,8 +158,10 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Kaluž krve | Blood Puddle | `radiousti:blood_puddle` | dekorace |
 | Duší prostoupený kámen | Soul-Infused Stone | `radiousti:soul_block` | duše |
 | Krystal duše | Soul Crystal | `radiousti:soul_crystal` | duše |
+| Liverocrystalová ruda | Liverocrystal Ore | `radiousti:liverocrystal_ore` | toxický materiál |
+| Shluk Liverocrystalu | Liverocrystal Cluster | `radiousti:liverocrystal_cluster` | toxický materiál |
 
-## Bloky – Pokládané laboratorní sklo a multibloky (pokládají se předmětem) (21)
+## Bloky – Pokládané laboratorní sklo a multibloky (pokládají se předmětem) (29)
 
 | Název | English | ID | Typ |
 |---|---|---|---|
@@ -180,8 +186,16 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Láhev plná krve (položená) | Blood-Filled Bottle (placed) | `radiousti:blood_bottle_block` | laboratorní sklo |
 | Prázdná laboratorní nádoba (položená) | Empty Laboratory Jar (placed) | `radiousti:empty_jar_block` | laboratorní sklo |
 | Nádoba s krví (položená) | Blood Jar (placed) | `radiousti:blood_jar_block` | laboratorní sklo |
+| Ampule biogenního séra (položená) | Biogenic Serum Vial (placed) | `radiousti:serum_vial_block` | laboratorní sklo |
+| Krev | Blood | `radiousti:blood_liquid` | tekutina |
+| Průmyslový olej | Industrial Oil | `radiousti:industrial_oil_liquid` | tekutina |
+| Černý strojní olej | Black Machine Oil | `radiousti:black_oil_liquid` | tekutina |
+| Hydraulický olej | Hydraulic Oil | `radiousti:hydraulic_oil_liquid` | tekutina |
+| Laboratorní olej | Laboratory Oil | `radiousti:lab_oil_liquid` | tekutina |
+| Kontaminovaný olej | Contaminated Oil | `radiousti:contaminated_oil_liquid` | tekutina |
+| Radioaktivní olej | Radioactive Oil | `radiousti:radioactive_oil_liquid` | tekutina |
 
-## Předměty (46)
+## Předměty (57)
 
 | Název | English | ID | Popis |
 |---|---|---|---|
@@ -231,3 +245,14 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Svazek dokumentů | Document Bundle | `radiousti:document_bundle` |  |
 | Historická fotografie | Historical Photograph | `radiousti:historical_photo` |  |
 | VHS kazeta: RadioÚstí 2072 | VHS Tape: RadioÚstí 2072 | `radiousti:vhs_radiousti` |  |
+| Úlomek Liverocrystalu | Liverocrystal Shard | `radiousti:liverocrystal_shard` |  |
+| Ingot Liverocrystal Metal | Liverocrystal Metal Ingot | `radiousti:liverocrystal_metal_ingot` |  |
+| Kanystr Liverocrystal Gas | Liverocrystal Gas Canister | `radiousti:liverocrystal_gas_canister` |  |
+| Biogenní sérum (B-9) | Biogenic Serum (B-9) | `radiousti:biogenic_serum` |  |
+| Kbelík – krev | Bucket of Blood | `radiousti:blood_bucket` |  |
+| Kbelík – průmyslový olej | Bucket of Industrial Oil | `radiousti:industrial_oil_bucket` |  |
+| Kbelík – černý strojní olej | Bucket of Black Machine Oil | `radiousti:black_oil_bucket` |  |
+| Kbelík – hydraulický olej | Bucket of Hydraulic Oil | `radiousti:hydraulic_oil_bucket` |  |
+| Kbelík – laboratorní olej | Bucket of Laboratory Oil | `radiousti:lab_oil_bucket` |  |
+| Kbelík – kontaminovaný olej | Bucket of Contaminated Oil | `radiousti:contaminated_oil_bucket` |  |
+| Kbelík – radioaktivní olej | Bucket of Radioactive Oil | `radiousti:radioactive_oil_bucket` |  |

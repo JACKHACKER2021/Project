@@ -164,7 +164,7 @@ for gid, en, cs, mk, size, col, meta in GEN:
     body = tex(gid, lambda n, c=col: T.metal(n, c, rust=3))
     offs = [(x, y, z) for y in range(size[1]) for z in range(size[2]) for x in range(size[0])]
     block(gid, en, cs, cat="equipment", model=("multi", mk, offs),
-          tex={"*": body, "detail": S["steel_dark"], "screen": S["screen_off"]},
+          tex={"*": body, "detail": S["steel_dark"], "screen": S["screen_off"], "hazard": S["hazard"]},
           tex_active={"screen": S["screen_terminal"] if mk != "server" else S["screen_leds"]},
           sound="metal", hardness=4, resist=12, rot="cardinal", kind="machine",
           states={f"{NS}:part": list(range(len(offs))), f"{NS}:active": [False, True]},
@@ -196,7 +196,7 @@ block("reactor_control_panel", "Reactor Control Panel", "Řídicí panel reaktor
       sound="metal", hardness=5, resist=30, kind="reactor_shell", meta={"panel": True}, comps=[f"{NS}:reactor_panel"],
       mapc="#c9bfa4", tags=["metal", "radiousti:industrial"])
 block("reactor_cooling_unit", "Reactor Cooling Unit", "Chladicí jednotka reaktoru", cat="equipment", model=("cooling_unit",),
-      tex={"*": tex("cooling_unit", lambda n: T.metal(n, "#7d93a3")), "screen": S["screen_fan"]}, rot="cardinal",
+      tex={"*": tex("cooling_unit", lambda n: T.metal(n, "#7d93a3")), "screen": S["screen_fan"], "detail": S["steel_dark"]}, rot="cardinal",
       sound="metal", hardness=4, kind="machine", meta={"role": "cooler", "family": "water", "demand": 0}, mapc="#7d93a3",
       tags=["metal", "radiousti:industrial"])
 block("emergency_shutdown_button", "Emergency Shutdown Button", "Tlačítko nouzového odstavení", cat="equipment",
@@ -248,11 +248,11 @@ PCS = [
 for pid, en, cs, var, col, on in PCS:
     body = tex(pid, lambda n, c=col: T.Tex(n, base=c).noise(4).frame("#8f866d"))
     block(pid, en, cs, cat="equipment", model=("pc", var), rot="cardinal",
-          tex={"*": body, "screen": S["screen_off"], "keys": S["keys"]}, tex_active={"screen": on}, light_active=4,
+          tex={"*": body, "screen": S["screen_off"], "keys": S["keys"], "detail": S["steel_dark"]}, tex_active={"screen": on}, light_active=4,
           states={f"{NS}:active": [False, True]}, sound="metal", hardness=2, kind="machine",
           meta={"role": "computer", "demand": 2, "variant": var}, comps=[f"{NS}:computer"], mapc=col)
 block("server_rack", "Server Rack", "Serverový rack", cat="equipment", model=("server",), rot="cardinal",
-      tex={"*": tex("server_rack", lambda n: T.metal(n, "#2a2b2d")), "screen": S["screen_off"]},
+      tex={"*": tex("server_rack", lambda n: T.metal(n, "#2a2b2d")), "screen": S["screen_off"], "detail": S["steel"]},
       tex_active={"screen": S["screen_leds"]}, light_active=3, states={f"{NS}:active": [False, True]},
       sound="metal", hardness=3, kind="machine", meta={"role": "server", "demand": 5}, comps=[f"{NS}:server"], mapc="#2a2b2d",
       tags=["metal", "radiousti:industrial"])
@@ -350,7 +350,8 @@ for did, en, cs, col, window in DOORS:
         return t
     top = tex(did + "_top", lambda n, f=dtex: f(n, top=True))
     bot = tex(did + "_bottom", lambda n, f=dtex: f(n, top=False))
-    block(did, en, cs, cat="construction", model=("door",), rot="cardinal", tex={"*": bot}, tex_upper={"*": top},
+    block(did, en, cs, cat="construction", model=("door",), rot="cardinal", tex={"*": bot, "detail": S["steel_dark"] if did != "fortress_door" else S["wood_dark"]},
+          tex_upper={"*": top},
           states={f"{NS}:upper": [False, True], f"{NS}:open": [False, True]}, sound="wood" if did == "fortress_door" else "metal",
           hardness=3, resist=10 if did != "containment_door" else 40, kind="door", comps=[f"{NS}:door"], loot="empty",
           mapc=col, placer_icon=("door_icon", col))
@@ -669,3 +670,65 @@ for bid, iid, en, cs, mdl, fill in GLASSWARE:
     for it in ITEMS:
         if it["id"] == iid:
             it["comps"]["minecraft:block_placer"] = {"block": f"{NS}:{bid}"}
+
+
+# ----------------------------------------------------------------- Liverocrystal & biogenic serum (v1.3)
+LC = "#2d8fd6"
+tex("lc_ore", lambda n: T.Tex(n, base=P["stone"]).noise(14).blobs([LC, "#8fdcff", "#1b5c99"], 6, 2))
+tex("lc_crystal", lambda n: T.Tex(n, base="#3aa7f0", alpha=225).noise(18).speckle(["#d6f3ff", "#1b5c99"], 18))
+tex("lc_metal", lambda n: (lambda t: (t.speckle(["#9fe0ff"], 10), t)[-1])(T.metal(n, "#3f6f99")))
+tex("lc_armor", lambda n: (lambda t: (t.rect(3, 3, 10, 10, "#2f5577"), t.frame("#16283a", 2), t.rivets("#bfe8ff", 1), t.rivets("#bfe8ff", 4), t)[-1])(T.metal(n, "#355f86")))
+tex("lc_gas_tank", lambda n: (lambda t: (t.rect(0, 6, 16, 3, P["hazard"]), t.rect(3, 6, 2, 3, P["black"]), t.rect(9, 6, 2, 3, P["black"]), t)[-1])(T.metal(n, "#2a78bf")))
+tex("serum_fill", lambda n: T.Tex(n, base="#d36fa8", alpha=215).noise(10).speckle(["#9be86a", "#f2b6d6"], 14))
+block("liverocrystal_ore", "Liverocrystal Ore", "Liverocrystalová ruda", cat="nature", tex={"*": "radiousti_lc_ore"}, light=4,
+      hardness=4, resist=6, kind="toxic", meta={"toxic": 1}, loot="loot_tables/blocks/liverocrystal_ore.json",
+      tags=["stone", "minecraft:is_pickaxe_item_destructible"], mapc="#2d8fd6")
+block("liverocrystal_cluster", "Liverocrystal Cluster", "Shluk Liverocrystalu", cat="nature", model=("crystal",),
+      tex={"*": "radiousti_lc_crystal"}, render="blend", light=9, sound="glass", hardness=1.5, kind="toxic", meta={"toxic": 1},
+      mapc="#3aa7f0")
+block("liverocrystal_metal_block", "Block of Liverocrystal Metal", "Blok Liverocrystal Metal", tex={"*": "radiousti_lc_metal"},
+      sound="metal", hardness=8, resist=60, mapc="#3f6f99", tags=["metal", "radiousti:industrial", "minecraft:is_pickaxe_item_destructible"])
+block("liverocrystal_armor_plate", "Liverocrystal Armour Plate", "Pancéřová deska z Liverocrystal Metal", tex={"*": "radiousti_lc_armor"},
+      sound="metal", hardness=15, resist=1200, mapc="#355f86", tags=["metal", "minecraft:is_pickaxe_item_destructible"])
+block("liverocrystal_gas_tank", "Liverocrystal Gas Tank (Blue Gasoline)", "Nádrž Liverocrystal Gas (Blue Gasoline)", cat="equipment",
+      model=("tank",), rot="cardinal", tex={"*": "radiousti_lc_gas_tank", "detail": S["steel_dark"], "screen": S["screen_gauge"]},
+      light=3, sound="metal", hardness=3, kind="machine", meta={"role": "tank", "family": "gas", "capacity": 3000, "demand": 0, "toxic": 2},
+      mapc="#2a78bf", tags=["metal", "radiousti:industrial"])
+block("biogenic_serum_vat", "Biogenic Serum Vat", "Kádě s biogenním sérem", cat="equipment", model=("vat",),
+      tex={"*": S["glass_flask"], "detail": S["steel_dark"], "fill": "radiousti_serum_fill"}, render="blend", light=5, sound="glass",
+      hardness=2, mapc="#d36fa8")
+item("liverocrystal_shard", "Liverocrystal Shard", "Úlomek Liverocrystalu", ic("liverocrystal_shard", "essence", LC), kind="toxic", meta={"toxic": 0.3})
+item("liverocrystal_metal_ingot", "Liverocrystal Metal Ingot", "Ingot Liverocrystal Metal", ic("liverocrystal_metal_ingot", "ingot", "#3f6f99"))
+item("liverocrystal_gas_canister", "Liverocrystal Gas Canister", "Kanystr Liverocrystal Gas", ic("liverocrystal_gas_canister", "gascan", LC), stack=16, kind="gas")
+item("biogenic_serum", "Biogenic Serum (B-9)", "Biogenní sérum (B-9)", ic("biogenic_serum", "serum", "#d36fa8"), stack=16, kind="consumable",
+     comps={"minecraft:food": {"nutrition": 0, "saturation_modifier": 0, "can_always_eat": True},
+            "minecraft:use_animation": "drink", "minecraft:use_modifiers": {"use_duration": 1.2, "movement_modifier": 0.5}})
+block("serum_vial_block", "Biogenic Serum Vial (placed)", "Ampule biogenního séra (položená)", cat="none", model=("tube_stand", True),
+      tex={"*": S["glass_flask"], "detail": S["steel_dark"], "fill": "radiousti_serum_fill"}, render="blend", sound="glass", hardness=0.2,
+      resist=0.5, kind="glassware", meta={"item": f"{NS}:biogenic_serum"}, loot="loot_tables/blocks/glassware/serum_vial_block.json", mapc="#d36fa8")
+for it in ITEMS:
+    if it["id"] == "biogenic_serum":
+        it["comps"]["minecraft:block_placer"] = {"block": f"{NS}:serum_vial_block"}
+
+# ----------------------------------------------------------------- pseudo-liquids (v1.3)
+# Bedrock add-ons cannot define real fluids; these are script-flowing blocks with 5 surface levels.
+LIQUIDS = [
+    # key, en, cs, colour, alpha, light, effect, rad
+    ("blood", "Blood", "Krev", "#7a0e12", 230, 0, "nausea", 0),
+    ("industrial_oil", "Industrial Oil", "Průmyslový olej", "#c08a2a", 220, 0, "slowness", 0),
+    ("black_oil", "Black Machine Oil", "Černý strojní olej", "#151515", 245, 0, "blindness", 0),
+    ("hydraulic_oil", "Hydraulic Oil", "Hydraulický olej", "#e3c52a", 215, 0, "slowness", 0),
+    ("lab_oil", "Laboratory Oil", "Laboratorní olej", "#b3241c", 220, 0, "weakness", 0),
+    ("contaminated_oil", "Contaminated Oil", "Kontaminovaný olej", "#5f8f2a", 220, 3, "poison", 0),
+    ("radioactive_oil", "Radioactive Oil", "Radioaktivní olej", "#7dff3a", 210, 8, "radiation", 2),
+]
+for key, en, cs, col, al, lt, eff, rad in LIQUIDS:
+    t = tex(f"liquid_{key}", lambda n, c=col, a=al: T.Tex(n, base=c, alpha=a).noise(10).speckle(["#ffffff"], 3))
+    meta = {"liquid": key, "effect": eff, "bucket": f"{NS}:{key}_bucket"}
+    if rad:
+        meta["rad"] = rad
+    block(f"{key}_liquid", en, cs, cat="none", model=("liquid_levels",), tex={"*": t}, render="blend", light=lt, sound="slime",
+          hardness=100, resist=100, kind="liquid", meta=meta, states={f"{NS}:level": [0, 1, 2, 3, 4]}, collision=False,
+          comps=[f"{NS}:liquid"], tick=(10, 10), loot="empty", mapc=col)
+    item(f"{key}_bucket", f"Bucket of {en}", f"Kbelík – {cs.lower()}", ic(f"{key}_bucket", "bucket", col), stack=1, kind="liquid_bucket",
+         meta={"liquid": f"{NS}:{key}_liquid"})

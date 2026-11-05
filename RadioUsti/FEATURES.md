@@ -40,11 +40,15 @@ Verze 1.0.0 byla podle autora otestovaná ve hře a funguje („Otestováno a co
 | G1 | Redstone jako zdroj: blok ruditu (10), rudit / pochodeň / páka / opakovač / komparátor (signál ÷ 3, max 5) | staticky ověřeno | – | `Block.getRedstonePower()` (stabilní 2.0.0); kabely se napojují i vizuálně |
 | G2 | Pokládané laboratorní sklo – 9 bloků s modely (baňky, zkumavky, láhev, nádoby) | staticky ověřeno | – | předmět → `minecraft:block_placer`, blok vrací předmět |
 | G3 | Registr experimentů – kniha postav Projektu Apokalypsa (13 kapitol), i v ÚstíOS | staticky ověřeno | – | |
+| G4 | Liverocrystal (ruda + worldgen, kov, pancíř, plyn, nádrž), toxické výpary | staticky ověřeno | – | |
+| G5 | Biogenní sérum B-9, kádě | staticky ověřeno | – | |
+| G6 | Tekutiny: krev + 6 olejů, tečení, kbelíky, efekty | staticky ověřeno | – | skriptová náhrada, Bedrock nemá vlastní tekutiny |
+| G7 | Vylepšené modely a vzhled (PC, server, dveře, nádrže, čerpadlo, chlazení, generátory, ikony) | staticky ověřeno | – | |
 | F1 | Validace JSON, geometrií, skriptů, ID, textur | staticky ověřeno | – | `tools/validate.py`: 0 chyb; komunitní JSON schémata: 0 nálezů |
 | F2 | Export .mcaddon + .mcpack | staticky ověřeno | – | `tools/package.py`, kontrola integrity ZIP |
 | F3 | Test v Minecraftu Bedrock 1.26.50 | 1.0.0 načteno a hratelné | ✓ (1.0.0, obecně) | 1.1 čeká na test |
 | X1 | Sezení na židlích | nepodporováno | – | vyžadovalo by vlastní entitu; místo toho se kancelářská židle otáčí |
-| X2 | Zobrazení tekoucích kapalin v potrubí | nepodporováno | – | stabilní API to neumožňuje, náhradou je zjednodušená síť |
+| X2 | Zobrazení tekoucích kapalin v potrubí; opravdové vlastní tekutiny (plavání) | nepodporováno | – | stabilní API to neumožňuje, náhradou je zjednodušená síť |
 | X3 | Vlastní hudební disk | nepodporováno | – | náhradou je VHS v ÚstíOS |
 | X4 | Plnohodnotná „plocha“ přes JSON UI | nepoužito | – | rozhodnutí autora: stabilní formuláře |
 

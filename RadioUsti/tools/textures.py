@@ -168,7 +168,11 @@ def concrete(name, base=P["concrete"], cracks=True):
 def metal(name, base=P["steel"], rust=0, rivet=True):
     t = Tex(name, base=base).noise(6)
     t.frame("#3c4246")
-    t.shade(1, 1, 14, 1, 25)
+    t.shade(1, 1, 14, 1, 28)    # top highlight
+    t.shade(1, 2, 1, 13, 16)    # left highlight
+    t.shade(1, 14, 14, 1, -22)  # bottom shadow
+    t.shade(14, 2, 1, 12, -16)  # right shadow
+    t.shade(2, 7, 12, 1, -8)    # panel seam
     if rivet:
         t.rivets("#c0c7cc")
     if rust:
@@ -399,7 +403,36 @@ def item_canvas(name):
     return Tex(name, base="#000000", alpha=0)
 
 
+def outline(t, col="#161616"):
+    a = t.a
+    n = t.n
+    solid = a[:, :, 3] > 0
+    out = a.copy()
+    oc = hexc(col)
+    for y in range(n):
+        for x in range(n):
+            if solid[y, x]:
+                continue
+            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                xx, yy = x + dx, y + dy
+                if 0 <= xx < n and 0 <= yy < n and solid[yy, xx]:
+                    out[y, x] = oc
+                    break
+    # highlight: first opaque pixel from top in each column gets lighter
+    for x in range(n):
+        for y in range(n):
+            if solid[y, x]:
+                out[y, x, :3] = np.minimum(255, out[y, x, :3] + 40)
+                break
+    t.a = out
+    return t
+
+
 def item(name, kind, color="#888888"):
+    return outline(_item(name, kind, color))
+
+
+def _item(name, kind, color="#888888"):
     t = item_canvas(name)
     o = "#1d1d1d"
     if kind == "bottle":
@@ -479,6 +512,9 @@ def item(name, kind, color="#888888"):
         t.rect(6, 3, 4, 10, color); t.rect(4, 6, 8, 4, color); t.px(7, 5, "#ffffff"); t.speckle(["#9ffbff"], 4)
     elif kind == "waste":
         t.rect(4, 4, 8, 10, "#5e6f55"); t.rect(4, 3, 8, 1, "#3c4246"); t.rect(6, 7, 4, 4, "#e0a800"); t.px(7, 8, "#1d1d1d")
+    elif kind == "bucket":
+        t.rect(3, 4, 10, 2, "#9aa3a8"); t.rect(4, 6, 8, 8, "#7c848a"); t.rect(5, 14, 6, 1, "#5b6267")
+        t.rect(4, 5, 8, 3, color); t.rect(2, 3, 1, 3, "#5b6267"); t.rect(13, 3, 1, 3, "#5b6267"); t.rect(3, 1, 10, 1, "#5b6267")
     elif kind == "vhs":
         t.rect(1, 4, 14, 9, "#1d1d1d"); t.rect(3, 5, 10, 4, "#d9cfb3"); t.rect(4, 6, 3, 2, "#3a3a3a"); t.rect(9, 6, 3, 2, "#3a3a3a")
         t.rect(3, 10, 10, 2, "#2c2c2c"); t.rect(4, 5, 8, 1, color)

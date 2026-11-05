@@ -37,11 +37,14 @@ function useItemOnMachine(player, key, rec) {
     Machines.save(key);
     return `§aBaterie nabita na ${rec.charge}/${i.capacity}.`;
   }
-  if (rec.t === `${NS}:gas_tank` && it.typeId === `${NS}:gas_canister`) {
-    if ((rec.gas ?? 0) + 100 > i.capacity) return "§eNádrž je plná.";
+  const GAS = { [`${NS}:gas_canister`]: 100, [`${NS}:liverocrystal_gas_canister`]: 300 };
+  if (i.role === "tank" && i.family === "gas" && GAS[it.typeId]) {
+    if (it.typeId === `${NS}:liverocrystal_gas_canister` && rec.t !== `${NS}:liverocrystal_gas_tank`) return "§cLiverocrystal Gas patří jen do nádrže Liverocrystal Gas.";
+    const add = GAS[it.typeId];
+    if ((rec.gas ?? 0) + add > i.capacity) return "§eNádrž je plná.";
     consumeHeld(player, 1);
     giveItem(player, `${NS}:empty_canister`, 1);
-    rec.gas = (rec.gas ?? 0) + 100;
+    rec.gas = (rec.gas ?? 0) + add;
     Machines.save(key);
     return `§aPlyn doplněn: ${rec.gas}/${i.capacity}.`;
   }
@@ -103,6 +106,7 @@ function hintFor(rec) {
     case `${NS}:generator_nuclear`: return "\n\n§7Propojte kabelem s energetickým portem běžícího reaktoru.§r";
     case `${NS}:lab_power_unit`: return "\n\n§7Nabíjí se přebytkem sítě nebo klepnutím s ruditem / blokem ruditu.§r";
     case `${NS}:gas_tank`: return "\n\n§7Doplňte klepnutím s plynovou bombou (+100).§r";
+    case `${NS}:liverocrystal_gas_tank`: return "\n\n§7Doplňte kanystrem Liverocrystal Gas (+300). Pozor: bez plynové masky výpary otráví každého do 3 bloků.§r";
     default:
       if (info(rec.t)?.family === "oil") return "\n\n§7Klepněte s kanystrem správného oleje pro uložení, s prázdným kanystrem pro natočení.§r";
       return "";

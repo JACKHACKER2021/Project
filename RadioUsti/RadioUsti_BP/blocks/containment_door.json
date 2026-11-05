@@ -35,20 +35,24 @@
       "minecraft:map_color": "#c9a227",
       "radiousti:door": {},
       "minecraft:loot": "loot_tables/blocks/radiousti_empty.json",
-      "minecraft:geometry": "geometry.radiousti.containment_door.closed.north",
+      "minecraft:geometry": "geometry.radiousti.containment_door.closed.lower.north",
       "minecraft:light_dampening": 0,
       "minecraft:material_instances": {
         "*": {
           "texture": "radiousti_containment_door_bottom",
+          "render_method": "opaque"
+        },
+        "detail": {
+          "texture": "radiousti_steel_dark",
           "render_method": "opaque"
         }
       }
     },
     "permutations": [
       {
-        "condition": "q.block_state('minecraft:cardinal_direction') == 'north' && q.block_state('radiousti:open') == false",
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'north' && q.block_state('radiousti:open') == false && q.block_state('radiousti:upper') == false",
         "components": {
-          "minecraft:geometry": "geometry.radiousti.containment_door.closed.north",
+          "minecraft:geometry": "geometry.radiousti.containment_door.closed.lower.north",
           "minecraft:selection_box": {
             "origin": [
               -8,
@@ -58,7 +62,7 @@
             "size": [
               16,
               16,
-              3
+              3.8
             ]
           },
           "minecraft:collision_box": {
@@ -70,15 +74,15 @@
             "size": [
               16,
               16,
-              3
+              3.8
             ]
           }
         }
       },
       {
-        "condition": "q.block_state('minecraft:cardinal_direction') == 'north' && q.block_state('radiousti:open') == true",
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'north' && q.block_state('radiousti:open') == false && q.block_state('radiousti:upper') == true",
         "components": {
-          "minecraft:geometry": "geometry.radiousti.containment_door.open.north",
+          "minecraft:geometry": "geometry.radiousti.containment_door.closed.upper.north",
           "minecraft:selection_box": {
             "origin": [
               -8,
@@ -86,7 +90,37 @@
               -8
             ],
             "size": [
-              3,
+              16,
+              16,
+              3.2
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              3.2
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'north' && q.block_state('radiousti:open') == true && q.block_state('radiousti:upper') == false",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.containment_door.open.lower.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              3.8,
               16,
               16
             ]
@@ -98,127 +132,7 @@
               -8
             ],
             "size": [
-              3,
-              16,
-              16
-            ]
-          }
-        }
-      },
-      {
-        "condition": "q.block_state('minecraft:cardinal_direction') == 'east' && q.block_state('radiousti:open') == false",
-        "components": {
-          "minecraft:geometry": "geometry.radiousti.containment_door.closed.east",
-          "minecraft:selection_box": {
-            "origin": [
-              5,
-              0,
-              -8
-            ],
-            "size": [
-              3,
-              16,
-              16
-            ]
-          },
-          "minecraft:collision_box": {
-            "origin": [
-              5,
-              0,
-              -8
-            ],
-            "size": [
-              3,
-              16,
-              16
-            ]
-          }
-        }
-      },
-      {
-        "condition": "q.block_state('minecraft:cardinal_direction') == 'east' && q.block_state('radiousti:open') == true",
-        "components": {
-          "minecraft:geometry": "geometry.radiousti.containment_door.open.east",
-          "minecraft:selection_box": {
-            "origin": [
-              -8,
-              0,
-              -8
-            ],
-            "size": [
-              16,
-              16,
-              3
-            ]
-          },
-          "minecraft:collision_box": {
-            "origin": [
-              -8,
-              0,
-              -8
-            ],
-            "size": [
-              16,
-              16,
-              3
-            ]
-          }
-        }
-      },
-      {
-        "condition": "q.block_state('minecraft:cardinal_direction') == 'south' && q.block_state('radiousti:open') == false",
-        "components": {
-          "minecraft:geometry": "geometry.radiousti.containment_door.closed.south",
-          "minecraft:selection_box": {
-            "origin": [
-              -8,
-              0,
-              5
-            ],
-            "size": [
-              16,
-              16,
-              3
-            ]
-          },
-          "minecraft:collision_box": {
-            "origin": [
-              -8,
-              0,
-              5
-            ],
-            "size": [
-              16,
-              16,
-              3
-            ]
-          }
-        }
-      },
-      {
-        "condition": "q.block_state('minecraft:cardinal_direction') == 'south' && q.block_state('radiousti:open') == true",
-        "components": {
-          "minecraft:geometry": "geometry.radiousti.containment_door.open.south",
-          "minecraft:selection_box": {
-            "origin": [
-              5,
-              0,
-              -8
-            ],
-            "size": [
-              3,
-              16,
-              16
-            ]
-          },
-          "minecraft:collision_box": {
-            "origin": [
-              5,
-              0,
-              -8
-            ],
-            "size": [
-              3,
+              3.8,
               16,
               16
             ]
@@ -226,9 +140,9 @@
         }
       },
       {
-        "condition": "q.block_state('minecraft:cardinal_direction') == 'west' && q.block_state('radiousti:open') == false",
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'north' && q.block_state('radiousti:open') == true && q.block_state('radiousti:upper') == true",
         "components": {
-          "minecraft:geometry": "geometry.radiousti.containment_door.closed.west",
+          "minecraft:geometry": "geometry.radiousti.containment_door.open.upper.north",
           "minecraft:selection_box": {
             "origin": [
               -8,
@@ -236,7 +150,7 @@
               -8
             ],
             "size": [
-              3,
+              3.2,
               16,
               16
             ]
@@ -248,7 +162,7 @@
               -8
             ],
             "size": [
-              3,
+              3.2,
               16,
               16
             ]
@@ -256,31 +170,361 @@
         }
       },
       {
-        "condition": "q.block_state('minecraft:cardinal_direction') == 'west' && q.block_state('radiousti:open') == true",
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'east' && q.block_state('radiousti:open') == false && q.block_state('radiousti:upper') == false",
         "components": {
-          "minecraft:geometry": "geometry.radiousti.containment_door.open.west",
+          "minecraft:geometry": "geometry.radiousti.containment_door.closed.lower.east",
+          "minecraft:selection_box": {
+            "origin": [
+              4.2,
+              0,
+              -8
+            ],
+            "size": [
+              3.8,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              4.2,
+              0,
+              -8
+            ],
+            "size": [
+              3.8,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'east' && q.block_state('radiousti:open') == false && q.block_state('radiousti:upper') == true",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.containment_door.closed.upper.east",
+          "minecraft:selection_box": {
+            "origin": [
+              4.8,
+              0,
+              -8
+            ],
+            "size": [
+              3.2,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              4.8,
+              0,
+              -8
+            ],
+            "size": [
+              3.2,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'east' && q.block_state('radiousti:open') == true && q.block_state('radiousti:upper') == false",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.containment_door.open.lower.east",
           "minecraft:selection_box": {
             "origin": [
               -8,
               0,
-              5
+              -8
             ],
             "size": [
               16,
               16,
-              3
+              3.8
             ]
           },
           "minecraft:collision_box": {
             "origin": [
               -8,
               0,
-              5
+              -8
             ],
             "size": [
               16,
               16,
-              3
+              3.8
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'east' && q.block_state('radiousti:open') == true && q.block_state('radiousti:upper') == true",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.containment_door.open.upper.east",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              3.2
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              16,
+              16,
+              3.2
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'south' && q.block_state('radiousti:open') == false && q.block_state('radiousti:upper') == false",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.containment_door.closed.lower.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              4.2
+            ],
+            "size": [
+              16,
+              16,
+              3.8
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              4.2
+            ],
+            "size": [
+              16,
+              16,
+              3.8
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'south' && q.block_state('radiousti:open') == false && q.block_state('radiousti:upper') == true",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.containment_door.closed.upper.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              4.8
+            ],
+            "size": [
+              16,
+              16,
+              3.2
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              4.8
+            ],
+            "size": [
+              16,
+              16,
+              3.2
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'south' && q.block_state('radiousti:open') == true && q.block_state('radiousti:upper') == false",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.containment_door.open.lower.south",
+          "minecraft:selection_box": {
+            "origin": [
+              4.2,
+              0,
+              -8
+            ],
+            "size": [
+              3.8,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              4.2,
+              0,
+              -8
+            ],
+            "size": [
+              3.8,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'south' && q.block_state('radiousti:open') == true && q.block_state('radiousti:upper') == true",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.containment_door.open.upper.south",
+          "minecraft:selection_box": {
+            "origin": [
+              4.8,
+              0,
+              -8
+            ],
+            "size": [
+              3.2,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              4.8,
+              0,
+              -8
+            ],
+            "size": [
+              3.2,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'west' && q.block_state('radiousti:open') == false && q.block_state('radiousti:upper') == false",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.containment_door.closed.lower.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              3.8,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              3.8,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'west' && q.block_state('radiousti:open') == false && q.block_state('radiousti:upper') == true",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.containment_door.closed.upper.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              3.2,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -8
+            ],
+            "size": [
+              3.2,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'west' && q.block_state('radiousti:open') == true && q.block_state('radiousti:upper') == false",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.containment_door.open.lower.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              4.2
+            ],
+            "size": [
+              16,
+              16,
+              3.8
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              4.2
+            ],
+            "size": [
+              16,
+              16,
+              3.8
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'west' && q.block_state('radiousti:open') == true && q.block_state('radiousti:upper') == true",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.containment_door.open.upper.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              4.8
+            ],
+            "size": [
+              16,
+              16,
+              3.2
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              4.8
+            ],
+            "size": [
+              16,
+              16,
+              3.2
             ]
           }
         }
@@ -291,6 +535,10 @@
           "minecraft:material_instances": {
             "*": {
               "texture": "radiousti_containment_door_top",
+              "render_method": "opaque"
+            },
+            "detail": {
+              "texture": "radiousti_steel_dark",
               "render_method": "opaque"
             }
           }

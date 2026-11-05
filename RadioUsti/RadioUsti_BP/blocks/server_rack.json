@@ -42,6 +42,10 @@
         "screen": {
           "texture": "radiousti_screen_off",
           "render_method": "opaque"
+        },
+        "detail": {
+          "texture": "radiousti_steel",
+          "render_method": "opaque"
         }
       }
     },
@@ -52,26 +56,26 @@
           "minecraft:geometry": "geometry.radiousti.server_rack.north",
           "minecraft:selection_box": {
             "origin": [
-              -7,
+              -7.5,
               0,
-              -7.2
+              -7.5
             ],
             "size": [
-              14,
+              15.0,
               16,
-              14.2
+              15.0
             ]
           },
           "minecraft:collision_box": {
             "origin": [
-              -7,
+              -7.5,
               0,
-              -7.2
+              -7.5
             ],
             "size": [
-              14,
+              15.0,
               16,
-              14.2
+              15.0
             ]
           }
         }
@@ -82,26 +86,26 @@
           "minecraft:geometry": "geometry.radiousti.server_rack.east",
           "minecraft:selection_box": {
             "origin": [
-              -7,
+              -7.5,
               0,
-              -7
+              -7.5
             ],
             "size": [
-              14.2,
+              15.0,
               16,
-              14
+              15.0
             ]
           },
           "minecraft:collision_box": {
             "origin": [
-              -7,
+              -7.5,
               0,
-              -7
+              -7.5
             ],
             "size": [
-              14.2,
+              15.0,
               16,
-              14
+              15.0
             ]
           }
         }
@@ -112,26 +116,26 @@
           "minecraft:geometry": "geometry.radiousti.server_rack.south",
           "minecraft:selection_box": {
             "origin": [
-              -7,
+              -7.5,
               0,
-              -7
+              -7.5
             ],
             "size": [
-              14,
+              15.0,
               16,
-              14.2
+              15.0
             ]
           },
           "minecraft:collision_box": {
             "origin": [
-              -7,
+              -7.5,
               0,
-              -7
+              -7.5
             ],
             "size": [
-              14,
+              15.0,
               16,
-              14.2
+              15.0
             ]
           }
         }
@@ -142,26 +146,26 @@
           "minecraft:geometry": "geometry.radiousti.server_rack.west",
           "minecraft:selection_box": {
             "origin": [
-              -7.2,
+              -7.5,
               0,
-              -7
+              -7.5
             ],
             "size": [
-              14.2,
+              15.0,
               16,
-              14
+              15.0
             ]
           },
           "minecraft:collision_box": {
             "origin": [
-              -7.2,
+              -7.5,
               0,
-              -7
+              -7.5
             ],
             "size": [
-              14.2,
+              15.0,
               16,
-              14
+              15.0
             ]
           }
         }
@@ -176,6 +180,10 @@
             },
             "screen": {
               "texture": "radiousti_screen_leds",
+              "render_method": "opaque"
+            },
+            "detail": {
+              "texture": "radiousti_steel",
               "render_method": "opaque"
             }
           },

@@ -88,6 +88,15 @@ export const HANDBOOK = [
       "Nastavení (operátor): /scriptevent radiousti:config radiation off | on, multiplier 0.5, wastespread off.",
   },
   {
+    title: "10b. Liverocrystal, sérum a tekutiny",
+    text:
+      "LIVEROCRYSTAL: ruda hluboko pod zemí (y −60 až −10) dává úlomky. 4 úlomky + železný ingot = ingot Liverocrystal Metal (průmyslový ponk). Z ingotů vyrobíte blok, pancéřovou desku (téměř nezničitelná, odolnost proti výbuchu 1200) a nádrž Liverocrystal Gas.\n" +
+      "Kanystr Liverocrystal Gas (prázdný kanystr + 3 úlomky) doplní nádrž Liverocrystal Gas o 300 jednotek plynu – nádrž funguje jako plynová nádrž pro průmyslový generátor a chemickou analýzu.\n" +
+      "POZOR: ruda, shluky a nádrž vydávají výpary – bez plynové masky do 3 bloků otrava a nevolnost.\n\n" +
+      "BIOGENNÍ SÉRUM B-9 (baňka + organický materiál + esence duše): vypití = regenerace a krátká nevolnost; jde i položit jako ampuli.\n\n" +
+      "TEKUTINY: krev a 6 olejů jsou tekuté bloky, které stékají dolů a rozlévají se do 4 bloků. Kbelík + kanystr oleje (nebo nádoba s krví) = plný kbelík. Prázdným kbelíkem nabíráte zdroj. Ve tekutině jste zpomaleni; krev způsobuje nevolnost, černý olej slepotu, laboratorní slabost, kontaminovaný otravu, radioaktivní ozáření.",
+  },
+  {
     title: "11. Světla, alarmy, dveře",
     text:
       "Světla zapínáte klepnutím. Výstražný maják se sám rozsvítí při poplachu reaktoru do 32 bloků, nouzové světlo při výpadku napájení do 16 bloků.\n" +

@@ -462,5 +462,47 @@
   },
   "radiousti:blood_jar_block": {
     "sound": "glass"
+  },
+  "radiousti:liverocrystal_ore": {
+    "sound": "stone"
+  },
+  "radiousti:liverocrystal_cluster": {
+    "sound": "glass"
+  },
+  "radiousti:liverocrystal_metal_block": {
+    "sound": "metal"
+  },
+  "radiousti:liverocrystal_armor_plate": {
+    "sound": "metal"
+  },
+  "radiousti:liverocrystal_gas_tank": {
+    "sound": "metal"
+  },
+  "radiousti:biogenic_serum_vat": {
+    "sound": "glass"
+  },
+  "radiousti:serum_vial_block": {
+    "sound": "glass"
+  },
+  "radiousti:blood_liquid": {
+    "sound": "slime"
+  },
+  "radiousti:industrial_oil_liquid": {
+    "sound": "slime"
+  },
+  "radiousti:black_oil_liquid": {
+    "sound": "slime"
+  },
+  "radiousti:hydraulic_oil_liquid": {
+    "sound": "slime"
+  },
+  "radiousti:lab_oil_liquid": {
+    "sound": "slime"
+  },
+  "radiousti:contaminated_oil_liquid": {
+    "sound": "slime"
+  },
+  "radiousti:radioactive_oil_liquid": {
+    "sound": "slime"
   }
 }

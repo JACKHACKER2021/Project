@@ -60,7 +60,7 @@ def resolve_model(m):
         "stool": G.stool, "exam": G.exam_table, "iv": G.iv_stand, "med_monitor": G.med_monitor, "doc_pile": G.doc_pile,
         "clock": G.clock_model, "jar": G.jar, "flask_set": G.flask_set, "tube_rack": G.tube_rack, "growth": G.growth,
         "bin": G.bin_model, "crystal": G.crystal, "erlenmeyer": G.erlenmeyer, "round_flask": G.round_flask,
-        "tube_stand": G.tube_stand, "bottle": G.bottle, "jar_small": lambda fill=True: G.jar(8, 6),
+        "tube_stand": G.tube_stand, "vat": G.vat, "bottle": G.bottle, "jar_small": lambda fill=True: G.jar(8, 6),
     }
     if k in table:
         return table[k](*a)
@@ -219,14 +219,23 @@ def emit_block(b, geo_files, blocks_json, lang, registry):
                 cond = q(f"{NS}:part", pi) + (" && " + q("minecraft:cardinal_direction", d) if rot == "cardinal" else "")
                 geos.append((cond, ident, pb))
         geo_files[b["id"]] = entries
+    elif model[0] == "liquid_levels":
+        entries = []
+        for lv in range(5):
+            pb = G.liquid(lv)
+            ident = f"{gbase}.l{lv}"
+            entries.append(G.geometry_entry(ident, pb))
+            geos.append((q(f"{NS}:level", lv), ident, pb))
+        geo_files[b["id"]] = entries
     elif b["kind"] == "door":
         entries = []
         for d in dirs:
             for op in (False, True):
-                pb = G.rot_model(G.door_model(op), d)
-                ident = f"{gbase}.{'open' if op else 'closed'}.{d}"
-                entries.append(G.geometry_entry(ident, pb))
-                geos.append((q("minecraft:cardinal_direction", d) + " && " + q(f"{NS}:open", op), ident, pb))
+                for up in (False, True):
+                    pb = G.rot_model(G.door_model(op, up), d)
+                    ident = f"{gbase}.{'open' if op else 'closed'}.{'upper' if up else 'lower'}.{d}"
+                    entries.append(G.geometry_entry(ident, pb))
+                    geos.append((q("minecraft:cardinal_direction", d) + " && " + q(f"{NS}:open", op) + " && " + q(f"{NS}:upper", up), ident, pb))
         geo_files[b["id"]] = entries
     elif rot == "face":
         variants = face_variant_models(resolve_model(model))
@@ -385,6 +394,9 @@ def emit_loot():
     for b in CT.BLOCKS:
         if b["kind"] == "glassware":
             wjson(os.path.join(BP, b["loot"]), {"pools": [{"rolls": 1, "entries": [{"type": "item", "name": b["meta"]["item"], "weight": 1}]}]})
+    wjson(os.path.join(d, "liverocrystal_ore.json"), {"pools": [{"rolls": 1, "entries": [
+        {"type": "item", "name": f"{NS}:liverocrystal_shard", "weight": 1,
+         "functions": [{"function": "set_count", "count": {"min": 1, "max": 2}}]}]}]})
     wjson(os.path.join(d, "contaminated_grass.json"), {"pools": [{"rolls": 1, "entries": [
         {"type": "item", "name": f"{NS}:contaminated_dirt", "weight": 1}]}]})
 
@@ -408,6 +420,24 @@ def emit_worldgen():
             "distribution": {"iterations": 3, "coordinate_eval_order": "zyx",
                              "x": {"distribution": "uniform", "extent": [0, 16]},
                              "y": {"distribution": "uniform", "extent": [-48, 24]},
+                             "z": {"distribution": "uniform", "extent": [0, 16]}}}})
+
+
+def emit_lc_worldgen():
+    wjson(os.path.join(BP, "features", "liverocrystal_ore_feature.json"), {
+        "format_version": "1.13.0",
+        "minecraft:ore_feature": {"description": {"identifier": f"{NS}:liverocrystal_ore_feature"}, "count": 4,
+                                  "replace_rules": [{"places_block": f"{NS}:liverocrystal_ore",
+                                                     "may_replace": ["minecraft:stone", "minecraft:deepslate", "minecraft:tuff"]}]}})
+    wjson(os.path.join(BP, "feature_rules", "liverocrystal_ore_rule.json"), {
+        "format_version": "1.13.0",
+        "minecraft:feature_rules": {
+            "description": {"identifier": f"{NS}:liverocrystal_ore_rule", "places_feature": f"{NS}:liverocrystal_ore_feature"},
+            "conditions": {"placement_pass": "underground_pass",
+                           "minecraft:biome_filter": [{"test": "has_biome_tag", "operator": "==", "value": "overworld"}]},
+            "distribution": {"iterations": 2, "coordinate_eval_order": "zyx",
+                             "x": {"distribution": "uniform", "extent": [0, 16]},
+                             "y": {"distribution": "uniform", "extent": [-60, -10]},
                              "z": {"distribution": "uniform", "extent": [0, 16]}}}})
 
 
@@ -465,7 +495,7 @@ KIND_CS = {"pipe": "potrubí", "valve": "ventil", "cable": "kabel", "machine": "
            "reactor_port": "port reaktoru", "door": "dveře", "light": "světlo", "alarm": "alarm", "indicator": "indikátor",
            "radioactive": "radioaktivní", "decor": "dekorace", "furniture": "nábytek", "document": "dokument", "clock": "hodiny",
            "jar": "nádoba", "organic": "organické", "soul": "duše", "control": "ovládání", "craft_table": "pracovní stůl",
-           "station": "stanice", "glassware": "laboratorní sklo"}
+           "station": "stanice", "glassware": "laboratorní sklo", "toxic": "toxický materiál", "liquid": "tekutina"}
 CAT_CS = {"construction": "Stavba", "equipment": "Vybavení", "items": "Předměty", "nature": "Příroda",
           "none": "Pokládané laboratorní sklo a multibloky (pokládají se předmětem)"}
 TABLE_CS = {"crafting_table": "Pracovní stůl", "radiousti_industrial": "Průmyslový ponk", "radiousti_lab": "Laboratorní stůl"}
@@ -552,6 +582,7 @@ def main():
 
     emit_loot()
     emit_worldgen()
+    emit_lc_worldgen()
     emit_attachables()
     R.emit(os.path.join(BP, "recipes"), wjson, NS)
     SND.emit(os.path.join(RP, "sounds"), wjson)

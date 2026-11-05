@@ -6,6 +6,32 @@ import { BlockVolume, BlockPermutation, EquipmentSlot } from "@minecraft/server"
 import { NS, BLOCKS, ITEMS, blockAt, dist2, sound } from "../lib/util.js";
 import { Machines, Config, Logs } from "../lib/store.js";
 
+import { liquidEffects } from "./liquids.js";
+
+export const TOXIC_BLOCKS = Object.entries(BLOCKS).filter(([, v]) => v.toxic).map(([k]) => k);
+
+/** Liverocrystal gas: poisons players without a gas mask within 3 blocks of ore, clusters and gas tanks. */
+function toxicTick(p) {
+  let near = false;
+  try {
+    const l = p.location;
+    const vol = new BlockVolume({ x: l.x - 3, y: l.y - 2, z: l.z - 3 }, { x: l.x + 3, y: l.y + 3, z: l.z + 3 });
+    near = p.dimension.containsBlock(vol, { includeTypes: TOXIC_BLOCKS }, false);
+  } catch {
+    near = false;
+  }
+  if (!near) return;
+  const masked = p.getComponent("minecraft:equippable")?.getEquipment(EquipmentSlot.Head)?.typeId === `${NS}:gas_mask`;
+  if (masked) return;
+  try {
+    p.addEffect("poison", 50, { amplifier: 0, showParticles: false });
+    p.addEffect("nausea", 100, { amplifier: 0, showParticles: false });
+  } catch {
+    /* ignore */
+  }
+  p.onScreenDisplay.setActionBar("§9Výpary Liverocrystalu! §fNasaď plynovou masku.");
+}
+
 export const RAD_BLOCKS = Object.entries(BLOCKS).filter(([, v]) => v.rad).map(([k]) => k);
 const RAD_W = Object.fromEntries(Object.entries(BLOCKS).filter(([, v]) => v.rad).map(([k, v]) => [k, v.rad]));
 
@@ -89,6 +115,12 @@ export function lastRateOf(player) {
 export function radiationTick(players) {
   const cfg = Config.get();
   for (const p of players) {
+    try {
+      liquidEffects(p);
+      toxicTick(p);
+    } catch {
+      /* ignore */
+    }
     if (!cfg.radiation) {
       lastRate.set(p.id, 0);
       continue;

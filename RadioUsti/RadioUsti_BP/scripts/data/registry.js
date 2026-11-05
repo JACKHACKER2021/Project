@@ -1259,6 +1259,107 @@ export const REGISTRY = {
    "en": "Blood Jar (placed)",
    "cs": "Nádoba s krví (položená)",
    "item": "radiousti:blood_jar"
+  },
+  "radiousti:liverocrystal_ore": {
+   "kind": "toxic",
+   "en": "Liverocrystal Ore",
+   "cs": "Liverocrystalová ruda",
+   "toxic": 1
+  },
+  "radiousti:liverocrystal_cluster": {
+   "kind": "toxic",
+   "en": "Liverocrystal Cluster",
+   "cs": "Shluk Liverocrystalu",
+   "toxic": 1
+  },
+  "radiousti:liverocrystal_metal_block": {
+   "kind": "decor",
+   "en": "Block of Liverocrystal Metal",
+   "cs": "Blok Liverocrystal Metal"
+  },
+  "radiousti:liverocrystal_armor_plate": {
+   "kind": "decor",
+   "en": "Liverocrystal Armour Plate",
+   "cs": "Pancéřová deska z Liverocrystal Metal"
+  },
+  "radiousti:liverocrystal_gas_tank": {
+   "kind": "machine",
+   "en": "Liverocrystal Gas Tank (Blue Gasoline)",
+   "cs": "Nádrž Liverocrystal Gas (Blue Gasoline)",
+   "role": "tank",
+   "family": "gas",
+   "capacity": 3000,
+   "demand": 0,
+   "toxic": 2,
+   "rot": "cardinal"
+  },
+  "radiousti:biogenic_serum_vat": {
+   "kind": "decor",
+   "en": "Biogenic Serum Vat",
+   "cs": "Kádě s biogenním sérem"
+  },
+  "radiousti:serum_vial_block": {
+   "kind": "glassware",
+   "en": "Biogenic Serum Vial (placed)",
+   "cs": "Ampule biogenního séra (položená)",
+   "item": "radiousti:biogenic_serum"
+  },
+  "radiousti:blood_liquid": {
+   "kind": "liquid",
+   "en": "Blood",
+   "cs": "Krev",
+   "liquid": "blood",
+   "effect": "nausea",
+   "bucket": "radiousti:blood_bucket"
+  },
+  "radiousti:industrial_oil_liquid": {
+   "kind": "liquid",
+   "en": "Industrial Oil",
+   "cs": "Průmyslový olej",
+   "liquid": "industrial_oil",
+   "effect": "slowness",
+   "bucket": "radiousti:industrial_oil_bucket"
+  },
+  "radiousti:black_oil_liquid": {
+   "kind": "liquid",
+   "en": "Black Machine Oil",
+   "cs": "Černý strojní olej",
+   "liquid": "black_oil",
+   "effect": "blindness",
+   "bucket": "radiousti:black_oil_bucket"
+  },
+  "radiousti:hydraulic_oil_liquid": {
+   "kind": "liquid",
+   "en": "Hydraulic Oil",
+   "cs": "Hydraulický olej",
+   "liquid": "hydraulic_oil",
+   "effect": "slowness",
+   "bucket": "radiousti:hydraulic_oil_bucket"
+  },
+  "radiousti:lab_oil_liquid": {
+   "kind": "liquid",
+   "en": "Laboratory Oil",
+   "cs": "Laboratorní olej",
+   "liquid": "lab_oil",
+   "effect": "weakness",
+   "bucket": "radiousti:lab_oil_bucket"
+  },
+  "radiousti:contaminated_oil_liquid": {
+   "kind": "liquid",
+   "en": "Contaminated Oil",
+   "cs": "Kontaminovaný olej",
+   "liquid": "contaminated_oil",
+   "effect": "poison",
+   "bucket": "radiousti:contaminated_oil_bucket"
+  },
+  "radiousti:radioactive_oil_liquid": {
+   "kind": "liquid",
+   "en": "Radioactive Oil",
+   "cs": "Radioaktivní olej",
+   "liquid": "radioactive_oil",
+   "effect": "radiation",
+   "bucket": "radiousti:radioactive_oil_bucket",
+   "rad": 2
   }
  },
  "items": {
@@ -1507,6 +1608,69 @@ export const REGISTRY = {
    "kind": "vhs",
    "en": "VHS Tape: RadioÚstí 2072",
    "cs": "VHS kazeta: RadioÚstí 2072"
+  },
+  "radiousti:liverocrystal_shard": {
+   "kind": "toxic",
+   "en": "Liverocrystal Shard",
+   "cs": "Úlomek Liverocrystalu",
+   "toxic": 0.3
+  },
+  "radiousti:liverocrystal_metal_ingot": {
+   "kind": "item",
+   "en": "Liverocrystal Metal Ingot",
+   "cs": "Ingot Liverocrystal Metal"
+  },
+  "radiousti:liverocrystal_gas_canister": {
+   "kind": "gas",
+   "en": "Liverocrystal Gas Canister",
+   "cs": "Kanystr Liverocrystal Gas"
+  },
+  "radiousti:biogenic_serum": {
+   "kind": "consumable",
+   "en": "Biogenic Serum (B-9)",
+   "cs": "Biogenní sérum (B-9)"
+  },
+  "radiousti:blood_bucket": {
+   "kind": "liquid_bucket",
+   "en": "Bucket of Blood",
+   "cs": "Kbelík – krev",
+   "liquid": "radiousti:blood_liquid"
+  },
+  "radiousti:industrial_oil_bucket": {
+   "kind": "liquid_bucket",
+   "en": "Bucket of Industrial Oil",
+   "cs": "Kbelík – průmyslový olej",
+   "liquid": "radiousti:industrial_oil_liquid"
+  },
+  "radiousti:black_oil_bucket": {
+   "kind": "liquid_bucket",
+   "en": "Bucket of Black Machine Oil",
+   "cs": "Kbelík – černý strojní olej",
+   "liquid": "radiousti:black_oil_liquid"
+  },
+  "radiousti:hydraulic_oil_bucket": {
+   "kind": "liquid_bucket",
+   "en": "Bucket of Hydraulic Oil",
+   "cs": "Kbelík – hydraulický olej",
+   "liquid": "radiousti:hydraulic_oil_liquid"
+  },
+  "radiousti:lab_oil_bucket": {
+   "kind": "liquid_bucket",
+   "en": "Bucket of Laboratory Oil",
+   "cs": "Kbelík – laboratorní olej",
+   "liquid": "radiousti:lab_oil_liquid"
+  },
+  "radiousti:contaminated_oil_bucket": {
+   "kind": "liquid_bucket",
+   "en": "Bucket of Contaminated Oil",
+   "cs": "Kbelík – kontaminovaný olej",
+   "liquid": "radiousti:contaminated_oil_liquid"
+  },
+  "radiousti:radioactive_oil_bucket": {
+   "kind": "liquid_bucket",
+   "en": "Bucket of Radioactive Oil",
+   "cs": "Kbelík – radioaktivní olej",
+   "liquid": "radiousti:radioactive_oil_liquid"
   }
  }
 };

@@ -44,6 +44,10 @@
         "keys": {
           "texture": "radiousti_keys",
           "render_method": "opaque"
+        },
+        "detail": {
+          "texture": "radiousti_steel_dark",
+          "render_method": "opaque"
         }
       }
     },
@@ -56,24 +60,24 @@
             "origin": [
               -7,
               0,
-              -8
+              -7.7
             ],
             "size": [
               14,
-              12,
-              15
+              12.5,
+              14.7
             ]
           },
           "minecraft:collision_box": {
             "origin": [
               -7,
               0,
-              -8
+              -7.7
             ],
             "size": [
               14,
-              12,
-              15
+              12.5,
+              14.7
             ]
           }
         }
@@ -89,8 +93,8 @@
               -7
             ],
             "size": [
-              15,
-              12,
+              14.7,
+              12.5,
               14
             ]
           },
@@ -101,8 +105,8 @@
               -7
             ],
             "size": [
-              15,
-              12,
+              14.7,
+              12.5,
               14
             ]
           }
@@ -120,8 +124,8 @@
             ],
             "size": [
               14,
-              12,
-              15
+              12.5,
+              14.7
             ]
           },
           "minecraft:collision_box": {
@@ -132,8 +136,8 @@
             ],
             "size": [
               14,
-              12,
-              15
+              12.5,
+              14.7
             ]
           }
         }
@@ -144,25 +148,25 @@
           "minecraft:geometry": "geometry.radiousti.office_pc.west",
           "minecraft:selection_box": {
             "origin": [
-              -8,
+              -7.7,
               0,
               -7
             ],
             "size": [
-              15,
-              12,
+              14.7,
+              12.5,
               14
             ]
           },
           "minecraft:collision_box": {
             "origin": [
-              -8,
+              -7.7,
               0,
               -7
             ],
             "size": [
-              15,
-              12,
+              14.7,
+              12.5,
               14
             ]
           }
@@ -182,6 +186,10 @@
             },
             "keys": {
               "texture": "radiousti_keys",
+              "render_method": "opaque"
+            },
+            "detail": {
+              "texture": "radiousti_steel_dark",
               "render_method": "opaque"
             }
           },

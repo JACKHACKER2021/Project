@@ -85,7 +85,7 @@ Laboratorní stanice (zpracování vzorků, palivové tyče…) jsou popsané v 
 - **Stará šatní skříňka** ×1: vzor `II / II / II` – `I` = iron_ingot
 - **Kontejner zdravotnického materiálu** ×1: vzor `IRI / ICI` – `I` = iron_ingot, `R` = red_dye, `C` = chest
 
-## Průmyslový ponk (70)
+## Průmyslový ponk (82)
 
 - **Vodovodní potrubí** ×6: 3× copper_ingot + 1× iron_ingot
 - **Tenké nástěnné vodovodní potrubí** ×8: 1× copper_ingot + 2× iron_nugget
@@ -157,8 +157,20 @@ Laboratorní stanice (zpracování vzorků, palivové tyče…) jsou popsané v 
 - **Průmyslový větrací blok** ×4: vzor `III / BBB / III` – `I` = iron_nugget, `B` = iron_bars
 - **Pojistková skříň** ×1: 1× iron_ingot + 1× redstone + 2× copper_ingot
 - **VHS kazeta: RadioÚstí 2072** ×1: 1× paper + 1× black_dye + 1× Počítačový síťový kabel + 1× redstone
+- **Ingot Liverocrystal Metal** ×1: 4× Úlomek Liverocrystalu + 1× iron_ingot
+- **Blok Liverocrystal Metal** ×1: vzor `MMM / MMM / MMM` – `M` = Ingot Liverocrystal Metal
+- **Ingot Liverocrystal Metal** ×9: 1× Blok Liverocrystal Metal
+- **Pancéřová deska z Liverocrystal Metal** ×2: vzor `MIM / IMI / MIM` – `M` = Ingot Liverocrystal Metal, `I` = iron_block
+- **Kanystr Liverocrystal Gas** ×1: 1× Prázdný kanystr + 3× Úlomek Liverocrystalu
+- **Nádrž Liverocrystal Gas (Blue Gasoline)** ×1: vzor `MMM / MGM / MMM` – `M` = Ingot Liverocrystal Metal, `G` = Kanystr Liverocrystal Gas
+- **Kbelík – průmyslový olej** ×1: 1× bucket + 1× Kanystr – průmyslový olej
+- **Kbelík – černý strojní olej** ×1: 1× bucket + 1× Kanystr – černý strojní olej
+- **Kbelík – hydraulický olej** ×1: 1× bucket + 1× Kanystr – žlutý hydraulický olej
+- **Kbelík – laboratorní olej** ×1: 1× bucket + 1× Kanystr – červený laboratorní olej
+- **Kbelík – kontaminovaný olej** ×1: 1× bucket + 1× Kanystr – zelený kontaminovaný olej
+- **Kbelík – radioaktivní olej** ×1: 1× bucket + 1× Kanystr – radioaktivní olej
 
-## Laboratorní stůl (28)
+## Laboratorní stůl (32)
 
 - **Prázdná laboratorní nádoba** ×3: vzor `G G / G G / GGG` – `G` = glass
 - **Prázdná zkumavka** ×4: vzor `G / G / G` – `G` = glass
@@ -188,6 +200,10 @@ Laboratorní stanice (zpracování vzorků, palivové tyče…) jsou popsané v 
 - **Stanice testování kontaminace** ×1: 1× Laboratorní stůl + 1× Vzorek kontaminované půdy + 1× redstone
 - **Stůl přípravy vzorků** ×1: 1× Laboratorní stůl + 1× Prázdná zkumavka + 1× redstone
 - **Počítačová pracovní stanice** ×1: 1× Laboratorní stůl + 1× Starý počítač
+- **Shluk Liverocrystalu** ×1: vzor `SS / SS` – `S` = Úlomek Liverocrystalu
+- **Biogenní sérum (B-9)** ×1: 1× Erlenmeyerova baňka + 1× Organický materiál + 1× Esence duše
+- **Kádě s biogenním sérem** ×1: vzor `MGM / GSG / MGM` – `M` = Ingot Liverocrystal Metal, `G` = glass, `S` = Biogenní sérum (B-9)
+- **Kbelík – krev** ×1: 1× bucket + 1× Nádoba s krví
 
 ## Pec (2)
 

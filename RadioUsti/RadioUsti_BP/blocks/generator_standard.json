@@ -57,6 +57,10 @@
         "screen": {
           "texture": "radiousti_screen_off",
           "render_method": "opaque"
+        },
+        "hazard": {
+          "texture": "radiousti_hazard",
+          "render_method": "opaque"
         }
       }
     },
@@ -913,7 +917,7 @@
             ],
             "size": [
               14,
-              11,
+              16,
               14
             ]
           },
@@ -925,7 +929,7 @@
             ],
             "size": [
               14,
-              11,
+              16,
               14
             ]
           }
@@ -943,7 +947,7 @@
             ],
             "size": [
               14,
-              11,
+              16,
               14
             ]
           },
@@ -955,7 +959,7 @@
             ],
             "size": [
               14,
-              11,
+              16,
               14
             ]
           }
@@ -973,7 +977,7 @@
             ],
             "size": [
               14,
-              11,
+              16,
               14
             ]
           },
@@ -985,7 +989,7 @@
             ],
             "size": [
               14,
-              11,
+              16,
               14
             ]
           }
@@ -1003,7 +1007,7 @@
             ],
             "size": [
               14,
-              11,
+              16,
               14
             ]
           },
@@ -1015,7 +1019,7 @@
             ],
             "size": [
               14,
-              11,
+              16,
               14
             ]
           }
@@ -1035,6 +1039,10 @@
             },
             "screen": {
               "texture": "radiousti_screen_terminal",
+              "render_method": "opaque"
+            },
+            "hazard": {
+              "texture": "radiousti_hazard",
               "render_method": "opaque"
             }
           }

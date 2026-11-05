@@ -44,6 +44,10 @@
         "keys": {
           "texture": "radiousti_keys",
           "render_method": "opaque"
+        },
+        "detail": {
+          "texture": "radiousti_steel_dark",
+          "render_method": "opaque"
         }
       }
     },
@@ -56,24 +60,24 @@
             "origin": [
               -7,
               0,
-              -7
+              -5.2
             ],
             "size": [
               14,
               16,
-              14
+              12.2
             ]
           },
           "minecraft:collision_box": {
             "origin": [
               -7,
               0,
-              -7
+              -5.2
             ],
             "size": [
               14,
               16,
-              14
+              12.2
             ]
           }
         }
@@ -89,7 +93,7 @@
               -7
             ],
             "size": [
-              14,
+              12.2,
               16,
               14
             ]
@@ -101,7 +105,7 @@
               -7
             ],
             "size": [
-              14,
+              12.2,
               16,
               14
             ]
@@ -121,7 +125,7 @@
             "size": [
               14,
               16,
-              14
+              12.2
             ]
           },
           "minecraft:collision_box": {
@@ -133,7 +137,7 @@
             "size": [
               14,
               16,
-              14
+              12.2
             ]
           }
         }
@@ -144,24 +148,24 @@
           "minecraft:geometry": "geometry.radiousti.industrial_terminal.west",
           "minecraft:selection_box": {
             "origin": [
-              -7,
+              -5.2,
               0,
               -7
             ],
             "size": [
-              14,
+              12.2,
               16,
               14
             ]
           },
           "minecraft:collision_box": {
             "origin": [
-              -7,
+              -5.2,
               0,
               -7
             ],
             "size": [
-              14,
+              12.2,
               16,
               14
             ]
@@ -182,6 +186,10 @@
             },
             "keys": {
               "texture": "radiousti_keys",
+              "render_method": "opaque"
+            },
+            "detail": {
+              "texture": "radiousti_steel_dark",
               "render_method": "opaque"
             }
           },

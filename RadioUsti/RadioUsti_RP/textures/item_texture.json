@@ -140,6 +140,39 @@
     "radiousti_vhs_radiousti": {
       "textures": "textures/items/radiousti_vhs_radiousti"
     },
+    "radiousti_liverocrystal_shard": {
+      "textures": "textures/items/radiousti_liverocrystal_shard"
+    },
+    "radiousti_liverocrystal_metal_ingot": {
+      "textures": "textures/items/radiousti_liverocrystal_metal_ingot"
+    },
+    "radiousti_liverocrystal_gas_canister": {
+      "textures": "textures/items/radiousti_liverocrystal_gas_canister"
+    },
+    "radiousti_biogenic_serum": {
+      "textures": "textures/items/radiousti_biogenic_serum"
+    },
+    "radiousti_blood_bucket": {
+      "textures": "textures/items/radiousti_blood_bucket"
+    },
+    "radiousti_industrial_oil_bucket": {
+      "textures": "textures/items/radiousti_industrial_oil_bucket"
+    },
+    "radiousti_black_oil_bucket": {
+      "textures": "textures/items/radiousti_black_oil_bucket"
+    },
+    "radiousti_hydraulic_oil_bucket": {
+      "textures": "textures/items/radiousti_hydraulic_oil_bucket"
+    },
+    "radiousti_lab_oil_bucket": {
+      "textures": "textures/items/radiousti_lab_oil_bucket"
+    },
+    "radiousti_contaminated_oil_bucket": {
+      "textures": "textures/items/radiousti_contaminated_oil_bucket"
+    },
+    "radiousti_radioactive_oil_bucket": {
+      "textures": "textures/items/radiousti_radioactive_oil_bucket"
+    },
     "radiousti_generator_standard_icon": {
       "textures": "textures/items/radiousti_generator_standard_icon"
     },

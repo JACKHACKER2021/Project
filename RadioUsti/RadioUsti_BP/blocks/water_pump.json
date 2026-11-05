@@ -48,24 +48,24 @@
             "origin": [
               -8,
               0,
-              -8
+              -7
             ],
             "size": [
               16,
               14,
-              16
+              14
             ]
           },
           "minecraft:collision_box": {
             "origin": [
               -8,
               0,
-              -8
+              -7
             ],
             "size": [
               16,
               14,
-              16
+              14
             ]
           }
         }
@@ -76,24 +76,24 @@
           "minecraft:geometry": "geometry.radiousti.water_pump.east",
           "minecraft:selection_box": {
             "origin": [
-              -8,
+              -7,
               0,
               -8
             ],
             "size": [
-              16,
+              14,
               14,
               16
             ]
           },
           "minecraft:collision_box": {
             "origin": [
-              -8,
+              -7,
               0,
               -8
             ],
             "size": [
-              16,
+              14,
               14,
               16
             ]
@@ -108,24 +108,24 @@
             "origin": [
               -8,
               0,
-              -8
+              -7
             ],
             "size": [
               16,
               14,
-              16
+              14
             ]
           },
           "minecraft:collision_box": {
             "origin": [
               -8,
               0,
-              -8
+              -7
             ],
             "size": [
               16,
               14,
-              16
+              14
             ]
           }
         }
@@ -136,24 +136,24 @@
           "minecraft:geometry": "geometry.radiousti.water_pump.west",
           "minecraft:selection_box": {
             "origin": [
-              -8,
+              -7,
               0,
               -8
             ],
             "size": [
-              16,
+              14,
               14,
               16
             ]
           },
           "minecraft:collision_box": {
             "origin": [
-              -8,
+              -7,
               0,
               -8
             ],
             "size": [
-              16,
+              14,
               14,
               16
             ]

@@ -36,6 +36,10 @@
         "screen": {
           "texture": "radiousti_screen_fan",
           "render_method": "opaque"
+        },
+        "detail": {
+          "texture": "radiousti_steel_dark",
+          "render_method": "opaque"
         }
       }
     },
@@ -46,24 +50,24 @@
           "minecraft:geometry": "geometry.radiousti.reactor_cooling_unit.north",
           "minecraft:selection_box": {
             "origin": [
-              -7.5,
+              -8,
               0,
               -7.8
             ],
             "size": [
-              15.0,
+              16,
               15.8,
               15.3
             ]
           },
           "minecraft:collision_box": {
             "origin": [
-              -7.5,
+              -8,
               0,
               -7.8
             ],
             "size": [
-              15.0,
+              16,
               15.8,
               15.3
             ]
@@ -78,24 +82,24 @@
             "origin": [
               -7.5,
               0,
-              -7.5
+              -8
             ],
             "size": [
               15.3,
               15.8,
-              15.0
+              16
             ]
           },
           "minecraft:collision_box": {
             "origin": [
               -7.5,
               0,
-              -7.5
+              -8
             ],
             "size": [
               15.3,
               15.8,
-              15.0
+              16
             ]
           }
         }
@@ -106,24 +110,24 @@
           "minecraft:geometry": "geometry.radiousti.reactor_cooling_unit.south",
           "minecraft:selection_box": {
             "origin": [
-              -7.5,
+              -8,
               0,
               -7.5
             ],
             "size": [
-              15.0,
+              16,
               15.8,
               15.3
             ]
           },
           "minecraft:collision_box": {
             "origin": [
-              -7.5,
+              -8,
               0,
               -7.5
             ],
             "size": [
-              15.0,
+              16,
               15.8,
               15.3
             ]
@@ -138,24 +142,24 @@
             "origin": [
               -7.8,
               0,
-              -7.5
+              -8
             ],
             "size": [
               15.3,
               15.8,
-              15.0
+              16
             ]
           },
           "minecraft:collision_box": {
             "origin": [
               -7.8,
               0,
-              -7.5
+              -8
             ],
             "size": [
               15.3,
               15.8,
-              15.0
+              16
             ]
           }
         }

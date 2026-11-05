@@ -44,6 +44,10 @@
         "keys": {
           "texture": "radiousti_keys",
           "render_method": "opaque"
+        },
+        "detail": {
+          "texture": "radiousti_steel_dark",
+          "render_method": "opaque"
         }
       }
     },
@@ -60,8 +64,8 @@
             ],
             "size": [
               14,
-              14,
-              15.9
+              15,
+              15
             ]
           },
           "minecraft:collision_box": {
@@ -72,8 +76,8 @@
             ],
             "size": [
               14,
-              14,
-              15.9
+              15,
+              15
             ]
           }
         }
@@ -84,25 +88,25 @@
           "minecraft:geometry": "geometry.radiousti.old_pc.east",
           "minecraft:selection_box": {
             "origin": [
-              -7.9,
+              -7,
               0,
               -7
             ],
             "size": [
-              15.9,
-              14,
+              15,
+              15,
               14
             ]
           },
           "minecraft:collision_box": {
             "origin": [
-              -7.9,
+              -7,
               0,
               -7
             ],
             "size": [
-              15.9,
-              14,
+              15,
+              15,
               14
             ]
           }
@@ -116,24 +120,24 @@
             "origin": [
               -7,
               0,
-              -7.9
+              -7
             ],
             "size": [
               14,
-              14,
-              15.9
+              15,
+              15
             ]
           },
           "minecraft:collision_box": {
             "origin": [
               -7,
               0,
-              -7.9
+              -7
             ],
             "size": [
               14,
-              14,
-              15.9
+              15,
+              15
             ]
           }
         }
@@ -149,8 +153,8 @@
               -7
             ],
             "size": [
-              15.9,
-              14,
+              15,
+              15,
               14
             ]
           },
@@ -161,8 +165,8 @@
               -7
             ],
             "size": [
-              15.9,
-              14,
+              15,
+              15,
               14
             ]
           }
@@ -182,6 +186,10 @@
             },
             "keys": {
               "texture": "radiousti_keys",
+              "render_method": "opaque"
+            },
+            "detail": {
+              "texture": "radiousti_steel_dark",
               "render_method": "opaque"
             }
           },

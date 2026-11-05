@@ -53,6 +53,10 @@
         "screen": {
           "texture": "radiousti_screen_off",
           "render_method": "opaque"
+        },
+        "hazard": {
+          "texture": "radiousti_hazard",
+          "render_method": "opaque"
         }
       }
     },
@@ -551,6 +555,10 @@
             },
             "screen": {
               "texture": "radiousti_screen_terminal",
+              "render_method": "opaque"
+            },
+            "hazard": {
+              "texture": "radiousti_hazard",
               "render_method": "opaque"
             }
           }

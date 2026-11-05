@@ -46,7 +46,7 @@ Pokud import celého `.mcaddon` selže, nainstaluj zvlášť `dist/RadioUsti_RP.
 
 ## Co add-on obsahuje
 
-153 bloků a 58 předmětů (46 samostatných předmětů a 12 předmětů, kterými se pokládají multibloky a dveře; 9 bloků laboratorního skla se pokládá jeho předměty). Úplný seznam s ID je v [docs/CATALOG.md](docs/CATALOG.md).
+167 bloků a 69 předmětů (57 samostatných předmětů a 12 předmětů, kterými se pokládají multibloky a dveře; 10 bloků laboratorního skla se pokládá jeho předměty, 7 tekutin kbelíky). Úplný seznam s ID je v [docs/CATALOG.md](docs/CATALOG.md).
 
 | Oblast | Obsah |
 |---|---|
@@ -170,6 +170,17 @@ název, ID, typ, stav, napájení, propojení potrubí a kabelů včetně směr�
 * **Nemocniční lůžko** a **operační stůl** jsou dva bloky dlouhé. Klepnutím na lůžko si nastavíš bod oživení. **Otočná kancelářská židle** se po klepnutí otočí o 90°.
 * **Plakáty, oznámení, papíry, hromada dokumentů a fotografie** si přečteš klepnutím. **Nástěnné hodiny** ukážou herní čas.
 
+## Liverocrystal, biogenní sérum a tekutiny (1.3)
+* **Liverocrystalová ruda** se generuje hluboko pod zemí (y −60 až −10, nahrazuje kámen, deepslate i tuff) a dává 1–2 **úlomky Liverocrystalu**.
+* **Ingot Liverocrystal Metal** = 4 úlomky + železný ingot (Průmyslový ponk). Z ingotů vyrobíš **blok Liverocrystal Metal**, **pancéřovou desku** (odolnost proti výbuchu 1200, těžba 15 s) a **nádrž Liverocrystal Gas**.
+* **Kanystr Liverocrystal Gas** (prázdný kanystr + 3 úlomky) přidá do nádrže Liverocrystal Gas 300 jednotek plynu. Nádrž pojme 3000 jednotek a funguje jako každá plynová nádrž: zásobuje průmyslový generátor a chemickou analýzu přes plynové potrubí.
+* **Toxické výpary:** ruda, shluky Liverocrystalu a nádrž Liverocrystal Gas otráví každého hráče do 3 bloků, který nemá nasazenou **plynovou masku** (otrava + nevolnost, varování nad lištou).
+* **Biogenní sérum B-9** (baňka + organický materiál + esence duše): vypití dá regeneraci II na 15 s a krátkou nevolnost. Sérum jde položit jako ampuli ve stojánku. Ke dekoraci slouží i **kádě s biogenním sérem**.
+* **Tekutiny:** krev, průmyslový, černý, hydraulický, laboratorní, kontaminovaný a radioaktivní olej. Bedrock add-ony neumí vlastní opravdové tekutiny, takže jsou to **průhledné tekuté bloky**, které skript nechá stékat dolů a rozlévat se do stran až na 4 bloky s klesající hladinou. Když přívod zmizí, rozlitá tekutina vyschne.
+  * **Kbelík:** vanilla kbelík + kanystr oleje (Průmyslový ponk), nebo + nádoba s krví (Laboratorní stůl). Plným kbelíkem tekutinu vyliješ, prázdným kbelíkem nabereš zdroj.
+  * **Efekty:** ve tekutině jsi zpomalený. Krev způsobí nevolnost, černý olej slepotu, laboratorní olej slabost a kontaminovaný otravu. Radioaktivní olej svítí a ozařuje.
+* **Vylepšený vzhled (1.3):** nové modely všech počítačů, serverového racku, dveří (rám, klika), plynové nádrže, vodního čerpadla, chladicí jednotky a generátorů (výfuky, potrubí, výstražné štítky). Kovové textury mají zkosené hrany a všechny ikony předmětů obrys a odlesk.
+
 ## Registr experimentů (1.2)
 Kniha **Registr experimentů – Projekt Apokalypsa** (kniha + červená barva + inkoustový váček) obsahuje 13 kapitol o světě Zeds World:
 úvod a časovou osu 2072–2084, první subjekty (Rogerovy děti Lazy Bunny a Softy), vedení (Roger Smith, Zedonar, Zeds Corp, Mike Jasday, FBI, Zéd), U256 Radiak, sérii EX-001 až EX-011, organické hračky, pennovské hrozby, absolutní mutanty, experimenty mimo Rogera, materiály (uran, biogenní sérum, Liverocrystal Gas a Metal), místa zkázy a uzavřené spisy.
@@ -182,7 +193,7 @@ Přečteš ji použitím předmětu, nebo v ÚstíOS → Dokumenty RadioÚstí. 
 
 ## Známá omezení
 * **Nic zatím nebylo testováno ve hře.** Viz [FEATURES.md](FEATURES.md).
-* Kapaliny se nezobrazují, potrubí přenáší jen jednotky (zjednodušená síť).
+* V potrubí se kapaliny nezobrazují, potrubí přenáší jen jednotky (zjednodušená síť). Krev a oleje mimo potrubí jsou skriptové tekuté bloky, nedá se v nich plavat a netečou tak plynule jako voda.
 * Na židlích nejde sedět, protože by to vyžadovalo vlastní entitu.
 * Multibloky a dveře zničené výbuchem, pístem nebo příkazem neupustí předmět, protože skript ví jen o rozbití hráčem. U generátorů a napájecích jednotek se zbylé části při dalším cyklu (do 2 s) bezpečně odstraní a vypadne jeden předmět; u lůžka a operačního stolu zbylá část zůstane a stačí ji rozbít.
 * Vlastní hudební disk by musel přepsat zvuk některého vanilla disku, proto se VHS kazeta přehrává v ÚstíOS (Přehrávač VHS).

@@ -12,6 +12,7 @@ import "./systems/reactor.js";
 import { radiationTick, wasteSpreadTick, decontaminate, getDose, setDose } from "./systems/radiation.js";
 import { toggleLight, interactAlarm, pressScram } from "./systems/devices.js";
 import { openStation } from "./systems/lab.js";
+import { liquidTick, pourBucket, fillBucket, isLiquid } from "./systems/liquids.js";
 import { showInspection } from "./ui/analyzer.js";
 import { openComputer } from "./ui/pc.js";
 import { openMachine, openReactorPanel, openServer, openHandbook, openRegistry, readDocument } from "./ui/panels.js";
@@ -134,6 +135,7 @@ system.beforeEvents.startup.subscribe((ev) => {
       p.onScreenDisplay.setActionBar(`Preparátová nádoba: ${["prázdná – vložte láhev krve, maso nebo esenci duše", "krev (vyberte skleněnou lahví)", "maso", "duše"][fill]}`);
     }),
   });
+  reg("liquid", { onTick: safe("liquid", (e) => liquidTick(e.block)) });
   reg("waste_spread", { onTick: safe("waste", (e) => wasteSpreadTick(e.block)) });
   const hurt = (dmg, slow) => safe("hazard", (e) => {
     const ent = e.entity;
@@ -157,6 +159,16 @@ world.beforeEvents.playerInteractWithBlock.subscribe((ev) => {
     if (!ev.isFirstEvent) return;
     const p = ev.player, b = ev.block;
     system.run(() => showInspection(p, b).catch((e) => console.warn(`[RadioÚstí] analyzer: ${e}`)));
+  } else if (ITEMS[id]?.kind === "liquid_bucket") {
+    ev.cancel = true;
+    if (!ev.isFirstEvent) return;
+    const p = ev.player, b = ev.block, face = ev.blockFace;
+    system.run(() => pourBucket(p, b, face, id));
+  } else if (id === "minecraft:bucket" && isLiquid(ev.block.typeId)) {
+    ev.cancel = true;
+    if (!ev.isFirstEvent) return;
+    const p = ev.player, b = ev.block;
+    system.run(() => fillBucket(p, b));
   } else if (id === DECON && BLOCKS[ev.block.typeId]?.clean) {
     ev.cancel = true;
     if (!ev.isFirstEvent) return;
@@ -242,6 +254,10 @@ world.afterEvents.itemCompleteUse.subscribe(safe("consume", (ev) => {
   if (id === `${NS}:anti_radiation_pills`) {
     setDose(p, getDose(p) - 40);
     p.onScreenDisplay.setActionBar(`§aAntiradiační tablety: dávka ${getDose(p).toFixed(0)}`);
+  } else if (id === `${NS}:biogenic_serum`) {
+    p.addEffect("regeneration", 300, { amplifier: 1 });
+    p.addEffect("nausea", 100, { amplifier: 0 });
+    p.onScreenDisplay.setActionBar("§dBiogenní sérum B-9: tkáně se spojují…");
   } else if (id === `${NS}:zed_serum`) {
     setDose(p, getDose(p) - 10);
     p.addEffect("regeneration", 200, { amplifier: 1 });
