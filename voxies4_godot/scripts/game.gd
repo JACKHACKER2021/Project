@@ -38,6 +38,10 @@ var rain: Node3D
 var moon: OmniLight3D
 var rain_player: AudioStreamPlayer
 var plush: Node3D
+var mini
+var DEV := {"god": false}
+var scene_from_extras := false
+const MINI := {1: "show", 2: "hide", 3: "pit", 5: "shutdown"}
 var eye_nodes := {}
 var d7_bunny: Node3D
 var d7_light: OmniLight3D
@@ -49,6 +53,8 @@ func _ready() -> void:
 	audio.game = self
 	add_child(audio)
 	_build()
+	mini = preload("res://scripts/mini.gd").new()
+	mini.game = self
 	hud = preload("res://scripts/hud.gd").new()
 	hud.game = self
 	var pl = CanvasLayer.new()
@@ -290,6 +296,9 @@ func new_night(n: int) -> void:
 		"bun": {"side": "closet", "stage": 0, "t": (6.0 if n >= 7 else maxf(8.0, randf_range(26, 36) - lv * 4)), "open": 0.0, "lit": 0.0, "flinch": 0.0},
 		"hurt": 0.0, "dead_by": "",
 	}
+	if n == 6:
+		G.vox.t = 1e9
+		G.bun.t = 1e9
 	for k in doors:
 		for d in doors[k]:
 			d.rotation.y = 0.0
@@ -300,11 +309,40 @@ func new_night(n: int) -> void:
 func start_night(n: int) -> void:
 	audio.stop_menu_song()
 	new_night(n)
+	scene_from_extras = false
+	if MINI.has(n):
+		start_mini(MINI[n])
+		return
+	if n == 4:
+		start_d4()
+		return
 	if n == 7:
 		start_d7()
 		return
 	S = "intro"
 	scene_t = 0.0
+func start_mini(kind: String, extras := false) -> void:
+	S = "mini"
+	scene_t = 0.0
+	scene_from_extras = extras
+	mini.start(kind, extras)
+	audio.stop_menu_song()
+func end_scene() -> void:
+	if d7_bunny:
+		d7_bunny.visible = false
+	if d7_light:
+		d7_light.visible = false
+	bun.visible = false
+	Q.clear()
+	line = null
+	if scene_from_extras:
+		rain_player.stop()
+		S = "extras"
+		scene_t = 0.0
+		audio.start_menu_song()
+	else:
+		S = "intro"
+		scene_t = 0.0
 func begin_play() -> void:
 	S = "play"
 	scene_t = 0.0
@@ -329,7 +367,7 @@ func play_tick(dt: float) -> void:
 	G.yaw = lerp_angle(G.yaw, target, minf(1.0, dt * 9))
 	# baterka
 	if G.light and not G.batLock:
-		G.bat = maxf(0, G.bat - dt * (9.0 + G.night * 0.6))
+		G.bat = maxf(0, G.bat - dt * (0.0 if DEV.god else (9.0 + G.night * 0.6)))
 		if G.bat <= 0:
 			G.batLock = true
 			audio.sfx("powerdown", 0.4)
@@ -500,6 +538,9 @@ func _nm_pose(n: Node3D, dt: float, k: float, flinch := 0.0) -> void:
 		e[1].scale = Vector3.ONE * (0.55 if lit_now or flinch > 0 else 1.0)
 
 func jumpscare(who: String) -> void:
+	if DEV.god:
+		_repel(who)
+		return
 	var node: Node3D = vox if who == "vox" else bun
 	G.scareFrom = node.position
 	G.scareSide = G[who].side
@@ -529,6 +570,7 @@ func to_menu() -> void:
 	bun.visible = false
 	if d7_bunny:
 		d7_bunny.visible = false
+	if d7_light:
 		d7_light.visible = false
 	torch.light_energy = 0
 	rain_player.stop()
@@ -547,6 +589,12 @@ func _process(delta: float) -> void:
 	match S:
 		"play": play_tick(dt)
 		"d7": d7_tick(dt)
+		"d4": d4_tick(dt)
+		"mini":
+			mini.tick(dt)
+			if mini.done:
+				end_scene()
+		"extras": extras_tick(dt)
 		"intro":
 			if scene_t > 6.0:
 				if d7_bunny:
@@ -576,7 +624,11 @@ func render(dt: float) -> void:
 			bun.position = Vector3(0, -0.45, -2.6)
 			bun.scale = Vector3.ONE * 0.74
 			_set_open("closet", 0.25)
-		"d7":
+		"mini":
+			vig = 0.3
+		"extras":
+			vig = 0.9
+		"d4", "d7":
 			vig = 1.0
 			glitch = 0.5 if G.flash > 0 else 0.0
 		"play", "intro":
@@ -628,12 +680,101 @@ func _render_scare(dt: float) -> void:
 		who.visible = false
 		torch.light_energy = 0
 
+# ---------- před 4. nocí: Hollow Bunny poprvé, zády, mluví o sobě jako o maskotovi
+const D4 := ["Ahoj, děti! Já jsem Hollow Bunny!", "Jsem nejlepší kamarád všech dětí v herně Voxie's.", "Miluju děti. Miluju, když se smějí a hrají si se mnou.", "Voxie zpívá na pódiu. Ale já chodím za vámi.", "A víte co? Já si vás vždycky najdu."]
+func start_d4(extras := false) -> void:
+	S = "d4"
+	scene_t = 0.0
+	scene_from_extras = extras
+	if G == null:
+		new_night(4)
+	G.d7 = 0
+	G.d7t = 0.0
+	if d7_bunny == null:
+		d7_bunny = preload("res://scripts/hollow.gd").make(false)
+		add_child(d7_bunny)
+	if d7_light == null:
+		d7_light = OmniLight3D.new()
+		d7_light.light_color = Color("#9ab0ff")
+		d7_light.omni_range = 3.5
+		add_child(d7_light)
+	d7_light.visible = true
+	d7_light.light_energy = 0.9
+	d7_light.position = Vector3(0.9, 2.2, -1.1)
+	d7_bunny.visible = true
+	d7_bunny.position = Vector3(0, 0, -1.85)
+	d7_bunny.rotation = Vector3(0, PI, 0)
+	rain_player.play()
+	audio.stop_menu_song()
+	for l in D4:
+		say("D", l)
+func d4_tick(dt: float) -> void:
+	tick_lines(dt)
+	storm_tick(dt)
+	G.d7t += dt
+	cam.position = EYE
+	cam.rotation = Vector3(0.24, 0, 0)
+	var head: Node3D = d7_bunny.get_node("head")
+	# pohupuje se jako maskot na pódiu, mává
+	var arm: Node3D = d7_bunny.get_node("chest").get_node("arm_R")
+	arm.rotation = Vector3(-2.2 + sin(t_now * 4) * 0.4, 0, 0.3)
+	d7_bunny.position.y = absf(sin(t_now * 2.2)) * 0.03
+	head.rotation = Vector3(0.05, sin(t_now * 1.1) * 0.25, sin(t_now * 2.2) * 0.1)
+	if line == null and Q.is_empty() and G.d7t > 2.0:
+		# na konci natočí hlavu přes rameno… a tma
+		head.rotation = Vector3(0.1, -1.1, 0.2)
+		if G.d7 == 0:
+			G.d7 = 1
+			G.d7t = 0.0
+			audio.sfx("servo", 0.8)
+		elif G.d7t > 1.4:
+			arm.rotation = Vector3.ZERO
+			end_scene()
+
+# ---------- Extras: postavy a přehrávání scén
+var ex_page := "chars"
+var ex_i := 0
+var ex_nodes := []
+const EX := [["NIGHTMARE VOXIE", "noční můra · jaro 1997", "Voxie Bear z Eminých snů. Zubatá tlama i na břiše, drápy, rudé oči. Chodí chodbami k levým a pravým dveřím a bojí se světla."], ["NIGHTMARE HOLLOW BUNNY", "noční můra · jaro 1997", "Hollow Bunny tak, jak si ho Ema pamatuje: ten, který ji vždycky našel. Schovává se ve skříni. Uvnitř obleku byl celou dobu D."], ["HOLLOW BUNNY", "springlock · 1980", "Žlutý springlock králík z roku 1980. Odstavený kvůli zámkům – ale D. si ho oblékal dál. Pro Emu to byl kamarád, který s ní hrál na schovávanou."], ["PLYŠOVÁ COCOA", "Emina hračka", "Plyšová Cocoa na Emině polštáři. Leží každou noc trochu jinak."]]
+func start_extras() -> void:
+	S = "extras"
+	scene_t = 0.0
+	ex_page = "chars"
+	if G == null:
+		new_night(1)
+func extras_tick(dt: float) -> void:
+	var spot = Vector3(0, 0, -1.2)
+	vox.visible = ex_page == "chars" and ex_i == 0
+	bun.visible = ex_page == "chars" and ex_i == 1
+	if d7_bunny == null:
+		d7_bunny = preload("res://scripts/hollow.gd").make(false)
+		add_child(d7_bunny)
+	d7_bunny.visible = ex_page == "chars" and ex_i == 2
+	var n: Node3D = [vox, bun, d7_bunny, plush][ex_i]
+	var rot = t_now * 0.5
+	if ex_i < 3:
+		n.position = spot
+		n.rotation = Vector3(0, rot, 0)
+		n.scale = Vector3.ONE * 0.8
+		if ex_i < 2:
+			_nm_pose(n, dt, 0.4 + 0.3 * sin(t_now))
+		cam.position = Vector3(-0.6, 1.4, 1.6)
+		cam.look_at(spot + Vector3(-0.85, 1.1, 0))
+	else:
+		cam.position = Vector3(0.1, 1.0, 1.0)
+		cam.look_at(plush.global_position + Vector3(0, 0.15, 0))
+	torch.light_energy = 3.0
+
 # ---------- před 7. nocí: Hollow Bunny mluví k Emě zády, pak se otočí a ukáže se noční můra
 const D7_A := ["Ahoj, Emo. Pamatuješ si mě?", "Hráli jsme spolu na schovávanou. Vždycky jsem tě našel.", "Myslela sis, že jsem jen robot. Že se zapínám sám.", "Ale uvnitř jsem byl celou dobu já.", "Pamatuješ, jak jsi řekla tátovi, ať jdete do auta? Viděla jsi, jak se dívám.", "A pak, v herně, zhaslo světlo."]
 const D7_B := ["Je to tvoje vina. Tvoje a tvého táty.", "Ta herna měla být i moje. Nikdy mě nenechal být spoluvlastníkem.", "Tak si to zasloužíte. Oba."]
-func start_d7() -> void:
+func start_d7(extras := false) -> void:
+	if G == null:
+		new_night(7)
 	S = "d7"
 	scene_t = 0.0
+	scene_from_extras = extras
+	audio.stop_menu_song()
 	G.d7 = 0
 	G.d7t = 0.0
 	if d7_bunny == null:
@@ -704,7 +845,4 @@ func d7_tick(dt: float) -> void:
 			var k = clampf(G.d7t / 0.35, 0, 1)
 			bun.position = Vector3(0, 0.2 * sin(k * PI), -1.85 + k * 0.9)
 			if G.d7t > 0.9:
-				bun.visible = false
-				d7_light.visible = false
-				S = "intro"
-				scene_t = 0.0
+				end_scene()

@@ -90,6 +90,62 @@
   "Tak si to zasloužíte. Oba.": {
    "f": "d8.wav",
    "dur": 2.19
+  },
+  "Ahoj, děti! Já jsem Hollow Bunny!": {
+   "f": "m5b0.wav",
+   "dur": 2.07
+  },
+  "Jsem nejlepší kamarád všech dětí v herně Voxie's.": {
+   "f": "m5b1.wav",
+   "dur": 2.14
+  },
+  "Miluju děti. Miluju, když se smějí a hrají si se mnou.": {
+   "f": "m5b2.wav",
+   "dur": 3.25
+  },
+  "Voxie zpívá na pódiu. Ale já chodím za vámi.": {
+   "f": "m5b3.wav",
+   "dur": 2.55
+  },
+  "A víte co? Já si vás vždycky najdu.": {
+   "f": "m5b4.wav",
+   "dur": 2.06
+  },
+  "Raz, dva, tři, jdu hledat!": {
+   "f": "m5b5.wav",
+   "dur": 1.45
+  },
+  "Tak jaká byla hra?": {
+   "f": "m5b6.wav",
+   "dur": 0.94
+  },
+  "Pojď, Emo. Ukážu ti něco v míčkovém bazénku.": {
+   "f": "m5b7.wav",
+   "dur": 2.91
+  },
+  "Emo, pojď, představení začíná!": {
+   "f": "m5f0.wav",
+   "dur": 1.9
+  },
+  "Emo, jdeme domů.": {
+   "f": "m5f1.wav",
+   "dur": 1.14
+  },
+  "Zámky povolují. Nikdo už si ho neoblékne.": {
+   "f": "m5f3.wav",
+   "dur": 2.54
+  },
+  "Vítejte v herně u Voxieho!": {
+   "f": "m5v0.wav",
+   "dur": 1.42
+  },
+  "Pane Vojtěchu, to nemůžete!": {
+   "f": "m5g0.wav",
+   "dur": 1.63
+  },
+  "Rozhodl jsem se. Hollow Bunny bude odstaven.": {
+   "f": "m5f2.wav",
+   "dur": 2.42
   }
  }
 }

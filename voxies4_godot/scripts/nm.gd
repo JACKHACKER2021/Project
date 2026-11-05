@@ -110,16 +110,66 @@ static func nightmarify(g: Node3D, fur: String, fur_d: String, eye: String, bear
 		for i in 4:
 			box(head.get_node("ear_L"), Vector3(0.04, 0.06, 0.11), Vector3(randf_range(-0.06, 0.06), randf_range(0.05, 0.45), 0), rip)
 
+## další detaily noční můry: endoskelet v trhlinách, stehy, ostré rohy zubů, kloubové drápy, kabely
+static func detail(g: Node3D, eye: String, bear: bool) -> void:
+	var metal = m("#4a4a52", 0.35, 0.85)
+	var dark = m("#050304", 1.0)
+	var stitch = m("#1a0e08", 1.0)
+	var tooth = m("#f0e8d0", 0.4)
+	var blood = m("#3a0606", 0.6)
+	var head: Node3D = g.get_node("head")
+	var chest: Node3D = g.get_node("chest")
+	# trhliny na rukou a nohou s kovovou kostrou uvnitř
+	for nm in ["arm_L", "arm_R"]:
+		var arm: Node3D = chest.get_node(nm)
+		box(arm, Vector3(0.12, 0.18, 0.02), Vector3(0.0, -0.2, 0.115), dark)
+		box(arm, Vector3(0.04, 0.2, 0.04), Vector3(0.0, -0.2, 0.1), metal)
+		var fore: Node3D = arm.get_node("forearm")
+		for f in 4:
+			for j in 2:
+				box(fore, Vector3(0.03, 0.08, 0.03), Vector3(-0.07 + f * 0.047, -0.47 - j * 0.09, 0.05 + j * 0.04), metal, Vector3(0.3 + j * 0.4, 0, 0))
+		for i in 3:
+			box(fore, Vector3(0.012, randf_range(0.15, 0.3), 0.012), Vector3(randf_range(-0.06, 0.06), -0.28, -0.06), m(["#a01010", "#1a3a90", "#c0a020"][i], 0.4), Vector3(randf_range(-0.5, 0.5), 0, randf_range(-0.5, 0.5)))
+	for nm in ["leg_L", "leg_R"]:
+		var leg: Node3D = g.get_node(nm)
+		box(leg, Vector3(0.14, 0.16, 0.02), Vector3(0.0, -0.25, 0.145), dark)
+		box(leg, Vector3(0.05, 0.2, 0.05), Vector3(0.0, -0.25, 0.12), metal)
+	# stehy přes obličej a břicho
+	for i in 6:
+		box(head, Vector3(0.012, 0.06, 0.012), Vector3(-0.2 + i * 0.03, 0.46, 0.31), stitch, Vector3(0, 0, 0.5))
+	for i in 7:
+		box(chest, Vector3(0.012, 0.07, 0.012), Vector3(0.18, 0.08 + i * 0.08, 0.28), stitch, Vector3(0, 0, 0.6))
+	# špičáky přesahující tlamu, krev na zubech
+	for s in [-1, 1]:
+		box(head, Vector3(0.05, 0.16, 0.05), Vector3(0.22 * s, 0.0, 0.42), tooth, Vector3(0.2, 0, 0.15 * s))
+	box(head, Vector3(0.3, 0.03, 0.02), Vector3(0.0, -0.03, 0.42), blood)
+	# rudé/zelené žilky kolem očí
+	for s in [-1, 1]:
+		for i in 3:
+			box(head, Vector3(0.008, 0.06, 0.008), Vector3(0.15 * s + randf_range(-0.07, 0.07), 0.3 + randf_range(-0.06, 0.06), 0.34), m(eye, 0.4, 0.0, 1.5), Vector3(0, 0, randf_range(-1.2, 1.2)))
+	# kabely z krku
+	for i in 4:
+		box(chest, Vector3(0.015, 0.25, 0.015), Vector3(randf_range(-0.12, 0.12), 0.85, randf_range(-0.05, 0.1)), m(["#a01010", "#1a3a90", "#c0a020", "#111111"][i], 0.4), Vector3(randf_range(-0.5, 0.5), 0, randf_range(-0.5, 0.5)))
+	if not bear:
+		# zlomené ucho s dráty a zámky springlocku na hrudi
+		for i in 3:
+			box(head.get_node("ear_R"), Vector3(0.012, 0.2, 0.012), Vector3(randf_range(-0.04, 0.04), 0.42, 0.05), m(["#a01010", "#1a3a90", "#c0a020"][i], 0.4), Vector3(0.8, 0, randf_range(-0.4, 0.4)))
+		for i in 3:
+			box(chest, Vector3(0.07, 0.07, 0.06), Vector3(-0.3, 0.2 + i * 0.2, 0.25), metal)
+			box(chest, Vector3(0.07, 0.07, 0.06), Vector3(0.3, 0.2 + i * 0.2, 0.25), metal)
+
 static func make_voxie() -> Node3D:
 	seed(404)
 	var g = H.make(false)
 	g.name = "NightmareVoxie"
 	nightmarify(g, "#5a3418", "#3a2010", "#ff2020", true)
+	detail(g, "#ff2020", true)
 	return g
 static func make_bunny() -> Node3D:
 	seed(505)
 	var g = H.make(false)
 	g.name = "NightmareHollowBunny"
 	nightmarify(g, "#b8a030", "#6a5a18", "#60ff70", false)
+	detail(g, "#60ff70", false)
 	return g
 

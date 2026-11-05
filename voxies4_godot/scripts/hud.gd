@@ -193,19 +193,25 @@ func _draw() -> void:
 		"loading": rect(0, 0, HW, HH, "#000000")
 		"menu": draw_menu(t)
 		"intro": draw_intro()
-		"d7":
+		"mini": game.mini.draw(self)
+		"extras": draw_extras(t)
+		"devmenu": draw_devmenu(t)
+		"d4", "d7":
 			vignette(1.0)
 			if game.G.flash > 0:
 				rect(0, 0, HW, HH, Color(1, 1, 1, game.G.flash * 1.6))
 			noise(0.06 + (0.3 if game.G.d7 == 3 else 0.0))
-			if game.G.d7 == 3:
+			if game.S == "d7" and game.G.d7 == 3:
 				rect(0, 0, HW, HH, Color(0, 0, 0, clampf(game.G.d7t / 0.9, 0, 1)))
 			subs()
 			btn(HW - 220, 24, 196, 44, "PŘESKOČIT ▶", "d7skip", func():
 				game.Q.clear()
 				game.line = null
-				game.G.d7 = 3
-				game.G.d7t = 0.5, true, 16)
+				if game.S == "d4":
+					game.end_scene()
+				else:
+					game.G.d7 = 3
+					game.G.d7t = 0.5, true, 16)
 		"play": draw_play(t)
 		"scare": draw_scare(t)
 		"dead", "win": draw_end(game.S)
@@ -217,9 +223,9 @@ func draw_menu(t: float) -> void:
 	txt("NIGHT AT", 60, 110, 40, "#e0b0ff")
 	neon("VOXIE'S 4", 60, 196, 84, "#c040ff", 18, "left")
 	neon("NIGHTMARE", 64, 250, 34, "#ff3060", 14, "left")
-	txt("PREVIEW 0.3.0", 420, 250, 18, "#ffe46b")
+	txt("PREVIEW 0.5.0", 420, 250, 18, "#ffe46b")
 	if game.st_get("v4_end", false):
-		txt("★ Všech 7 nocí přežito.", 64, 462, 16, "#ffe46b")
+		txt("★ Všech 7 nocí přežito.", 480, 472, 16, "#ffe46b")
 	txt("Ema, jaro 1997. Bouřka. A něco v domě, co umí otevírat dveře.", 64, 290, 17, "#cccccc")
 	var un: int = game.st_get("v4_night", 1)
 	game.menu_night = mini(game.menu_night, un)
@@ -229,15 +235,19 @@ func draw_menu(t: float) -> void:
 		btn(60 + (i - 1) * 57.5, 392, 51, 46, (str(i) if i <= un else "🔒"), "n" + str(i), func():
 			game.menu_night = n
 			game.audio.sfx("click"), i <= un, 18, "#ffe46b" if i == game.menu_night else "#d088ff")
+	btn(60, 446 - 0, 195, 40, "★ EXTRAS", "ex", game.start_extras, true, 16)
+	btn(265, 446, 195, 40, "🛠 DEV", "dev", func():
+		game.S = "devmenu"
+		game.scene_t = 0.0, true, 16, "#ffb030")
 	var lines = ["🚪 Dveře vlevo, vpravo a skříň umí otevřít jen noční můry. Ty je otevřít nemůžeš.",
 		"👂 Poslouchej kroky na chodbě a vrzání. Když se dveře začnou otevírat, otoč se tam.",
 		"🔦 Drž baterku na tom, kdo stojí ve dveřích, dokud necouvne a dveře se nezabouchnou.",
-		"🔋 Baterka se vybíjí. Když ji necháš zhasnutou, nabije se.",
+		"🎮 Před nocemi 1, 2, 3 a 5 hraješ 2D vzpomínky. Scény a minihry najdeš i v Extras.",
 		"⛈ Venku je bouřka. Blesk na chvilku rozsvítí pokoj. Přežij do 6:00."]
 	for i in lines.size():
-		txt(lines[i], 64, 480 + i * 30, 16, "#e8d8f8")
+		txt(lines[i], 64, 520 + i * 28, 15, "#e8d8f8")
 	txt("Nightmare Voxie · Nightmare Hollow Bunny", HW - 24, 680, 14, "#a080c0", "right")
-	txt("v0.3.0 preview · Godot", HW - 24, 704, 13, "#666666", "right")
+	txt("v0.5.0 preview · Godot", HW - 24, 704, 13, "#666666", "right")
 
 func draw_intro() -> void:
 	var st: float = game.scene_t
@@ -278,6 +288,9 @@ func draw_play(t: float) -> void:
 	rr(HW / 2 - 130, by, 260, 86, 14, Color(1, 0.9, 0.5, 0.35) if lit_on else Color(0.15, 0.1, 0.2, 0.55), "#ffe46b", 3)
 	txt("🔦 DRŽ = SVĚTLO", HW / 2, by + 52, 20, "#ffffff", "center")
 	add_btn(HW / 2 - 130, by, 260, 86, "light", func(): pass)
+	if game.DEV.god:
+		btn(HW - 200, 100, 80, 40, "🛠 +1h", "dh", func(): G.t = minf(G.t + game.HOUR, game.HOUR * 6 - 0.5), true, 13, "#ffb030")
+		btn(HW - 112, 100, 88, 40, "🛠 6:00", "d6", func(): G.t = game.HOUR * 6, true, 13, "#ffb030")
 	if not has_touch():
 		txt("A/D nebo ←/→ otočit · MEZERNÍK nebo F držet baterku", HW / 2, by - 14, 13, "#777777", "center")
 	subs()
@@ -322,6 +335,43 @@ func draw_end(kind: String) -> void:
 		btn(HW / 2 - 160, 420, 320, 56, "↻ ZKUSIT ZNOVU", "retry", func(): game.start_night(G.night), true, 20)
 		btn(HW / 2 - 160, 488, 320, 48, "MENU", "menu", game.to_menu, true, 18)
 
+# ---------------------------------------------------------------- Extras a Dev
+func draw_extras(t: float) -> void:
+	rect(0, 0, 520, HH, Color(0.03, 0.0, 0.06, 0.85))
+	txt("★ EXTRAS", 40, 64, 34, "#d088ff")
+	btn(40, 84, 150, 40, "POSTAVY", "pch", func(): game.ex_page = "chars", true, 15, "#ffe46b" if game.ex_page == "chars" else "#d088ff")
+	btn(200, 84, 260, 40, "MINIHRY A SCÉNY", "psc", func(): game.ex_page = "scenes", true, 15, "#ffe46b" if game.ex_page == "scenes" else "#d088ff")
+	if game.ex_page == "chars":
+		var E = game.EX[game.ex_i]
+		txt(E[0], 40, 170, 26, "#ffffff")
+		txt(E[1], 40, 198, 15, "#e0b0ff")
+		var ls = wrapt(E[2], 440, 16)
+		for i in ls.size():
+			txt(ls[i], 40, 236 + i * 24, 16, "#dddddd")
+		for i in game.EX.size():
+			var k = i
+			btn(40 + (i % 2) * 220, 520 + int(i / 2) * 52, 210, 44, game.EX[i][0], "e" + str(i), func(): game.ex_i = k, true, 13, "#ffe46b" if i == game.ex_i else "#d088ff")
+	else:
+		rect(0, 0, HW, HH, Color(0.03, 0.0, 0.06, 0.85))
+		txt("★ EXTRAS · MINIHRY A SCÉNY", 40, 64, 30, "#d088ff")
+		btn(40, 84, 150, 40, "POSTAVY", "pch", func(): game.ex_page = "chars", true, 15)
+		var L = [["Noc 1 · Představení (2D)", func(): game.start_mini("show", true)], ["Noc 2 · Schovávaná (2D)", func(): game.start_mini("hide", true)], ["Noc 3 · Po zavíračce (2D)", func(): game.start_mini("pit", true)], ["Noc 4 · Hollow Bunny (scéna)", func(): game.start_d4(true)], ["Noc 5 · Odstavení 1980 (2D)", func(): game.start_mini("shutdown", true)], ["Noc 7 · Tvoje vina (scéna)", func(): game.start_d7(true)]]
+		for i in L.size():
+			btn(40 + (i % 2) * 430, 160 + int(i / 2) * 90, 410, 70, L[i][0], "sc" + str(i), L[i][1], true, 18)
+	btn(40, 652, 200, 48, "◀ MENU", "back", game.to_menu, true, 16)
+
+func draw_devmenu(t: float) -> void:
+	rect(0, 0, HW, HH, Color(0.03, 0.0, 0.06, 0.92))
+	txt("🛠 DEV", 60, 80, 40, "#ffb030")
+	var on: bool = game.DEV.god
+	btn(60, 120, 420, 54, ("☑ " if on else "☐ ") + "😇 GOD MODE (nic tě nezabije, baterka nekonečná)", "dgod", func(): game.DEV.god = not game.DEV.god, true, 15, "#ffe46b" if on else "#ffb030")
+	btn(60, 186, 420, 54, "🔓 Odemknout všech 7 nocí", "dunl", func():
+		game.st_set("v4_night", 7)
+		game.st_set("v4_end", true)
+		game.audio.sfx("chime", 0.5), true, 16, "#ffb030")
+	txt("Ve hře: tlačítko 🛠 vpravo nahoře = +1 hodina / dokončit noc.", 60, 290, 15, "#cccccc")
+	btn(60, 652, 200, 48, "◀ MENU", "back", game.to_menu, true, 16)
+
 # ---------------------------------------------------------------- vstup
 func has_touch() -> bool:
 	return DisplayServer.is_touchscreen_available()
@@ -352,6 +402,10 @@ func _down(id: int, p: Vector2) -> void:
 	if game.S == "menu":
 		game.audio.start_menu_song()
 	var b = _hit(p)
+	if game.S == "mini" and b and (b.id == "ml" or b.id == "mr"):
+		game.mini.hold = -1 if b.id == "ml" else 1
+		light_id = id
+		return
 	if b and b.id == "light":
 		game.G.light = true
 		light_id = id
@@ -374,8 +428,10 @@ func _move(id: int, p: Vector2) -> void:
 func _up(id: int) -> void:
 	if drag and drag.id == id:
 		drag = null
-	if light_id == id and game.G:
-		game.G.light = false
+	if light_id == id:
+		game.mini.hold = 0
+		if game.G:
+			game.G.light = false
 		light_id = -1
 func _key(e: InputEventKey) -> void:
 	var k = OS.get_keycode_string(e.keycode).to_lower()
@@ -383,6 +439,11 @@ func _key(e: InputEventKey) -> void:
 		KEY_LEFT: k = "a"
 		KEY_RIGHT: k = "d"
 		KEY_SPACE: k = "f"
+	if game.S == "mini":
+		if e.pressed and not e.echo and (k == "e" or k == "f"):
+			game.mini.act()
+		game.keys[k] = e.pressed
+		return
 	if game.S != "play":
 		return
 	if k == "f":
