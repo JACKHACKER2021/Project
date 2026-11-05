@@ -177,6 +177,13 @@ název, ID, typ, stav, napájení, propojení potrubí a kabelů včetně směr�
 * **Nemocniční lůžko** a **operační stůl** jsou dva bloky dlouhé. Klepnutím na lůžko si nastavíš bod oživení. **Otočná kancelářská židle** se po klepnutí otočí o 90°.
 * **Plakáty, oznámení, papíry, hromada dokumentů a fotografie** si přečteš klepnutím. **Nástěnné hodiny** ukážou herní čas.
 
+## Novinky 1.9 – Kontaminovaná sféra (uzavřené dimenze)
+* **Nether, End i všechny ostatní dimenze** (i budoucí a vlastní) jsou uzavřené, protože jsou za **Kontaminovanou sférou**:
+  * Portál do Netheru nejde zapálit křesadlem ani ohnivou koulí a do rámu portálu do Endu nejde vložit oko Endu.
+  * Kdo se do jiné dimenze přesto dostane (příkazem nebo starým portálem), do 5 ticků se vrátí do overworldu. Portálové bloky v okolí hráčů se odstraňují.
+* **Zásobovací bedna Zeds Corp:** při prvním pokusu o portál dostane každý hráč bednu s věcmi, které by jinak hledal v Netheru a Endu. Obsahuje 6 blaze rodů, 4 blaze prachy, 8 ender perel, 6 nether wartu, 16 glowstone prachu, 16 quartzu, 2 ghast tears, 4 magma cream, 2 netherite scrap, 8 soul sandu, 2 shulker shelly, 8 chorus fruitů, 2 dračí dechy a 1 elytru.
+* Otevření dimenzí (operátor): `/scriptevent radiousti:config dimensions on`.
+
 ## Novinky 1.8 – atomové útoky, sirény, postavy, muzeum
 * **Atomová bomba** (blok): klepnutím ji aktivuješ.
   * Spustí se 30sekundový odpočet se sirénou a velkým odpočtem na obrazovce. Během odpočtu ji jde klepnutím deaktivovat.

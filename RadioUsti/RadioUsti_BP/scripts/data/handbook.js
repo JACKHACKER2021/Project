@@ -133,6 +133,7 @@ export const HANDBOOK = [
       "SIRÉNA (blok) houká při leteckém poplachu a poplachu reaktoru. RUČNÍ SIRÉNA (předmět) varuje hráče do 96 bloků.\n" +
       "ČASTĚJŠÍ DÉŠŤ: za suchého počasí zhruba každých 10 minut začne pršet (radioaktivně).\n" +
       "RADIAKŮV REAKTOROVÝ SLIZ: svítivý sliz, který ozařuje každého do 2,5 bloku.\n" +
+      "KONTAMINOVANÁ SFÉRA: Nether, End i všechny další dimenze jsou uzavřené – portál nejde zapálit ani naplnit očima. Kdo se do jiné dimenze dostane, vrátí se do overworldu. Při prvním pokusu dostanete zásobovací bednu Zeds Corp s věcmi z Netheru a Endu (blaze rody, ender perly, nether wart, glowstone, quartz, ghast tear, netherite scrap, shulker shelly, elytru…). Otevření dimenzí (operátor): /scriptevent radiousti:config dimensions on\n" +
       "MUZEUM: /structure load muzeum ~ ~ ~ – expozice s Radiakem v obleku, mrtvolami starosty, pošťáka a technika, vitrínami a plakáty.",
   },
   {

@@ -12,6 +12,7 @@ import "./systems/reactor.js";
 import { startSmog } from "./systems/environment.js";
 import { cameraRecord, renameCamera, openTablet, pressDoorButton, cureInfection } from "./systems/security.js";
 import { interactNuke, atomicCommand } from "./systems/nuke.js";
+import "./systems/dimensions.js";
 import { radiationTick, mobRadiationTick, wasteSpreadTick, contaminationSpreadTick, decontaminate, getDose, setDose, fullHazmat } from "./systems/radiation.js";
 import { toggleLight, interactAlarm, pressScram } from "./systems/devices.js";
 import { openStation } from "./systems/lab.js";
@@ -364,6 +365,7 @@ system.afterEvents.scriptEventReceive.subscribe(safe("scriptevent", (ev) => {
     else if (k === "infection") c = Config.set({ infection: on });
     else if (k === "nuke") c = Config.set({ nuke: on });
     else if (k === "rain") c = Config.set({ frequentRain: on });
+    else if (k === "dimensions") c = Config.set({ dimensionsOpen: on });
     else if (k === "smog") {
       startSmog(Number(v) || 3);
       c = Config.get();

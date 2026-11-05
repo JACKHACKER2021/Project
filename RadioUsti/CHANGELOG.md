@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.9.0 – Kontaminovaná sféra (2026-11-05)
+**Přidáno**
+- Uzavření Netheru, Endu a všech ostatních dimenzí: blokování zapálení portálu a vkládání očí Endu, návrat do overworldu, odstraňování portálových bloků.
+- Zásobovací bedna Zeds Corp s věcmi z Netheru a Endu (jednou na hráče).
+- Nastavení `dimensions on|off`.
+
+**Změněno**
+- Verze balíčků 1.8.0 → 1.9.0.
+
 ## 1.8.0 – atomové útoky, sirény, postavy, muzeum (2026-11-05)
 **Přidáno**
 - Atomová bomba (odpočet, kruh explozí, zamoření okruhu 32 bloků, radiace do 64 bloků).
