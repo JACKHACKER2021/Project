@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.0 – Registr experimentů (2026-11-05)
+**Přidáno**
+- Předmět a kniha *Registr experimentů – Projekt Apokalypsa* se 12 kapitolami o postavách, materiálech a místech Zeds World. Je dostupná také v ÚstíOS → Dokumenty.
+- Recept: kniha + červená barva + inkoustový váček.
+
+**Změněno**
+- Verze balíčků 1.1.0 → 1.2.0.
+
 ## 1.1.0 – redstone a laboratorní sklo (2026-11-05)
 **Přidáno**
 - Redstone jako zdroj energie: blok ruditu (10 jednotek) a rudit, redstone pochodeň, páka, opakovač a komparátor, když vedou signál (signál ÷ 3, max 5). Napájí kabely i stroje, které se ho přímo dotýkají. Kabely se k redstonu vizuálně napojí.

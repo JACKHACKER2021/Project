@@ -1267,6 +1267,11 @@ export const REGISTRY = {
    "en": "RadioÚstí System Analyzer",
    "cs": "Systémový analyzátor RadioÚstí"
   },
+  "radiousti:experiment_registry": {
+   "kind": "registry",
+   "en": "Experiment Registry – Projekt Apokalypsa",
+   "cs": "Registr experimentů – Projekt Apokalypsa"
+  },
   "radiousti:handbook": {
    "kind": "handbook",
    "en": "RadioÚstí Handbook",

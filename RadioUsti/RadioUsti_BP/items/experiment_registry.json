@@ -1,0 +1,22 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:item": {
+    "description": {
+      "identifier": "radiousti:experiment_registry",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "textures": {
+          "default": "radiousti_experiment_registry"
+        }
+      },
+      "minecraft:display_name": {
+        "value": "item.radiousti.experiment_registry.name"
+      },
+      "minecraft:max_stack_size": 1
+    }
+  }
+}

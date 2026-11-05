@@ -46,7 +46,7 @@ Pokud import celého `.mcaddon` selže, nainstaluj zvlášť `dist/RadioUsti_RP.
 
 ## Co add-on obsahuje
 
-153 bloků a 57 předmětů (45 samostatných předmětů a 12 předmětů, kterými se pokládají multibloky a dveře; 9 bloků laboratorního skla se pokládá jeho předměty). Úplný seznam s ID je v [docs/CATALOG.md](docs/CATALOG.md).
+153 bloků a 58 předmětů (46 samostatných předmětů a 12 předmětů, kterými se pokládají multibloky a dveře; 9 bloků laboratorního skla se pokládá jeho předměty). Úplný seznam s ID je v [docs/CATALOG.md](docs/CATALOG.md).
 
 | Oblast | Obsah |
 |---|---|
@@ -169,6 +169,11 @@ název, ID, typ, stav, napájení, propojení potrubí a kabelů včetně směr�
 * **Dveře** jsou dva bloky vysoké. Otevřeš je klepnutím na kteroukoli polovinu. Když zničíš jednu polovinu, zmizí obě a vypadne jeden předmět.
 * **Nemocniční lůžko** a **operační stůl** jsou dva bloky dlouhé. Klepnutím na lůžko si nastavíš bod oživení. **Otočná kancelářská židle** se po klepnutí otočí o 90°.
 * **Plakáty, oznámení, papíry, hromada dokumentů a fotografie** si přečteš klepnutím. **Nástěnné hodiny** ukážou herní čas.
+
+## Registr experimentů (1.2)
+Kniha **Registr experimentů – Projekt Apokalypsa** (kniha + červená barva + inkoustový váček) obsahuje 12 kapitol o světě Zeds World:
+úvod a časovou osu 2072–2084, vedení (Roger Smith, Zedonar, Zeds Corp, Mike Jasday, FBI, Zéd), U256 Radiak, sérii EX-001 až EX-011, organické hračky, pennovské hrozby, absolutní mutanty, experimenty mimo Rogera, materiály (uran, biogenní sérum, Liverocrystal Gas a Metal), místa zkázy a uzavřené spisy.
+Přečteš ji použitím předmětu, nebo v ÚstíOS → Dokumenty RadioÚstí. Spisy dětských subjektů a všechen intimní obsah z archivu do knihy nepatří a jsou vedené jen jako uzavřené.
 
 ## Recepty a katalog
 * Všechny recepty: [docs/RECIPES.md](docs/RECIPES.md) (175 receptů, generuje se automaticky z kódu).

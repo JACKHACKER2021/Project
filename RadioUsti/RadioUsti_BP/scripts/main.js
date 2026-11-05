@@ -14,7 +14,7 @@ import { toggleLight, interactAlarm, pressScram } from "./systems/devices.js";
 import { openStation } from "./systems/lab.js";
 import { showInspection } from "./ui/analyzer.js";
 import { openComputer } from "./ui/pc.js";
-import { openMachine, openReactorPanel, openServer, openHandbook, readDocument } from "./ui/panels.js";
+import { openMachine, openReactorPanel, openServer, openHandbook, openRegistry, readDocument } from "./ui/panels.js";
 
 const ANALYZER = `${NS}:system_analyzer`;
 const DECON = `${NS}:decontamination_kit`;
@@ -231,6 +231,7 @@ world.afterEvents.itemUse.subscribe(safe("itemUse", (ev) => {
   const id = ev.itemStack.typeId;
   const p = ev.source;
   if (id === `${NS}:handbook`) system.run(() => openHandbook(p).catch(() => {}));
+  else if (id === `${NS}:experiment_registry`) system.run(() => openRegistry(p).catch(() => {}));
   else if (ITEMS[id]?.kind === "document") system.run(() => readDocument(p, id).catch(() => {}));
   else if (id === ANALYZER) p.onScreenDisplay.setActionBar(`§eAnalyzátor: klepněte na blok. Vaše dávka radiace: ${getDose(p).toFixed(0)}/150`);
 }));

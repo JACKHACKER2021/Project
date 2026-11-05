@@ -5,6 +5,9 @@
     "radiousti_system_analyzer": {
       "textures": "textures/items/radiousti_system_analyzer"
     },
+    "radiousti_experiment_registry": {
+      "textures": "textures/items/radiousti_experiment_registry"
+    },
     "radiousti_handbook": {
       "textures": "textures/items/radiousti_handbook"
     },

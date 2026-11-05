@@ -6,6 +6,7 @@ import { describeMachine, machineLabel } from "./describe.js";
 import { startReactor, scram, resetReactor, insertFuel, STATUS_CS } from "../systems/reactor.js";
 import { visibleMachines } from "./pc.js";
 import { HANDBOOK } from "../data/handbook.js";
+import { EXPERIMENTS, REGISTRY_TITLE } from "../data/experiments.js";
 import { DOCS } from "../data/lore.js";
 
 const FUEL = {
@@ -175,19 +176,28 @@ export async function openServer(player, block, key) {
   }
 }
 
-export async function openHandbook(player, page = -1) {
+async function openBook(player, chapters, title, intro, page = -1) {
   if (page < 0) {
-    const f = new ActionFormData().title("§lPříručka RadioÚstí").body("Zeds World • RadioÚstí 2072\nAutor add-onu: Jackhack2021");
-    for (const ch of HANDBOOK) f.button(ch.title);
+    const f = new ActionFormData().title(`§l${title}`).body(intro);
+    for (const ch of chapters) f.button(ch.title);
     f.button("Zavřít");
     const r = await f.show(player);
-    if (r.canceled || r.selection === undefined || r.selection >= HANDBOOK.length) return;
-    return openHandbook(player, r.selection);
+    if (r.canceled || r.selection === undefined || r.selection >= chapters.length) return;
+    return openBook(player, chapters, title, intro, r.selection);
   }
-  const ch = HANDBOOK[page];
-  const r = await new MessageFormData().title(ch.title).body(ch.text).button1("< Obsah").button2(page + 1 < HANDBOOK.length ? "Další >" : "Zavřít").show(player);
-  if (r.selection === 0) return openHandbook(player, -1);
-  if (r.selection === 1 && page + 1 < HANDBOOK.length) return openHandbook(player, page + 1);
+  const ch = chapters[page];
+  const r = await new MessageFormData().title(ch.title).body(ch.text).button1("< Obsah").button2(page + 1 < chapters.length ? "Další >" : "Zavřít").show(player);
+  if (r.selection === 0) return openBook(player, chapters, title, intro, -1);
+  if (r.selection === 1 && page + 1 < chapters.length) return openBook(player, chapters, title, intro, page + 1);
+}
+
+export async function openHandbook(player) {
+  return openBook(player, HANDBOOK, "Příručka RadioÚstí", "Zeds World • RadioÚstí 2072\nAutor add-onu: Jackhack2021");
+}
+
+export async function openRegistry(player) {
+  sound(player.dimension, player.location, "radiousti.pc_click", 0.4, 0.5);
+  return openBook(player, EXPERIMENTS, REGISTRY_TITLE, "§cPŘÍSNĚ TAJNÉ // ZEDS CORP§r\nBiologický registr sektorů RadioÚstí, Pennov, Jackovanie a CWT, 2072–2084.\nZodpovědný architekt: Roger Smith");
 }
 
 export async function readDocument(player, docKey) {

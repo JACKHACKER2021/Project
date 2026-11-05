@@ -181,11 +181,12 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Prázdná laboratorní nádoba (položená) | Empty Laboratory Jar (placed) | `radiousti:empty_jar_block` | laboratorní sklo |
 | Nádoba s krví (položená) | Blood Jar (placed) | `radiousti:blood_jar_block` | laboratorní sklo |
 
-## Předměty (45)
+## Předměty (46)
 
 | Název | English | ID | Popis |
 |---|---|---|---|
 | Systémový analyzátor RadioÚstí | RadioÚstí System Analyzer | `radiousti:system_analyzer` |  |
+| Registr experimentů – Projekt Apokalypsa | Experiment Registry – Projekt Apokalypsa | `radiousti:experiment_registry` |  |
 | Příručka RadioÚstí | RadioÚstí Handbook | `radiousti:handbook` |  |
 | Realistický krumpáč | Realistic Pickaxe | `radiousti:realistic_pickaxe` |  |
 | Surový uran | Raw Uranium | `radiousti:raw_uranium` |  |

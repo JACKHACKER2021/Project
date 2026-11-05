@@ -39,6 +39,7 @@ Verze 1.0.0 byla podle autora otestovaná ve hře a funguje („Otestováno a co
 | E9 | Plynová maska a ochranný oblek (zbroj + ochrana proti radiaci) | neúplné | – | vzhled na hráči je jen jednoduchá textura vanilla geometrie |
 | G1 | Redstone jako zdroj: blok ruditu (10), rudit / pochodeň / páka / opakovač / komparátor (signál ÷ 3, max 5) | staticky ověřeno | – | `Block.getRedstonePower()` (stabilní 2.0.0); kabely se napojují i vizuálně |
 | G2 | Pokládané laboratorní sklo – 9 bloků s modely (baňky, zkumavky, láhev, nádoby) | staticky ověřeno | – | předmět → `minecraft:block_placer`, blok vrací předmět |
+| G3 | Registr experimentů – kniha postav Projektu Apokalypsa (12 kapitol), i v ÚstíOS | staticky ověřeno | – | |
 | F1 | Validace JSON, geometrií, skriptů, ID, textur | staticky ověřeno | – | `tools/validate.py`: 0 chyb; komunitní JSON schémata: 0 nálezů |
 | F2 | Export .mcaddon + .mcpack | staticky ověřeno | – | `tools/package.py`, kontrola integrity ZIP |
 | F3 | Test v Minecraftu Bedrock 1.26.50 | 1.0.0 načteno a hratelné | ✓ (1.0.0, obecně) | 1.1 čeká na test |

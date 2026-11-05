@@ -575,6 +575,8 @@ def ic(name, kind, color="#888888"):
 
 item("system_analyzer", "RadioÚstí System Analyzer", "Systémový analyzátor RadioÚstí", ic("system_analyzer", "scanner"), cat="equipment", stack=1,
      kind="analyzer", comps={"minecraft:hand_equipped": True})
+item("experiment_registry", "Experiment Registry – Projekt Apokalypsa", "Registr experimentů – Projekt Apokalypsa",
+     ic("experiment_registry", "book", "#8f1d18"), cat="items", stack=1, kind="registry")
 item("handbook", "RadioÚstí Handbook", "Příručka RadioÚstí", ic("handbook", "book", "#5e6f55"), cat="items", stack=1, kind="handbook")
 item("realistic_pickaxe", "Realistic Pickaxe", "Realistický krumpáč", ic("realistic_pickaxe", "pickaxe", "#9aa3a8"), cat="equipment", stack=1,
      kind="pickaxe",

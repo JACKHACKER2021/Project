@@ -38,6 +38,7 @@ CEM = "cement_block"
 # --- basic tools & materials (vanilla crafting table)
 shaped("system_analyzer", [" R ", "IPI", "ICI"], {"R": RS, "I": IRON, "P": PANE, "C": COPPER})
 shapeless("handbook", [M + "book", M + "yellow_dye"])
+shapeless("experiment_registry", [M + "book", M + "red_dye", M + "ink_sac"])
 shaped("realistic_pickaxe", ["ICI", " S ", " S "], {"I": IRON, "C": COPPER, "S": STICK})
 shaped("industrial_workbench", ["III", "CTC", "P P"], {"I": IRON, "C": COPPER, "T": M + "crafting_table", "P": PLANK})
 shaped("lab_table", ["WWW", "ITI", "I I"], {"W": M + "white_concrete", "I": IRON, "T": M + "crafting_table"})

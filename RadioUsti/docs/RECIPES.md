@@ -6,10 +6,11 @@ _Generováno nástrojem `tools/build.py` z `tools/recipes.py`._
 Laboratorní stanice (zpracování vzorků, palivové tyče…) jsou popsané v README v kapitole Laboratoř.
 
 
-## Pracovní stůl (75)
+## Pracovní stůl (76)
 
 - **Systémový analyzátor RadioÚstí** ×1: vzor ` R  / IPI / ICI` – `R` = redstone, `I` = iron_ingot, `P` = glass_pane, `C` = copper_ingot
 - **Příručka RadioÚstí** ×1: 1× book + 1× yellow_dye
+- **Registr experimentů – Projekt Apokalypsa** ×1: 1× book + 1× red_dye + 1× ink_sac
 - **Realistický krumpáč** ×1: vzor `ICI /  S  /  S ` – `I` = iron_ingot, `C` = copper_ingot, `S` = stick
 - **Průmyslový ponk** ×1: vzor `III / CTC / P P` – `I` = iron_ingot, `C` = copper_ingot, `T` = crafting_table, `P` = libovolné planks
 - **Laboratorní stůl** ×1: vzor `WWW / ITI / I I` – `W` = white_concrete, `I` = iron_ingot, `T` = crafting_table

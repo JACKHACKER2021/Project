@@ -11,6 +11,7 @@ import { DOCS } from "../data/lore.js";
 import { describeMachine, machineLabel } from "./describe.js";
 import { setActive } from "../systems/network.js";
 import { blockAt } from "../lib/util.js";
+import { openRegistry } from "./panels.js";
 
 const OS = "§l§9ÚstíOS§r §7Longhorn Edition§r";
 const LOCAL_RANGE = 8;
@@ -210,16 +211,22 @@ async function logView(player, block, key, channel, title) {
 async function documents(player, block, key) {
   const entries = Object.entries(DOCS);
   const f = new ActionFormData().title(OS + " – Dokumenty RadioÚstí");
+  f.button("§4Registr experimentů – Projekt Apokalypsa");
   for (const [, d] of entries) f.button(d.title);
   f.button("Vytisknout výpis systému");
   f.button("§l< Zpět");
   const r = await f.show(player);
   if (r.canceled || r.selection === undefined) return;
-  if (r.selection < entries.length) {
-    await msg(player, entries[r.selection][1].title, entries[r.selection][1].text);
+  if (r.selection === 0) {
+    await openRegistry(player);
     return documents(player, block, key);
   }
-  if (r.selection === entries.length) {
+  const sel = r.selection - 1;
+  if (sel < entries.length) {
+    await msg(player, entries[sel][1].title, entries[sel][1].text);
+    return documents(player, block, key);
+  }
+  if (sel === entries.length) {
     giveItem(player, `${NS}:document_printout`, 1);
     player.sendMessage("§a[ÚstíOS] Výpis vytištěn.");
   }
