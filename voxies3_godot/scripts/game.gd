@@ -170,12 +170,13 @@ func _mat(c, rough := 0.8, metal := 0.0) -> StandardMaterial3D:
 	m.roughness = rough
 	m.metallic = metal
 	return m
-func _box(p: Node3D, sz: Vector3, pos: Vector3, m: Material) -> MeshInstance3D:
+func _box(p: Node3D, sz: Vector3, pos: Vector3, m: Material, rot := Vector3.ZERO) -> MeshInstance3D:
 	var mi = MeshInstance3D.new()
 	var b = BoxMesh.new()
 	b.size = sz
 	mi.mesh = b
 	mi.position = pos
+	mi.rotation = rot
 	mi.material_override = m
 	p.add_child(mi)
 	return mi
@@ -671,6 +672,8 @@ func new_night(n: int) -> void:
 	restore_voxie()
 	hare_burnt(false)
 	sys.restore_building()
+	if end_out:
+		end_out.visible = false
 	G.kroupa = n > 1 and n < 8
 	sys.setup(n)
 func start_night(n: int) -> void:
@@ -1628,6 +1631,9 @@ func restore_voxie() -> void:
 	if sys.vox_node:
 		sys.vox_node.rotation = sys.vox_base
 func start_end7() -> void:
+	end_said = false
+	if end_out:
+		end_out.visible = false
 	S = "end7"
 	scene_t = 0.0
 	Q.clear()
@@ -1727,9 +1733,15 @@ func end7_tick(dt: float) -> void:
 	if G.shake > 0:
 		G.shake = maxf(0, G.shake - dt)
 		cam.position += Vector3(randf_range(-1, 1), randf_range(-1, 1), 0) * G.shake * 0.1
+var end_out: Node3D
+var hoses := []
+var end_said := false
+## venku po požáru: hasičské auto, hasiči hasí, z Frights & Hides zbydou trosky; u ruin pan Kroupa
 func _render_end7_out(t: float) -> void:
-	cam.position = Vector3(-6.0 + t * 0.05, 1.7, 21.5)
-	cam.look_at(Vector3(-8, 2.8, 9.0))
+	if end_out == null:
+		_build_end_out()
+	end_out.visible = true
+	var fire_k = clampf(1.0 - (t - 5.0) / 7.0, 0.0, 1.0)
 	if sys.fire_root.get_child_count() < 8:
 		for i in 6:
 			var f = sys._fire(Vector3(2.5, 0.6, 0.4), 80)
@@ -1742,5 +1754,132 @@ func _render_end7_out(t: float) -> void:
 		l.position = Vector3(-6, 6, 13)
 		sys.fire_root.add_child(l)
 		sys.fire_lights.append(l)
+	for c in sys.fire_root.get_children():
+		if c is CPUParticles3D:
+			c.emitting = fire_k > 0.15
 	for l in sys.fire_lights:
-		l.light_energy = 3.0 + randf() * 1.5
+		l.light_energy = (3.0 + randf() * 1.5) * fire_k
+	var blink = fmod(t, 0.5) < 0.25
+	(end_out.get_node("BeaconR") as OmniLight3D).light_energy = 3.0 if blink else 0.0
+	(end_out.get_node("BeaconB") as OmniLight3D).light_energy = 0.0 if blink else 3.0
+	for hz in hoses:
+		hz.emitting = t < 13.0
+	var kr: Node3D = kroupa.root
+	if t < 12.0:
+		cam.position = Vector3(-4.0 + t * 0.08, 2.0, 25.5)
+		cam.look_at(Vector3(-8, 2.4, 9.5))
+		kr.visible = false
+	else:
+		# ruiny, kouř; přichází pan Kroupa
+		var k = clampf((t - 12.0) / 3.0, 0, 1)
+		kr.visible = true
+		cam.position = Vector3(-6.4, 1.7, 19.2)
+		kr.position = Vector3(-3.5, 0, 16.5).lerp(Vector3(-8.2, 0, 14.2), k)
+		if k < 1.0:
+			kr.rotation.y = atan2(-8.2 - kr.position.x, 14.2 - kr.position.z)
+		else:
+			kr.rotation.y = lerp_angle(kr.rotation.y, atan2(cam.position.x - kr.position.x, cam.position.z - kr.position.z), 0.05)
+		preload("res://scripts/people.gd").animate(kroupa, t_now, 0.016, k < 1.0, talking("O"))
+		cam.look_at(kr.position + Vector3(0, 1.4, -1.0))
+		if t > 15.2 and not end_said:
+			end_said = true
+			say("O", "D. byl můj otec.")
+			say("O", "Tohle ti neodpustím. Najdu tě.")
+
+func _water() -> CPUParticles3D:
+	var w = CPUParticles3D.new()
+	w.amount = 90
+	w.lifetime = 1.2
+	w.direction = Vector3(0, 0.35, -1)
+	w.spread = 5
+	w.initial_velocity_min = 10
+	w.initial_velocity_max = 12
+	w.gravity = Vector3(0, -6, 0)
+	w.scale_amount_min = 0.1
+	w.scale_amount_max = 0.18
+	var q = QuadMesh.new()
+	q.size = Vector2(0.3, 0.3)
+	var wm = StandardMaterial3D.new()
+	wm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	wm.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+	wm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	wm.albedo_color = Color(0.7, 0.85, 1.0, 0.5)
+	q.material = wm
+	w.mesh = q
+	return w
+
+func _build_end_out() -> void:
+	end_out = Node3D.new()
+	add_child(end_out)
+	var truck = Node3D.new()
+	truck.position = Vector3(7.0, 0, 18.5)
+	truck.rotation.y = 0.4
+	end_out.add_child(truck)
+	_box(truck, Vector3(2.3, 1.6, 6.0), Vector3(0, 1.2, 0), _mat("#b01010", 0.4, 0.3))
+	_box(truck, Vector3(2.3, 1.2, 1.6), Vector3(0, 2.4, -2.1), _mat("#b01010", 0.4, 0.3))
+	_box(truck, Vector3(2.2, 0.6, 1.5), Vector3(0, 2.5, -2.9), _mat("#203040", 0.1, 0.3))
+	_box(truck, Vector3(0.6, 0.2, 5.0), Vector3(0, 2.15, 0.6), _mat("#c0c0c0", 0.3, 0.8))
+	for sx in [-1, 1]:
+		for sz in [-2.0, 2.0]:
+			_box(truck, Vector3(0.3, 0.9, 0.9), Vector3(1.1 * sx, 0.45, sz), _mat("#101010"))
+		_box(truck, Vector3(0.02, 0.15, 5.6), Vector3(1.16 * sx, 1.0, 0), _mat("#ffe46b"))
+	var br = OmniLight3D.new()
+	br.name = "BeaconR"
+	br.light_color = Color("#ff2020")
+	br.omni_range = 14
+	br.position = Vector3(6.5, 3.3, 16.4)
+	end_out.add_child(br)
+	var bb = OmniLight3D.new()
+	bb.name = "BeaconB"
+	bb.light_color = Color("#2040ff")
+	bb.omni_range = 14
+	bb.position = Vector3(7.5, 3.3, 16.6)
+	end_out.add_child(bb)
+	var kl = OmniLight3D.new()
+	kl.light_color = Color("#ffb070")
+	kl.light_energy = 2.0
+	kl.omni_range = 6
+	kl.position = Vector3(-7.0, 2.6, 16.0)
+	end_out.add_child(kl)
+	var P = preload("res://scripts/people.gd")
+	hoses = []
+	for i in 3:
+		var f = P.person("Hasič", Color("#1a1e2a"), Color("#1a1e2a"), Color("#e0b090"), Color("#2a2420"), 1.82, false)
+		var hp: Node3D = f.parts.head
+		_box(hp, Vector3(0.4, 0.16, 0.42), Vector3(0, 0.42, 0), _mat("#e8c020", 0.4))
+		_box(f.parts.body, Vector3(0.52, 0.05, 0.3), Vector3(0, 1.0, 0.0), _mat("#e8e020", 0.5))
+		f.root.position = Vector3(-14.0 + i * 4.0, 0, 15.0 - i * 0.4)
+		f.root.rotation.y = PI
+		end_out.add_child(f.root)
+		f.parts["arm-1"].rotation.x = -1.3
+		f.parts["arm1"].rotation.x = -1.3
+		var w = _water()
+		w.position = Vector3(-14.0 + i * 4.0, 1.4, 14.5 - i * 0.4)
+		end_out.add_child(w)
+		hoses.append(w)
+	for i in 14:
+		_box(end_out, Vector3(randf_range(0.6, 2.0), randf_range(0.3, 1.2), randf_range(0.6, 2.0)), Vector3(randf_range(-17, 6), 0.3, randf_range(9.0, 11.6)), _mat(pick(["#1a1410", "#2a2420", "#100c0a"]), 0.95), Vector3(randf(), randf() * 3, randf()))
+	for i in 6:
+		_box(end_out, Vector3(0.25, 0.25, randf_range(2.5, 4.5)), Vector3(randf_range(-16, 4), 0.7, randf_range(9.5, 11.5)), _mat("#0c0806"), Vector3(randf_range(-0.5, 0.5), randf() * 3, randf_range(0.2, 0.6)))
+	var smoke = CPUParticles3D.new()
+	smoke.amount = 60
+	smoke.lifetime = 6
+	smoke.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
+	smoke.emission_box_extents = Vector3(10, 1, 1.5)
+	smoke.direction = Vector3.UP
+	smoke.gravity = Vector3(0.3, 0.6, 0)
+	smoke.initial_velocity_min = 0.5
+	smoke.initial_velocity_max = 1.2
+	smoke.scale_amount_min = 2.0
+	smoke.scale_amount_max = 4.0
+	var sq = QuadMesh.new()
+	sq.size = Vector2(1, 1)
+	var sm = StandardMaterial3D.new()
+	sm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	sm.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+	sm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	sm.albedo_color = Color(0.15, 0.14, 0.14, 0.35)
+	sq.material = sm
+	smoke.mesh = sq
+	smoke.position = Vector3(-6, 2.5, 10.5)
+	end_out.add_child(smoke)

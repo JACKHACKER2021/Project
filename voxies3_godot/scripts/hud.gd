@@ -276,7 +276,7 @@ func draw_menu(t: float) -> void:
 		"☕ Káva z kávovaru a 💊 prášky vrátí příčetnost. Psaní hlášení tě uklidňuje."]
 	for i in lines.size():
 		txt(lines[i], 64, 450 + i * 30, 16, "#cfeed4")
-	txt("v1.0.1 · Godot", HW - 20, 700, 14, "#666666", "right")
+	txt("v1.1.0 · Godot", HW - 20, 700, 14, "#666666", "right")
 
 # ---------------------------------------------------------------- titulky
 func subs() -> void:
@@ -854,11 +854,15 @@ func draw_end7(t: float) -> void:
 			rect(0, 0, HW, HH, Color(0, 0, 0, 1 - absf(st0 - f - 0.4) / 0.4))
 	if st0 < 18.0:
 		subs()
-		btn(HW - 220, 24, 196, 44, "PŘESKOČIT ▶", "e7skip", func(): game.scene_t = 41.5, true, 16)
+		btn(HW - 220, 24, 196, 44, "PŘESKOČIT ▶", "e7skip", func(): game.scene_t = 38.6, true, 16)
 		return
 	var st = st0 - 18.0
-	var L = [[2.0, "6:00 AM. Frights & Hides hoří."], [6.0, "Strop se propadl. Zbyly jen sutiny."], [10.0, "V popelu našli hasiči ohořelou kostru springlocku. A uvnitř… člověka."], [15.0, "Pan Kroupa tvrdil, že to byly jen efekty."], [19.0, "D. konečně odpočívá."]]
+	var L = [[1.0, "6:00 AM. Frights & Hides hoří."], [3.5, "Přijeli hasiči. Strop se propadl, zbyly jen sutiny."], [6.5, "V popelu našli ohořelou kostru springlocku. A uvnitř… člověka."], [9.0, "D. konečně odpočívá."]]
 	var y = 120.0
+	if st > 11.5:
+		rect(0, 0, HW, HH, Color(0, 0, 0, clampf(1.0 - absf(st - 12.0) * 2.0, 0, 1)))
+		subs()
+		L = []
 	for l in L:
 		if st > l[0]:
 			save_()
@@ -866,11 +870,11 @@ func draw_end7(t: float) -> void:
 			txt(l[1], HW / 2, y, 24, "#ffd0a0", "center")
 			restore_()
 		y += 46
-	if st > 23:
+	if st > 20.5:
 		neon("KONEC", HW / 2, 480, 70, "#ff5020", 20)
 		btn(HW / 2 - 160, 560, 320, 56, "MENU", "menu", game.to_menu, true, 20)
 	else:
-		btn(HW - 220, 24, 196, 44, "PŘESKOČIT ▶", "e7skip", func(): game.scene_t = 41.5, true, 16)
+		btn(HW - 220, 24, 196, 44, "PŘESKOČIT ▶", "e7skip", func(): game.scene_t = 38.6, true, 16)
 
 func draw_end(kind: String) -> void:
 	var G = game.G
