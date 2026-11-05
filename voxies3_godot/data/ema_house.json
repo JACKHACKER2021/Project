@@ -97,5 +97,12 @@
 			0,
 			0
 		]
+	},
+	"storm": {
+		"bolt": "LightningBolt",
+		"light": "LightningLight",
+		"note": "Ema se často budila při bouřce: blesk na zlomek vteřiny ozáří pokoj, pak hrom.",
+		"rain": "Rain",
+		"sky": "StormSky"
 	}
 }
