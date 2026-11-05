@@ -48,6 +48,18 @@ static func clean_mat(n: Node3D, path: String) -> void:
 	for mi in n.find_children("*", "MeshInstance3D", true, false):
 		mi.material_override = m
 
+## materiály dodaného modelu jsou průhledné (alpha blend) → ve scéně se „trhají“; uděláme je neprůhledné
+static func solid_mats(c: Node3D) -> void:
+	for mi in c.find_children("*", "MeshInstance3D", true, false):
+		for i in mi.mesh.get_surface_count():
+			var m = mi.get_active_material(i)
+			if m is StandardMaterial3D:
+				var d: StandardMaterial3D = m.duplicate()
+				d.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+				d.alpha_scissor_threshold = 0.5
+				d.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_OPAQUE_ONLY
+				mi.set_surface_override_material(i, d)
+
 ## dodaný model je v T-póze: ruce spustit podél těla
 static func pose_cocoa(c: Node3D) -> void:
 	for s in c.find_children("*", "Skeleton3D", true, false):
@@ -129,6 +141,7 @@ func start(extras := false) -> void:
 	cocoa.position = STAND + Vector3(0, 0.95, 0)
 	cocoa.rotation.y = 0.0
 	pose_cocoa(cocoa)
+	solid_mats(cocoa)
 	cocoa_parts = cocoa.find_children("*", "MeshInstance3D", true, false)
 	cocoa_parts.sort_custom(func(a, b): return a.get_aabb().get_center().y < b.get_aabb().get_center().y)
 	for mi in cocoa_parts:

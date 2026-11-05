@@ -9,14 +9,12 @@ static func wait(g, s: float) -> void:
 static func run(g) -> void:
 	await wait(g, 1.0)
 	g.start_build(true)
-	await wait(g, 1.0)
-	await snap(g, "build0")
 	for i in 4:
 		g.build.dx = 12.0
 		g.build.act()
 		g.build.dx = 18.5
 		g.build.act()
-	await wait(g, 0.5)
+	await wait(g, 0.8)
 	await snap(g, "build_full")
 	g.build.ph = 2
 	g.build.pt = 3.0
@@ -24,14 +22,11 @@ static func run(g) -> void:
 	await snap(g, "cocoa_ema")
 	g.build.done = true
 	await wait(g, 0.3)
-	g.start_night(2)
-	g.begin_play()
+	g.start_teaser(true)
+	await wait(g, 3.0)
+	await snap(g, "teaser1")
 	g.Q.clear()
 	g.line = null
-	g.G.vox.t = 99.0
-	g.G.bun.t = 99.0
-	g.G.view = "back"
-	g.G.light = true
-	await wait(g, 1.0)
-	await snap(g, "plush")
+	await wait(g, 4.0)
+	await snap(g, "teaser2")
 	g.get_tree().quit()

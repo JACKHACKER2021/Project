@@ -186,6 +186,7 @@ func _build() -> void:
 		var pl = load("res://models/cocoa_plush.glb").instantiate()
 		pl.name = "CocoaPlushNew"
 		add_child(pl)
+		preload("res://scripts/build.gd").solid_mats(pl)
 		pl.rotation = Vector3(-0.2, PI, 0.1)
 		var bb = _gaabb(pl)
 		var k = 0.42 / maxf(0.01, bb.size.y)
@@ -339,6 +340,86 @@ func start_build(extras := false) -> void:
 	torch.light_energy = 0
 	audio.stop_menu_song()
 	build.start(extras)
+# ---------- upoutávka na poslední kapitolu: pan Kroupa, syn D., mluví o pomstě
+var teaser: Node3D
+var kroupa: Dictionary
+const KT := ["Jmenuju se Kroupa. Můj otec byl D.", "Celý život mi tvrdili, že utekl. Pak ho našli spáleného v tom zajíci.", "Ten hlídač to podpálil. Hlídač, který přežil všechno.", "Najdu ho. A tentokrát nepřežije."]
+func start_teaser(extras := false) -> void:
+	S = "teaser"
+	scene_t = 0.0
+	scene_from_extras = extras
+	audio.stop_menu_song()
+	if teaser == null:
+		teaser = Node3D.new()
+		add_child(teaser)
+		teaser.position = Vector3(0, 0, 60)
+		var B = preload("res://scripts/build.gd")
+		var b = B.new()
+		var dark = b._mat("#0c0a0c", 0.95)
+		b._box(teaser, Vector3(8, 0.1, 8), Vector3(0, -0.05, 0), dark)
+		b._box(teaser, Vector3(8, 3, 0.2), Vector3(0, 1.5, -2.5), b._mat("#1a1416", 0.9))
+		# stůl s novinami a fotkou D.
+		b._box(teaser, Vector3(1.8, 0.06, 0.9), Vector3(0, 0.78, -1.0), b._mat("#3a2414"))
+		for sx in [-0.8, 0.8]:
+			b._box(teaser, Vector3(0.06, 0.76, 0.8), Vector3(sx, 0.38, -1.0), b._mat("#2a180c"))
+		b._box(teaser, Vector3(0.5, 0.005, 0.36), Vector3(-0.3, 0.815, -0.9), b._mat("#d8d0c0"), Vector3(0, 0.2, 0))
+		b._box(teaser, Vector3(0.22, 0.28, 0.03), Vector3(0.45, 0.95, -1.25), b._mat("#5a3a1c"), Vector3(-0.2, 0, 0))
+		b._box(teaser, Vector3(0.16, 0.2, 0.01), Vector3(0.45, 0.95, -1.23), b._mat("#77777d"), Vector3(-0.2, 0, 0))
+		var lt = OmniLight3D.new()
+		lt.light_color = Color("#ffb070")
+		lt.light_energy = 1.6
+		lt.omni_range = 4
+		lt.position = Vector3(0.6, 1.6, -0.4)
+		teaser.add_child(lt)
+		b.free()
+		var P = preload("res://scripts/people.gd")
+		kroupa = P.person("Kroupa", Color("#5a1a4a"), Color("#24242c"), Color("#e0b090"), Color("#6a645c"), 1.8, false)
+		var hd: Node3D = kroupa.parts.head
+		var m1 = StandardMaterial3D.new()
+		m1.albedo_color = Color("#4a3a2a")
+		var mus = MeshInstance3D.new()
+		var mb = BoxMesh.new()
+		mb.size = Vector3(0.2, 0.05, 0.04)
+		mus.mesh = mb
+		mus.material_override = m1
+		mus.position = Vector3(0, 0.14, 0.17)
+		hd.add_child(mus)
+		var tie = MeshInstance3D.new()
+		var tb = BoxMesh.new()
+		tb.size = Vector3(0.06, 0.34, 0.02)
+		tie.mesh = tb
+		var tm = StandardMaterial3D.new()
+		tm.albedo_color = Color("#a01818")
+		tie.material_override = tm
+		tie.position = Vector3(0, 1.24, 0.15)
+		kroupa.parts.body.add_child(tie)
+		teaser.add_child(kroupa.root)
+		kroupa.root.position = Vector3(0, 0, -1.8)
+	teaser.visible = true
+	Q.clear()
+	line = null
+	for l in KT:
+		say("K", l)
+func teaser_tick(dt: float) -> void:
+	tick_lines(dt)
+	cam.position = teaser.position + Vector3(0.3 + sin(t_now * 0.2) * 0.1, 1.5, 1.6)
+	cam.look_at(teaser.position + Vector3(0, 1.35, -1.8))
+	preload("res://scripts/people.gd").animate(kroupa, t_now, dt, false, talking("K"))
+	if line == null and Q.is_empty() and scene_t > 2.0:
+		if not G.has("tz"):
+			G.tz = scene_t
+		if scene_t - G.tz > 6.5:
+			end_teaser()
+func end_teaser() -> void:
+	teaser.visible = false
+	G.erase("tz")
+	if scene_from_extras:
+		S = "extras"
+		audio.start_menu_song()
+	else:
+		S = "win"
+	scene_t = 0.0
+
 func start_mini(kind: String, extras := false) -> void:
 	S = "mini"
 	scene_t = 0.0
@@ -627,8 +708,9 @@ func _process(delta: float) -> void:
 					S = "extras"
 					audio.start_menu_song()
 				else:
-					S = "win"
+					start_teaser(false)
 				scene_t = 0.0
+		"teaser": teaser_tick(dt)
 		"mini":
 			mini.tick(dt)
 			if mini.done:

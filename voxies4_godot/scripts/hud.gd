@@ -195,6 +195,7 @@ func _draw() -> void:
 		"intro": draw_intro()
 		"mini": game.mini.draw(self)
 		"build": draw_build(t)
+		"teaser": draw_teaser(t)
 		"extras": draw_extras(t)
 		"devmenu": draw_devmenu(t)
 		"d4", "d7":
@@ -224,7 +225,7 @@ func draw_menu(t: float) -> void:
 	txt("NIGHT AT", 60, 110, 40, "#e0b0ff")
 	neon("VOXIE'S 4", 60, 196, 84, "#c040ff", 18, "left")
 	neon("NIGHTMARE", 64, 250, 34, "#ff3060", 14, "left")
-	txt("PREVIEW 0.7.1", 420, 250, 18, "#ffe46b")
+	txt("1.0.0", 420, 250, 18, "#ffe46b")
 	if game.st_get("v4_end", false):
 		txt("★ Všech 7 nocí přežito.", 480, 472, 16, "#ffe46b")
 	txt("Ema, jaro 1997. Bouřka. A něco v domě, co umí otevírat dveře.", 64, 290, 17, "#cccccc")
@@ -248,7 +249,7 @@ func draw_menu(t: float) -> void:
 	for i in lines.size():
 		txt(lines[i], 64, 520 + i * 28, 15, "#e8d8f8")
 	txt("Nightmare Voxie · Nightmare Hollow Bunny", HW - 24, 680, 14, "#a080c0", "right")
-	txt("v0.7.1 preview · Godot", HW - 24, 704, 13, "#666666", "right")
+	txt("v1.0.0 · Godot", HW - 24, 704, 13, "#666666", "right")
 
 func draw_intro() -> void:
 	var st: float = game.scene_t
@@ -302,7 +303,7 @@ func subs() -> void:
 		return
 	var h = 58
 	rr(HW / 2 - 360, HH - 190, 720, h, 10, Color(0.05, 0.0, 0.08, 0.75), Color(0.8, 0.5, 1.0, 0.5), 1)
-	var nm = {"E": ["Ema", "#ffb0d8"], "D": ["Hollow Bunny", "#ffe46b"], "H": ["???", "#ff4060"], "F": ["Pan Vojtěch", "#9fd0ff"], "G": ["D.", "#c0c0c0"]}.get(l.who, ["", "#ffffff"])
+	var nm = {"E": ["Ema", "#ffb0d8"], "D": ["Hollow Bunny", "#ffe46b"], "H": ["???", "#ff4060"], "F": ["Pan Vojtěch", "#9fd0ff"], "G": ["D.", "#c0c0c0"], "K": ["Pan Kroupa", "#ffb060"]}.get(l.who, ["", "#ffffff"])
 	txt(nm[0], HW / 2 - 344, HH - 172, 14, nm[1])
 	var ls = wrapt(l.t, 680, 20)
 	for i in ls.size():
@@ -328,13 +329,33 @@ func draw_end(kind: String) -> void:
 			btn(HW / 2 - 160, 430, 320, 56, "▶ NOC " + str(G.night + 1), "next", func(): game.start_night(G.night + 1), true, 22)
 		else:
 			txt("Druhý den Ema v herně zmizela. Policie ji hledala celé jaro.", HW / 2, 404, 18, "#ff8ab8", "center")
-			txt("Konec preview. Co se s Emou stalo, se dozvíš v minihrách.", HW / 2, 432, 16, "#ffe46b", "center")
+			txt("Příběh pokračuje v Night at Voxie's 5 – poslední kapitole.", HW / 2, 432, 16, "#ffe46b", "center")
 		btn(HW / 2 - 160, 500, 320, 48, "MENU", "menu", game.to_menu, true, 18)
 	else:
 		txt("PROBUDILA SES S KŘIKEM", HW / 2, 280, 54, "#ff3060", "center")
 		txt(("Nightmare Voxie otevřel dveře." if G.dead_by == "vox" else "Nightmare Hollow Bunny vylezl ze skříně."), HW / 2, 340, 22, "#dddddd", "center")
 		btn(HW / 2 - 160, 420, 320, 56, "↻ ZKUSIT ZNOVU", "retry", func(): game.start_night(G.night), true, 20)
 		btn(HW / 2 - 160, 488, 320, 48, "MENU", "menu", game.to_menu, true, 18)
+
+func draw_teaser(t: float) -> void:
+	vignette(1.0)
+	noise(0.05)
+	var st: float = game.scene_t
+	if st < 1.5:
+		rect(0, 0, HW, HH, Color(0, 0, 0, 1 - st / 1.5))
+	txt("O mnoho let později", 24, 36, 16, "#ffb060")
+	subs()
+	if game.G and game.G.has("tz"):
+		var k = st - game.G.tz
+		rect(0, 0, HW, HH, Color(0, 0, 0, clampf(k / 1.0, 0, 1)))
+		save_()
+		alpha = clampf(k - 1.0, 0, 1)
+		txt("NIGHT AT", HW / 2, 250, 36, "#e0b0ff", "center")
+		neon("VOXIE'S 5", HW / 2, 330, 84, "#ff3050", 18)
+		txt("POSLEDNÍ KAPITOLA", HW / 2, 390, 30, "#ffe46b", "center")
+		txt("Připravuje se.", HW / 2, 440, 20, "#cccccc", "center")
+		restore_()
+	btn(HW - 220, 24, 196, 44, "PŘESKOČIT ▶", "tskip", game.end_teaser, true, 16)
 
 func draw_build(t: float) -> void:
 	var B = game.build
@@ -384,7 +405,7 @@ func draw_extras(t: float) -> void:
 		rect(0, 0, HW, HH, Color(0.03, 0.0, 0.06, 0.85))
 		txt("★ EXTRAS · MINIHRY A SCÉNY", 40, 64, 30, "#d088ff")
 		btn(40, 84, 150, 40, "POSTAVY", "pch", func(): game.ex_page = "chars", true, 15)
-		var L = [["Noc 1 · Představení (2D)", func(): game.start_mini("show", true)], ["Noc 2 · Schovávaná (2D)", func(): game.start_mini("hide", true)], ["Noc 3 · Po zavíračce (2D)", func(): game.start_mini("pit", true)], ["Noc 4 · Hollow Bunny (scéna)", func(): game.start_d4(true)], ["Noc 5 · Odstavení 1980 (2D)", func(): game.start_mini("shutdown", true)], ["Noc 7 · Tvoje vina (scéna)", func(): game.start_d7(true)], ["Po 7. noci · D. staví Cocou", func(): game.start_build(true)]]
+		var L = [["Noc 1 · Představení (2D)", func(): game.start_mini("show", true)], ["Noc 2 · Schovávaná (2D)", func(): game.start_mini("hide", true)], ["Noc 3 · Po zavíračce (2D)", func(): game.start_mini("pit", true)], ["Noc 4 · Hollow Bunny (scéna)", func(): game.start_d4(true)], ["Noc 5 · Odstavení 1980 (2D)", func(): game.start_mini("shutdown", true)], ["Noc 7 · Tvoje vina (scéna)", func(): game.start_d7(true)], ["Po 7. noci · D. staví Cocou", func(): game.start_build(true)], ["Upoutávka · Kapitola 5", func(): game.start_teaser(true)]]
 		for i in L.size():
 			btn(40 + (i % 2) * 430, 150 + int(i / 2) * 84, 410, 66, L[i][0], "sc" + str(i), L[i][1], true, 17)
 	btn(40, 652, 200, 48, "◀ MENU", "back", game.to_menu, true, 16)

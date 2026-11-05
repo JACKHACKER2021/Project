@@ -170,6 +170,22 @@
   "Je tu tma. Nemůžu se hýbat.": {
    "f": "n7e1.wav",
    "dur": 1.75
+  },
+  "Jmenuju se Kroupa. Můj otec byl D.": {
+   "f": "kt0.wav",
+   "dur": 2.0
+  },
+  "Celý život mi tvrdili, že utekl. Pak ho našli spáleného v tom zajíci.": {
+   "f": "kt1.wav",
+   "dur": 4.16
+  },
+  "Ten hlídač to podpálil. Hlídač, který přežil všechno.": {
+   "f": "kt2.wav",
+   "dur": 3.06
+  },
+  "Najdu ho. A tentokrát nepřežije.": {
+   "f": "kt3.wav",
+   "dur": 2.25
   }
  }
 }

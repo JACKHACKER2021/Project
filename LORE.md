@@ -29,6 +29,7 @@ Tenhle dokument je hlavní zdroj pravdy pro příběh všech dílů. Když se te
 | 2023 | NaV2: vyhořelá budova, Hollow Bunny ve skladu, zatčení. |
 | 6 týdnů před F&H | D. uteče z převozu, schová se do Hollow Bunnyho, springlocky povolí → **Hollow Hare**. |
 | F&H | NaV3: Frights & Hides pana Kroupy, 7. noc požár, Hollow Hare shoří. |
+| o mnoho let později | Pan Kroupa: „Můj otec byl D. … Ten hlídač to podpálil. Najdu ho.“ → **Night at Voxie's 5 – poslední kapitola**. |
 | po požáru F&H | Hasiči hasí trosky. Pan Kroupa u ruin: **„D. byl můj otec. Tohle ti neodpustím.“** |
 
 ## Ema a „divné věty“ ve starších dílech
