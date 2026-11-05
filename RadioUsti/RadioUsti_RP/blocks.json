@@ -663,5 +663,8 @@
   },
   "radiousti:bunker_door": {
     "sound": "metal"
+  },
+  "radiousti:radioactive_dust": {
+    "sound": "sand"
   }
 }

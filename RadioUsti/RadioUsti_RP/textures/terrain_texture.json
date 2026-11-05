@@ -681,6 +681,9 @@
     },
     "radiousti_bunker_door": {
       "textures": "textures/blocks/radiousti_bunker_door"
+    },
+    "radiousti_radioactive_dust": {
+      "textures": "textures/blocks/radiousti_radioactive_dust"
     }
   }
 }

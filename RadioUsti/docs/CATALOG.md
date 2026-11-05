@@ -182,7 +182,7 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Muzejní lavice | Museum Bench | `radiousti:museum_bench` | dekorace |
 | Siréna | Air-Raid Siren | `radiousti:siren` | alarm |
 
-## Bloky – Příroda (17)
+## Bloky – Příroda (18)
 
 | Název | English | ID | Typ |
 |---|---|---|---|
@@ -203,6 +203,7 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Liverocrystalová ruda | Liverocrystal Ore | `radiousti:liverocrystal_ore` | toxický materiál |
 | Shluk Liverocrystalu | Liverocrystal Cluster | `radiousti:liverocrystal_cluster` | toxický materiál |
 | Modré krystalické usazeniny | Blue Crystal Residue | `radiousti:blue_crystal_residue` | dekorace |
+| Radioaktivní prach | Radioactive Dust | `radiousti:radioactive_dust` | radioaktivní |
 
 ## Bloky – Pokládané laboratorní sklo a multibloky (pokládají se předmětem) (39)
 

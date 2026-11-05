@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.11.0 – netěsné budovy (2026-11-05)
+**Přidáno**
+- Radioaktivní prach: usazuje se na podlahách a otvory proniká do budov. Zavřené dveře a skla ho zastaví.
+- Kontrola utěsnění budovy (flood fill vzduchem a otevřenými dveřmi): do netěsné budovy proniká část deště a denní radiace.
+
+**Změněno**
+- Verze balíčků 1.10.0 → 1.11.0.
+
 ## 1.10.0 – bunkr (2026-11-05)
 **Přidáno**
 - Beton bunkru, vyztužená stěna, pancéřové okno a pancéřové dveře (odolnost proti výbuchu 3 600 000).

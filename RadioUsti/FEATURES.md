@@ -68,6 +68,7 @@ Verze 1.0.0 byla podle autora otestovaná ve hře a funguje („Otestováno a co
 | G28 | Častější déšť | staticky ověřeno | – | |
 | G29 | Kontaminovaná sféra: uzavřené dimenze + zásobovací bedna | staticky ověřeno | – | |
 | G30 | Bunkr: bloky odolné atomovce, úkryt před radiací, struktura `bunkr` | staticky ověřeno | – | |
+| G31 | Radioaktivní prach proniká otvory do budov, kontrola utěsnění | staticky ověřeno | – | |
 | F1 | Validace JSON, geometrií, skriptů, ID, textur | staticky ověřeno | – | `tools/validate.py`: 0 chyb; komunitní JSON schémata: 0 nálezů |
 | F2 | Export .mcaddon + .mcpack | staticky ověřeno | – | `tools/package.py`, kontrola integrity ZIP |
 | F3 | Test v Minecraftu Bedrock 1.26.50 | 1.0.0 načteno a hratelné | ✓ (1.0.0, obecně) | 1.1 čeká na test |

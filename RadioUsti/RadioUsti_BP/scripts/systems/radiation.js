@@ -2,7 +2,7 @@
 //   /scriptevent radiousti:config radiation off|on
 //   /scriptevent radiousti:config multiplier 0.5
 //   /scriptevent radiousti:config wastespread off|on
-import { BlockVolume, BlockPermutation, EquipmentSlot, EntityDamageCause } from "@minecraft/server";
+import { world, BlockVolume, BlockPermutation, EquipmentSlot, EntityDamageCause } from "@minecraft/server";
 import { NS, BLOCKS, ITEMS, blockAt, dist2, sound } from "../lib/util.js";
 import { Machines, Config, Logs } from "../lib/store.js";
 
@@ -162,8 +162,17 @@ export function radiationTick(players) {
       continue;
     }
     const loc = { x: Math.floor(p.location.x), y: Math.floor(p.location.y), z: Math.floor(p.location.z) };
-    const rain = cfg.rainRadiation !== false && isRaining() && p.dimension.id === "minecraft:overworld" && underSky(p) ? 0.6 : 0;
-    const day = dayRadiation(p);
+    const outside = underSky(p);
+    const daytime = cfg.dayRadiation !== false && world.getTimeOfDay() < 12000;
+    const leaky = !outside && p.dimension.id === "minecraft:overworld" && (isRaining() || daytime) && unsealed(p);
+    let rain = cfg.rainRadiation !== false && isRaining() && p.dimension.id === "minecraft:overworld" && (outside || leaky) ? 0.6 : 0;
+    let day = outside ? dayRadiation(p) : 0;
+    if (leaky) {
+      rain *= 0.5;
+      const t = world.getTimeOfDay();
+      if (cfg.dayRadiation !== false && t < 12000) day = 0.06 * (t / 12000);
+      if (rain + day > 0.02) p.onScreenDisplay.setActionBar("§eBudova není utěsněná – radiace proniká dovnitř. Zavři dveře a okna.");
+    }
     const rate = (radiationAt(p.dimension, loc, 4) + inventoryRadiation(p) + rain + day) * protectionOf(p) * cfg.radiationMultiplier;
     if (rain > 0 && rate > 0.05) p.onScreenDisplay.setActionBar(`§a☢ Radioaktivní déšť! §f${rate.toFixed(2)} mSv/s – schovej se pod střechu`);
     lastRate.set(p.id, rate);
@@ -300,12 +309,68 @@ export function contaminationSpreadTick(block) {
   if (Math.random() > 0.35) return;
   const p = { x: block.location.x + rnd(-1, 1), y: block.location.y + rnd(-1, 1), z: block.location.z + rnd(-1, 1) };
   const b = blockAt(block.dimension, p);
-  const to = b && CONTAMINATE[b.typeId];
-  if (!to) return;
+  if (!b) return;
+  const to = CONTAMINATE[b.typeId];
   try {
-    b.setPermutation(BlockPermutation.resolve(to));
+    if (to) {
+      b.setPermutation(BlockPermutation.resolve(to));
+      return;
+    }
+    // radioactive dust settles on floors next to contaminated ground and creeps on through
+    // every opening (missing or open doors and windows); closed doors and glass stop it
+    if (b.isAir) {
+      const below = blockAt(block.dimension, { x: p.x, y: p.y - 1, z: p.z });
+      if (below && !below.isAir && !below.isLiquid && !BLOCKS[below.typeId]?.dust && below.typeId !== `${NS}:radioactive_dust`) {
+        b.setPermutation(BlockPermutation.resolve(`${NS}:radioactive_dust`));
+      }
+    }
   } catch {
     /* ignore */
+  }
+}
+
+// ------------------------------------------------------------------ sealed buildings
+const PASSABLE_DOOR_STATES = ["open_bit", `${NS}:open`];
+
+function passable(b) {
+  if (!b) return false;
+  if (b.isAir) return true;
+  for (const st of PASSABLE_DOOR_STATES) {
+    try {
+      if (b.permutation.getState(st) === true) return true; // open door / trapdoor / gate
+    } catch {
+      /* no such state */
+    }
+  }
+  const i = BLOCKS[b.typeId];
+  return !!i && (i.kind === "liquid" || i.dust === true || (i.kind === "decor" && i.collision === false));
+}
+
+/**
+ * Is the room around the entity open to the outside? Flood-fills air (and open doors) from the
+ * entity's position; reaching a spot under the open sky means the building is not sealed.
+ */
+export function unsealed(entity, limit = 600) {
+  try {
+    const dim = entity.dimension;
+    const s = { x: Math.floor(entity.location.x), y: Math.floor(entity.location.y), z: Math.floor(entity.location.z) };
+    const seen = new Set([`${s.x},${s.y},${s.z}`]);
+    const q = [s];
+    while (q.length && seen.size < limit) {
+      const c = q.shift();
+      const top = dim.getTopmostBlock({ x: c.x, z: c.z });
+      if (!top || top.location.y < c.y) return true;
+      for (const [dx, dy, dz] of [[1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1], [0, 1, 0], [0, -1, 0]]) {
+        const n = { x: c.x + dx, y: c.y + dy, z: c.z + dz };
+        const k = `${n.x},${n.y},${n.z}`;
+        if (seen.has(k) || Math.abs(n.y - s.y) > 6) continue;
+        seen.add(k);
+        if (passable(blockAt(dim, n))) q.push(n);
+      }
+    }
+    return false; // enclosed (or too large to tell) -> treat as sealed
+  } catch {
+    return false;
   }
 }
 

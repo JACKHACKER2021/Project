@@ -1729,6 +1729,14 @@ export const REGISTRY = {
    "security": true,
    "bunker": true,
    "rot": "cardinal"
+  },
+  "radiousti:radioactive_dust": {
+   "kind": "radioactive",
+   "en": "Radioactive Dust",
+   "cs": "Radioaktivní prach",
+   "rad": 1,
+   "clean": "minecraft:air",
+   "dust": true
   }
  },
  "items": {

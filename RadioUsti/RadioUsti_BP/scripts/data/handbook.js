@@ -110,7 +110,8 @@ export const HANDBOOK = [
       "RADIOAKTIVNÍ DÉŠŤ: kdo stojí v dešti pod otevřeným nebem, dostává dávku radiace (maska a oblek ji snižují). Déšť pomalu zamořuje trávu kolem hráčů.\n" +
       "DENNÍ RADIACE: pod otevřeným nebem radiace během dne stále roste – od úsvitu nulová, k západu slunce nejvyšší, v noci nic. Každým dalším dnem světa je silnější (až dvojnásobek po 40 dnech). Pod střechou jste v bezpečí.\n" +
       "V ovzduší se vznášejí drobné zelené částečky radiace.\n" +
-      "KONTAMINACE se šíří jako sculk: kontaminovaná tráva, hlína a kámen postupně zamořují sousední bloky.\n" +
+      "KONTAMINACE se šíří jako sculk: kontaminovaná tráva, hlína a kámen postupně zamořují sousední bloky. Na podlahy se usazuje RADIOAKTIVNÍ PRACH, který proniká do budov každým otvorem (chybějící nebo otevřené dveře a okna). Zavřené dveře a skla ho zastaví. Prach vyčistí dekontaminační souprava.\n" +
+      "NETĚSNÁ BUDOVA: má-li místnost otvor ven, proniká dovnitř polovina radioaktivního deště a část denní radiace. Utěsněná budova (zavřené dveře, zasklená okna) chrání úplně.\n" +
       "OCHRANA: kompletní ochranný oblek (plynová maska, oblek, kalhoty, boty) = úplná imunita vůči radiaci z okolí i zásahům Zedů.\n" +
       "OZÁŘENÝ ZED: nový zombie z RadioÚstí, objevuje se i ve dne, na slunci nehoří, každý jeho zásah ozáří (+8 dávky).\n" +
       "Nastavení: /scriptevent radiousti:config environment off | rainradiation off | dayradiation off | spread off | smog 3",

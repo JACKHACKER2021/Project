@@ -938,3 +938,10 @@ block("bunker_door", "Blast-Proof Bunker Door", "Pancéřové dveře bunkru", ca
       tex={"*": BUNK_D, "detail": S["steel_dark"]}, tex_upper={"*": BUNK_D}, states={f"{NS}:upper": [False, True], f"{NS}:open": [False, True]},
       sound="metal", hardness=30, resist=BUNKER_RESIST, kind="door", comps=[f"{NS}:door"], loot="empty", mapc="#5f625e",
       placer_icon=("door_icon", "#5f625e"), door_style="shutter", meta={"security": True, "bunker": True})
+
+
+# ----------------------------------------------------------------- v1.11: contamination creeps into unsealed buildings
+tex("radioactive_dust", lambda n: (lambda t: (t.speckle(["#9dbb4a", "#c4d94a", "#6f7d2f", "#7dff3a"], 70), t)[-1])(T.Tex(n, base="#000000", alpha=0)))
+block("radioactive_dust", "Radioactive Dust", "Radioaktivní prach", cat="nature", model=("flat_floor", 0.4), tex={"*": "radiousti_radioactive_dust"},
+      render="alpha_test", light=2, sound="sand", hardness=0.2, collision=False, kind="radioactive",
+      meta={"rad": 1, "clean": "minecraft:air", "dust": True}, comps=[f"{NS}:contamination_spread"], tick=(1200, 2400), loot="empty", mapc="#9dbb4a")

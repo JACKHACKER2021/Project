@@ -177,6 +177,12 @@ název, ID, typ, stav, napájení, propojení potrubí a kabelů včetně směr�
 * **Nemocniční lůžko** a **operační stůl** jsou dva bloky dlouhé. Klepnutím na lůžko si nastavíš bod oživení. **Otočná kancelářská židle** se po klepnutí otočí o 90°.
 * **Plakáty, oznámení, papíry, hromada dokumentů a fotografie** si přečteš klepnutím. **Nástěnné hodiny** ukážou herní čas.
 
+## Novinky 1.11 – netěsné budovy
+* **Radioaktivní prach:** kontaminovaný terén zamořuje i vzduch nad podlahou. Na podlahy se usazuje tenká svítící vrstva radioaktivního prachu, která se dál šíří jako sculk.
+  * Do budovy se prach dostane jen otvory: chybějícími nebo otevřenými dveřmi, chybějícími okny a dírami ve zdi. Zavřené dveře a skla ho zastaví.
+  * Prach vyzařuje radiaci a vyčistí ho dekontaminační souprava.
+* **Netěsná budova:** když jsi pod střechou, skript ověří, jestli se z tvé místnosti dá vzduchem nebo otevřenými dveřmi dojít pod otevřené nebe (prohledá až 600 bloků kolem). Pokud ano, proniká dovnitř polovina radioaktivního deště a část denní radiace a nad lištou se objeví varování. **Utěsněná budova** (zavřené dveře, zasklená okna) chrání úplně.
+
 ## Novinky 1.10 – bunkr
 * **Bloky bunkru:** beton bunkru, vyztužená stěna bunkru, pancéřové okno bunkru a **pancéřové dveře bunkru**. Dveře jsou dva bloky vysoké a otevírají se vysunutím nahoru. Ovládá je i tlačítko ovládání dveří a bezpečnostní tablet.
 * Všechny mají **odolnost proti výbuchu jako podloží** (3 600 000), takže je atomová bomba nezničí. Zedi pancéřové okno nerozbijí.
