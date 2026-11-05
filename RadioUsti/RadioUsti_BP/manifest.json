@@ -1,0 +1,58 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "RadioÚstí — Behavior Pack",
+    "description": "RadioÚstí | Zeds World add-on foundation. Complete implementation to be authored in this project.",
+    "uuid": "2a1d12c9-ff63-4c23-a8d2-aee1dfabf685",
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      26,
+      50
+    ]
+  },
+  "modules": [
+    {
+      "type": "data",
+      "uuid": "212958dc-4959-4a3d-a0cc-3199c7dcc36a",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "script",
+      "language": "javascript",
+      "uuid": "098150ba-0e30-4e3c-a86b-d2ecc9252679",
+      "version": [
+        1,
+        0,
+        0
+      ],
+      "entry": "scripts/main.js"
+    }
+  ],
+  "dependencies": [
+    {
+      "uuid": "afadd868-792a-4450-9519-e5bc21b03759",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "module_name": "@minecraft/server",
+      "version": "2.0.0"
+    },
+    {
+      "module_name": "@minecraft/server-ui",
+      "version": "2.0.0"
+    }
+  ]
+}

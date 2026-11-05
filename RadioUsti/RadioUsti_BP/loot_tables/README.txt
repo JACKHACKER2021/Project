@@ -1,0 +1,1 @@
+Loot tables if required.

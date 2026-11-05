@@ -1,0 +1,29 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "RadioÚstí — Resource Pack",
+    "description": "RadioÚstí | Zeds World custom models, textures, sounds and UI foundation.",
+    "uuid": "afadd868-792a-4450-9519-e5bc21b03759",
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      26,
+      50
+    ]
+  },
+  "modules": [
+    {
+      "type": "resources",
+      "uuid": "6375708d-6a52-4d8a-8cff-c81becb76c23",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ]
+}

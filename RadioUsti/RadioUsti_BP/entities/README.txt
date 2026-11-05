@@ -1,0 +1,1 @@
+Optional custom entity definitions.

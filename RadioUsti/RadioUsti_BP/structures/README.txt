@@ -1,0 +1,1 @@
+Optional structures or templates.
