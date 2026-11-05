@@ -721,6 +721,7 @@ LIQUIDS = [
     ("lab_oil", "Laboratory Oil", "Laboratorní olej", "#b3241c", 220, 0, "weakness", 0),
     ("contaminated_oil", "Contaminated Oil", "Kontaminovaný olej", "#5f8f2a", 220, 3, "poison", 0),
     ("radioactive_oil", "Radioactive Oil", "Radioaktivní olej", "#7dff3a", 210, 8, "radiation", 2),
+    ("radioactive_sludge", "Radioactive Sludge", "Radioaktivní kal", "#4f6b1f", 235, 5, "radiation", 3),
 ]
 for key, en, cs, col, al, lt, eff, rad in LIQUIDS:
     t = tex(f"liquid_{key}", lambda n, c=col, a=al: T.Tex(n, base=c, alpha=a).noise(10).speckle(["#ffffff"], 3))
@@ -732,3 +733,89 @@ for key, en, cs, col, al, lt, eff, rad in LIQUIDS:
           comps=[f"{NS}:liquid"], tick=(10, 10), loot="empty", mapc=col)
     item(f"{key}_bucket", f"Bucket of {en}", f"Kbelík – {cs.lower()}", ic(f"{key}_bucket", "bucket", col), stack=1, kind="liquid_bucket",
          meta={"liquid": f"{NS}:{key}_liquid"})
+
+
+# ----------------------------------------------------------------- locations (v1.4)
+# Pennov Theater, CWT, School, Canteen (Jídelna), Showers; RadioÚstí Laboratory, Fortress, Nuclear Power Plant
+VEL = tex("velvet_red", lambda n: (lambda t: ([t.vline(x, "#5a0f14") for x in (3, 8, 13)], t)[-1])(T.Tex(n, base="#8f1d24").noise(8)))
+VEL_D = tex("velvet_dusty", lambda n: (lambda t: ([t.vline(x, "#3f1a14") for x in (3, 8, 13)], t.speckle(["#7a7a5a", "#9a9a7a"], 18), t)[-1])(T.Tex(n, base="#6e2a22").noise(10)))
+GOLD = tex("theater_gold", lambda n: T.Tex(n, base="#b08d3a").noise(10).frame("#6e5520"))
+CRYS = tex("blue_crystal_residue", lambda n: (lambda t: (t.blobs(["#2d8fd6", "#8fdcff", "#1b5c99"], 9, 2), t)[-1])(T.Tex(n, base="#000000", alpha=0)))
+STATIC = tex("tv_static", lambda n: T.Tex(n, base="#7a7a7a").noise(70))
+TILE_W = tex("tiles_white", lambda n: (lambda t: ([t.hline(y, "#b9c0c0") for y in (0, 4, 8, 12)], [t.vline(x, "#b9c0c0") for x in (0, 4, 8, 12)], t)[-1])(T.Tex(n, base="#e8eeee").noise(3)))
+TILE_D = tex("tiles_dirty", lambda n: (lambda t: ([t.hline(y, "#8a8f80") for y in (0, 4, 8, 12)], [t.vline(x, "#8a8f80") for x in (0, 4, 8, 12)],
+                                                  t.blobs(["#7a6a3a", "#5f6a3a", "#8a3a2a"], 7, 2), t)[-1])(T.Tex(n, base="#c9cfc4").noise(8)))
+TILE_B = tex("tiles_blue", lambda n: (lambda t: ([t.hline(y, "#2f5f7a") for y in (0, 8)], [t.vline(x, "#2f5f7a") for x in (0, 8)], t)[-1])(T.Tex(n, base="#5f9ab8").noise(5)))
+CHALK = tex("chalkboard", lambda n: (lambda t: (t.rect(2, 3, 9, 1, "#e6e6dc"), t.rect(2, 6, 6, 1, "#e6e6dc"), t.rect(2, 9, 11, 1, "#e6e6dc"), t.text("ABC", 2, 11, "#d8d8cc"), t)[-1])(T.Tex(n, base="#243a2c").noise(5)))
+LEAD = tex("lead_wall", lambda n: (lambda t: (t.rect(0, 7, 16, 2, "#3a3e44"), t)[-1])(T.metal(n, "#585e66", rivet=True)))
+HERM = tex("hermetic_glass", lambda n: (lambda t: (t.frame("#3a3e44", 2), t.rect(7, 2, 2, 12, "#3a3e44"), t.rect(5, 5, 6, 6, "#e0a800", 60), t)[-1])(T.Tex(n, base="#8fd0c0", alpha=110)))
+TOWER = tex("cooling_tower_concrete", lambda n: (lambda t: ([t.hline(y, "#7d7a72") for y in (3, 7, 11, 15)], t.blobs(["#6a7a4a"], 3, 2), t)[-1])(T.concrete(n, "#a39f96", cracks=True)))
+FLOOR_W = tex("npp_floor_warning", lambda n: (lambda t: (t.rect(0, 0, 16, 4, P["hazard"]), t.rect(3, 0, 3, 4, P["black"]), t.rect(11, 0, 3, 4, P["black"]), t)[-1])(T.concrete(n, "#7f7c75", cracks=False)))
+MESH = tex("chainlink", lambda n: (lambda t: ([t.px(x, (x + k) % 16, "#9aa3a8") for k in range(0, 16, 4) for x in range(16)],
+                                               [t.px(x, (k - x) % 16, "#9aa3a8") for k in range(0, 16, 4) for x in range(16)], t)[-1])(T.Tex(n, base="#000000", alpha=0)))
+FOOD = tex("canteen_food", lambda n: T.Tex(n, base="#c9a26a").noise(18).speckle(["#e8d8a0", "#7a5a2a", "#8aa04a"], 14))
+GOODS = tex("shop_goods", lambda n: (lambda t: (t.rect(0, 0, 8, 8, "#c23b22"), t.rect(8, 0, 8, 8, "#2f6d9e"), t.rect(0, 8, 8, 8, "#e0a800"), t.rect(8, 8, 8, 8, "#5f8f2a"), t)[-1])(T.Tex(n, base="#888888")))
+TRAY = tex("tray_metal", lambda n: T.Tex(n, base="#aab1b5").noise(5).frame("#7c848a"))
+
+LOC = [
+    # id, en, cs, model, rot, tex, extra
+    ("theater_seat", "Theater Seat", "Divadelní sedadlo", ("theater_seat",), "cardinal", {"*": VEL, "detail": GOLD}, dict(sound="cloth")),
+    ("theater_seat_dusty", "Dusty Theater Seat", "Zaprášené divadelní sedadlo", ("theater_seat",), "cardinal", {"*": VEL_D, "detail": S["steel_rusty"]}, dict(sound="cloth")),
+    ("stage_curtain", "Stage Curtain", "Jevištní opona", ("curtain",), "cardinal", {"*": VEL, "detail": GOLD}, dict(sound="cloth", collision=False)),
+    ("stage_spotlight", "Stage Spotlight", "Jevištní reflektor", ("spotlight",), "cardinal",
+     {"*": S["steel_dark"], "detail": S["steel"], "glow": S["glow_off"]}, dict(kind="light", tex_lit={"glow": S["glow_warm"]}, light_lit=15,
+                                                                              states={f"{NS}:lit": [False, True]}, comps=[f"{NS}:light_switch"], cat="items")),
+    ("blue_crystal_residue", "Blue Crystal Residue", "Modré krystalické usazeniny", ("flat_floor",), None, {"*": CRYS},
+     dict(render="alpha_test", collision=False, light=4, cat="nature", sound="glass")),
+    ("crt_tv", "CWT Television", "Televizor CWT", ("crt_tv",), "cardinal", {"*": S["wood_dark"], "detail": S["steel_dark"], "screen": S["screen_off"]},
+     dict(kind="light", tex_lit={"screen": STATIC}, light_lit=6, states={f"{NS}:lit": [False, True]}, comps=[f"{NS}:light_switch"], cat="items")),
+    ("broadcast_antenna", "CWT Broadcast Antenna", "Vysílací anténa CWT", ("antenna",), "cardinal",
+     {"*": S["steel"], "detail": S["steel_dark"], "glow": S["glow_red"]}, dict(light=6, collision=False, sound="metal")),
+    ("shop_shelf", "CWT Shop Shelf", "Regál obchodního domu CWT", ("shop_shelf",), "cardinal", {"*": S["steel"], "detail": S["cabinet_beige"], "goods": GOODS}, dict(sound="metal")),
+    ("cash_register", "Cash Register", "Pokladna", ("cash_register",), "cardinal", {"*": S["cabinet_beige"], "detail": S["steel_dark"], "keys": S["keys"], "screen": S["screen_terminal"]}, dict(sound="metal")),
+    ("school_desk", "School Desk", "Školní lavice", ("school_desk",), "cardinal", {"*": S["wood"], "detail": S["steel"]}, dict(sound="wood")),
+    ("chalkboard", "Chalkboard", "Školní tabule", ("chalkboard",), "face", {"*": S["wood_dark"], "detail": S["wood"], "screen": CHALK},
+     dict(sound="wood", collision=False, comps=[f"{NS}:readable"], kind="document", meta={"doc": "chalkboard"})),
+    ("canteen_table", "Canteen Table", "Jídelní stůl s lavicemi", ("canteen_table",), "cardinal", {"*": S["lab_top"], "detail": S["steel"]}, dict(sound="metal")),
+    ("lunch_tray", "Lunch Tray", "Tác s jídlem", ("lunch_tray",), "cardinal", {"*": TRAY, "detail": S["steel"], "fill": FOOD}, dict(sound="metal", collision=False)),
+    ("serving_counter", "Serving Counter", "Výdejní pult", ("serving_counter",), "cardinal",
+     {"*": S["steel"], "detail": S["steel_dark"], "glass": S["glass_solid"], "fill": FOOD}, dict(sound="metal")),
+    ("kitchen_pot", "Kitchen Pot", "Kuchyňský kotel", ("kitchen_pot",), None, {"*": S["steel"], "detail": S["steel_dark"], "fill": FOOD}, dict(sound="metal")),
+    ("shower_tiles", "Shower Tiles", "Obklad sprch", None, None, {"*": TILE_W}, dict()),
+    ("shower_tiles_dirty", "Dirty Shower Tiles", "Špinavý obklad sprch", None, None, {"*": TILE_D}, dict()),
+    ("shower_tiles_blue", "Blue Tiles", "Modrý obklad", None, None, {"*": TILE_B}, dict()),
+    ("shower_head", "Shower", "Sprcha", ("shower_head",), "cardinal", {"*": S["steel"], "detail": S["steel"], "glow": S["steel_dark"]},
+     dict(kind="light", tex_lit={"glow": S["glow_cold"]}, states={f"{NS}:lit": [False, True]}, comps=[f"{NS}:light_switch", f"{NS}:shower"], tick=(10, 10),
+          collision=False, sound="metal", cat="items")),
+    ("floor_drain", "Floor Drain", "Podlahová vpust", ("floor_drain",), None, {"*": S["steel_dark"], "detail": S["steel"]}, dict(collision=False, sound="metal")),
+    ("lead_wall", "Lead-Lined Wall", "Olověná stěna", None, None, {"*": LEAD}, dict(sound="metal", hardness=5, resist=40, tags=["metal", "radiousti:industrial"])),
+    ("hermetic_glass", "Hermetic Chamber Glass", "Sklo hermetické komory", ("full_clear",), None, {"*": HERM}, dict(render="blend", sound="glass", hardness=3, resist=30)),
+    ("lab_sink", "Laboratory Sink", "Laboratorní dřez", ("lab_sink",), "cardinal", {"*": S["cabinet_beige"], "detail": S["steel"]}, dict(sound="metal")),
+    ("fortress_brazier", "Fortress Brazier", "Ohniště pevnosti", ("brazier",), None, {"*": S["steel_dark"], "detail": S["steel_rusty"], "glow": S["glow_orange"]},
+     dict(light=14, comps=[f"{NS}:brazier"], tick=(20, 20), sound="metal")),
+    ("fortress_pillar", "Fortress Pillar", "Sloup pevnosti", ("pillar",), None, {"*": "radiousti_fortress_stone"}, dict(tags=["stone", "minecraft:is_pickaxe_item_destructible"])),
+    ("cooling_tower_concrete", "Cooling Tower Concrete", "Beton chladicí věže", None, None, {"*": TOWER}, dict(tags=["stone", "radiousti:industrial", "minecraft:is_pickaxe_item_destructible"])),
+    ("npp_floor_warning", "Power Plant Warning Floor", "Výstražná podlaha elektrárny", None, None, {"*": FLOOR_W}, dict(tags=["stone", "radiousti:industrial"])),
+    ("chainlink_fence", "Chain-Link Fence", "Pletivový plot", ("chainlink",), "cardinal", {"*": MESH, "detail": S["steel"]}, dict(render="alpha_test", sound="metal")),
+    ("steam_vent", "Steam Vent", "Výpusť páry", ("steam_vent",), None, {"*": S["steel_rusty"], "detail": S["steel_dark"], "glow": S["glow_off"]},
+     dict(comps=[f"{NS}:steam_vent"], tick=(15, 15), sound="metal")),
+    ("control_console", "Control Room Console", "Pult velínu", ("console",), "cardinal", {"*": S["cabinet_beige"], "detail": S["steel_dark"], "screen": S["screen_dial"], "keys": S["keys"]}, dict(sound="metal")),
+]
+for lid, en, cs, mdl, rot, tx, ex in LOC:
+    kw = dict(cat="construction", model=mdl, rot=rot, tex=tx, hardness=1.5, mapc="#8d8a82")
+    kw.update(ex)
+    block(lid, en, cs, **kw)
+
+
+# ----------------------------------------------------------------- 3D ore models (v1.4)
+tex("uranium_crystal", lambda n: T.Tex(n, base="#5fd14a", alpha=255).noise(18).speckle(["#c8ffb0", "#2a6a20"], 16))
+tex("lc_crystal_solid", lambda n: T.Tex(n, base="#3aa7f0").noise(18).speckle(["#d6f3ff", "#1b5c99"], 16))
+tex("stone_plain", lambda n: T.Tex(n, base=P["stone"]).noise(14))
+tex("deepslate_plain", lambda n: T.Tex(n, base="#4a4a50").noise(12).speckle(["#3a3a40"], 20))
+for b in BLOCKS:
+    if b["id"] in ("uranium_ore", "deepslate_uranium_ore", "liverocrystal_ore"):
+        stone = "radiousti_deepslate_plain" if b["id"].startswith("deepslate") else "radiousti_stone_plain"
+        crystal = "radiousti_lc_crystal_solid" if b["id"].startswith("liverocrystal") else "radiousti_uranium_crystal"
+        b["model"] = ("ore", {"uranium_ore": 3, "deepslate_uranium_ore": 7, "liverocrystal_ore": 11}[b["id"]])
+        b["tex"] = {"*": stone, "crystal": crystal}
+        b["collision"] = "full"

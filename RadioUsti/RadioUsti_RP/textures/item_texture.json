@@ -173,6 +173,9 @@
     "radiousti_radioactive_oil_bucket": {
       "textures": "textures/items/radiousti_radioactive_oil_bucket"
     },
+    "radiousti_radioactive_sludge_bucket": {
+      "textures": "textures/items/radiousti_radioactive_sludge_bucket"
+    },
     "radiousti_generator_standard_icon": {
       "textures": "textures/items/radiousti_generator_standard_icon"
     },

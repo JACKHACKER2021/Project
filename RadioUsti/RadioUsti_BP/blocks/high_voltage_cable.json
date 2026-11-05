@@ -91,7 +91,8 @@
           "texture": "radiousti_high_voltage_cable",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Vysokonapěťový kabel"
     }
   }
 }

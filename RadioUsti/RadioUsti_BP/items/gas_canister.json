@@ -14,7 +14,7 @@
         }
       },
       "minecraft:display_name": {
-        "value": "item.radiousti.gas_canister.name"
+        "value": "Plynová bomba"
       },
       "minecraft:max_stack_size": 16
     }

@@ -14,7 +14,7 @@
         }
       },
       "minecraft:display_name": {
-        "value": "item.radiousti.document_bundle.name"
+        "value": "Svazek dokumentů"
       },
       "minecraft:max_stack_size": 16
     }

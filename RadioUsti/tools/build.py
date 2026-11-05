@@ -60,7 +60,12 @@ def resolve_model(m):
         "stool": G.stool, "exam": G.exam_table, "iv": G.iv_stand, "med_monitor": G.med_monitor, "doc_pile": G.doc_pile,
         "clock": G.clock_model, "jar": G.jar, "flask_set": G.flask_set, "tube_rack": G.tube_rack, "growth": G.growth,
         "bin": G.bin_model, "crystal": G.crystal, "erlenmeyer": G.erlenmeyer, "round_flask": G.round_flask,
-        "tube_stand": G.tube_stand, "vat": G.vat, "bottle": G.bottle, "jar_small": lambda fill=True: G.jar(8, 6),
+        "tube_stand": G.tube_stand, "vat": G.vat, "theater_seat": G.theater_seat, "curtain": G.curtain,
+        "spotlight": G.spotlight, "crt_tv": G.crt_tv, "antenna": G.antenna, "shop_shelf": G.shop_shelf, "cash_register": G.cash_register,
+        "school_desk": G.school_desk, "chalkboard": G.chalkboard, "canteen_table": G.canteen_table, "lunch_tray": G.lunch_tray,
+        "serving_counter": G.serving_counter, "kitchen_pot": G.kitchen_pot, "shower_head": G.shower_head, "floor_drain": G.floor_drain,
+        "lab_sink": G.lab_sink, "brazier": G.brazier, "pillar": G.pillar, "chainlink": G.chainlink, "steam_vent": G.steam_vent,
+        "console": G.console, "ore": G.ore_crystals, "bottle": G.bottle, "jar_small": lambda fill=True: G.jar(8, 6),
     }
     if k in table:
         return table[k](*a)
@@ -336,6 +341,7 @@ def emit_block(b, geo_files, blocks_json, lang, registry):
         desc["states"] = states
     if traits:
         desc["traits"] = traits
+    comps["minecraft:display_name"] = b["cs"]
     data = {"format_version": FMT_BLOCK, "minecraft:block": {"description": desc, "components": comps}}
     if perms:
         data["minecraft:block"]["permutations"] = perms
@@ -360,7 +366,7 @@ def emit_block(b, geo_files, blocks_json, lang, registry):
             "description": {"identifier": bid, "menu_category": {"category": b["cat"] if b["cat"] != "none" else "equipment"}},
             "components": {
                 "minecraft:icon": {"textures": {"default": icon}},
-                "minecraft:display_name": {"value": f"item.{NS}.{b['id']}.name"},
+                "minecraft:display_name": {"value": b["cs"]},
                 "minecraft:max_stack_size": 16,
                 "minecraft:block_placer": {"block": bid, "replace_block_item": True},
             }}}
@@ -372,7 +378,7 @@ def emit_block(b, geo_files, blocks_json, lang, registry):
 def emit_item(it, lang, registry):
     iid = f"{NS}:{it['id']}"
     comps = {"minecraft:icon": {"textures": {"default": it["icon"]}},
-             "minecraft:display_name": {"value": f"item.{NS}.{it['id']}.name"},
+             "minecraft:display_name": {"value": it["cs"]},
              "minecraft:max_stack_size": it["stack"]}
     comps.update(it["comps"])
     data = {"format_version": FMT_ITEM, "minecraft:item": {
@@ -439,6 +445,53 @@ def emit_lc_worldgen():
                              "x": {"distribution": "uniform", "extent": [0, 16]},
                              "y": {"distribution": "uniform", "extent": [-60, -10]},
                              "z": {"distribution": "uniform", "extent": [0, 16]}}}})
+
+
+SKY = "#7f9a62"  # permanent greenish post-apocalyptic sky
+
+
+def emit_environment():
+    """Client biomes (sky colour + RadioÚstí atmosphere), fog presets and Vibrant Visuals atmosphere."""
+    src = os.path.join(HERE, "vanilla_client_biomes")
+    out = os.path.join(RP, "biomes")
+    clean(out)
+    n = 0
+    for f in sorted(os.listdir(src)):
+        if not f.endswith(".client_biome.json"):
+            continue
+        with open(os.path.join(src, f), encoding="utf-8") as fh:
+            d = json.load(fh)
+        comps = d["minecraft:client_biome"].setdefault("components", {})
+        comps["minecraft:sky_color"] = {"sky_color": SKY}
+        comps["minecraft:atmosphere_identifier"] = {"atmosphere_identifier": f"{NS}:atmosphere"}
+        wjson(os.path.join(out, f), d)
+        n += 1
+    # Vibrant Visuals atmosphere: time keys 0 = noon, 0.25 = sunset, 0.5 = midnight, 0.75 = sunrise
+    with open(os.path.join(src, "_default_atmospherics.json"), encoding="utf-8") as fh:
+        atm = json.load(fh)
+    a = atm["minecraft:atmosphere_settings"]
+    a["description"]["identifier"] = f"{NS}:atmosphere"
+    a["sky_zenith_color"] = {"0.000000": [92, 122, 74], "0.200000": [96, 120, 70], "0.250000": [120, 48, 34],
+                             "0.300000": [70, 14, 14], "0.500000": [52, 6, 8], "0.700000": [70, 14, 14],
+                             "0.750000": [124, 56, 36], "0.800000": [96, 120, 70], "1.000000": [92, 122, 74]}
+    a["sky_horizon_color"] = {"0.000000": [150, 168, 104], "0.200000": [160, 160, 96], "0.240000": [214, 98, 56],
+                              "0.280000": [170, 40, 30], "0.400000": [96, 16, 16], "0.600000": [96, 16, 16],
+                              "0.720000": [176, 52, 34], "0.760000": [210, 110, 64], "0.800000": [158, 166, 102], "1.000000": [150, 168, 104]}
+    clean(os.path.join(RP, "atmospherics"))
+    wjson(os.path.join(RP, "atmospherics", "radiousti_atmosphere.json"), atm)
+    # fog presets pushed by scripts/systems/environment.js with /fog
+    clean(os.path.join(RP, "fogs"))
+    for fid, col, start, end, kind in (
+            ("day", "#8ea86b", 0.55, 1.0, "render"), ("dusk", "#c0603a", 0.5, 1.0, "render"),
+            ("night", "#5a0e0e", 0.45, 0.95, "render"), ("dawn", "#a8502f", 0.5, 1.0, "render"),
+            ("smog", "#7c8a5a", 2, 36, "fixed"), ("rain", "#6f9a3a", 6, 64, "fixed")):
+        d = {"format_version": "1.16.100", "minecraft:fog_settings": {
+            "description": {"identifier": f"{NS}:fog_{fid}"},
+            "distance": {"air": {"fog_start": start, "fog_end": end, "fog_color": col, "render_distance_type": kind},
+                         "weather": {"fog_start": min(start, 4) if kind == "fixed" else 0.3, "fog_end": end if kind == "fixed" else 0.7,
+                                     "fog_color": "#5f7f35", "render_distance_type": kind}}}}
+        wjson(os.path.join(RP, "fogs", f"radiousti_fog_{fid}.json"), d)
+    return n
 
 
 def emit_attachables():
@@ -583,6 +636,7 @@ def main():
     emit_loot()
     emit_worldgen()
     emit_lc_worldgen()
+    emit_environment()
     emit_attachables()
     R.emit(os.path.join(BP, "recipes"), wjson, NS)
     SND.emit(os.path.join(RP, "sounds"), wjson)

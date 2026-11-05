@@ -73,7 +73,8 @@ export const Logs = {
   },
 };
 
-const DEFAULT_CFG = { radiation: true, radiationMultiplier: 1, wasteSpread: true, meltdownExplosion: true, zedDrops: true };
+const DEFAULT_CFG = { radiation: true, radiationMultiplier: 1, wasteSpread: true, meltdownExplosion: true, zedDrops: true,
+  environment: true, rainRadiation: true };
 
 export const Config = {
   get() {

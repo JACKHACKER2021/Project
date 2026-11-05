@@ -39,7 +39,8 @@
           "texture": "radiousti_fabric_blue",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Laboratorní židle"
     },
     "permutations": [
       {

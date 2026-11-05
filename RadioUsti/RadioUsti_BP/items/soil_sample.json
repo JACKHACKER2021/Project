@@ -14,7 +14,7 @@
         }
       },
       "minecraft:display_name": {
-        "value": "item.radiousti.soil_sample.name"
+        "value": "Vzorek kontaminované půdy"
       },
       "minecraft:max_stack_size": 64
     }

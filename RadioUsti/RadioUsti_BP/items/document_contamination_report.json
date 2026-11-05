@@ -14,7 +14,7 @@
         }
       },
       "minecraft:display_name": {
-        "value": "item.radiousti.document_contamination_report.name"
+        "value": "Zpráva o kontaminaci"
       },
       "minecraft:max_stack_size": 16
     }

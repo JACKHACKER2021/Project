@@ -19,13 +19,43 @@
       "tag:stone": {},
       "tag:minecraft:is_pickaxe_item_destructible": {},
       "minecraft:loot": "loot_tables/blocks/liverocrystal_ore.json",
-      "minecraft:geometry": "minecraft:geometry.full_block",
+      "minecraft:geometry": "geometry.radiousti.liverocrystal_ore",
+      "minecraft:collision_box": {
+        "origin": [
+          -8,
+          0,
+          -8
+        ],
+        "size": [
+          16,
+          16,
+          16
+        ]
+      },
+      "minecraft:selection_box": {
+        "origin": [
+          -8,
+          0,
+          -8
+        ],
+        "size": [
+          16,
+          16,
+          16
+        ]
+      },
+      "minecraft:light_dampening": 0,
       "minecraft:material_instances": {
         "*": {
-          "texture": "radiousti_lc_ore",
+          "texture": "radiousti_stone_plain",
+          "render_method": "opaque"
+        },
+        "crystal": {
+          "texture": "radiousti_lc_crystal_solid",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Liverocrystalová ruda"
     }
   }
 }

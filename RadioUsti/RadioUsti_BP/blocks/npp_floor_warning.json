@@ -1,0 +1,30 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:npp_floor_warning",
+      "menu_category": {
+        "category": "construction"
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 1.5
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#8d8a82",
+      "tag:stone": {},
+      "tag:radiousti:industrial": {},
+      "minecraft:geometry": "minecraft:geometry.full_block",
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_npp_floor_warning",
+          "render_method": "opaque"
+        }
+      },
+      "minecraft:display_name": "Výstražná podlaha elektrárny"
+    }
+  }
+}

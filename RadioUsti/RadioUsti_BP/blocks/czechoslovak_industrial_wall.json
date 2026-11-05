@@ -24,7 +24,8 @@
           "texture": "radiousti_czechoslovak_industrial_wall",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Československá průmyslová stěna"
     }
   }
 }

@@ -36,7 +36,8 @@
           "texture": "radiousti_cabinet_beige",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Kancelářský stůl"
     },
     "permutations": [
       {

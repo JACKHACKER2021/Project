@@ -41,7 +41,8 @@
           "texture": "radiousti_steel_dark",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Chladicí jednotka reaktoru"
     },
     "permutations": [
       {

@@ -1,0 +1,2 @@
+Vanilla overworld client biome definitions copied from Mojang/bedrock-samples (2026-10-28).
+Used by tools/build.py to add the RadioÚstí sky colour while keeping all vanilla components.

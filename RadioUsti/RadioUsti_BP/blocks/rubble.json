@@ -48,7 +48,8 @@
           "texture": "radiousti_cement_block",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Suť"
     }
   }
 }

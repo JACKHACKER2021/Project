@@ -24,7 +24,8 @@
           "texture": "radiousti_house_block",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Blok domu (panelák)"
     }
   }
 }

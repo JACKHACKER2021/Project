@@ -23,7 +23,8 @@
           "texture": "radiousti_old_brick",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Starý cihlový blok"
     }
   }
 }

@@ -51,7 +51,8 @@
           "texture": "radiousti_wood_dark",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Dřevěné bodce"
     }
   }
 }

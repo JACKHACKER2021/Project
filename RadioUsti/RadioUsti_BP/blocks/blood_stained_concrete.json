@@ -23,7 +23,8 @@
           "texture": "radiousti_blood_stained_concrete",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Zakrvácený beton"
     }
   }
 }

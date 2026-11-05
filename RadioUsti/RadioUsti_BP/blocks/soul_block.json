@@ -24,7 +24,8 @@
           "texture": "radiousti_soul_block",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Duší prostoupený kámen"
     }
   }
 }

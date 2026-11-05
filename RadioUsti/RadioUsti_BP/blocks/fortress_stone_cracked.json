@@ -23,7 +23,8 @@
           "texture": "radiousti_fortress_stone_cracked",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Popraskaný kámen pevnosti"
     }
   }
 }

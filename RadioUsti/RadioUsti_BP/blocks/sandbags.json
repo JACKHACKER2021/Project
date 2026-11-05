@@ -30,7 +30,8 @@
           "texture": "radiousti_sandbag",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Pytle s pískem"
     },
     "permutations": [
       {

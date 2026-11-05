@@ -1,0 +1,124 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:broadcast_antenna",
+      "menu_category": {
+        "category": "construction"
+      },
+      "traits": {
+        "minecraft:placement_direction": {
+          "enabled_states": [
+            "minecraft:cardinal_direction"
+          ],
+          "y_rotation_offset": 180
+        }
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 1.5
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#8d8a82",
+      "minecraft:light_emission": 6,
+      "minecraft:geometry": "geometry.radiousti.broadcast_antenna.north",
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_steel",
+          "render_method": "opaque"
+        },
+        "detail": {
+          "texture": "radiousti_steel_dark",
+          "render_method": "opaque"
+        },
+        "glow": {
+          "texture": "radiousti_glow_red",
+          "render_method": "opaque"
+        }
+      },
+      "minecraft:display_name": "Vysílací anténa CWT"
+    },
+    "permutations": [
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'north'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.broadcast_antenna.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -6,
+              0,
+              -5
+            ],
+            "size": [
+              11,
+              16,
+              7
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'east'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.broadcast_antenna.east",
+          "minecraft:selection_box": {
+            "origin": [
+              -2,
+              0,
+              -6
+            ],
+            "size": [
+              7,
+              16,
+              11
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'south'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.broadcast_antenna.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -5,
+              0,
+              -2
+            ],
+            "size": [
+              11,
+              16,
+              7
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'west'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.broadcast_antenna.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -5,
+              0,
+              -5
+            ],
+            "size": [
+              7,
+              16,
+              11
+            ]
+          },
+          "minecraft:collision_box": false
+        }
+      }
+    ]
+  }
+}

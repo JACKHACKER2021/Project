@@ -537,6 +537,72 @@
     },
     "radiousti_liquid_radioactive_oil": {
       "textures": "textures/blocks/radiousti_liquid_radioactive_oil"
+    },
+    "radiousti_liquid_radioactive_sludge": {
+      "textures": "textures/blocks/radiousti_liquid_radioactive_sludge"
+    },
+    "radiousti_velvet_red": {
+      "textures": "textures/blocks/radiousti_velvet_red"
+    },
+    "radiousti_velvet_dusty": {
+      "textures": "textures/blocks/radiousti_velvet_dusty"
+    },
+    "radiousti_theater_gold": {
+      "textures": "textures/blocks/radiousti_theater_gold"
+    },
+    "radiousti_blue_crystal_residue": {
+      "textures": "textures/blocks/radiousti_blue_crystal_residue"
+    },
+    "radiousti_tv_static": {
+      "textures": "textures/blocks/radiousti_tv_static"
+    },
+    "radiousti_tiles_white": {
+      "textures": "textures/blocks/radiousti_tiles_white"
+    },
+    "radiousti_tiles_dirty": {
+      "textures": "textures/blocks/radiousti_tiles_dirty"
+    },
+    "radiousti_tiles_blue": {
+      "textures": "textures/blocks/radiousti_tiles_blue"
+    },
+    "radiousti_chalkboard": {
+      "textures": "textures/blocks/radiousti_chalkboard"
+    },
+    "radiousti_lead_wall": {
+      "textures": "textures/blocks/radiousti_lead_wall"
+    },
+    "radiousti_hermetic_glass": {
+      "textures": "textures/blocks/radiousti_hermetic_glass"
+    },
+    "radiousti_cooling_tower_concrete": {
+      "textures": "textures/blocks/radiousti_cooling_tower_concrete"
+    },
+    "radiousti_npp_floor_warning": {
+      "textures": "textures/blocks/radiousti_npp_floor_warning"
+    },
+    "radiousti_chainlink": {
+      "textures": "textures/blocks/radiousti_chainlink"
+    },
+    "radiousti_canteen_food": {
+      "textures": "textures/blocks/radiousti_canteen_food"
+    },
+    "radiousti_shop_goods": {
+      "textures": "textures/blocks/radiousti_shop_goods"
+    },
+    "radiousti_tray_metal": {
+      "textures": "textures/blocks/radiousti_tray_metal"
+    },
+    "radiousti_uranium_crystal": {
+      "textures": "textures/blocks/radiousti_uranium_crystal"
+    },
+    "radiousti_lc_crystal_solid": {
+      "textures": "textures/blocks/radiousti_lc_crystal_solid"
+    },
+    "radiousti_stone_plain": {
+      "textures": "textures/blocks/radiousti_stone_plain"
+    },
+    "radiousti_deepslate_plain": {
+      "textures": "textures/blocks/radiousti_deepslate_plain"
     }
   }
 }

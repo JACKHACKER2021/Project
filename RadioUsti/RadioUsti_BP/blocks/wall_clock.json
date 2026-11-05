@@ -34,7 +34,8 @@
           "texture": "radiousti_screen_clock",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Nástěnné hodiny"
     },
     "permutations": [
       {

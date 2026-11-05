@@ -24,7 +24,8 @@
           "texture": "radiousti_yellow_old_cement",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Žlutý starý cementový blok"
     }
   }
 }

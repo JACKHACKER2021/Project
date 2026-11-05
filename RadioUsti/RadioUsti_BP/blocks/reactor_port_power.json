@@ -23,7 +23,8 @@
           "texture": "radiousti_reactor_port_power",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Energetický port reaktoru"
     }
   }
 }

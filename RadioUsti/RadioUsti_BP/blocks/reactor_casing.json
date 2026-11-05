@@ -23,7 +23,8 @@
           "texture": "radiousti_reactor_casing",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Plášť reaktoru"
     }
   }
 }

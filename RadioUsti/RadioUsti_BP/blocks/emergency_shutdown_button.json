@@ -55,7 +55,8 @@
           "texture": "radiousti_glow_red",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Tlačítko nouzového odstavení"
     }
   }
 }

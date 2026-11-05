@@ -32,7 +32,8 @@
           "texture": "radiousti_storage_boxes",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Skladové bedny"
     },
     "permutations": [
       {

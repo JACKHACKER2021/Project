@@ -40,7 +40,8 @@
           "texture": "radiousti_fabric_black",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Otočná kancelářská židle"
     },
     "permutations": [
       {

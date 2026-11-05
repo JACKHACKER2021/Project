@@ -14,7 +14,7 @@
         }
       },
       "minecraft:display_name": {
-        "value": "item.radiousti.operating_table.name"
+        "value": "Operační stůl"
       },
       "minecraft:max_stack_size": 16,
       "minecraft:block_placer": {

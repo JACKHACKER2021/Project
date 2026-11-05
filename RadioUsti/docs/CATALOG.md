@@ -3,7 +3,7 @@
 _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 
 
-## Bloky – Stavba (48)
+## Bloky – Stavba (74)
 
 | Název | English | ID | Typ |
 |---|---|---|---|
@@ -55,6 +55,32 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Suť | Rubble | `radiousti:rubble` | dekorace |
 | Blok Liverocrystal Metal | Block of Liverocrystal Metal | `radiousti:liverocrystal_metal_block` | dekorace |
 | Pancéřová deska z Liverocrystal Metal | Liverocrystal Armour Plate | `radiousti:liverocrystal_armor_plate` | dekorace |
+| Divadelní sedadlo | Theater Seat | `radiousti:theater_seat` | dekorace |
+| Zaprášené divadelní sedadlo | Dusty Theater Seat | `radiousti:theater_seat_dusty` | dekorace |
+| Jevištní opona | Stage Curtain | `radiousti:stage_curtain` | dekorace |
+| Vysílací anténa CWT | CWT Broadcast Antenna | `radiousti:broadcast_antenna` | dekorace |
+| Regál obchodního domu CWT | CWT Shop Shelf | `radiousti:shop_shelf` | dekorace |
+| Pokladna | Cash Register | `radiousti:cash_register` | dekorace |
+| Školní lavice | School Desk | `radiousti:school_desk` | dekorace |
+| Školní tabule | Chalkboard | `radiousti:chalkboard` | dokument |
+| Jídelní stůl s lavicemi | Canteen Table | `radiousti:canteen_table` | dekorace |
+| Tác s jídlem | Lunch Tray | `radiousti:lunch_tray` | dekorace |
+| Výdejní pult | Serving Counter | `radiousti:serving_counter` | dekorace |
+| Kuchyňský kotel | Kitchen Pot | `radiousti:kitchen_pot` | dekorace |
+| Obklad sprch | Shower Tiles | `radiousti:shower_tiles` | dekorace |
+| Špinavý obklad sprch | Dirty Shower Tiles | `radiousti:shower_tiles_dirty` | dekorace |
+| Modrý obklad | Blue Tiles | `radiousti:shower_tiles_blue` | dekorace |
+| Podlahová vpust | Floor Drain | `radiousti:floor_drain` | dekorace |
+| Olověná stěna | Lead-Lined Wall | `radiousti:lead_wall` | dekorace |
+| Sklo hermetické komory | Hermetic Chamber Glass | `radiousti:hermetic_glass` | dekorace |
+| Laboratorní dřez | Laboratory Sink | `radiousti:lab_sink` | dekorace |
+| Ohniště pevnosti | Fortress Brazier | `radiousti:fortress_brazier` | dekorace |
+| Sloup pevnosti | Fortress Pillar | `radiousti:fortress_pillar` | dekorace |
+| Beton chladicí věže | Cooling Tower Concrete | `radiousti:cooling_tower_concrete` | dekorace |
+| Výstražná podlaha elektrárny | Power Plant Warning Floor | `radiousti:npp_floor_warning` | dekorace |
+| Pletivový plot | Chain-Link Fence | `radiousti:chainlink_fence` | dekorace |
+| Výpusť páry | Steam Vent | `radiousti:steam_vent` | dekorace |
+| Pult velínu | Control Room Console | `radiousti:control_console` | dekorace |
 
 ## Bloky – Vybavení (34)
 
@@ -95,7 +121,7 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Nádrž Liverocrystal Gas (Blue Gasoline) | Liverocrystal Gas Tank (Blue Gasoline) | `radiousti:liverocrystal_gas_tank` | stroj |
 | Kádě s biogenním sérem | Biogenic Serum Vat | `radiousti:biogenic_serum_vat` | dekorace |
 
-## Bloky – Předměty (40)
+## Bloky – Předměty (43)
 
 | Název | English | ID | Typ |
 |---|---|---|---|
@@ -139,8 +165,11 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Sada laboratorních baněk | Laboratory Flask Set | `radiousti:flask_set` | dekorace |
 | Stojan na zkumavky | Test Tube Rack | `radiousti:test_tube_rack` | dekorace |
 | Koš na laboratorní odpad | Laboratory Waste Bin | `radiousti:lab_waste_bin` | dekorace |
+| Jevištní reflektor | Stage Spotlight | `radiousti:stage_spotlight` | světlo |
+| Televizor CWT | CWT Television | `radiousti:crt_tv` | světlo |
+| Sprcha | Shower | `radiousti:shower_head` | světlo |
 
-## Bloky – Příroda (16)
+## Bloky – Příroda (17)
 
 | Název | English | ID | Typ |
 |---|---|---|---|
@@ -160,8 +189,9 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Krystal duše | Soul Crystal | `radiousti:soul_crystal` | duše |
 | Liverocrystalová ruda | Liverocrystal Ore | `radiousti:liverocrystal_ore` | toxický materiál |
 | Shluk Liverocrystalu | Liverocrystal Cluster | `radiousti:liverocrystal_cluster` | toxický materiál |
+| Modré krystalické usazeniny | Blue Crystal Residue | `radiousti:blue_crystal_residue` | dekorace |
 
-## Bloky – Pokládané laboratorní sklo a multibloky (pokládají se předmětem) (29)
+## Bloky – Pokládané laboratorní sklo a multibloky (pokládají se předmětem) (30)
 
 | Název | English | ID | Typ |
 |---|---|---|---|
@@ -194,8 +224,9 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Laboratorní olej | Laboratory Oil | `radiousti:lab_oil_liquid` | tekutina |
 | Kontaminovaný olej | Contaminated Oil | `radiousti:contaminated_oil_liquid` | tekutina |
 | Radioaktivní olej | Radioactive Oil | `radiousti:radioactive_oil_liquid` | tekutina |
+| Radioaktivní kal | Radioactive Sludge | `radiousti:radioactive_sludge_liquid` | tekutina |
 
-## Předměty (57)
+## Předměty (58)
 
 | Název | English | ID | Popis |
 |---|---|---|---|
@@ -256,3 +287,4 @@ _Generováno nástrojem `tools/build.py` – odpovídá obsahu balíčku._
 | Kbelík – laboratorní olej | Bucket of Laboratory Oil | `radiousti:lab_oil_bucket` |  |
 | Kbelík – kontaminovaný olej | Bucket of Contaminated Oil | `radiousti:contaminated_oil_bucket` |  |
 | Kbelík – radioaktivní olej | Bucket of Radioactive Oil | `radiousti:radioactive_oil_bucket` |  |
+| Kbelík – radioaktivní kal | Bucket of Radioactive Sludge | `radiousti:radioactive_sludge_bucket` |  |

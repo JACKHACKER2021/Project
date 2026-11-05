@@ -53,7 +53,8 @@
           "texture": "radiousti_steel_dark",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Sud – průmyslový olej"
     }
   }
 }

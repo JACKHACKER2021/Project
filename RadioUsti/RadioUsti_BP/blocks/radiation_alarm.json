@@ -44,7 +44,8 @@
           "texture": "radiousti_glow_off",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Radiační výstražný alarm"
     },
     "permutations": [
       {

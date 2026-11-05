@@ -30,7 +30,8 @@
           "texture": "radiousti_reactor_core",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Jádro reaktoru"
     },
     "permutations": [
       {

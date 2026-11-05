@@ -14,7 +14,7 @@
         }
       },
       "minecraft:display_name": {
-        "value": "item.radiousti.uranium_fuel_rod.name"
+        "value": "Uranová palivová tyč"
       },
       "minecraft:max_stack_size": 4
     }

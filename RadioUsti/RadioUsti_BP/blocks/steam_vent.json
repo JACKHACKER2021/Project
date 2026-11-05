@@ -1,0 +1,69 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:steam_vent",
+      "menu_category": {
+        "category": "construction"
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 1.5
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#8d8a82",
+      "radiousti:steam_vent": {},
+      "minecraft:tick": {
+        "interval_range": [
+          15,
+          15
+        ],
+        "looping": true
+      },
+      "minecraft:geometry": "geometry.radiousti.steam_vent",
+      "minecraft:collision_box": {
+        "origin": [
+          -7,
+          0,
+          -7
+        ],
+        "size": [
+          14,
+          8.2,
+          14
+        ]
+      },
+      "minecraft:selection_box": {
+        "origin": [
+          -7,
+          0,
+          -7
+        ],
+        "size": [
+          14,
+          8.2,
+          14
+        ]
+      },
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_steel_rusty",
+          "render_method": "opaque"
+        },
+        "detail": {
+          "texture": "radiousti_steel_dark",
+          "render_method": "opaque"
+        },
+        "glow": {
+          "texture": "radiousti_glow_off",
+          "render_method": "opaque"
+        }
+      },
+      "minecraft:display_name": "Výpusť páry"
+    }
+  }
+}

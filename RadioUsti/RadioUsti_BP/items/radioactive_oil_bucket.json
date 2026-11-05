@@ -14,7 +14,7 @@
         }
       },
       "minecraft:display_name": {
-        "value": "item.radiousti.radioactive_oil_bucket.name"
+        "value": "Kbelík – radioaktivní olej"
       },
       "minecraft:max_stack_size": 1
     }

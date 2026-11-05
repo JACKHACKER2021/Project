@@ -41,7 +41,8 @@
           "texture": "radiousti_screen_gauge",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Kontejner na radioaktivní odpad"
     },
     "permutations": [
       {

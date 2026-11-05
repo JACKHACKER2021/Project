@@ -1,0 +1,165 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:chainlink_fence",
+      "menu_category": {
+        "category": "construction"
+      },
+      "traits": {
+        "minecraft:placement_direction": {
+          "enabled_states": [
+            "minecraft:cardinal_direction"
+          ],
+          "y_rotation_offset": 180
+        }
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 1.5
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#8d8a82",
+      "minecraft:geometry": "geometry.radiousti.chainlink_fence.north",
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_chainlink",
+          "render_method": "alpha_test",
+          "ambient_occlusion": false
+        },
+        "detail": {
+          "texture": "radiousti_steel",
+          "render_method": "alpha_test",
+          "ambient_occlusion": false
+        }
+      },
+      "minecraft:display_name": "Pletivový plot"
+    },
+    "permutations": [
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'north'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.chainlink_fence.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -0.5
+            ],
+            "size": [
+              16,
+              16,
+              1.0
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -0.5
+            ],
+            "size": [
+              16,
+              16,
+              1.0
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'east'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.chainlink_fence.east",
+          "minecraft:selection_box": {
+            "origin": [
+              -0.5,
+              0,
+              -8
+            ],
+            "size": [
+              1.0,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -0.5,
+              0,
+              -8
+            ],
+            "size": [
+              1.0,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'south'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.chainlink_fence.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -0.5
+            ],
+            "size": [
+              16,
+              16,
+              1.0
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -0.5
+            ],
+            "size": [
+              16,
+              16,
+              1.0
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'west'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.chainlink_fence.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -0.5,
+              0,
+              -8
+            ],
+            "size": [
+              1.0,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -0.5,
+              0,
+              -8
+            ],
+            "size": [
+              1.0,
+              16,
+              16
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

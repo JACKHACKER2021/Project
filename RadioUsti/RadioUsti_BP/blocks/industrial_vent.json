@@ -23,7 +23,8 @@
           "texture": "radiousti_industrial_vent",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Průmyslový větrací blok"
     }
   }
 }

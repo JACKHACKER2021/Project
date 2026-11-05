@@ -47,7 +47,8 @@
           "texture": "radiousti_lamp_green",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Indikátor radiace"
     },
     "permutations": [
       {

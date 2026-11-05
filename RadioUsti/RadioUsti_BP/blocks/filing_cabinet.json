@@ -35,7 +35,8 @@
           "texture": "radiousti_steel",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Kartotéka"
     },
     "permutations": [
       {

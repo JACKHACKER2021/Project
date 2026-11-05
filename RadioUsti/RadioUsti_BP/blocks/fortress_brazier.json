@@ -1,0 +1,70 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:fortress_brazier",
+      "menu_category": {
+        "category": "construction"
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 1.5
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#8d8a82",
+      "minecraft:light_emission": 14,
+      "radiousti:brazier": {},
+      "minecraft:tick": {
+        "interval_range": [
+          20,
+          20
+        ],
+        "looping": true
+      },
+      "minecraft:geometry": "geometry.radiousti.fortress_brazier",
+      "minecraft:collision_box": {
+        "origin": [
+          -5,
+          0,
+          -5
+        ],
+        "size": [
+          10,
+          13,
+          10
+        ]
+      },
+      "minecraft:selection_box": {
+        "origin": [
+          -5,
+          0,
+          -5
+        ],
+        "size": [
+          10,
+          13,
+          10
+        ]
+      },
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_steel_dark",
+          "render_method": "opaque"
+        },
+        "detail": {
+          "texture": "radiousti_steel_rusty",
+          "render_method": "opaque"
+        },
+        "glow": {
+          "texture": "radiousti_glow_orange",
+          "render_method": "opaque"
+        }
+      },
+      "minecraft:display_name": "Ohniště pevnosti"
+    }
+  }
+}

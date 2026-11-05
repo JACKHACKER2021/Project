@@ -14,7 +14,7 @@
         }
       },
       "minecraft:display_name": {
-        "value": "item.radiousti.empty_jar.name"
+        "value": "Prázdná laboratorní nádoba"
       },
       "minecraft:max_stack_size": 64,
       "minecraft:block_placer": {

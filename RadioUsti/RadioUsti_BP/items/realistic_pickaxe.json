@@ -14,7 +14,7 @@
         }
       },
       "minecraft:display_name": {
-        "value": "item.radiousti.realistic_pickaxe.name"
+        "value": "Realistický krumpáč"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

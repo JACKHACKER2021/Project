@@ -1,0 +1,163 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:theater_seat",
+      "menu_category": {
+        "category": "construction"
+      },
+      "traits": {
+        "minecraft:placement_direction": {
+          "enabled_states": [
+            "minecraft:cardinal_direction"
+          ],
+          "y_rotation_offset": 180
+        }
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 1.5
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#8d8a82",
+      "minecraft:geometry": "geometry.radiousti.theater_seat.north",
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_velvet_red",
+          "render_method": "opaque"
+        },
+        "detail": {
+          "texture": "radiousti_theater_gold",
+          "render_method": "opaque"
+        }
+      },
+      "minecraft:display_name": "Divadelní sedadlo"
+    },
+    "permutations": [
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'north'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.theater_seat.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -6,
+              0,
+              -6
+            ],
+            "size": [
+              12.0,
+              15.5,
+              11.5
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -6,
+              0,
+              -6
+            ],
+            "size": [
+              12.0,
+              15.5,
+              11.5
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'east'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.theater_seat.east",
+          "minecraft:selection_box": {
+            "origin": [
+              -5.5,
+              0,
+              -6
+            ],
+            "size": [
+              11.5,
+              15.5,
+              12.0
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -5.5,
+              0,
+              -6
+            ],
+            "size": [
+              11.5,
+              15.5,
+              12.0
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'south'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.theater_seat.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -6.0,
+              0,
+              -5.5
+            ],
+            "size": [
+              12.0,
+              15.5,
+              11.5
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -6.0,
+              0,
+              -5.5
+            ],
+            "size": [
+              12.0,
+              15.5,
+              11.5
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'west'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.theater_seat.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -6,
+              0,
+              -6.0
+            ],
+            "size": [
+              11.5,
+              15.5,
+              12.0
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -6,
+              0,
+              -6.0
+            ],
+            "size": [
+              11.5,
+              15.5,
+              12.0
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

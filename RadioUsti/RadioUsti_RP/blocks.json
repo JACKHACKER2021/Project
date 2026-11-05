@@ -504,5 +504,98 @@
   },
   "radiousti:radioactive_oil_liquid": {
     "sound": "slime"
+  },
+  "radiousti:radioactive_sludge_liquid": {
+    "sound": "slime"
+  },
+  "radiousti:theater_seat": {
+    "sound": "cloth"
+  },
+  "radiousti:theater_seat_dusty": {
+    "sound": "cloth"
+  },
+  "radiousti:stage_curtain": {
+    "sound": "cloth"
+  },
+  "radiousti:stage_spotlight": {
+    "sound": "stone"
+  },
+  "radiousti:blue_crystal_residue": {
+    "sound": "glass"
+  },
+  "radiousti:crt_tv": {
+    "sound": "stone"
+  },
+  "radiousti:broadcast_antenna": {
+    "sound": "metal"
+  },
+  "radiousti:shop_shelf": {
+    "sound": "metal"
+  },
+  "radiousti:cash_register": {
+    "sound": "metal"
+  },
+  "radiousti:school_desk": {
+    "sound": "wood"
+  },
+  "radiousti:chalkboard": {
+    "sound": "wood"
+  },
+  "radiousti:canteen_table": {
+    "sound": "metal"
+  },
+  "radiousti:lunch_tray": {
+    "sound": "metal"
+  },
+  "radiousti:serving_counter": {
+    "sound": "metal"
+  },
+  "radiousti:kitchen_pot": {
+    "sound": "metal"
+  },
+  "radiousti:shower_tiles": {
+    "sound": "stone"
+  },
+  "radiousti:shower_tiles_dirty": {
+    "sound": "stone"
+  },
+  "radiousti:shower_tiles_blue": {
+    "sound": "stone"
+  },
+  "radiousti:shower_head": {
+    "sound": "metal"
+  },
+  "radiousti:floor_drain": {
+    "sound": "metal"
+  },
+  "radiousti:lead_wall": {
+    "sound": "metal"
+  },
+  "radiousti:hermetic_glass": {
+    "sound": "glass"
+  },
+  "radiousti:lab_sink": {
+    "sound": "metal"
+  },
+  "radiousti:fortress_brazier": {
+    "sound": "metal"
+  },
+  "radiousti:fortress_pillar": {
+    "sound": "stone"
+  },
+  "radiousti:cooling_tower_concrete": {
+    "sound": "stone"
+  },
+  "radiousti:npp_floor_warning": {
+    "sound": "stone"
+  },
+  "radiousti:chainlink_fence": {
+    "sound": "metal"
+  },
+  "radiousti:steam_vent": {
+    "sound": "metal"
+  },
+  "radiousti:control_console": {
+    "sound": "metal"
   }
 }

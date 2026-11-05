@@ -37,7 +37,8 @@
           "texture": "radiousti_steel_dark",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Vodní čerpadlo"
     },
     "permutations": [
       {

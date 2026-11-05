@@ -21,7 +21,8 @@
           "texture": "radiousti_flesh_veiny",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Prožilkovaný blok masa"
     }
   }
 }

@@ -7,6 +7,7 @@ import { NS, BLOCKS, ITEMS, blockAt, dist2, sound } from "../lib/util.js";
 import { Machines, Config, Logs } from "../lib/store.js";
 
 import { liquidEffects } from "./liquids.js";
+import { isRaining, underSky } from "./environment.js";
 
 export const TOXIC_BLOCKS = Object.entries(BLOCKS).filter(([, v]) => v.toxic).map(([k]) => k);
 
@@ -126,7 +127,9 @@ export function radiationTick(players) {
       continue;
     }
     const loc = { x: Math.floor(p.location.x), y: Math.floor(p.location.y), z: Math.floor(p.location.z) };
-    const rate = (radiationAt(p.dimension, loc, 4) + inventoryRadiation(p)) * protectionOf(p) * cfg.radiationMultiplier;
+    const rain = cfg.rainRadiation !== false && isRaining() && p.dimension.id === "minecraft:overworld" && underSky(p) ? 0.6 : 0;
+    const rate = (radiationAt(p.dimension, loc, 4) + inventoryRadiation(p) + rain) * protectionOf(p) * cfg.radiationMultiplier;
+    if (rain > 0 && rate > 0.05) p.onScreenDisplay.setActionBar(`§a☢ Radioaktivní déšť! §f${rate.toFixed(2)} mSv/s – schovej se pod střechu`);
     lastRate.set(p.id, rate);
     let dose = getDose(p);
     dose = rate > 0.05 ? dose + rate : dose - 0.15;
@@ -135,7 +138,7 @@ export function radiationTick(players) {
     if (rate > 0.05) {
       sound(p.dimension, loc, "radiousti.geiger", Math.min(1, 0.3 + rate / 3), 1 + Math.min(rate, 2) * 0.2);
     }
-    if (rate > 0.05 || dose >= 10) {
+    if ((rate > 0.05 && rain === 0) || (rain === 0 && dose >= 10)) {
       const bar = "§a" + "|".repeat(Math.min(20, Math.round(dose / 5))) + "§8" + "|".repeat(Math.max(0, 20 - Math.round(dose / 5)));
       p.onScreenDisplay.setActionBar(`§e☢ ${rate.toFixed(2)} mSv/s  §fdávka ${dose.toFixed(0)}/150 ${bar}`);
     }

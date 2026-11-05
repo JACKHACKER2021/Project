@@ -23,7 +23,8 @@
           "texture": "radiousti_lc_armor",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Pancéřová deska z Liverocrystal Metal"
     }
   }
 }

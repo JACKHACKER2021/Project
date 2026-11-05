@@ -36,7 +36,8 @@
           "render_method": "alpha_test",
           "ambient_occlusion": false
         }
-      }
+      },
+      "minecraft:display_name": "Kaluž krve"
     }
   }
 }

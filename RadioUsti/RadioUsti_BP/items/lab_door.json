@@ -14,7 +14,7 @@
         }
       },
       "minecraft:display_name": {
-        "value": "item.radiousti.lab_door.name"
+        "value": "Laboratorní dveře"
       },
       "minecraft:max_stack_size": 16,
       "minecraft:block_placer": {

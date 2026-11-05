@@ -23,7 +23,8 @@
           "texture": "radiousti_castle_side",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Boční blok hradu"
     }
   }
 }

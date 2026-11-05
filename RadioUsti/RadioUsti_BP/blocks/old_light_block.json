@@ -28,7 +28,8 @@
           "texture": "radiousti_old_light_block",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Starý světelný blok"
     },
     "permutations": [
       {

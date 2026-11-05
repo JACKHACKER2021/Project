@@ -603,3 +603,141 @@ def liquid(level):
     """Pseudo-liquid surface: level 0 = source (14 px) ... 4 = thin film."""
     h = {0: 14, 1: 12, 2: 9, 3: 6, 4: 3}[level]
     return [B("root", C(0, 0, 0, 16, h, 16))]
+
+
+# ---------------------------------------------------------------- locations (v1.4)
+
+def theater_seat():
+    return [B("root", C(2, 0, 3, 1.5, 7, 10, "detail"), C(12.5, 0, 3, 1.5, 7, 10, "detail"), C(3, 4, 2, 10, 2.5, 10),
+              C(3, 6.5, 11, 10, 9, 2.5), C(2, 7, 3, 1.5, 0.8, 8, "detail"), C(12.5, 7, 3, 1.5, 0.8, 8, "detail"))]
+
+
+def curtain():
+    cubes = [C(0, 15, 6.5, 16, 1, 3, "detail")]
+    for i, x in enumerate(range(0, 16, 4)):
+        cubes.append(C(x, 0, 7 + (i % 2), 4, 15, 1.5))
+    return [B("root", *cubes)]
+
+
+def spotlight():
+    return [B("root", C(4, 0, 4, 8, 1, 8, "detail"), C(7, 1, 7, 2, 5, 2, "detail"), C(4, 6, 5, 8, 6, 7), C(4.5, 6.5, 4.6, 7, 5, 0.4, "glow"))]
+
+
+def crt_tv():
+    return [B("root", C(1, 0, 3, 14, 13, 10), C(3, 2, 13, 10, 9, 2), C(6, 13, 8, 0.6, 3, 0.6, "detail"), C(9.4, 13, 8, 0.6, 3, 0.6, "detail"),
+              C(12, 2, 2.9, 1.5, 1.5, 0.2, "detail"), C(12, 5, 2.9, 1.5, 1.5, 0.2, "detail")),
+            B("screen", C(2, 2, 2.9, 9, 9, 0.2, "screen"))]
+
+
+def antenna():
+    return [B("root", C(6, 0, 6, 4, 1, 4, "detail"), C(7.5, 1, 7.5, 1, 15, 1), C(3, 12, 7.5, 10, 0.6, 1), C(4.5, 8, 7.5, 7, 0.6, 1),
+              C(2, 4, 3, 5, 5, 1, "detail"), C(6, 13.5, 6, 4, 2.5, 0.5, "glow"))]
+
+
+def shop_shelf():
+    cubes = [C(0, 0, 9, 16, 16, 1), C(0, 0, 2, 1, 16, 8), C(15, 0, 2, 1, 16, 8)]
+    for y in (0, 5, 10, 15):
+        cubes.append(C(1, y, 2, 14, 0.8, 7.5, "detail"))
+    goods = [C(2, 0.8, 3, 3, 3.5, 3, "goods"), C(6, 0.8, 3.5, 2.5, 2.5, 2.5, "goods"), C(10, 0.8, 3, 4, 3, 3, "goods"),
+             C(2.5, 5.8, 3, 2, 3, 2, "goods"), C(5.5, 5.8, 3, 4, 2, 4, "goods"), C(11, 5.8, 3.5, 2.5, 3.5, 2.5, "goods"),
+             C(2, 10.8, 3, 5, 2.5, 3, "goods"), C(9, 10.8, 3, 3, 3.5, 3, "goods")]
+    return [B("root", *cubes), B("goods", *goods)]
+
+
+def cash_register():
+    return [B("root", C(0, 0, 0, 16, 9, 16, "detail"), C(3, 9, 5, 10, 3, 7), C(4, 12, 9, 8, 3, 2), C(3.5, 9.2, 2, 9, 1.6, 3, "keys")),
+            B("screen", C(5, 12.5, 8.9, 6, 2, 0.2, "screen"))]
+
+
+def school_desk():
+    return [B("root", C(1, 10, 1, 14, 1.5, 10), C(1, 9, 1, 14, 1, 1, "detail"), C(1.5, 0, 1.5, 1.2, 10, 1.2, "detail"),
+              C(13.3, 0, 1.5, 1.2, 10, 1.2, "detail"), C(1.5, 0, 9.3, 1.2, 10, 1.2, "detail"), C(13.3, 0, 9.3, 1.2, 10, 1.2, "detail"),
+              C(2, 7, 2, 12, 1, 8, "detail"), C(3, 0, 12, 10, 6, 1, "detail"), C(3, 6, 11.5, 10, 1, 4))]
+
+
+def chalkboard():
+    return [B("root", C(0, 3, 15, 16, 12, 1, "detail"), C(0, 2, 13.5, 16, 1, 2.5, "detail")), B("board", C(1, 4, 14.8, 14, 10, 0.2, "screen"))]
+
+
+def canteen_table():
+    return [B("root", C(0, 9, 3, 16, 1.5, 10), C(1, 0, 7, 2, 9, 2, "detail"), C(13, 0, 7, 2, 9, 2, "detail"), C(0, 4, 7.5, 16, 1, 1, "detail"),
+              C(0, 5, 0, 16, 1, 2.5, "detail"), C(0, 5, 13.5, 16, 1, 2.5, "detail"), C(1, 0, 0.5, 1, 5, 1, "detail"),
+              C(14, 0, 0.5, 1, 5, 1, "detail"), C(1, 0, 14.5, 1, 5, 1, "detail"), C(14, 0, 14.5, 1, 5, 1, "detail"))]
+
+
+def lunch_tray():
+    return [B("root", C(2, 0, 3, 12, 0.6, 10), C(2.5, 0.6, 3.5, 5, 0.4, 4, "detail"), C(8.5, 0.6, 3.5, 5, 0.4, 4, "detail"),
+              C(2.5, 0.6, 8.5, 11, 0.4, 4, "detail")), B("fill", C(3, 0.8, 4, 4, 0.6, 3, "fill"), C(9, 0.8, 4, 4, 0.6, 3, "fill"))]
+
+
+def serving_counter():
+    return [B("root", C(0, 0, 2, 16, 10, 14), C(0, 10, 0, 16, 1, 16, "detail"), C(1, 11, 9, 14, 3, 6, "glass"), C(1, 14, 9, 14, 0.5, 6, "detail")),
+            B("fill", C(2, 10.6, 2, 5, 1, 5, "fill"), C(9, 10.6, 2, 5, 1, 5, "fill"))]
+
+
+def kitchen_pot():
+    return [B("root", C(3, 0, 3, 10, 8, 10), C(2.5, 7, 2.5, 11, 1, 11, "detail"), C(1, 5, 7, 2, 1, 2, "detail"), C(13, 5, 7, 2, 1, 2, "detail")),
+            B("fill", C(3.5, 7.2, 3.5, 9, 0.5, 9, "fill"))]
+
+
+def shower_head():
+    return [B("root", C(7, 4, 15, 2, 12, 1, "detail"), C(7, 13, 10, 2, 1.5, 5, "detail"), C(5, 11.5, 8, 6, 1.5, 4, "detail"),
+              C(6, 6, 14.5, 4, 2, 1, "detail")), B("glow", C(5.5, 11.3, 8.5, 5, 0.2, 3, "glow"))]
+
+
+def floor_drain():
+    return [B("root", C(3, 0, 3, 10, 0.3, 10, "detail"), C(4, 0.3, 4, 8, 0.05, 8))]
+
+
+def lab_sink():
+    return [B("root", C(0, 0, 1, 16, 10, 15), C(0, 10, 0, 16, 1, 16, "detail"), C(2, 10.5, 2, 12, 0.6, 9),
+              C(7, 11, 12, 2, 4, 2, "detail"), C(7, 14, 8, 2, 1, 5, "detail"))]
+
+
+def brazier():
+    return [B("root", C(6, 0, 6, 4, 8, 4, "detail"), C(3, 8, 3, 10, 3, 10), C(3, 8, 3, 10, 0.5, 10, "detail")),
+            B("glow", C(4, 11, 4, 8, 2, 8, "glow"))]
+
+
+def pillar():
+    return [B("root", C(1, 0, 1, 14, 2, 14), C(3, 2, 3, 10, 12, 10), C(1, 14, 1, 14, 2, 14))]
+
+
+def chainlink():
+    cubes = [C(0, 0, 7.5, 1, 16, 1, "detail"), C(15, 0, 7.5, 1, 16, 1, "detail"), C(0, 15, 7.6, 16, 0.6, 0.8, "detail")]
+    return [B("root", C(1, 0, 7.9, 14, 15, 0.2), *cubes)]
+
+
+def steam_vent():
+    return [B("root", C(1, 0, 1, 14, 3, 14, "detail"), C(4, 3, 4, 8, 4, 8), C(3, 7, 3, 10, 1, 10, "detail"), C(5, 8, 5, 6, 0.2, 6, "glow"))]
+
+
+def console():
+    return [B("root", C(0, 0, 3, 16, 9, 13), C(0, 9, 4, 16, 2, 12, "detail"), C(0, 11, 9, 16, 5, 7)),
+            B("screen", C(1, 11.5, 8.9, 14, 4, 0.2, "screen")), B("keys", C(1, 9.6, 3.9, 14, 1, 4, "keys"))]
+
+
+def ore_crystals(seed=1):
+    """Ore block: stone core inset 1 px with crystals breaking through every face (stays within the block)."""
+    import random
+    r = random.Random(seed)
+    cubes = [C(1, 1, 1, 14, 14, 14)]
+    for _ in range(3):  # top
+        x, z = r.randint(2, 11), r.randint(2, 11)
+        cubes.append(C(x, 13, z, r.choice((2, 3)), 3, r.choice((2, 3)), "crystal"))
+    for face in ("north", "south", "east", "west"):
+        for _ in range(2):
+            a, y = r.randint(2, 11), r.randint(2, 11)
+            w, h = r.choice((2, 3)), r.choice((2, 3))
+            if face == "north":
+                cubes.append(C(a, y, 0, w, h, 2, "crystal"))
+            elif face == "south":
+                cubes.append(C(a, y, 14, w, h, 2, "crystal"))
+            elif face == "west":
+                cubes.append(C(0, y, a, 2, h, w, "crystal"))
+            else:
+                cubes.append(C(14, y, a, 2, h, w, "crystal"))
+    cubes.append(C(r.randint(3, 10), 0, r.randint(3, 10), 3, 2, 3, "crystal"))
+    # edge fillers so the silhouette still reads as a full block
+    cubes += [C(0, 0, 0, 16, 1, 16), C(0, 15, 0, 16, 1, 16), C(0, 1, 0, 1, 14, 1), C(15, 1, 0, 1, 14, 1), C(0, 1, 15, 1, 14, 1), C(15, 1, 15, 1, 14, 1)]
+    return [B("root", *cubes)]

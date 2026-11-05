@@ -23,7 +23,8 @@
           "texture": "radiousti_fortress_stone",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Kámen pevnosti"
     }
   }
 }

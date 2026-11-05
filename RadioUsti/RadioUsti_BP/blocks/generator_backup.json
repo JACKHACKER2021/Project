@@ -58,7 +58,8 @@
           "texture": "radiousti_hazard",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Záložní generátor"
     },
     "permutations": [
       {

@@ -14,7 +14,7 @@
         }
       },
       "minecraft:display_name": {
-        "value": "item.radiousti.soul_essence.name"
+        "value": "Esence duše"
       },
       "minecraft:max_stack_size": 64
     }

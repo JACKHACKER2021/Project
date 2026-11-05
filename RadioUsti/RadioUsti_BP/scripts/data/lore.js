@@ -41,5 +41,6 @@ export const DOCS = {
   scattered_papers: { title: "Rozházené papíry", text: "Útržky formulářů, směnné rozpisy a kresba sirény dětskou rukou. Na jednom papíře: 'Máma říkala, že na hradě jsme v bezpečí.'" },
   wall_notice: { title: "Oznámení", text: "Ředitelství závodu oznamuje: od pondělí jsou zakázány vstupy do reaktorové haly bez dozimetru. Porušení = okamžité propuštění." },
   document_pile: { title: "Hromada dokumentů", text: "Hromada osobních složek zaměstnanců elektrárny. Většina složek je označena červeným razítkem: NEZVĚSTNÝ." },
+  chalkboard: { title: "Školní tabule", text: "Na tabuli zůstalo křídou: 'Pennov – rozvrh na pondělí. 1. hodina: Bezpečnost při radiačním poplachu. 2. hodina: Občanská nauka Zeds Corp.' V rohu někdo připsal: 'Nevěřte vysílání z CWT.'" },
   photo_frame: { title: "Fotografie na zdi", text: "Zarámovaná fotografie směny velína, rok 2071. Všichni se usmívají." },
 };

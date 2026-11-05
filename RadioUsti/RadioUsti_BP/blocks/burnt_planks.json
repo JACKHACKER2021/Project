@@ -23,7 +23,8 @@
           "texture": "radiousti_burnt_planks",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Spálená prkna"
     }
   }
 }

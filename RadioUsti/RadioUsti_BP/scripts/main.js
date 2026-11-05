@@ -9,6 +9,7 @@ import { updateAround } from "./systems/connections.js";
 import { buildMultiblock, breakMultiblock, buildDoor, breakDoor, toggleDoor, originOf } from "./systems/structures.js";
 import { startNetworkLoop, ensureMachine, findCoreNear } from "./systems/network.js";
 import "./systems/reactor.js";
+import { startSmog } from "./systems/environment.js";
 import { radiationTick, wasteSpreadTick, decontaminate, getDose, setDose } from "./systems/radiation.js";
 import { toggleLight, interactAlarm, pressScram } from "./systems/devices.js";
 import { openStation } from "./systems/lab.js";
@@ -135,6 +136,18 @@ system.beforeEvents.startup.subscribe((ev) => {
       p.onScreenDisplay.setActionBar(`Preparátová nádoba: ${["prázdná – vložte láhev krve, maso nebo esenci duše", "krev (vyberte skleněnou lahví)", "maso", "duše"][fill]}`);
     }),
   });
+  const particles = (id, dy, cond) => safe("particles", (e) => {
+    if (cond && !cond(e.block)) return;
+    const l = e.block.location;
+    try {
+      e.dimension.spawnParticle(id, { x: l.x + 0.5, y: l.y + dy, z: l.z + 0.5 });
+    } catch {
+      /* particle id unavailable */
+    }
+  });
+  reg("shower", { onTick: particles("minecraft:water_splash_particle", 0.6, (b) => stateOf(b, `${NS}:lit`, false)) });
+  reg("steam_vent", { onTick: particles("minecraft:campfire_smoke_particle", 0.7) });
+  reg("brazier", { onTick: particles("minecraft:basic_flame_particle", 0.85) });
   reg("liquid", { onTick: safe("liquid", (e) => liquidTick(e.block)) });
   reg("waste_spread", { onTick: safe("waste", (e) => wasteSpreadTick(e.block)) });
   const hurt = (dmg, slow) => safe("hazard", (e) => {
@@ -286,6 +299,12 @@ system.afterEvents.scriptEventReceive.subscribe(safe("scriptevent", (ev) => {
     else if (k === "wastespread") c = Config.set({ wasteSpread: on });
     else if (k === "explosion") c = Config.set({ meltdownExplosion: on });
     else if (k === "zeddrops") c = Config.set({ zedDrops: on });
+    else if (k === "environment") c = Config.set({ environment: on });
+    else if (k === "rainradiation") c = Config.set({ rainRadiation: on });
+    else if (k === "smog") {
+      startSmog(Number(v) || 3);
+      c = Config.get();
+    }
     else c = Config.get();
     world.sendMessage(`§e[RadioÚstí] Nastavení: ${JSON.stringify(c)}`);
   } else if (ev.id === `${NS}:status`) {

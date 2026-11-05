@@ -97,6 +97,14 @@ export const HANDBOOK = [
       "TEKUTINY: krev a 6 olejů jsou tekuté bloky, které stékají dolů a rozlévají se do 4 bloků. Kbelík + kanystr oleje (nebo nádoba s krví) = plný kbelík. Prázdným kbelíkem nabíráte zdroj. Ve tekutině jste zpomaleni; krev způsobuje nevolnost, černý olej slepotu, laboratorní slabost, kontaminovaný otravu, radioaktivní ozáření.",
   },
   {
+    title: "10c. Obloha, smog a radioaktivní déšť",
+    text:
+      "Obloha nad RadioÚstí je trvale nazelenalá. Mlha se mění s časem: ve dne zelená, večer a za úsvitu načervenalá, v noci rudá. S grafikou Vibrant Visuals se barví i celé nebe.\n" +
+      "SMOG: občas se nad krajem převalí hustý smog (2–5 minut) a dohlednost klesne na pár desítek bloků.\n" +
+      "RADIOAKTIVNÍ DÉŠŤ: kdo stojí v dešti pod otevřeným nebem, dostává dávku radiace (maska a oblek ji snižují). Déšť pomalu zamořuje trávu kolem hráčů.\n" +
+      "Nastavení: /scriptevent radiousti:config environment off | rainradiation off | smog 3",
+  },
+  {
     title: "11. Světla, alarmy, dveře",
     text:
       "Světla zapínáte klepnutím. Výstražný maják se sám rozsvítí při poplachu reaktoru do 32 bloků, nouzové světlo při výpadku napájení do 16 bloků.\n" +

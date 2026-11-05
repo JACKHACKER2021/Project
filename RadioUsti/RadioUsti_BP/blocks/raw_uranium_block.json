@@ -24,7 +24,8 @@
           "texture": "radiousti_raw_uranium_block",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Blok surového uranu"
     }
   }
 }

@@ -30,7 +30,8 @@
           "texture": "radiousti_radioactive_waste",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Radioaktivní odpad"
     }
   }
 }

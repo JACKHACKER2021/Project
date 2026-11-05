@@ -14,7 +14,7 @@
         }
       },
       "minecraft:display_name": {
-        "value": "item.radiousti.document_lab_report.name"
+        "value": "Laboratorní zpráva"
       },
       "minecraft:max_stack_size": 16
     }

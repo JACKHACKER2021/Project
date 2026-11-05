@@ -1,0 +1,22 @@
+{
+  "format_version": "1.16.100",
+  "minecraft:fog_settings": {
+    "description": {
+      "identifier": "radiousti:fog_night"
+    },
+    "distance": {
+      "air": {
+        "fog_start": 0.45,
+        "fog_end": 0.95,
+        "fog_color": "#5a0e0e",
+        "render_distance_type": "render"
+      },
+      "weather": {
+        "fog_start": 0.3,
+        "fog_end": 0.7,
+        "fog_color": "#5f7f35",
+        "render_distance_type": "render"
+      }
+    }
+  }
+}

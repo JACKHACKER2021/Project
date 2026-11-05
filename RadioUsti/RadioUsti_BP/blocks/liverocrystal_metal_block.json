@@ -24,7 +24,8 @@
           "texture": "radiousti_lc_metal",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Blok Liverocrystal Metal"
     }
   }
 }

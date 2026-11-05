@@ -208,7 +208,7 @@ for p in walk(os.path.join(BP, "items"), ".json"):
         err(f"{iid}: icon {icon} not in item_texture.json")
     dn = c.get("minecraft:display_name", {}).get("value")
     for code in ("en_US", "cs_CZ"):
-        if dn and dn not in lang[code]:
+        if dn and dn.startswith(("item.", "tile.")) and dn not in lang[code]:
             err(f"{iid}: display name key {dn} missing in {code}")
     bp_ = c.get("minecraft:block_placer")
     if bp_ and bp_["block"] not in block_ids and not os.path.exists(os.path.join(BP, "blocks", bp_["block"].split(":")[1] + ".json")):
@@ -301,7 +301,8 @@ for p, code in src.items():
     for ref in re.findall(r'"(minecraft:[a-z0-9_]+)"', code):
         if vanilla and ref not in vitems and ref not in set(vanilla.get("blocks", [])) and ref.split(":")[1] not in [e.split(":")[-1] for e in vanilla.get("effects", [])]:
             if ref not in ("minecraft:inventory", "minecraft:equippable", "minecraft:durability", "minecraft:cardinal_direction", "minecraft:player",
-                           "minecraft:zombie_villager", "minecraft:zombie", "minecraft:husk", "minecraft:drowned", "minecraft:zombie_villager_v2", "minecraft:air"):
+                           "minecraft:zombie_villager", "minecraft:zombie", "minecraft:husk", "minecraft:drowned", "minecraft:zombie_villager_v2", "minecraft:air",
+                           "minecraft:overworld", "minecraft:water_splash_particle", "minecraft:campfire_smoke_particle", "minecraft:basic_flame_particle"):
                 warn(f"{os.path.relpath(p, ROOT)}: unverified vanilla id {ref}")
 node = shutil.which("node")
 if node:

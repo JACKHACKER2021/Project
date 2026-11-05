@@ -32,7 +32,8 @@
           "texture": "radiousti_wood",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Dřevěná židle"
     },
     "permutations": [
       {

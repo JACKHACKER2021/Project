@@ -23,7 +23,8 @@
           "texture": "radiousti_fuse_box",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Pojistková skříň"
     }
   }
 }

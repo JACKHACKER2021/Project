@@ -1,0 +1,167 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:block": {
+    "description": {
+      "identifier": "radiousti:shop_shelf",
+      "menu_category": {
+        "category": "construction"
+      },
+      "traits": {
+        "minecraft:placement_direction": {
+          "enabled_states": [
+            "minecraft:cardinal_direction"
+          ],
+          "y_rotation_offset": 180
+        }
+      }
+    },
+    "components": {
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 1.5
+      },
+      "minecraft:destructible_by_explosion": {
+        "explosion_resistance": 6
+      },
+      "minecraft:map_color": "#8d8a82",
+      "minecraft:geometry": "geometry.radiousti.shop_shelf.north",
+      "minecraft:light_dampening": 0,
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "radiousti_steel",
+          "render_method": "opaque"
+        },
+        "detail": {
+          "texture": "radiousti_cabinet_beige",
+          "render_method": "opaque"
+        },
+        "goods": {
+          "texture": "radiousti_shop_goods",
+          "render_method": "opaque"
+        }
+      },
+      "minecraft:display_name": "Regál obchodního domu CWT"
+    },
+    "permutations": [
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'north'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.shop_shelf.north",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -6
+            ],
+            "size": [
+              16,
+              16,
+              8
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -6
+            ],
+            "size": [
+              16,
+              16,
+              8
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'east'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.shop_shelf.east",
+          "minecraft:selection_box": {
+            "origin": [
+              -2,
+              0,
+              -8
+            ],
+            "size": [
+              8,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -2,
+              0,
+              -8
+            ],
+            "size": [
+              8,
+              16,
+              16
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'south'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.shop_shelf.south",
+          "minecraft:selection_box": {
+            "origin": [
+              -8,
+              0,
+              -2
+            ],
+            "size": [
+              16,
+              16,
+              8
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -8,
+              0,
+              -2
+            ],
+            "size": [
+              16,
+              16,
+              8
+            ]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'west'",
+        "components": {
+          "minecraft:geometry": "geometry.radiousti.shop_shelf.west",
+          "minecraft:selection_box": {
+            "origin": [
+              -6,
+              0,
+              -8
+            ],
+            "size": [
+              8,
+              16,
+              16
+            ]
+          },
+          "minecraft:collision_box": {
+            "origin": [
+              -6,
+              0,
+              -8
+            ],
+            "size": [
+              8,
+              16,
+              16
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

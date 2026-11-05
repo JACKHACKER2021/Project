@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.4.0 – prostředí, lokace a 3D rudy (2026-11-05)
+**Přidáno**
+- Systém prostředí: trvale nazelenalá obloha (client biomy založené na vanilla souborech z Mojang/bedrock-samples), mlha podle denní doby (zelená, načervenalá, rudá), atmosféra pro Vibrant Visuals, náhodný smog, radioaktivní déšť (dávka pod otevřeným nebem, kontaminace trávy).
+- 30 bloků pro lokace Pennov Theater, CWT, School, Jídelna, Showers, RadioÚstí Laboratory, Fortress a Nuclear Power Plant. Sprcha, výpusť páry a ohniště mají částice.
+- Tekutina radioaktivní kal s kbelíkem.
+- 3D modely rud s krystalky (uran, hlubinný uran, Liverocrystal).
+
+**Opraveno**
+- Bloky a předměty ukazovaly místo názvu klíč `item.…` / `tile.…`. Názvy jsou teď doslovně v `minecraft:display_name`.
+
+**Změněno**
+- Verze balíčků 1.3.0 → 1.4.0.
+
 ## 1.3.0 – vzhled, Liverocrystal, sérum a tekutiny (2026-11-05)
 **Přidáno**
 - Liverocrystal: ruda (generuje se y −60 až −10), úlomek, ingot, blok, pancéřová deska, shluk, kanystr a nádrž Liverocrystal Gas (3000 jednotek plynu). Toxické výpary bez plynové masky.

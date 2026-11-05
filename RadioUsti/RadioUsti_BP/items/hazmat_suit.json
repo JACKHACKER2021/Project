@@ -14,7 +14,7 @@
         }
       },
       "minecraft:display_name": {
-        "value": "item.radiousti.hazmat_suit.name"
+        "value": "Ochranný oblek (hazmat)"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:wearable": {

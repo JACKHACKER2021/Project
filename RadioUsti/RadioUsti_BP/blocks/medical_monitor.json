@@ -39,7 +39,8 @@
           "texture": "radiousti_screen_medical",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Lékařský monitor"
     },
     "permutations": [
       {

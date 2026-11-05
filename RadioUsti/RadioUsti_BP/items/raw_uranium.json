@@ -14,7 +14,7 @@
         }
       },
       "minecraft:display_name": {
-        "value": "item.radiousti.raw_uranium.name"
+        "value": "Surový uran"
       },
       "minecraft:max_stack_size": 64
     }

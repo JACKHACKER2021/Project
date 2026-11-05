@@ -46,7 +46,7 @@ Pokud import celého `.mcaddon` selže, nainstaluj zvlášť `dist/RadioUsti_RP.
 
 ## Co add-on obsahuje
 
-167 bloků a 69 předmětů (57 samostatných předmětů a 12 předmětů, kterými se pokládají multibloky a dveře; 10 bloků laboratorního skla se pokládá jeho předměty, 7 tekutin kbelíky). Úplný seznam s ID je v [docs/CATALOG.md](docs/CATALOG.md).
+198 bloků a 70 předmětů (58 samostatných předmětů a 12 předmětů, kterými se pokládají multibloky a dveře; 10 bloků laboratorního skla se pokládá jeho předměty, 8 tekutin kbelíky). Úplný seznam s ID je v [docs/CATALOG.md](docs/CATALOG.md).
 
 | Oblast | Obsah |
 |---|---|
@@ -169,6 +169,31 @@ název, ID, typ, stav, napájení, propojení potrubí a kabelů včetně směr�
 * **Dveře** jsou dva bloky vysoké. Otevřeš je klepnutím na kteroukoli polovinu. Když zničíš jednu polovinu, zmizí obě a vypadne jeden předmět.
 * **Nemocniční lůžko** a **operační stůl** jsou dva bloky dlouhé. Klepnutím na lůžko si nastavíš bod oživení. **Otočná kancelářská židle** se po klepnutí otočí o 90°.
 * **Plakáty, oznámení, papíry, hromada dokumentů a fotografie** si přečteš klepnutím. **Nástěnné hodiny** ukážou herní čas.
+
+## Prostředí a nové lokace (1.4)
+**Obloha a počasí**
+* Obloha je ve všech biomech overworldu trvale **nazelenalá**. Na vanilla biomy se přidá jen barva oblohy a atmosféra RadioÚstí, hudba, zvuky a barva vody zůstávají.
+* **Mlha podle denní doby** (příkaz `/fog`, který skript zadává každých 5 s): ve dne zelená, večer a za úsvitu načervenalá, v noci rudá.
+* S grafikou **Vibrant Visuals** se podle času plynule barví i celé nebe: zelené ve dne, oranžovo-rudé při západu a východu slunce, krvavě rudé v noci.
+* **Smog:** zhruba jednou za 20 minut se na 2–5 minut převalí hustý smog s dohledností asi 36 bloků.
+* **Radioaktivní déšť:** v dešti pod otevřeným nebem dostáváš 0,6 mSv/s (maska a oblek to snižují) a nad lištou se objeví varování. Déšť navíc pomalu mění trávu v okolí hráčů na kontaminovanou.
+* Nastavení: `/scriptevent radiousti:config environment off` · `… rainradiation off` · `… smog 3` (spustí smog na 3 minuty).
+
+**Nové bloky pro lokace**
+| Lokace | Bloky |
+|---|---|
+| Pennov Theater | divadelní sedadlo (i zaprášené), jevištní opona, jevištní reflektor (vypínací), modré krystalické usazeniny |
+| Pennov CWT | televizor CWT (zapnutý ukazuje šum), vysílací anténa, regál obchodního domu, pokladna |
+| Pennov School | školní lavice, školní tabule (čitelná) |
+| Pennov Jídelna | jídelní stůl s lavicemi, tác s jídlem, výdejní pult, kuchyňský kotel |
+| Pennov Showers | obklad sprch (bílý, špinavý, modrý), sprcha (zapnutá stříká vodu), podlahová vpust |
+| RadioÚstí Laboratory | olověná stěna, sklo hermetické komory, laboratorní dřez, radioaktivní kal (tekutina) |
+| RadioÚstí Fortress | ohniště pevnosti (hoří a svítí), sloup pevnosti |
+| RadioÚstí Nuclear Power Plant | beton chladicí věže, výstražná podlaha, pletivový plot, výpusť páry (kouří), pult velínu |
+
+**3D rudy:** uranová, hlubinná uranová a liverocrystalová ruda mají vlastní model s krystalky, které vystupují ze všech stran kamene.
+
+**Oprava názvů:** v 1.0–1.3 se u některých bloků a předmětů ukazovaly klíče typu `item.radiousti…`. Názvy jsou teď přímo v definicích (česky), takže se zobrazí vždy.
 
 ## Liverocrystal, biogenní sérum a tekutiny (1.3)
 * **Liverocrystalová ruda** se generuje hluboko pod zemí (y −60 až −10, nahrazuje kámen, deepslate i tuff) a dává 1–2 **úlomky Liverocrystalu**.

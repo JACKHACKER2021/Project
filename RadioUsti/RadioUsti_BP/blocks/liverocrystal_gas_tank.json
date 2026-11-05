@@ -42,7 +42,8 @@
           "texture": "radiousti_screen_gauge",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Nádrž Liverocrystal Gas (Blue Gasoline)"
     },
     "permutations": [
       {

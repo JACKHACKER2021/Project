@@ -47,7 +47,8 @@
           "texture": "radiousti_steel",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Serverový rack"
     },
     "permutations": [
       {

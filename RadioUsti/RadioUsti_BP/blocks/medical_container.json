@@ -31,7 +31,8 @@
           "texture": "radiousti_med_container",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Kontejner zdravotnického materiálu"
     },
     "permutations": [
       {

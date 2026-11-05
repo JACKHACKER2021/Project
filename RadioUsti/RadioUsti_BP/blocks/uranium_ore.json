@@ -19,13 +19,43 @@
       "tag:stone": {},
       "tag:minecraft:is_pickaxe_item_destructible": {},
       "minecraft:loot": "loot_tables/blocks/uranium_ore.json",
-      "minecraft:geometry": "minecraft:geometry.full_block",
+      "minecraft:geometry": "geometry.radiousti.uranium_ore",
+      "minecraft:collision_box": {
+        "origin": [
+          -8,
+          0,
+          -8
+        ],
+        "size": [
+          16,
+          16,
+          16
+        ]
+      },
+      "minecraft:selection_box": {
+        "origin": [
+          -8,
+          0,
+          -8
+        ],
+        "size": [
+          16,
+          16,
+          16
+        ]
+      },
+      "minecraft:light_dampening": 0,
       "minecraft:material_instances": {
         "*": {
-          "texture": "radiousti_uranium_ore",
+          "texture": "radiousti_stone_plain",
+          "render_method": "opaque"
+        },
+        "crystal": {
+          "texture": "radiousti_uranium_crystal",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Uranová ruda"
     }
   }
 }

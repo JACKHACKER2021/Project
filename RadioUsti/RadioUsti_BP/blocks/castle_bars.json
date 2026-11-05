@@ -30,7 +30,8 @@
           "texture": "radiousti_castle_bars",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Hradní mříže"
     },
     "permutations": [
       {

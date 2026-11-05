@@ -56,7 +56,8 @@
           "texture": "radiousti_keys",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Laboratorní stůl"
     },
     "permutations": [
       {

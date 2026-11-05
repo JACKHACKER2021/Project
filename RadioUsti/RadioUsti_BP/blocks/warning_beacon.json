@@ -61,7 +61,8 @@
           "texture": "radiousti_glow_off",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Výstražný maják"
     },
     "permutations": [
       {

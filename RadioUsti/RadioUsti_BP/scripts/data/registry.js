@@ -1360,6 +1360,183 @@ export const REGISTRY = {
    "effect": "radiation",
    "bucket": "radiousti:radioactive_oil_bucket",
    "rad": 2
+  },
+  "radiousti:radioactive_sludge_liquid": {
+   "kind": "liquid",
+   "en": "Radioactive Sludge",
+   "cs": "Radioaktivní kal",
+   "liquid": "radioactive_sludge",
+   "effect": "radiation",
+   "bucket": "radiousti:radioactive_sludge_bucket",
+   "rad": 3
+  },
+  "radiousti:theater_seat": {
+   "kind": "decor",
+   "en": "Theater Seat",
+   "cs": "Divadelní sedadlo",
+   "rot": "cardinal"
+  },
+  "radiousti:theater_seat_dusty": {
+   "kind": "decor",
+   "en": "Dusty Theater Seat",
+   "cs": "Zaprášené divadelní sedadlo",
+   "rot": "cardinal"
+  },
+  "radiousti:stage_curtain": {
+   "kind": "decor",
+   "en": "Stage Curtain",
+   "cs": "Jevištní opona",
+   "rot": "cardinal"
+  },
+  "radiousti:stage_spotlight": {
+   "kind": "light",
+   "en": "Stage Spotlight",
+   "cs": "Jevištní reflektor",
+   "rot": "cardinal"
+  },
+  "radiousti:blue_crystal_residue": {
+   "kind": "decor",
+   "en": "Blue Crystal Residue",
+   "cs": "Modré krystalické usazeniny"
+  },
+  "radiousti:crt_tv": {
+   "kind": "light",
+   "en": "CWT Television",
+   "cs": "Televizor CWT",
+   "rot": "cardinal"
+  },
+  "radiousti:broadcast_antenna": {
+   "kind": "decor",
+   "en": "CWT Broadcast Antenna",
+   "cs": "Vysílací anténa CWT",
+   "rot": "cardinal"
+  },
+  "radiousti:shop_shelf": {
+   "kind": "decor",
+   "en": "CWT Shop Shelf",
+   "cs": "Regál obchodního domu CWT",
+   "rot": "cardinal"
+  },
+  "radiousti:cash_register": {
+   "kind": "decor",
+   "en": "Cash Register",
+   "cs": "Pokladna",
+   "rot": "cardinal"
+  },
+  "radiousti:school_desk": {
+   "kind": "decor",
+   "en": "School Desk",
+   "cs": "Školní lavice",
+   "rot": "cardinal"
+  },
+  "radiousti:chalkboard": {
+   "kind": "document",
+   "en": "Chalkboard",
+   "cs": "Školní tabule",
+   "doc": "chalkboard",
+   "rot": "face"
+  },
+  "radiousti:canteen_table": {
+   "kind": "decor",
+   "en": "Canteen Table",
+   "cs": "Jídelní stůl s lavicemi",
+   "rot": "cardinal"
+  },
+  "radiousti:lunch_tray": {
+   "kind": "decor",
+   "en": "Lunch Tray",
+   "cs": "Tác s jídlem",
+   "rot": "cardinal"
+  },
+  "radiousti:serving_counter": {
+   "kind": "decor",
+   "en": "Serving Counter",
+   "cs": "Výdejní pult",
+   "rot": "cardinal"
+  },
+  "radiousti:kitchen_pot": {
+   "kind": "decor",
+   "en": "Kitchen Pot",
+   "cs": "Kuchyňský kotel"
+  },
+  "radiousti:shower_tiles": {
+   "kind": "decor",
+   "en": "Shower Tiles",
+   "cs": "Obklad sprch"
+  },
+  "radiousti:shower_tiles_dirty": {
+   "kind": "decor",
+   "en": "Dirty Shower Tiles",
+   "cs": "Špinavý obklad sprch"
+  },
+  "radiousti:shower_tiles_blue": {
+   "kind": "decor",
+   "en": "Blue Tiles",
+   "cs": "Modrý obklad"
+  },
+  "radiousti:shower_head": {
+   "kind": "light",
+   "en": "Shower",
+   "cs": "Sprcha",
+   "rot": "cardinal"
+  },
+  "radiousti:floor_drain": {
+   "kind": "decor",
+   "en": "Floor Drain",
+   "cs": "Podlahová vpust"
+  },
+  "radiousti:lead_wall": {
+   "kind": "decor",
+   "en": "Lead-Lined Wall",
+   "cs": "Olověná stěna"
+  },
+  "radiousti:hermetic_glass": {
+   "kind": "decor",
+   "en": "Hermetic Chamber Glass",
+   "cs": "Sklo hermetické komory"
+  },
+  "radiousti:lab_sink": {
+   "kind": "decor",
+   "en": "Laboratory Sink",
+   "cs": "Laboratorní dřez",
+   "rot": "cardinal"
+  },
+  "radiousti:fortress_brazier": {
+   "kind": "decor",
+   "en": "Fortress Brazier",
+   "cs": "Ohniště pevnosti"
+  },
+  "radiousti:fortress_pillar": {
+   "kind": "decor",
+   "en": "Fortress Pillar",
+   "cs": "Sloup pevnosti"
+  },
+  "radiousti:cooling_tower_concrete": {
+   "kind": "decor",
+   "en": "Cooling Tower Concrete",
+   "cs": "Beton chladicí věže"
+  },
+  "radiousti:npp_floor_warning": {
+   "kind": "decor",
+   "en": "Power Plant Warning Floor",
+   "cs": "Výstražná podlaha elektrárny"
+  },
+  "radiousti:chainlink_fence": {
+   "kind": "decor",
+   "en": "Chain-Link Fence",
+   "cs": "Pletivový plot",
+   "rot": "cardinal"
+  },
+  "radiousti:steam_vent": {
+   "kind": "decor",
+   "en": "Steam Vent",
+   "cs": "Výpusť páry"
+  },
+  "radiousti:control_console": {
+   "kind": "decor",
+   "en": "Control Room Console",
+   "cs": "Pult velínu",
+   "rot": "cardinal"
   }
  },
  "items": {
@@ -1671,6 +1848,12 @@ export const REGISTRY = {
    "en": "Bucket of Radioactive Oil",
    "cs": "Kbelík – radioaktivní olej",
    "liquid": "radiousti:radioactive_oil_liquid"
+  },
+  "radiousti:radioactive_sludge_bucket": {
+   "kind": "liquid_bucket",
+   "en": "Bucket of Radioactive Sludge",
+   "cs": "Kbelík – radioaktivní kal",
+   "liquid": "radiousti:radioactive_sludge_liquid"
   }
  }
 };

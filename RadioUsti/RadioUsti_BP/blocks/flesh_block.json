@@ -21,7 +21,8 @@
           "texture": "radiousti_flesh_block",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Blok masa"
     }
   }
 }

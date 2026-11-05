@@ -14,7 +14,7 @@
         }
       },
       "minecraft:display_name": {
-        "value": "item.radiousti.empty_canister.name"
+        "value": "Prázdný kanystr"
       },
       "minecraft:max_stack_size": 16
     }

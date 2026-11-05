@@ -115,7 +115,8 @@
           "texture": "radiousti_lamp_red",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Vodovodní ventil"
     }
   }
 }

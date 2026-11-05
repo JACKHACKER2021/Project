@@ -1,0 +1,22 @@
+{
+  "format_version": "1.16.100",
+  "minecraft:fog_settings": {
+    "description": {
+      "identifier": "radiousti:fog_smog"
+    },
+    "distance": {
+      "air": {
+        "fog_start": 2,
+        "fog_end": 36,
+        "fog_color": "#7c8a5a",
+        "render_distance_type": "fixed"
+      },
+      "weather": {
+        "fog_start": 2,
+        "fog_end": 36,
+        "fog_color": "#5f7f35",
+        "render_distance_type": "fixed"
+      }
+    }
+  }
+}

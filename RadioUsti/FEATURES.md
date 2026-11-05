@@ -44,6 +44,10 @@ Verze 1.0.0 byla podle autora otestovaná ve hře a funguje („Otestováno a co
 | G5 | Biogenní sérum B-9, kádě | staticky ověřeno | – | |
 | G6 | Tekutiny: krev + 6 olejů, tečení, kbelíky, efekty | staticky ověřeno | – | skriptová náhrada, Bedrock nemá vlastní tekutiny |
 | G7 | Vylepšené modely a vzhled (PC, server, dveře, nádrže, čerpadlo, chlazení, generátory, ikony) | staticky ověřeno | – | |
+| G8 | Prostředí: zelená obloha, mlha podle času, Vibrant Visuals atmosféra, smog, radioaktivní déšť | staticky ověřeno | – | `/fog` přes `player.runCommand` |
+| G9 | 30 bloků pro lokace Pennov a RadioÚstí, částice | staticky ověřeno | – | ID částic ověřena proti vanilla RP |
+| G10 | 3D modely rud s krystalky | staticky ověřeno | – | |
+| G11 | Oprava názvů (`item.…` místo jména) | staticky ověřeno | – | nahlášeno autorem, ověřit ve hře |
 | F1 | Validace JSON, geometrií, skriptů, ID, textur | staticky ověřeno | – | `tools/validate.py`: 0 chyb; komunitní JSON schémata: 0 nálezů |
 | F2 | Export .mcaddon + .mcpack | staticky ověřeno | – | `tools/package.py`, kontrola integrity ZIP |
 | F3 | Test v Minecraftu Bedrock 1.26.50 | 1.0.0 načteno a hratelné | ✓ (1.0.0, obecně) | 1.1 čeká na test |

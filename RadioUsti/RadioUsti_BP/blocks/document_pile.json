@@ -51,7 +51,8 @@
           "texture": "radiousti_papers_0",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Hromada dokumentů"
     }
   }
 }

@@ -37,7 +37,8 @@
           "texture": "radiousti_screen_dial",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Řídicí panel reaktoru"
     },
     "permutations": [
       {

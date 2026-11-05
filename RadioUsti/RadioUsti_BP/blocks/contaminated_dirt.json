@@ -22,7 +22,8 @@
           "texture": "radiousti_contaminated_dirt",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Kontaminovaná hlína"
     }
   }
 }

@@ -31,7 +31,8 @@
           "texture": "radiousti_locker",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Stará šatní skříňka"
     },
     "permutations": [
       {

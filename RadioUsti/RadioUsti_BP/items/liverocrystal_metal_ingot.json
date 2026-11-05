@@ -14,7 +14,7 @@
         }
       },
       "minecraft:display_name": {
-        "value": "item.radiousti.liverocrystal_metal_ingot.name"
+        "value": "Ingot Liverocrystal Metal"
       },
       "minecraft:max_stack_size": 64
     }

@@ -39,7 +39,8 @@
           "texture": "radiousti_iv_fill",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Infuzní stojan"
     },
     "permutations": [
       {

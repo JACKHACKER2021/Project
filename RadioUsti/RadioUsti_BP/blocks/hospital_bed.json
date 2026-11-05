@@ -46,7 +46,8 @@
           "texture": "radiousti_fabric_white",
           "render_method": "opaque"
         }
-      }
+      },
+      "minecraft:display_name": "Nemocniční lůžko"
     },
     "permutations": [
       {
