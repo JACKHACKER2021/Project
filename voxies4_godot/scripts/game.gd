@@ -37,6 +37,7 @@ var flash_l: OmniLight3D
 var rain: Node3D
 var moon: OmniLight3D
 var rain_player: AudioStreamPlayer
+var plush: Node3D
 
 func _ready() -> void:
 	_load_store()
@@ -64,6 +65,15 @@ func _ready() -> void:
 	audio.start_menu_song()
 	if "--shots" in OS.get_cmdline_user_args():
 		preload("res://scripts/shots.gd").run(self)
+
+func _gaabb(n: Node3D) -> AABB:
+	var a = AABB()
+	var first = true
+	for mi in n.find_children("*", "MeshInstance3D", true, false):
+		var aa = mi.global_transform * mi.get_aabb()
+		a = aa if first else a.merge(aa)
+		first = false
+	return a
 
 func make_font() -> Font:
 	var f: FontFile = load("res://fonts/mono.ttf")
@@ -155,6 +165,21 @@ func _build() -> void:
 		dm.albedo_color = Color("#120a08")
 		back.material_override = dm
 		add_child(back)
+	# plyšová Cocoa (dodaný model) místo kostičkové
+	var old = house.find_child("CocoaPlush", true, false)
+	if old:
+		old.visible = false
+	if ResourceLoader.exists("res://models/cocoa_plush.glb"):
+		var pl = load("res://models/cocoa_plush.glb").instantiate()
+		pl.name = "CocoaPlushNew"
+		add_child(pl)
+		pl.rotation = Vector3(-0.2, PI, 0.1)
+		var bb = _gaabb(pl)
+		var k = 0.42 / maxf(0.01, bb.size.y)
+		pl.scale = Vector3.ONE * k
+		bb = _gaabb(pl)
+		pl.position += Vector3(-0.22, 0.62, 1.92) - Vector3(bb.get_center().x, bb.position.y, bb.get_center().z)
+		plush = pl
 	bolt = house.find_child("LightningBolt", true, false)
 	if bolt:
 		bolt.visible = false
@@ -239,14 +264,14 @@ func tick_lines(dt: float) -> void:
 
 # ------------------------------------------------------------------ noc
 func new_night(n: int) -> void:
-	var lv = n - 1
+	var lv = (n - 1) * 0.7
 	G = {
 		"night": n, "t": 0.0, "view": "closet", "yaw": 0.0, "light": false, "bat": 100.0, "batLock": false,
 		"fear": 0.0, "boltT": randf_range(6, 12), "flash": 0.0, "thunderT": -1.0,
 		# Nightmare Voxie: chodí mezi chodbami, u dveří otevírá
-		"vox": {"side": "left", "stage": 0, "t": randf_range(14, 22) - lv * 3, "open": 0.0, "lit": 0.0, "cool": 0.0},
+		"vox": {"side": "left", "stage": 0, "t": maxf(5.0, randf_range(14, 22) - lv * 3), "open": 0.0, "lit": 0.0, "cool": 0.0},
 		# Nightmare Hollow Bunny: ve skříni
-		"bun": {"stage": 0, "t": randf_range(26, 36) - lv * 4, "open": 0.0, "lit": 0.0, "cool": 0.0},
+		"bun": {"stage": 0, "t": maxf(8.0, randf_range(26, 36) - lv * 4), "open": 0.0, "lit": 0.0, "cool": 0.0},
 		"hurt": 0.0, "dead_by": "",
 	}
 	for k in doors:
@@ -285,7 +310,7 @@ func play_tick(dt: float) -> void:
 	G.yaw = lerp_angle(G.yaw, target, minf(1.0, dt * 9))
 	# baterka
 	if G.light and not G.batLock:
-		G.bat = maxf(0, G.bat - dt * (9.0 + G.night))
+		G.bat = maxf(0, G.bat - dt * (9.0 + G.night * 0.6))
 		if G.bat <= 0:
 			G.batLock = true
 			audio.sfx("powerdown", 0.4)
@@ -338,7 +363,7 @@ func _set_open(side: String, k: float) -> void:
 # ---------- Nightmare Voxie u levých / pravých dveří
 func _vox_tick(dt: float) -> void:
 	var V = G.vox
-	var lv = G.night - 1 + hour() * 0.35
+	var lv = (G.night - 1) * 0.7 + hour() * 0.3
 	V.cool = maxf(0, V.cool - dt)
 	match V.stage:
 		0:
@@ -387,7 +412,7 @@ func _vox_tick(dt: float) -> void:
 # ---------- Nightmare Hollow Bunny ve skříni
 func _bun_tick(dt: float) -> void:
 	var B = G.bun
-	var lv = G.night - 1 + hour() * 0.35
+	var lv = (G.night - 1) * 0.7 + hour() * 0.3
 	match B.stage:
 		0:
 			B.t -= dt
@@ -418,11 +443,11 @@ func _bun_tick(dt: float) -> void:
 					jumpscare("bun")
 
 func _repel(who: String) -> void:
-	var lv = G.night - 1
+	var lv = (G.night - 1) * 0.7
 	if who == "vox":
 		var V = G.vox
 		V.stage = 0
-		V.t = randf_range(12, 20) - lv * 2.5 - hour()
+		V.t = maxf(4.0, randf_range(12, 20) - lv * 2.5 - hour())
 		V.open = 0.0
 		_set_open(V.side, 0.0)
 		vox.visible = false
@@ -430,7 +455,7 @@ func _repel(who: String) -> void:
 	else:
 		var B = G.bun
 		B.stage = 0
-		B.t = randf_range(18, 28) - lv * 3 - hour()
+		B.t = maxf(6.0, randf_range(18, 28) - lv * 3 - hour())
 		B.open = 0.0
 		_set_open("closet", 0.0)
 		bun.visible = false
@@ -461,8 +486,10 @@ func win_night() -> void:
 	audio.sfx("chime", 1.0)
 	audio.voice("Už je ráno. Byl to jen sen.", 0.8)
 	var n: int = G.night
-	st_set("v4_night", maxi(st_get("v4_night", 1), mini(3, n + 1)))
-	menu_night = mini(3, n + 1)
+	st_set("v4_night", maxi(st_get("v4_night", 1), mini(7, n + 1)))
+	if n >= 7:
+		st_set("v4_end", true)
+	menu_night = mini(7, n + 1)
 func to_menu() -> void:
 	S = "menu"
 	scene_t = 0.0

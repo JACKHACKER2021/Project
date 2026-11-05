@@ -204,14 +204,16 @@ func draw_menu(t: float) -> void:
 	txt("NIGHT AT", 60, 110, 40, "#e0b0ff")
 	neon("VOXIE'S 4", 60, 196, 84, "#c040ff", 18, "left")
 	neon("NIGHTMARE", 64, 250, 34, "#ff3060", 14, "left")
-	txt("PREVIEW 0.1.0", 420, 250, 18, "#ffe46b")
+	txt("PREVIEW 0.2.0", 420, 250, 18, "#ffe46b")
+	if game.st_get("v4_end", false):
+		txt("★ Všech 7 nocí přežito.", 64, 462, 16, "#ffe46b")
 	txt("Ema, 1997. Bouřka. A něco v domě, co umí otevírat dveře.", 64, 290, 17, "#cccccc")
 	var un: int = game.st_get("v4_night", 1)
 	game.menu_night = mini(game.menu_night, un)
 	btn(60, 320, 400, 60, "▶ HRÁT NOC " + str(game.menu_night), "play", func(): game.start_night(game.menu_night), true, 22)
-	for i in range(1, 4):
+	for i in range(1, 8):
 		var n = i
-		btn(60 + (i - 1) * 136, 392, 128, 46, (str(i) if i <= un else "🔒"), "n" + str(i), func():
+		btn(60 + (i - 1) * 57.5, 392, 51, 46, (str(i) if i <= un else "🔒"), "n" + str(i), func():
 			game.menu_night = n
 			game.audio.sfx("click"), i <= un, 18, "#ffe46b" if i == game.menu_night else "#d088ff")
 	var lines = ["🚪 Dveře vlevo, vpravo a skříň umí otevřít jen noční můry. Ty je otevřít nemůžeš.",
@@ -222,14 +224,15 @@ func draw_menu(t: float) -> void:
 	for i in lines.size():
 		txt(lines[i], 64, 480 + i * 30, 16, "#e8d8f8")
 	txt("Nightmare Voxie · Nightmare Hollow Bunny", HW - 24, 680, 14, "#a080c0", "right")
-	txt("v0.1.0 preview · Godot", HW - 24, 704, 13, "#666666", "right")
+	txt("v0.2.0 preview · Godot", HW - 24, 704, 13, "#666666", "right")
 
 func draw_intro() -> void:
 	var st: float = game.scene_t
 	rect(0, 0, HW, HH, "#000000")
 	save_()
 	alpha = clampf(minf(st, 3.0 - st) * 1.6, 0, 1)
-	txt("14. června 1997, noc před oslavou." if game.G.night == 1 else ["", "", "Druhá noc. Bouřka nepřestává.", "Třetí noc. Táta pořád není doma."][game.G.night], HW / 2, 330, 26, "#e0b0ff", "center")
+	var T = ["", "8. června 1997. Týden do oslavy.", "Druhá noc. Bouřka nepřestává.", "Třetí noc. Táta pořád není doma.", "Čtvrtá noc. Plyšová Cocoa leží jinak, než jsem ji nechala.", "Pátá noc. Ve skříni je cítit spálená látka.", "Šestá noc. Táta říká, že zítra přinese z herny dárek.", "13. června 1997. Zítra jsou moje narozeniny."]
+	txt(T[game.G.night], HW / 2, 330, 24, "#e0b0ff", "center")
 	alpha = clampf(minf(st - 3.0, 6.0 - st) * 1.6, 0, 1)
 	txt("0:00", HW / 2, 330, 90, "#ffffff", "center")
 	txt("Noc " + str(game.G.night), HW / 2, 400, 40, "#d088ff", "center")
@@ -290,10 +293,11 @@ func draw_end(kind: String) -> void:
 		txt("6:00 AM", HW / 2, 270, 96, "#ffffff", "center")
 		txt("Zazvonil budík. Ema se probudila ve své posteli.", HW / 2, 330, 22, "#ffb0d8", "center")
 		txt("„Už je ráno. Byl to jen sen.“", HW / 2, 366, 20, "#cccccc", "center")
-		if G.night < 3:
+		if G.night < 7:
 			btn(HW / 2 - 160, 430, 320, 56, "▶ NOC " + str(G.night + 1), "next", func(): game.start_night(G.night + 1), true, 22)
 		else:
-			txt("Konec preview. Pokračování příště.", HW / 2, 410, 18, "#ffe46b", "center")
+			txt("14. června 1997. Dnes je oslava v herně Voxie's.", HW / 2, 404, 18, "#ff8ab8", "center")
+			txt("Konec preview. Co se stalo s Emou, se dozvíš v minihrách.", HW / 2, 432, 16, "#ffe46b", "center")
 		btn(HW / 2 - 160, 500, 320, 48, "MENU", "menu", game.to_menu, true, 18)
 	else:
 		txt("PROBUDILA SES S KŘIKEM", HW / 2, 280, 54, "#ff3060", "center")
