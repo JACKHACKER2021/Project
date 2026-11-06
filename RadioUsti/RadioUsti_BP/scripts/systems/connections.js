@@ -119,3 +119,33 @@ export function connectedDirs(block) {
   }
   return out;
 }
+
+// ------------------------------------------------------------------ periodic re-check around players
+import { world, system, BlockVolume } from "@minecraft/server";
+
+const CONDUIT_IDS = Object.entries(BLOCKS).filter(([, v]) => v.kind === "pipe" || v.kind === "valve" || v.kind === "cable").map(([k]) => k);
+
+system.runInterval(() => {
+  for (const p of world.getAllPlayers()) {
+    try {
+      const l = p.location;
+      const vol = new BlockVolume({ x: l.x - 8, y: l.y - 5, z: l.z - 8 }, { x: l.x + 8, y: l.y + 5, z: l.z + 8 });
+      for (const loc of p.dimension.getBlocks(vol, { includeTypes: CONDUIT_IDS }, false).getBlockLocationIterator()) {
+        updateConduit(blockAt(p.dimension, loc));
+      }
+    } catch {
+      /* near unloaded chunks */
+    }
+  }
+}, 60);
+
+/** Stored connection states (for the analyzer). */
+export function storedDirs(block) {
+  return DIRS6.filter((d) => {
+    try {
+      return block.permutation.getState(`${NS}:${d.k}`) === true;
+    } catch {
+      return false;
+    }
+  }).map((d) => d.k);
+}

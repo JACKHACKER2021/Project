@@ -214,7 +214,7 @@ def emit_block(b, geo_files, blocks_json, lang, registry):
                 for k in sides:
                     vis[k] = on[k]
                     if f"fl_{k}" in names:
-                        vis[f"fl_{k}"] = on[k]
+                        vis[f"fl_{k}"] = False   # no collars at block seams: connected runs look like one pipe
                 if "joint" in names:
                     vis["joint"] = len(act) >= 3 or (len(act) == 2 and not straight)
                 if "bracket" in names:
@@ -684,7 +684,14 @@ def emit_slime(lang):
         bp = json.load(f)
     e = bp["minecraft:entity"]
     e["description"]["identifier"] = ident
-    e["description"]["runtime_identifier"] = "minecraft:slime"
+    e["description"].pop("runtime_identifier", None)   # no vanilla runtime -> no splitting into vanilla slimes
+    # only small (60 %) or medium (40 %), never the giant size
+    e["events"]["minecraft:entity_spawned"] = {"randomize": [{"trigger": "spawn_small", "weight": 3}, {"trigger": "spawn_medium", "weight": 2}]}
+    e["events"].pop("spawn_large", None)
+    e["component_groups"].pop("minecraft:slime_large", None)
+    for g in e["component_groups"].values():
+        if "minecraft:loot" in g:
+            g["minecraft:loot"] = {"table": "loot_tables/entities/radiak_slime.json"}
     fam = e["components"].get("minecraft:type_family", {"family": ["slime", "monster", "mob"]})
     fam["family"] = list(dict.fromkeys(fam["family"] + ["radiousti_slime"]))
     e["components"]["minecraft:type_family"] = fam
@@ -696,10 +703,12 @@ def emit_slime(lang):
         {"rolls": 1, "entries": [{"type": "item", "name": f"{NS}:raw_uranium", "weight": 1}, {"type": "empty", "weight": 2}]}]})
     wjson(os.path.join(BP, "spawn_rules", "radiak_slime.json"), {"format_version": "1.8.0", "minecraft:spawn_rules": {
         "description": {"identifier": ident, "population_control": "monster"},
-        "conditions": [{"minecraft:spawns_on_surface": {}, "minecraft:spawns_underground": {},
+        "conditions": [{"minecraft:spawns_on_surface": {},
+                        "minecraft:spawns_on_block_filter": [f"{NS}:contaminated_grass", f"{NS}:contaminated_dirt", f"{NS}:contaminated_stone",
+                                                             f"{NS}:radioactive_waste"],
                         "minecraft:brightness_filter": {"min": 0, "max": 15, "adjust_for_weather": False},
-                        "minecraft:difficulty_filter": {"min": "easy", "max": "hard"}, "minecraft:weight": {"default": 15},
-                        "minecraft:herd": {"min_size": 1, "max_size": 2},
+                        "minecraft:difficulty_filter": {"min": "easy", "max": "hard"}, "minecraft:weight": {"default": 2},
+                        "minecraft:herd": {"min_size": 1, "max_size": 1},
                         "minecraft:biome_filter": {"test": "has_biome_tag", "value": "overworld"}}]}})
     with open(os.path.join(src, "slime.client_entity.json"), encoding="utf-8") as f:
         rp = json.load(f)

@@ -156,7 +156,7 @@ název, ID, typ, stav, napájení, propojení potrubí a kabelů včetně směr�
 
 ## Radiace a kontaminace
 * **Zdroje:** uranová ruda a bloky, kontaminovaný terén, radioaktivní odpad, poškozené jádro, běžící nebo unikající reaktor a radioaktivní předměty v inventáři.
-* Každé 2 s se dávka přičte podle zdrojů v okruhu 4 bloků. Nad lištou se zobrazí míra a dávka a ozve se Geigerův počítač. Mimo zdroje dávka pomalu klesá.
+* Každé 2 s se dávka přičte podle zdrojů v okruhu 4 bloků. Nad lištou se zobrazí míra a dávka a ozve se Geigerův počítač. Mimo zdroje dávka klesá o 1,5 každé 2 s (pod střechou o 2,5).
 * **Efekt Radiace (1.5):** vlastní stav ve 4 stupních, zobrazený pod středem obrazovky jako „☢ Radiace I–IV“ a zelenými jiskrami kolem postižených:
   * **I** (dávka 25): nevolnost.
   * **II** (50): slabost, zpomalení a hlad.
@@ -176,6 +176,11 @@ název, ID, typ, stav, napájení, propojení potrubí a kabelů včetně směr�
 * **Dveře** jsou dva bloky vysoké. Otevřeš je klepnutím na kteroukoli polovinu. Když zničíš jednu polovinu, zmizí obě a vypadne jeden předmět.
 * **Nemocniční lůžko** a **operační stůl** jsou dva bloky dlouhé. Klepnutím na lůžko si nastavíš bod oživení. **Otočná kancelářská židle** se po klepnutí otočí o 90°.
 * **Plakáty, oznámení, papíry, hromada dokumentů a fotografie** si přečteš klepnutím. **Nástěnné hodiny** ukážou herní čas.
+
+## Opravy 2.2
+* **Trubky a kabely:** bez přírub na spojích a se štíhlejším spojem na kolenech. Napojení se každé 3 s přepočítá kolem hráče. Analyzátor ukazuje „Uložený tvar bloku“, takže je vidět, jestli blok sedí se sousedy.
+* **Radiace klesá rychleji:** mimo zdroj o 1,5 dávky každé 2 s, pod střechou o 2,5.
+* **Radiakův sliz:** vzácný, jen na zamořeném terénu, jen malý nebo střední a nerozpadá se na vanilla slimy.
 
 ## Novinky 2.1 – startovní balíček
 * **Startovní balíček přeživšího:** každý hráč ho dostane automaticky **jednou při prvním připojení** do světa. Obsahuje plynovou masku, **radiační senzor (dozimetr)**, 6 konzerv, 2 vojenské dávky MRE, 4 filtrované vody, 4 dekontaminované chleby, 4 antiradiační tablety a příručku.

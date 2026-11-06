@@ -2,7 +2,7 @@
 import { ActionFormData } from "@minecraft/server-ui";
 import { NS, DIRS6, add, blockAt, info, stateOf, name, sound, fmtPos } from "../lib/util.js";
 import { Machines } from "../lib/store.js";
-import { isConduit, conduitLinks, familyOf } from "../systems/connections.js";
+import { isConduit, conduitLinks, familyOf, storedDirs } from "../systems/connections.js";
 import { machineKeyForBlock, ensureMachine, scanNetwork, waterSource, findCoreNear } from "../systems/network.js";
 import { originOf, missingParts } from "../systems/structures.js";
 import { checkStructure } from "../systems/reactor.js";
@@ -28,6 +28,8 @@ export function inspectLines(block) {
       if (nb && conduitLinks(block.typeId, nb.typeId)) links.push(`${DIR_CS[d.k]}: ${name(nb.typeId)}`);
     }
     L.push(`Propojení (${links.length}): ${links.length ? "" : "§cžádné§r"}`);
+    const st = storedDirs(block).map((k) => DIR_CS[k]);
+    L.push(`§7Uložený tvar bloku: ${st.length ? st.join(", ") : "jen střed"}${st.length !== links.length ? " §c(nesouhlasí – opraví se do 3 s)§7" : ""}§r`);
     for (const l of links) L.push(`  • ${l}`);
     if (i.kind === "valve") L.push(`Ventil: ${stateOf(block, `${NS}:open`, true) ? "§aOTEVŘENO§r" : "§cZAVŘENO§r"}`);
     if (i.damaged) L.push("§cKabel je poškozený: připojí se, ale nepřenáší energii.§r");

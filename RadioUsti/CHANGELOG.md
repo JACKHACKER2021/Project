@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.2.0 – opravy trubek, radiace a slizu (2026-11-06)
+**Opraveno**
+- Trubky a kabely: navazující úseky už nemají příruby na každém spoji a spoj na kolenech je tenčí, takže souvislá trasa vypadá jako jedna trubka. Napojení se navíc každé 3 s přepočítá v okruhu 8 bloků kolem hráče. Analyzátor ukazuje uložený tvar bloku a hlásí nesoulad se skutečnými sousedy.
+- Radiace už není „nekonečná“: mimo zdroj klesá dávka o 1,5 každé 2 s (pod střechou o 2,5), takže ze 100 na 0 trvá asi 1,5–2 minuty. Tvorové se zotavují o 1,5 každé 2 s.
+- Radiakův reaktorový sliz: spawnuje vzácně (váha 2, po jednom) a jen na kontaminovaném terénu a radioaktivním odpadu. Je jen malý nebo střední, nikdy obří, a už se nerozpadá na vanilla slimy (bez vanilla runtime identity).
+
+**Změněno**
+- Verze balíčků 2.1.0 → 2.2.0.
+
 ## 2.1.0 – startovní balíček (2026-11-05)
 **Přidáno**
 - Startovní balíček přeživšího při prvním připojení (jídlo, plynová maska, radiační senzor, tablety, příručka).

@@ -184,7 +184,7 @@ def pipe_model(r, flange=True, bracket=False, joint=True):
             B("fl_u", C(fa, 14.5, fa, ft, 1.5, ft, "detail")),
         ]
     if joint:
-        j = r + 1.5
+        j = r + 0.75   # slim joint collar: bends and T-pieces stay flush with the pipe
         bones.append(B("joint", C(8 - j, 8 - j, 8 - j, 2 * j, 2 * j, 2 * j, "detail")))
     if bracket:
         bones.append(B("bracket", C(7, 0, 7, 2, 8 - r, 2, "detail")))

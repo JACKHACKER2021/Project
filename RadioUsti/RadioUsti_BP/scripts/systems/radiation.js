@@ -188,7 +188,10 @@ export function radiationTick(players) {
       }
     }
     let dose = getDose(p);
-    dose = rate > 0.05 ? dose + rate : dose - 0.15;
+    // away from radiation the dose falls quickly: 1.5 per 2 s outside, 2.5 under a roof / in a sealed room
+    // (100 -> 0 in about 1.5-2 minutes); near weak sources the body still recovers a little
+    const recovery = outside ? 1.5 : 2.5;
+    dose = rate > 0.05 ? dose + rate - 0.1 : dose - recovery;
     setDose(p, dose);
     dose = getDose(p);
     if (rate > 0.05) {
@@ -264,7 +267,7 @@ export function mobRadiationTick(players) {
         if (w) rate += w * 0.5;
       }
       let dose = Number(e.getDynamicProperty("ru:dose") ?? 0);
-      dose = Math.max(0, Math.min(150, rate > 0 ? dose + rate * 2 * cfg.radiationMultiplier : dose - 0.15)); // mobs absorb twice as fast
+      dose = Math.max(0, Math.min(150, rate > 0 ? dose + rate * 2 * cfg.radiationMultiplier : dose - 1.5)); // mobs absorb twice as fast, recover 1.5 / 2 s
       if (dose <= 0 && rate <= 0) continue;
       e.setDynamicProperty("ru:dose", dose);
       applyRadiationEffect(e, dose, false);
