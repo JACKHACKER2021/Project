@@ -16,6 +16,8 @@ var move_start := Vector2.ZERO
 var touch_move := Vector2.ZERO
 var look_id := -1
 var look_dist := 0.0
+var use_rect := Rect2()      # nastaví main.gd – tlačítko POUŽÍT
+var joy_center := Vector2.ZERO # střed joysticku
 
 func _ready() -> void:
 	var cs := CollisionShape3D.new()
@@ -41,9 +43,12 @@ func _input(e: InputEvent) -> void:
 	if e is InputEventScreenTouch:
 		var left: bool = e.position.x < get_viewport().get_visible_rect().size.x * 0.5
 		if e.pressed:
+			if use_rect.has_point(e.position):
+				_use()
+				return
 			if left and move_id == -1:
 				move_id = e.index
-				move_start = e.position
+				move_start = joy_center if joy_center != Vector2.ZERO else e.position
 			elif not left and look_id == -1:
 				look_id = e.index
 				look_dist = 0.0
@@ -53,11 +58,9 @@ func _input(e: InputEvent) -> void:
 				touch_move = Vector2.ZERO
 			elif e.index == look_id:
 				look_id = -1
-				if look_dist < 15:
-					_use()
 	elif e is InputEventScreenDrag:
 		if e.index == move_id:
-			touch_move = ((e.position - move_start) / 80.0).limit_length(1.0)
+			touch_move = ((e.position - move_start) / 70.0).limit_length(1.0)
 		elif e.index == look_id:
 			look_dist += e.relative.length()
 			rotate_y(-e.relative.x * 0.005)

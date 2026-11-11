@@ -57,6 +57,8 @@ func _ready() -> void:
 	add_child(player)
 	player.position = Vector3(0, 0.05, 4.5)
 	player.interacted.connect(_on_act)
+	if OS.has_feature("mobile"):
+		_touch_ui()
 	say("Přízemí paneláku. Šedá šachta s pletivem a cedulka POZOR VÝTAH! Zmáčkni tlačítko vedle dveří.", 6)
 
 func _materials() -> void:
@@ -219,10 +221,62 @@ func _ui() -> void:
 	msg.add_theme_constant_override("outline_size", 6)
 	cl.add_child(msg)
 	var help := Label.new()
-	help.text = "WASD chůze · myš rozhled · LMB/E použít · Esc myš\nMobil: levý palec chůze · pravý rozhled · ťuknutí vpravo použít"
+	help.text = "WASD chůze · myš rozhled · LMB/E použít · Esc myš\nMobil: joystick vlevo · rozhled tažením vpravo · tlačítko POUŽÍT"
 	help.position = Vector2(10, 10)
 	help.modulate = Color(1, 1, 1, 0.6)
 	cl.add_child(help)
+
+# ---------------------------------------------------------------- dotykové ovládání
+var joy_knob: Panel
+var touch_layer: CanvasLayer
+
+func _round_panel(sz: float, c: Color, border: Color) -> Panel:
+	var p := Panel.new()
+	var st := StyleBoxFlat.new()
+	st.bg_color = c
+	st.border_color = border
+	st.set_border_width_all(4)
+	st.set_corner_radius_all(int(sz / 2))
+	p.add_theme_stylebox_override("panel", st)
+	p.size = Vector2(sz, sz)
+	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return p
+
+func _touch_ui() -> void:
+	touch_layer = CanvasLayer.new()
+	add_child(touch_layer)
+	_layout_touch()
+	get_viewport().size_changed.connect(_layout_touch)
+
+func _layout_touch() -> void:
+	for c in touch_layer.get_children():
+		c.queue_free()
+	var vs := get_viewport().get_visible_rect().size
+	# joystick vlevo dole
+	var base := _round_panel(150, Color(0, 0, 0, 0.3), Color(0.86, 0.8, 0.56, 0.7))
+	base.position = Vector2(50, vs.y - 200)
+	touch_layer.add_child(base)
+	joy_knob = _round_panel(64, Color(0.86, 0.8, 0.56, 0.8), Color(0.3, 0.3, 0.3))
+	touch_layer.add_child(joy_knob)
+	player.joy_center = base.position + Vector2(75, 75)
+	# tlačítko POUŽÍT vpravo dole – kulaté, jako tlačítko výtahu
+	var b := _round_panel(130, Color(0.75, 0.75, 0.72, 0.85), Color(0.35, 0.35, 0.35))
+	b.position = Vector2(vs.x - 180, vs.y - 190)
+	touch_layer.add_child(b)
+	var l := Label.new()
+	l.text = "POUŽÍT"
+	l.add_theme_font_size_override("font_size", 24)
+	l.add_theme_color_override("font_color", Color(0.1, 0.1, 0.1))
+	l.size = b.size
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	b.add_child(l)
+	player.use_rect = Rect2(b.position, b.size)
+	var info := Label.new()
+	info.text = "táhni pravou stranou pro rozhled"
+	info.modulate = Color(1, 1, 1, 0.5)
+	info.position = Vector2(vs.x - 330, vs.y - 40)
+	touch_layer.add_child(info)
 
 # ---------------------------------------------------------------- helpers
 func mat(c: Color, glow := false) -> StandardMaterial3D:
@@ -467,6 +521,8 @@ func _physics_process(delta: float) -> void:
 	player.shake = moving and inside
 
 func _process(delta: float) -> void:
+	if joy_knob:
+		joy_knob.position = player.joy_center + player.touch_move * 60 - Vector2(32, 32)
 	var c: Object = player.looked_at()
 	hint.text = ("[E] " + c.get_meta("hint")) if c else ""
 	if msg_time > 0:
