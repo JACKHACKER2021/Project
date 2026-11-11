@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Výtah Transporta TO 250</title>
+<style>
+:root{--wall:#d9c9a3;--wall2:#b9603a;--metal:#c9c3a8;--dark:#2b2a26;--mesh:#5a5648}
+*{box-sizing:border-box}
+body{margin:0;background:#1d1c19;color:#eee;font-family:Georgia,serif;display:flex;flex-direction:column;align-items:center;padding:16px}
+h1{font-size:18px;margin:4px 0 2px;color:#e8d9a8}
+.sub{font-size:12px;color:#aaa;margin-bottom:12px}
+.scene{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;max-width:820px;width:100%}
+.shaft{position:relative;width:300px;height:440px;background:linear-gradient(var(--wall) 55%,var(--wall2) 55%);border:4px solid #444;overflow:hidden}
+.frame{position:absolute;left:30px;top:20px;width:240px;height:410px;background:var(--metal);border:6px solid #a9a38a}
+.cab{position:absolute;left:6px;right:6px;top:6px;bottom:6px;background:#3b3a33;transition:transform .2s}
+.cab .light{position:absolute;inset:0;background:radial-gradient(circle at 50% 10%,#fff6c8aa,transparent 60%)}
+.cab .inner{position:absolute;inset:0;display:flex}
+.gate{flex:1;background:repeating-linear-gradient(90deg,transparent 0 8px,var(--mesh) 8px 10px),repeating-linear-gradient(0deg,transparent 0 8px,var(--mesh) 8px 10px);border:3px solid #777;transition:transform .5s}
+.door{position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 9px,#4d4a3e 9px 11px),repeating-linear-gradient(0deg,transparent 0 9px,#4d4a3e 9px 11px),#c9c3a855;border:8px solid #b9b298;transform-origin:left;transition:transform .6s;cursor:pointer}
+.door.open{transform:perspective(600px) rotateY(-75deg)}
+.gates-open .gate:first-child{transform:translateX(-85%)}
+.gates-open .gate:last-child{transform:translateX(85%)}
+.empty .cab{background:#111 repeating-linear-gradient(0deg,#222 0 3px,#151515 3px 30px)}
+.empty .cab .light,.empty .cab .inner{display:none}
+.plate{position:absolute;left:50%;top:180px;transform:translateX(-50%);background:#eee;color:#222;font:bold 10px sans-serif;padding:3px 6px;border:1px solid #555;pointer-events:none}
+.panel{width:180px;background:#9d978a;border:3px solid #666;padding:14px;border-radius:3px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.seg{background:#100;color:#f22;font:bold 40px monospace;width:56px;text-align:center;border-radius:30px;padding:4px;text-shadow:0 0 8px #f00;border:3px solid #333}
+.btn{width:52px;height:52px;border-radius:50%;border:4px solid #555;background:radial-gradient(circle at 40% 35%,#eee,#999);font:bold 18px sans-serif;color:#222;cursor:pointer;box-shadow:0 3px 0 #333}
+.btn:active,.btn.on{transform:translateY(2px);box-shadow:0 1px 0 #333;background:radial-gradient(circle at 40% 35%,#ffd,#cb8)}
+.grid{display:grid;grid-template-columns:repeat(2,52px);gap:10px}
+.stop{background:radial-gradient(circle at 40% 35%,#f66,#a00);color:#fff}
+.lbl{font-size:11px;color:#222;text-align:center}
+.log{max-width:820px;width:100%;margin-top:14px;background:#111;border:1px solid #333;padding:10px;height:150px;overflow:auto;font-size:14px;line-height:1.45}
+.log p{margin:0 0 4px}.log i{color:#999}
+.ctrl{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:center}
+.ctrl button{background:#3a382f;color:#eee;border:1px solid #666;padding:8px 12px;cursor:pointer;font-family:inherit}
+.shake{animation:sh .12s infinite}
+@keyframes sh{0%{transform:translate(0,0)}50%{transform:translate(1px,-1px)}100%{transform:translate(-1px,1px)}}
+</style>
+</head>
+<body>
+<h1>Transporta Chrudim · TO 250</h1>
+<div class="sub">Nosnost 250 kg · max. 3 osoby · Pozor výtah!</div>
+
+<div class="scene">
+  <div class="shaft empty" id="shaft">
+    <div class="frame">
+      <div class="cab"><div class="light"></div><div class="inner" id="gates"><div class="gate"></div><div class="gate"></div></div></div>
+      <div class="plate">POZOR VÝTAH! · 250 kg</div>
+      <div class="door" id="door" title="Klikni = otevřít/zavřít šachetní dveře"></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panelOut">
+    <div class="seg" id="seg">0</div>
+    <div class="lbl">Patro: <b id="here">0</b></div>
+    <button class="btn" id="call" title="Přivolat">●</button>
+    <div class="lbl">PŘIVOLAT</div>
+    <hr style="width:100%;border-color:#666">
+    <div class="lbl"><b>Kabina</b></div>
+    <div class="grid" id="grid"></div>
+    <button class="btn stop" id="stop">STOP</button>
+  </div>
+</div>
+
+<div class="ctrl">
+  <button id="gateBtn">↔ Shrnovací mříž (kabina)</button>
+  <button id="doorBtn">🚪 Šachetní dveře</button>
+  <button id="enterBtn">🚶 Nastoupit / vystoupit</button>
+</div>
+
+<div class="log" id="log"></div>
+
+<script>
+const FLOORS=6;let me=0,cab=3,inside=false,doorOpen=false,gatesOpen=false,moving=false,stopped=false,target=null;
+const $=id=>document.getElementById(id);
+let ac;const A=()=>ac||(ac=new (window.AudioContext||window.webkitAudioContext)());
+function noise(d,f,q,g=.5,t0=0){const a=A(),b=a.createBuffer(1,a.sampleRate*d,a.sampleRate),c=b.getChannelData(0);for(let i=0;i<c.length;i++)c[i]=(Math.random()*2-1)*Math.pow(1-i/c.length,3);const s=a.createBufferSource();s.buffer=b;const bp=a.createBiquadFilter();bp.type='bandpass';bp.frequency.value=f;bp.Q.value=q;const v=a.createGain();v.gain.value=g;s.connect(bp).connect(v).connect(a.destination);s.start(a.currentTime+t0)}
+const relay=(t=0)=>{noise(.06,2500,3,.9,t);noise(.04,900,5,.6,t+.03)};          // cvaknutí stykače
+const clank=()=>{noise(.5,180,2,1.4);noise(.35,700,4,.8,.05);noise(.25,1600,6,.4,.1)}; // plechové dveře
+const rattle=()=>{for(let i=0;i<8;i++)noise(.05,1200+Math.random()*800,4,.35,i*.05)}; // mříž
+const buzz=()=>{const a=A(),o=a.createOscillator(),g=a.createGain();o.type='square';o.frequency.value=100;g.gain.value=.05;o.connect(g).connect(a.destination);o.start();o.stop(a.currentTime+.35)};
+let motor=null;
+function motorOn(){const a=A(),o=a.createOscillator(),o2=a.createOscillator(),g=a.createGain(),lp=a.createBiquadFilter();o.type='sawtooth';o.frequency.value=50;o2.type='sawtooth';o2.frequency.value=100.7;lp.type='lowpass';lp.frequency.value=420;g.gain.setValueAtTime(0,a.currentTime);g.gain.linearRampToValueAtTime(.18,a.currentTime+.4);o.connect(lp);o2.connect(lp);lp.connect(g).connect(a.destination);o.start();o2.start();motor={o,o2,g};const tick=setInterval(()=>motor?noise(.03,3000,8,.12):clearInterval(tick),700)}
+function motorOff(){if(!motor)return;const a=A();motor.g.gain.linearRampToValueAtTime(0,a.currentTime+.25);const m=motor;setTimeout(()=>{m.o.stop();m.o2.stop()},300);motor=null;noise(.4,90,1.5,1.2)} // brzda
+const log=(t,i)=>{const p=document.createElement('p');p.innerHTML=i?`<i>${t}</i>`:t;$('log').appendChild(p);$('log').scrollTop=1e6};
+
+for(let f=FLOORS-1;f>=0;f--){const b=document.createElement('button');b.className='btn';b.textContent=f;b.onclick=()=>press(f,b);$('grid').appendChild(b)}
+function render(){$('seg').textContent=cab;$('here').textContent=me;$('shaft').classList.toggle('empty',cab!==me||(moving));$('door').classList.toggle('open',doorOpen);$('gates').classList.toggle('gates-open',gatesOpen)}
+
+function press(f,b){relay();if(!inside){log('Tlačítka v kabině zmáčkneš, až budeš uvnitř.',1);return}
+ if(doorOpen||gatesOpen){buzz();log('Nic. Výtah nepojede – '+(doorOpen?'šachetní dveře jsou otevřené':'mříž kabiny není zatažená')+'. Bezpečnostní kontakt nesepnul.',1);return}
+ if(moving||f===cab)return;b.classList.add('on');setTimeout(()=>b.classList.remove('on'),300);go(f)}
+function go(f){target=f;moving=true;stopped=false;relay();setTimeout(()=>relay(),180);log(inside?`Cvak-cvak. Stykače v strojovně naskočí, kabina sebou škubne a začne se ${f>cab?'zvedat':'spouštět'}…`:`Někde nahoře cvaklo relé. Slyšíš, jak se rozhučel motor – výtah jede pro tebe.`);
+ setTimeout(motorOn,250);if(inside)document.body.classList.add('shake');step()}
+function step(){if(stopped)return;if(cab===target){setTimeout(()=>{motorOff();relay();moving=false;document.body.classList.remove('shake');if(!inside)me=me;render();log(inside?`Prudké zabrzdění – <b>${cab}. patro</b>. Kabina se ještě trochu zhoupne na lanech.`:`Bum. Kabina dojela. Za mříží vidíš prázdnou kabinu se žárovkou.`)},300);return}
+ setTimeout(()=>{if(stopped)return;cab+=target>cab?1:-1;if(inside)me=cab;noise(.08,400,3,.5);render();if(inside&&cab!==target)log(`…míjíš ${cab}. patro, za mřížkou proletí kus zdi a čísi rohožka.`,1);step()},2200)}
+
+$('call').onclick=()=>{relay();if(inside){log('Přivolávací tlačítko je venku na chodbě.',1);return}if(moving)return log('Výtah už jede.',1);if(cab===me)return log('Výtah už tu stojí. Otevři dveře.',1);$('call').classList.add('on');setTimeout(()=>$('call').classList.remove('on'),900);go(me)};
+$('stop').onclick=()=>{relay();if(!inside||!moving)return;stopped=true;moving=false;motorOff();document.body.classList.remove('shake');log('<b>STOP!</b> Kabina se zasekne mezi patry. Ticho, jen bzučí žárovka. Zmáčkni patro a pojedeš dál.');};
+function toggleDoor(){if(cab!==me||moving){buzz();return log('Dveře nejdou otevřít – kabina tu není. Zámek drží.',1)}if(inside&&gatesOpen===false&&!doorOpen){return log('Nejdřív odtáhni mříž kabiny.',1)}doorOpen=!doorOpen;clank();render();log(doorOpen?'Zatáhneš za studenou kliku, těžké plechové dveře s pletivem zaskřípou.':'BOUCH! Dveře zaklapnou, až se ozve ozvěna celou chodbou.')}
+$('door').onclick=toggleDoor;$('doorBtn').onclick=toggleDoor;
+$('gateBtn').onclick=()=>{if(cab!==me||moving)return log('Mříž kabiny je uvnitř kabiny…',1);if(!inside&&!doorOpen)return log('Nejdřív otevři šachetní dveře.',1);gatesOpen=!gatesOpen;rattle();render();log(gatesOpen?'Shrnovací mříž se s rachotem složí do stran.':'Řinč-řinč-řinč… zatáhneš mříž. Kontakt cvakne.')};
+$('enterBtn').onclick=()=>{if(cab!==me||moving)return log('Do prázdné šachty? Radši ne.',1);if(!doorOpen||!gatesOpen)return log('Cesta je zavřená – otevři dveře i mříž.',1);inside=!inside;noise(.2,300,2,.6);log(inside?'Vkročíš dovnitř. Podlaha se pod tebou lehce prohne. Voní to olejem a starým linoleem. Teď zavři dveře a mříž.':'Vystoupíš na chodbu. Za tebou zůstane cvakající kabina.')};
+
+render();log('Stojíš v přízemí paneláku. Na stěně šedá šachta s pletivem, cedulka „POZOR VÝTAH!“ a jedno kulaté tlačítko. Zmáčkni <b>●</b> a přivolej výtah.');
+</script>
+</body>
+</html>
