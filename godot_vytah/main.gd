@@ -219,7 +219,7 @@ func _ui() -> void:
 	msg.add_theme_constant_override("outline_size", 6)
 	cl.add_child(msg)
 	var help := Label.new()
-	help.text = "WASD chůze · myš rozhled · LMB/E použít · Esc myš"
+	help.text = "WASD chůze · myš rozhled · LMB/E použít · Esc myš\nMobil: levý palec chůze · pravý rozhled · ťuknutí vpravo použít"
 	help.position = Vector2(10, 10)
 	help.modulate = Color(1, 1, 1, 0.6)
 	cl.add_child(help)

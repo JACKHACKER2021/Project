@@ -1,5 +1,7 @@
 extends CharacterBody3D
-## Hráč z pohledu první osoby. WASD = chůze, myš = rozhlížení, LMB / E = použít, Esc = uvolnit myš.
+## Hráč z pohledu první osoby.
+## PC: WASD chůze, myš rozhled, LMB / E použít, Esc uvolní myš.
+## Mobil: levá půlka obrazovky = joystick chůze, pravá = rozhled, ťuknutí vpravo = použít.
 
 signal interacted(act)
 
@@ -7,7 +9,13 @@ const SPEED := 2.8
 var cam: Camera3D
 var ray: RayCast3D
 var shake := false
-var main: Node
+
+var mobile := false
+var move_id := -1
+var move_start := Vector2.ZERO
+var touch_move := Vector2.ZERO
+var look_id := -1
+var look_dist := 0.0
 
 func _ready() -> void:
 	var cs := CollisionShape3D.new()
@@ -25,9 +33,39 @@ func _ready() -> void:
 	ray.target_position = Vector3(0, 0, -2.2)
 	ray.collide_with_areas = true
 	cam.add_child(ray)
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	mobile = OS.has_feature("mobile")
+	if not mobile:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+func _input(e: InputEvent) -> void:
+	if e is InputEventScreenTouch:
+		var left: bool = e.position.x < get_viewport().get_visible_rect().size.x * 0.5
+		if e.pressed:
+			if left and move_id == -1:
+				move_id = e.index
+				move_start = e.position
+			elif not left and look_id == -1:
+				look_id = e.index
+				look_dist = 0.0
+		else:
+			if e.index == move_id:
+				move_id = -1
+				touch_move = Vector2.ZERO
+			elif e.index == look_id:
+				look_id = -1
+				if look_dist < 15:
+					_use()
+	elif e is InputEventScreenDrag:
+		if e.index == move_id:
+			touch_move = ((e.position - move_start) / 80.0).limit_length(1.0)
+		elif e.index == look_id:
+			look_dist += e.relative.length()
+			rotate_y(-e.relative.x * 0.005)
+			cam.rotation.x = clamp(cam.rotation.x - e.relative.y * 0.005, -1.4, 1.4)
 
 func _unhandled_input(e: InputEvent) -> void:
+	if mobile:
+		return
 	if e is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		rotate_y(-e.relative.x * 0.003)
 		cam.rotation.x = clamp(cam.rotation.x - e.relative.y * 0.003, -1.4, 1.4)
@@ -61,9 +99,13 @@ func _physics_process(delta: float) -> void:
 	if Input.is_physical_key_pressed(KEY_S): dir.z += 1
 	if Input.is_physical_key_pressed(KEY_A): dir.x -= 1
 	if Input.is_physical_key_pressed(KEY_D): dir.x += 1
-	dir = (transform.basis * dir).normalized() * SPEED
-	velocity.x = dir.x
-	velocity.z = dir.z
+	if touch_move != Vector2.ZERO:
+		dir = Vector3(touch_move.x, 0, touch_move.y)
+	dir = transform.basis * dir
+	if dir.length() > 1.0:
+		dir = dir.normalized()
+	velocity.x = dir.x * SPEED
+	velocity.z = dir.z * SPEED
 	move_and_slide()
 	if shake:
 		cam.h_offset = randf_range(-0.006, 0.006)
