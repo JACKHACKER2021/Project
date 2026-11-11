@@ -289,6 +289,7 @@ const SR := 22050
 
 func _sounds() -> void:
 	sfx["relay"] = _gen_relay()
+	sfx["start"] = _gen_relay()
 	sfx["door"] = _gen_noise(0.7, 0.04, 2.5, 1.0)
 	sfx["gate"] = _gen_rattle()
 	sfx["brake"] = _gen_noise(0.45, 0.02, 2.0, 0.9)
@@ -443,8 +444,8 @@ func start(f: int) -> void:
 		return
 	target = f
 	moving = true
-	get_tree().create_timer(0.15).timeout.connect(func(): play("relay"))
-	get_tree().create_timer(0.3).timeout.connect(_motor_on)
+	play("start")
+	get_tree().create_timer(1.0).timeout.connect(_motor_on)
 
 func _motor_on() -> void:
 	if moving:
