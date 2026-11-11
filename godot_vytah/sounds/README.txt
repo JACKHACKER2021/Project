@@ -4,5 +4,6 @@ Sem dej vlastní nahrávky (ogg / wav / mp3). Pokud soubor chybí, hra si zvuk v
   start.*   - rozběh (stykače + rozjezd motoru)
   door.*    - bouchnutí šachetních dveří
   gate.*    - řinčení shrnovací mříže
+  enter.*   - nástup do kabiny (prohnutí podlahy)
   brake.*   - rána brzdy při zastavení
   buzz.*    - bzučák (výtah nepojede)

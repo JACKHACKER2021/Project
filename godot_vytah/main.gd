@@ -228,6 +228,7 @@ func _ui() -> void:
 
 # ---------------------------------------------------------------- dotykové ovládání
 var joy_knob: Panel
+var was_inside := false
 var touch_layer: CanvasLayer
 
 func _round_panel(sz: float, c: Color, border: Color) -> Panel:
@@ -344,6 +345,7 @@ const SR := 22050
 func _sounds() -> void:
 	sfx["relay"] = _gen_relay()
 	sfx["start"] = _gen_relay()
+	sfx["enter"] = _gen_noise(0.3, 0.05, 2.0, 0.6)
 	sfx["door"] = _gen_noise(0.7, 0.04, 2.5, 1.0)
 	sfx["gate"] = _gen_rattle()
 	sfx["brake"] = _gen_noise(0.45, 0.02, 2.0, 0.9)
@@ -519,6 +521,10 @@ func _physics_process(delta: float) -> void:
 		i.text = fl
 	var inside := absf(player.position.x) < 0.7 and absf(player.position.z) < 0.7
 	player.shake = moving and inside
+	if inside != was_inside and not moving:
+		if inside:
+			play("enter")  # nástup – podlaha kabiny se prohne
+		was_inside = inside
 
 func _process(delta: float) -> void:
 	if joy_knob:
