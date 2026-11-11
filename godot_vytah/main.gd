@@ -63,7 +63,7 @@ func _materials() -> void:
 	m_wall = mat(Color(0.85, 0.78, 0.6))
 	m_wall_low = mat(Color(0.72, 0.38, 0.22))
 	m_floor = mat(Color(0.45, 0.42, 0.38))
-	m_frame = mat(Color(0.78, 0.76, 0.66))
+	m_frame = mat(Color(0.86, 0.8, 0.56))  # krémový lak jako na fotkách
 	m_btn = mat(Color(0.75, 0.75, 0.72))
 	m_btn.metallic = 0.6
 	m_wood = mat(Color(0.45, 0.3, 0.18))
@@ -105,8 +105,12 @@ func _floor(f: int) -> void:
 		sb(Vector3(0.1, H, 8.2), Vector3(s * 7, y + H / 2, 4.85), m_wall)
 	sb(Vector3(14, H, 0.1), Vector3(0, y + H / 2, 8.95), m_wall)
 	# čelo šachty: sloupky vedle dveří a nadpraží z pletiva
-	for s in [-1, 1]:
-		sb(Vector3(0.38, H, 0.04), Vector3(s * 0.6, y + H / 2, 0.78), m_mesh)
+	# vlevo pletivo, vpravo plechový panel s cedulí a tlačítkem (podle fotek)
+	sb(Vector3(0.38, H, 0.04), Vector3(-0.6, y + H / 2, 0.78), m_mesh)
+	sb(Vector3(0.38, H, 0.04), Vector3(0.6, y + H / 2, 0.78), m_frame)
+	sb(Vector3(0.16, 0.24, 0.01), Vector3(0.62, y + 1.85, 0.805), mat(Color(0.95, 0.95, 0.92)))
+	add_child(lbl("NÁVOD\nk obsluze\nvýtahu", Vector3(0.62, y + 1.85, 0.812), 0.0009, Color.BLACK))
+	sb(Vector3(0.12, 0.42, 0.01), Vector3(0.62, y + 1.4, 0.805), mat(Color(0.55, 0.55, 0.55)))
 	sb(Vector3(0.82, H - 2.1, 0.04), Vector3(0, y + 2.1 + (H - 2.1) / 2, 0.78), m_mesh)
 	sb(Vector3(0.9, 0.06, 0.08), Vector3(0, y + 2.13, 0.8), m_frame)
 	# šachetní dveře – otočné na pantu vlevo
@@ -122,19 +126,20 @@ func _floor(f: int) -> void:
 	part(d, Vector3(0.05, 2.1, 0.05), Vector3(0.025, 1.04, 0), m_frame, false)
 	part(d, Vector3(0.05, 2.1, 0.05), Vector3(0.795, 1.04, 0), m_frame, false)
 	# cedulka a klika
-	part(d, Vector3(0.3, 0.1, 0.01), Vector3(0.41, 1.12, 0.03), mat(Color(0.95, 0.95, 0.9)), false)
-	var cl := lbl("POZOR VÝTAH!\nNosnost 250 kg", Vector3(0.41, 1.12, 0.04), 0.0012, Color.BLACK)
+	part(d, Vector3(0.3, 0.1, 0.01), Vector3(0.3, 1.12, 0.03), mat(Color(0.95, 0.95, 0.9)), false)
+	var cl := lbl("POZOR VÝTAH!\nNosnost 250 kg", Vector3(0.3, 1.12, 0.04), 0.0012, Color.BLACK)
 	d.add_child(cl)
 	part(d, Vector3(0.12, 0.03, 0.05), Vector3(0.7, 1.0, 0.05), mat(Color(0.1, 0.1, 0.1)), false)
+	d.add_child(lbl(str(f), Vector3(0.62, 1.12, 0.04), 0.004, Color(0.1, 0.1, 0.1)))
 	d.set_meta("act", ["door", f])
 	d.set_meta("hint", "Šachetní dveře")
 	doors.append(pivot)
 	door_open.append(false)
 	# kulatý ukazatel patra + přivolávač
-	var ind := lbl("0", Vector3(0.62, y + 1.55, 0.83), 0.006, Color(1, 0.1, 0.1))
+	var ind := lbl("0", Vector3(0.62, y + 1.52, 0.815), 0.004, Color(1, 0.1, 0.1))
 	add_child(ind)
 	indicators.append(ind)
-	button(self, Vector3(0.62, y + 1.25, 0.83), "VOLAT", ["call", f], 0.0, "Přivolat výtah")
+	button(self, Vector3(0.62, y + 1.3, 0.82), "VOLAT", ["call", f], 0.0, "Přivolat výtah")
 	# číslo patra na zdi
 	add_child(lbl(str(f), Vector3(0.1, y + 2.5, 0.83), 0.01, Color(0.2, 0.2, 0.2)))
 	# žárovka na chodbě
