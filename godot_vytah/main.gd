@@ -157,7 +157,7 @@ func _cabin() -> void:
 	cabin = AnimatableBody3D.new()
 	cabin.sync_to_physics = true
 	add_child(cabin)
-	part(cabin, Vector3(1.44, 0.1, 1.44), Vector3(0, 0.05, 0), m_wood, true)
+	part(cabin, Vector3(1.44, 0.1, 1.44), Vector3(0, -0.05, 0), m_wood, true)
 	part(cabin, Vector3(0.04, 2.3, 1.44), Vector3(-0.7, 1.25, 0), m_frame, true)
 	part(cabin, Vector3(0.04, 2.3, 1.44), Vector3(0.7, 1.25, 0), m_frame, true)
 	part(cabin, Vector3(1.44, 2.3, 0.04), Vector3(0, 1.25, -0.7), m_wood, true)
