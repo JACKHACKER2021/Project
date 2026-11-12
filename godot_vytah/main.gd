@@ -68,6 +68,11 @@ var call_btns: Array = []
 var kone_doors: Array = []      # [Node3D s dvěma křídly, [levé, pravé]]
 var cab_kone: Array = []        # [[mesh, shape], [mesh, shape]]
 var cab_kone_open := false
+var stop_times: Array = []
+var falling := false
+var fall_v := 0.0
+var crashed := false
+var escape_glass: MeshInstance3D
 var m_kone: StandardMaterial3D
 var m_kone_dark: StandardMaterial3D
 var parts := {}             # klíč -> stav
@@ -314,6 +319,12 @@ func _floor(f: int) -> void:
 	kn.visible = false
 	_solid(kn, false)
 	kone_doors.append([kn, leaves])
+	# evakuační plán a zelené EXIT nad schodištěm
+	sb(Vector3(0.9, 0.6, 0.02), Vector3(-3.0, y + 1.5, 0.91), mat(Color(0.97, 0.97, 0.95)))
+	add_child(lbl("EVAKUAČNÍ PLÁN – patro %s\n◄◄ ÚNIKOVÁ CESTA: SCHODIŠTĚ ◄◄\nPři požáru výtah NEPOUŽÍVEJ!\n(stará Transporta jede i tak)\nV nouzi: urvi sklo v kabině a prolez" % fl(f), Vector3(-3.0, y + 1.5, 0.925), 0.0012, Color(0.05, 0.4, 0.15)))
+	var ex_sign := mat(Color(0.1, 0.8, 0.3), true)
+	sb(Vector3(0.5, 0.18, 0.04), Vector3(-5.4, y + 2.6, 3.2), ex_sign)
+	add_child(lbl("EXIT ⇧", Vector3(-5.4, y + 2.6, 3.23), 0.004, Color.WHITE))
 	# hasicí přístroj na zdi
 	var ex := Area3D.new()
 	ex.position = Vector3(-1.4, y + 0.55, 0.98)
@@ -556,6 +567,14 @@ func _cabin() -> void:
 	part(cabin, Vector3(1.44, 2.3, 0.04), Vector3(0, 1.25, -0.7), m_wood, true)
 	part(cabin, Vector3(1.44, 0.05, 1.44), Vector3(0, 2.42, 0), m_frame, true)
 	part(cabin, Vector3(0.05, 0.05, 1.44), Vector3(-0.68, 0.9, 0), m_frame, false)   # madlo
+	# nouzové okno z drátěného skla v levé stěně
+	escape_glass = part(cabin, Vector3(0.02, 0.7, 0.7), Vector3(-0.67, 1.5, 0), m_glass, false)[0]
+	var ea := Area3D.new()
+	ea.position = Vector3(-0.64, 1.5, 0)
+	cabin.add_child(ea)
+	shape(ea, Vector3(0.06, 0.7, 0.7), Vector3.ZERO)
+	ea.set_meta("act", ["escape"])
+	ea.set_meta("hint", "Nouzové okno – urvat sklo / prolézt")
 	# shrnovací mříž
 	var g := part(cabin, Vector3(1.36, 2.2, 0.03), Vector3(0, 1.2, 0.66), m_mesh, true)
 	gate_mesh = g[0]
@@ -1037,6 +1056,30 @@ func _burn_step(fr: Dictionary) -> void:
 		else:
 			start_fire(Vector3(clampf(c.x + randf_range(-3, 3), -6.5, 6.5), 0, clampf(c.z + randf_range(-2, 2), 1.2, 12.2)), fr.floor)
 
+func _freefall() -> void:
+	if moving:
+		_emergency_stop()
+	stuck = false
+	falling = true
+	fall_v = 0.0
+	play("brake")
+	say("Cvak… cvak… CVAK! Brzda povolila – kabina se řítí volným pádem dolů!!!", 4)
+
+func _crash() -> void:
+	falling = false
+	crashed = true
+	health = 0
+	play("door")
+	play("brake")
+	_modern_mats()
+	for k in ["light", "panel", "gate"]:
+		_destroy(k)
+	if escape_glass.visible:
+		_shards(escape_glass)
+		escape_glass.visible = false
+	player.velocity.y = 2.0
+	say("OBROVSKÁ RÁNA o dno šachty! Přežil jsi, ale výtah je na kusy. Vylez oknem, oprav ho v rozvaděči a namontuj nové díly z krabic ve sklepě.", 7)
+
 func _emergency_stop() -> void:
 	moving = false
 	motor.stop()
@@ -1060,7 +1103,32 @@ func _part_key(act: Array) -> String:
 func _part_name(k: String, st: int) -> String:
 	return "%s – %s" % [MODELS.get(st, "?"), KIND_LABEL[_kind(k)]]
 
+func _old_school() -> bool:
+	# Transporta: stará relé a motor s převodovkou vydrží i poškození a požár
+	return parts["motor"] == OLD and parts["control"] == OLD
+
+func _escape() -> void:
+	if escape_glass.visible:
+		_shards(escape_glass)
+		escape_glass.visible = false
+		play("door")
+		say("Zabereš za rám a urveš drátěné sklo! Střepy padají do šachty. Teď můžeš prolézt.", 5)
+		return
+	if moving or falling:
+		say("Za jízdy ven nelez!")
+		return
+	var f := clampi(roundi(cabin.position.y / H), 0, N - 1)
+	if absf(cabin.position.y - f * H) < 0.05 and fires.size() == 0 and not stuck:
+		say("Kabina stojí v patře – na to jsou dveře.")
+		return
+	player.global_position = Vector3(0, f * H + 0.05, 2.2)
+	player.velocity = Vector3.ZERO
+	say("Prolezl jsi rozbitým oknem, po vodítkách šachty ses dostal k dveřím a odjistil je zevnitř. Jsi v patře %s. Utíkej po schodech!" % fl(f), 6)
+
 func _on_act(act: Array) -> void:
+	if act[0] == "escape":
+		_escape()
+		return
 	if has_wrench:
 		var k := _part_key(act)
 		if k != "":
@@ -1098,6 +1166,14 @@ func _on_act(act: Array) -> void:
 				start(act[1])
 		"stop":
 			play("relay")
+			var now := Time.get_ticks_msec() / 1000.0
+			stop_times.append(now)
+			while stop_times.size() > 0 and now - stop_times[0] > 3.0:
+				stop_times.pop_front()
+			if stop_times.size() >= 4 and not falling and cabin.position.y > 0.5:
+				stop_times.clear()
+				_freefall()
+				return
 			if moving:
 				_emergency_stop()
 				health = max(health - 4, 0)
@@ -1231,6 +1307,8 @@ func _on_act(act: Array) -> void:
 				say("Vyměňuješ pojistky a čistíš stykače…", 3)
 				await get_tree().create_timer(3.0).timeout
 				health = 100
+				crashed = false
+				escape_glass.visible = true
 				repairing = false
 				play("relay")
 				say("Hotovo! Výtah je opravený.")
@@ -1610,14 +1688,22 @@ func _auto_close() -> bool:
 	return any
 
 func start(f: int) -> void:
-	if health <= 0:
-		play("buzz")
-		say("VÝTAH MIMO PROVOZ – je zničený. Oprav ho v rozvaděči ve strojovně (nahoře po schodech).", 6)
+	if falling:
 		return
-	if fires.size() > 0:
+	if crashed:
 		play("buzz")
-		say("Při požáru výtah nejede! Hoří v patře %s." % _fire_floors())
+		say("Výtah po pádu nežije. Oprav ho v rozvaděči ve strojovně.", 5)
 		return
+	if health <= 0 and not _old_school():
+		play("buzz")
+		say("VÝTAH MIMO PROVOZ – moderní elektronika po poškození odmítá jet. Oprav ho v rozvaděči.", 6)
+		return
+	if fires.size() > 0 and not _old_school():
+		play("buzz")
+		say("Při požáru moderní řízení výtah zablokovalo! Hoří v patře %s. Utíkej po schodech." % _fire_floors())
+		return
+	if (fires.size() > 0 or health <= 0) and _old_school():
+		say("Stará Transporta se i tak rozjede – jiskří to, smrdí spálenina, ale jede!", 4)
 	var closing := _auto_close()
 	if true in door_open:
 		play("buzz")
@@ -1665,7 +1751,7 @@ func _breakdown() -> void:
 	health = max(health - 8, 0)
 	say("Rána, cvaknutí… a ticho. PORUCHA! Kabina uvízla mezi patry, žárovka bliká.", 6)
 	await get_tree().create_timer(randf_range(5.0, 9.0)).timeout
-	if fires.size() > 0 or health <= 0:
+	if (fires.size() > 0 or health <= 0) and not _old_school():
 		stuck = false
 		return
 	stuck = false
@@ -1683,10 +1769,18 @@ func _tick() -> void:
 		start_fire()
 
 func _physics_process(delta: float) -> void:
-	if moving:
+	if falling:
+		fall_v = min(fall_v + 14.0 * delta, 22.0)
+		var prevf := cabin.position.y
+		cabin.position.y = max(cabin.position.y - fall_v * delta, 0.0)
+		wheel.rotation.x += (cabin.position.y - prevf) * 2.1
+		player.shake = true
+		if cabin.position.y <= 0.0:
+			_crash()
+	elif moving:
 		var ty := target * H
 		var prev := cabin.position.y
-		cabin.position.y = move_toward(cabin.position.y, ty, SPEED * delta)
+		cabin.position.y = move_toward(cabin.position.y, ty, SPEED * delta * (0.6 if health <= 0 else 1.0))
 		wheel.rotation.x += (cabin.position.y - prev) * 2.1
 		if break_at >= 0 and absf(cabin.position.y - break_at) <= SPEED * delta:
 			break_at = -1.0

@@ -16,3 +16,7 @@ Otevři složku v Godotu 4.3+ a spusť (F5).
   Díly: šachetní dveře a přivolávač v každém patře zvlášť, dveře kabiny, panel, osvětlení, motor, řízení.
   Modely jdou míchat; dokud nějaký díl chybí, výtah nepojede.
 - Rozvaděč ve strojovně opraví výtah, pult REKONSTRUKCE mění barvu.
+- Evakuační plán a zelené EXIT nad schodištěm v každém patře.
+- Nouzové okno v kabině: urvi drátěné sklo a prolez ven do nejbližšího patra (při uvíznutí nebo požáru).
+- Transporta (původní motor + řízení) jede i při požáru a po poškození; Helgos/KONE se zablokují.
+- 4× STOP během 3 s: brzda povolí, kabina spadne volným pádem na dno a rozbije se (hráč přežije).
