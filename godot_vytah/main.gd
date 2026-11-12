@@ -541,26 +541,26 @@ func _layout_touch() -> void:
 	for c in touch_layer.get_children():
 		c.queue_free()
 	var vs := get_viewport().get_visible_rect().size
-	var base := _round_panel(150, Color(0, 0, 0, 0.3), Color(0.55, 0.33, 0.14, 0.8))
-	base.position = Vector2(50, vs.y - 200)
+	var base := _round_panel(240, Color(0, 0, 0, 0.3), Color(0.55, 0.33, 0.14, 0.8))
+	base.position = Vector2(60, vs.y - 300)
 	touch_layer.add_child(base)
-	joy_knob = _round_panel(64, Color(0.55, 0.33, 0.14, 0.9), Color(0.2, 0.2, 0.2))
+	joy_knob = _round_panel(100, Color(0.55, 0.33, 0.14, 0.9), Color(0.2, 0.2, 0.2))
 	touch_layer.add_child(joy_knob)
-	player.joy_center = base.position + Vector2(75, 75)
-	var b := _round_panel(130, Color(0.75, 0.75, 0.72, 0.85), Color(0.35, 0.35, 0.35))
-	b.position = Vector2(vs.x - 180, vs.y - 190)
+	player.joy_center = base.position + Vector2(120, 120)
+	var b := _round_panel(200, Color(0.75, 0.75, 0.72, 0.85), Color(0.35, 0.35, 0.35))
+	b.position = Vector2(vs.x - 260, vs.y - 280)
 	touch_layer.add_child(b)
 	var l := Label.new()
 	l.text = "POUŽÍT"
-	l.add_theme_font_size_override("font_size", 24)
+	l.add_theme_font_size_override("font_size", 36)
 	l.add_theme_color_override("font_color", Color(0.1, 0.1, 0.1))
 	l.size = b.size
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	b.add_child(l)
 	player.use_rect = Rect2(b.position, b.size)
-	var rb := _round_panel(70, Color(0.6, 0.1, 0.1, 0.8), Color(0.2, 0.2, 0.2))
-	rb.position = Vector2(vs.x - 90, 150)
+	var rb := _round_panel(110, Color(0.6, 0.1, 0.1, 0.8), Color(0.2, 0.2, 0.2))
+	rb.position = Vector2(vs.x - 140, 170)
 	touch_layer.add_child(rb)
 	var rlb := Label.new()
 	rlb.text = "RESET"
@@ -1214,7 +1214,7 @@ func _physics_process(delta: float) -> void:
 
 func _process(delta: float) -> void:
 	if joy_knob:
-		joy_knob.position = player.joy_center + player.touch_move * 60 - Vector2(32, 32)
+		joy_knob.position = player.joy_center + player.touch_move * 90 - Vector2(50, 50)
 	var c: Object = player.looked_at()
 	hint.text = ("[E] " + c.get_meta("hint")) if c else ""
 	if msg_time > 0:

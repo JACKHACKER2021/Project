@@ -60,7 +60,7 @@ func _input(e: InputEvent) -> void:
 				look_id = -1
 	elif e is InputEventScreenDrag:
 		if e.index == move_id:
-			touch_move = ((e.position - move_start) / 70.0).limit_length(1.0)
+			touch_move = ((e.position - move_start) / 100.0).limit_length(1.0)
 		elif e.index == look_id:
 			look_dist += e.relative.length()
 			rotate_y(-e.relative.x * 0.005)
