@@ -72,6 +72,7 @@ var stop_times: Array = []
 var falling := false
 var fall_v := 0.0
 var crashed := false
+var fall_from := 0.0
 var escape_glass: MeshInstance3D
 var m_kone: StandardMaterial3D
 var m_kone_dark: StandardMaterial3D
@@ -1062,6 +1063,7 @@ func _freefall() -> void:
 	stuck = false
 	falling = true
 	fall_v = 0.0
+	fall_from = cabin.position.y
 	play("brake")
 	say("Cvak… cvak… CVAK! Brzda povolila – kabina se řítí volným pádem dolů!!!", 4)
 
@@ -1078,6 +1080,8 @@ func _crash() -> void:
 		_shards(escape_glass)
 		escape_glass.visible = false
 	player.velocity.y = 2.0
+	if fall_from > 6 * H or parts["motor"] == GONE:
+		start_fire(Vector3(1.6, 0, 1.6), 0)   # rozbitá kabina na dně jiskří a chytne sklep
 	say("OBROVSKÁ RÁNA o dno šachty! Přežil jsi, ale výtah je na kusy. Vylez oknem, oprav ho v rozvaděči a namontuj nové díly z krabic ve sklepě.", 7)
 
 func _emergency_stop() -> void:
@@ -1328,6 +1332,12 @@ func _hit(act: Array) -> void:
 			say("Dveře se utrhnou z pantů a s rachotem padají na zem!")
 		else:
 			say("Tady už nic není.")
+	elif k == "motor" and _destroy(k):
+		if cabin.position.y > 0.5 and not falling:
+			_freefall()
+			say("Rozsekl jsi motor! Kladka se volně roztočí, lana sviští – kabina padá dolů!", 5)
+		else:
+			say("Motor je na kusy.")
 	elif k != "" and _destroy(k):
 		var nm := _part_name(k, parts_prev.get(k, OLD))
 		say("KŘACH! %s se rozpadá a kusy padají na zem." % (nm.substr(0, 1).to_upper() + nm.substr(1)), 5)

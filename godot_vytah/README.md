@@ -20,3 +20,4 @@ Otevři složku v Godotu 4.3+ a spusť (F5).
 - Nouzové okno v kabině: urvi drátěné sklo a prolez ven do nejbližšího patra (při uvíznutí nebo požáru).
 - Transporta (původní motor + řízení) jede i při požáru a po poškození; Helgos/KONE se zablokují.
 - 4× STOP během 3 s: brzda povolí, kabina spadne volným pádem na dno a rozbije se (hráč přežije).
+- Rozsekáš-li motor, kabina spadne; pád z velké výšky nebo bez motoru zapálí sklep (-2).
