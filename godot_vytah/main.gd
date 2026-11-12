@@ -1138,7 +1138,7 @@ func _on_act(act: Array) -> void:
 		if k != "":
 			_wrench_part(k)
 			return
-	if act[0] in ["motor", "light"]:
+	if act[0] in ["motor", "light"] and not has_axe:
 		say("Na tohle potřebuješ montážní klíč (visí v přízemí vedle sekery).")
 		return
 	if act[0] == "call" and parts["ind:%d" % act[1]] == GONE:
