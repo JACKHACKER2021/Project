@@ -1,7 +1,8 @@
 extends Node3D
 ## Starý československý výtah Transporta TOV 250 v paneláku – celý svět se staví z kódu.
 
-const N := 12         # počet pater s výtahem (0..11), nad nimi strojovna
+const N := 14         # podlaží s výtahem: interně 0..13 = -2..11, nad nimi strojovna
+const GROUND := 2     # interní index přízemí
 const H := 3.0        # výška podlaží
 var SPEED := 1.0      # m/s (moderní motor jezdí rychleji)
 
@@ -37,8 +38,9 @@ var motor: AudioStreamPlayer3D
 
 # stav výtahu
 var health := 100.0
-var fire: Node3D = null
-var fire_floor := -1
+var fires: Array = []        # [{node, floor, t}]
+var ext_charge := 0
+var burn_by_floor := {}      # patro -> [MeshInstance3D]
 var has_ext := false
 var repairing := false
 var has_axe := false
@@ -53,10 +55,21 @@ const STYLES := [
 ]
 var reset_rect := Rect2()
 
-# --- díly výtahu: 0 = původní (1974), 1 = demontováno, 2 = moderní (21. století)
-const OLD := 0
+# --- díly výtahu podle modelu: Transporta TOV 250 / Helgos (modernizovaná Transporta) / KONE; 1 = demontováno
+const OLD := 0      # Transporta TOV 250 (1974)
 const GONE := 1
-const NEW := 2
+const NEW := 2      # Helgos
+const KONE := 3     # KONE – automatické posuvné dveře
+const MODELS := {0: "Transporta TOV 250", 2: "Helgos", 3: "KONE"}
+const MODEL_COLOR := {0: Color(0.55, 0.33, 0.14), 2: Color(0.2, 0.55, 0.3), 3: Color(0.1, 0.3, 0.75)}
+const KIND_LABEL := {"door": "šachetní dveře", "gate": "dveře kabiny", "panel": "panel kabiny", "light": "osvětlení kabiny",
+	"motor": "motor", "control": "řízení", "ind": "přivolávač + ukazatel"}
+var call_btns: Array = []
+var kone_doors: Array = []      # [Node3D s dvěma křídly, [levé, pravé]]
+var cab_kone: Array = []        # [[mesh, shape], [mesh, shape]]
+var cab_kone_open := false
+var m_kone: StandardMaterial3D
+var m_kone_dark: StandardMaterial3D
 var parts := {}             # klíč -> stav
 var parts_prev := {}        # co bylo před demontáží
 var has_wrench := false
@@ -103,16 +116,20 @@ func _ready() -> void:
 	_axe()
 	_wrench()
 	_store()
-	for k in PART_NAMES:
+	for k in ["gate", "panel", "light", "motor", "control"]:
 		parts[k] = OLD
 	for f in N:
 		parts["door:%d" % f] = OLD
+		parts["ind:%d" % f] = OLD
 	_cabin()
 	_ui()
 	player = CharacterBody3D.new()
 	player.set_script(load("res://player.gd"))
 	add_child(player)
-	player.position = Vector3(0, 0.05, 4.5)
+	player.position = Vector3(0, GROUND * H + 0.05, 4.5)
+	cabin.position.y = GROUND * H
+	target = GROUND
+	_index_burnables()
 	player.interacted.connect(_on_act)
 	player.ray.collision_mask = 1 | 4
 	if OS.has_feature("mobile"):
@@ -122,7 +139,7 @@ func _ready() -> void:
 	t.autostart = true
 	t.timeout.connect(_tick)
 	add_child(t)
-	say("Přízemí dvanáctipatrového paneláku. Hnědé dveře s drátěným sklem, POZOR VÝTAH. Zmáčkni VOLAT.", 6)
+	say("Přízemí paneláku (2 podzemní + 12 pater). Sklad dílů je v -1, sklep v -2. Hnědé dveře s drátěným sklem, POZOR VÝTAH. Zmáčkni VOLAT.", 6)
 
 func _materials() -> void:
 	m_wall = mat(Color(0.86, 0.82, 0.68))
@@ -181,6 +198,9 @@ const ST_A := [-6.6, -5.4]
 const ST_B := [-5.4, -4.2]
 const ST_Z := [3.3, 7.5]
 
+func fl(f: int) -> String:
+	return str(f - GROUND)
+
 func _strip(k: int) -> Array:
 	return ST_A if k % 2 == 0 else ST_B
 
@@ -209,8 +229,13 @@ func _floor(f: int) -> void:
 		if not top:
 			sb(Vector3(6.2, 1.5, 0.1), Vector3(s * 3.9, y + 0.75, 0.85), m_wall_low)
 			sb(Vector3(6.2, 1.5, 0.1), Vector3(s * 3.9, y + 2.25, 0.85), m_wall)
-	sb(Vector3(14, H, 0.1), Vector3(0, y + H / 2, 8.95), m_wall)
-	add_child(lbl(str(f) + ". NP" if not top else "STROJOVNA", Vector3(-2.5, y + 2.3, 0.91), 0.008, Color(0.2, 0.2, 0.2)))
+	if f >= GROUND:
+		_flats(f, top)
+	else:
+		sb(Vector3(14, H, 0.1), Vector3(0, y + H / 2, 8.95), m_wall)
+	if f == 0:
+		_cellar(y)
+	add_child(lbl("STROJOVNA" if top else (fl(f) + ". PP – SKLEP" if f == 0 else (fl(f) + ". PP – SKLAD DÍLŮ" if f == 1 else fl(f) + ". NP")), Vector3(-2.5, y + 2.3, 0.91), 0.008, Color(0.2, 0.2, 0.2)))
 	var l := OmniLight3D.new()
 	l.position = Vector3(0, y + 2.7, 3.5)
 	l.light_color = Color(1, 0.85, 0.6)
@@ -228,7 +253,7 @@ func _floor(f: int) -> void:
 	sb(Vector3(0.07, 0.24, 0.01), Vector3(0.54, y + 1.3, 0.805), m_btn)
 	var lamp: MeshInstance3D = part(self, Vector3(0.03, 0.03, 0.02), Vector3(0.54, y + 1.38, 0.815), m_lamp_off, false)[0]
 	busy_lamps.append(lamp)
-	button(self, Vector3(0.54, y + 1.27, 0.815), "", ["call", f], 0.0, "Přivolat výtah", m_btn_black, 0.04)
+	call_btns.append(button(self, Vector3(0.54, y + 1.27, 0.815), "", ["call", f], 0.0, "Přivolat výtah", m_btn_black, 0.04))
 	var ind := lbl("0", Vector3(0.66, y + 1.6, 0.815), 0.004, Color(1, 0.1, 0.1))
 	add_child(ind)
 	indicators.append(ind)
@@ -257,7 +282,7 @@ func _floor(f: int) -> void:
 		d.add_child(pl)
 		part(d, Vector3(0.05, 0.05, 0.05), Vector3(0.72, 1.0, side * 0.05), m_btn, false)   # klika
 	part(d, Vector3(0.28, 0.08, 0.08), Vector3(0.6, 1.95, 0.07), m_btn, false)               # zavírač
-	d.add_child(lbl(str(f), Vector3(0.6, 1.25, 0.04), 0.003, Color(0.15, 0.1, 0.05)))
+	d.add_child(lbl(fl(f), Vector3(0.6, 1.25, 0.04), 0.003, Color(0.15, 0.1, 0.05)))
 	var mount := Area3D.new()
 	pivot.add_child(mount)
 	shape(mount, Vector3(0.82, 2.08, 0.08), Vector3(0.41, 1.04, 0))
@@ -267,6 +292,28 @@ func _floor(f: int) -> void:
 	d.set_meta("hint", "Šachetní dveře")
 	doors.append(pivot)
 	door_open.append(false)
+	# posuvné dveře KONE (schované, dokud se nenamontují)
+	if not m_kone:
+		m_kone = mat(Color(0.78, 0.8, 0.83))
+		m_kone.metallic = 0.8
+		m_kone.roughness = 0.25
+		m_kone_dark = mat(Color(0.25, 0.27, 0.3))
+	var kn := Node3D.new()
+	kn.position = Vector3(0, y, 0.8)
+	add_child(kn)
+	var leaves := []
+	for sx in [-1, 1]:
+		var lf := StaticBody3D.new()
+		lf.position = Vector3(sx * 0.205, 0, 0)
+		kn.add_child(lf)
+		part(lf, Vector3(0.41, 2.08, 0.04), Vector3(0, 1.04, 0), m_kone, true)
+		part(lf, Vector3(0.01, 2.08, 0.045), Vector3(-sx * 0.2, 1.04, 0), m_kone_dark, false)
+		lf.set_meta("act", ["door", f])
+		lf.set_meta("hint", "Automatické dveře KONE")
+		leaves.append(lf)
+	kn.visible = false
+	_solid(kn, false)
+	kone_doors.append([kn, leaves])
 	# hasicí přístroj na zdi
 	var ex := Area3D.new()
 	ex.position = Vector3(-1.4, y + 0.55, 0.98)
@@ -285,7 +332,7 @@ func _floor(f: int) -> void:
 
 func _wrench() -> void:
 	var a := Area3D.new()
-	a.position = Vector3(3.3, 1.2, 0.95)
+	a.position = Vector3(3.3, GROUND * H + 1.2, 0.95)
 	add_child(a)
 	part(a, Vector3(0.5, 0.7, 0.04), Vector3(0, 0, -0.02), mat(Color(0.2, 0.3, 0.55)), false)
 	part(a, Vector3(0.05, 0.35, 0.02), Vector3(0, 0.05, 0.01), m_grey, false)
@@ -297,7 +344,7 @@ func _wrench() -> void:
 
 func _axe() -> void:
 	var a := Area3D.new()
-	a.position = Vector3(2.5, 1.2, 0.95)
+	a.position = Vector3(2.5, GROUND * H + 1.2, 0.95)
 	add_child(a)
 	part(a, Vector3(0.05, 0.7, 0.04), Vector3.ZERO, mat(Color(0.45, 0.28, 0.12)), false)
 	part(a, Vector3(0.2, 0.12, 0.02), Vector3(0.08, 0.3, 0), m_grey, false)
@@ -306,6 +353,86 @@ func _axe() -> void:
 	a.add_child(lbl("SEKERA", Vector3(0, -0.38, 0.02), 0.002, Color.WHITE))
 	a.set_meta("act", ["axe"])
 	a.set_meta("hint", "Požární sekera")
+
+const SURNAMES := ["Novák", "Svoboda", "Dvořák", "Černý", "Procházka", "Kučera", "Veselý", "Horák", "Němec", "Pokorný", "Marek", "Pospíšil", "Hájek", "Jelínek", "Král", "Růžička", "Beneš", "Fiala"]
+var flat_doors: Array = []
+var m_door_wood: StandardMaterial3D
+var m_window: StandardMaterial3D
+
+func furn(size: Vector3, pos: Vector3, m: Material) -> StaticBody3D:
+	var b := sb(size, pos, m)
+	b.set_meta("burnable", true)
+	return b
+
+func _flats(f: int, top: bool) -> void:
+	var y := f * H
+	if not m_door_wood:
+		m_door_wood = mat(Color(0.5, 0.32, 0.18))
+		m_window = mat(Color(0.6, 0.75, 0.9), true)
+		m_window.emission_energy_multiplier = 0.6
+	# podlaha bytů (a strop nejvyššího patra)
+	sb(Vector3(14, 0.2, 3.6), Vector3(0, y - 0.1, 10.75), m_floor)
+	if top:
+		sb(Vector3(14, H, 0.1), Vector3(0, y + H / 2, 8.95), m_wall)
+		return
+	var cxs := [-4.67, 0.0, 4.67]
+	var edges := [-7.0]
+	for c in cxs:
+		edges.append(c - 0.5)
+		edges.append(c + 0.5)
+	edges.append(7.0)
+	for i in range(0, edges.size(), 2):
+		var a: float = edges[i]
+		var b: float = edges[i + 1]
+		sb(Vector3(b - a, H, 0.1), Vector3((a + b) / 2, y + H / 2, 8.95), m_wall)
+	for c in cxs:
+		sb(Vector3(1.0, H - 2.1, 0.1), Vector3(c, y + 2.1 + (H - 2.1) / 2, 8.95), m_wall)
+	# obvodové a dělicí stěny
+	for x in [-7.0, 7.0, -2.33, 2.33]:
+		sb(Vector3(0.1, H, 3.6), Vector3(x, y + H / 2, 10.75), m_wall)
+	sb(Vector3(14, H, 0.1), Vector3(0, y + H / 2, 12.55), m_wall)
+	for c in cxs:
+		var idx := flat_doors.size()
+		# okno
+		sb(Vector3(1.6, 1.2, 0.02), Vector3(c, y + 1.5, 12.49), m_window)
+		# dveře bytu s cedulkou
+		var pv := Node3D.new()
+		pv.position = Vector3(c - 0.45, y, 8.95)
+		add_child(pv)
+		var d := StaticBody3D.new()
+		pv.add_child(d)
+		part(d, Vector3(0.9, 2.05, 0.05), Vector3(0.45, 1.025, 0), m_door_wood, true)
+		part(d, Vector3(0.05, 0.05, 0.08), Vector3(0.8, 1.0, 0), m_btn, false)
+		var nm: String = SURNAMES[(f * 3 + idx) % SURNAMES.size()]
+		d.add_child(lbl("%s\nbyt %d" % [nm, (f - GROUND) * 3 + cxs.find(c) + 1], Vector3(0.45, 1.55, -0.03), 0.0015, Color.WHITE))
+		d.get_child(d.get_child_count() - 1).rotation.y = PI
+		d.set_meta("act", ["fdoor", idx])
+		d.set_meta("hint", "Dveře bytu – " + nm)
+		d.set_meta("burnable", true)
+		flat_doors.append([pv, false])
+		# nábytek (všechno hořlavé)
+		var wood := m_door_wood
+		furn(Vector3(0.9, 0.45, 1.9), Vector3(c - 1.6, y + 0.22, 11.4), mat(Color(0.75, 0.7, 0.6)))      # postel
+		furn(Vector3(0.9, 0.5, 0.08), Vector3(c - 1.6, y + 0.7, 12.4), wood)
+		furn(Vector3(1.2, 1.9, 0.55), Vector3(c + 1.5, y + 0.95, 9.35), wood)                           # skříň
+		furn(Vector3(0.9, 0.05, 0.6), Vector3(c + 0.7, y + 0.75, 11.6), wood)                           # stůl
+		furn(Vector3(0.06, 0.72, 0.5), Vector3(c + 0.3, y + 0.36, 11.6), wood)
+		furn(Vector3(0.06, 0.72, 0.5), Vector3(c + 1.1, y + 0.36, 11.6), wood)
+		furn(Vector3(1.6, 0.45, 0.7), Vector3(c - 0.3, y + 0.22, 9.6), mat(Color(0.35, 0.45, 0.3)))     # gauč
+		furn(Vector3(0.45, 0.4, 0.4), Vector3(c + 1.6, y + 0.2, 12.1), wood)                            # stolek
+		furn(Vector3(0.4, 0.3, 0.3), Vector3(c + 1.6, y + 0.55, 12.1), mat(Color(0.1, 0.1, 0.1)))       # televize
+		part(self, Vector3(1.6, 0.01, 1.2), Vector3(c, y + 0.005, 10.9), mat(Color(0.55, 0.15, 0.12)), false)  # koberec
+
+func _cellar(y: float) -> void:
+	# sklepní kóje z laťek s hromadou harampádí
+	var slats := _grid_mat(Color(0, 0, 0, 0), Color(0.45, 0.32, 0.18), 6, 4, BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR)
+	for i in 4:
+		var x0 := 0.6 + i * 1.6
+		sb(Vector3(0.05, 2.2, 3.0), Vector3(x0, y + 1.1, 7.4), slats)
+		sb(Vector3(1.0, 2.2, 0.05), Vector3(x0 + 0.55, y + 1.1, 5.9), slats)
+		add_child(lbl("SKLEP %d" % (i + 1), Vector3(x0 + 0.8, y + 2.3, 5.85), 0.003, Color(0.2, 0.2, 0.2)))
+		for j in 4:
+			furn(Vector3(randf_range(0.3, 0.6), randf_range(0.2, 0.5), randf_range(0.3, 0.5)), Vector3(x0 + 0.8 + randf_range(-0.4, 0.4), y + 0.2 + j * 0.05, 8.2 - j * 0.4), mat(Color(0.5 + randf() * 0.2, 0.4, 0.3)))
 
 func _stairs() -> void:
 	var L := sqrt(4.2 * 4.2 + H * H)
@@ -356,7 +483,7 @@ func _machine_room() -> void:
 	sb(Vector3(6, H, 0.1), Vector3(0, y + H / 2, -3.0), m_wall)
 	sb(Vector3(4, H, 0.1), Vector3(-5, y + H / 2, 0.85), m_wall)
 	sb(Vector3(4, H, 0.1), Vector3(5, y + H / 2, 0.85), m_wall)
-	sb(Vector3(14, 0.2, 12), Vector3(0, y + H + 0.1, 3), m_wall)
+	sb(Vector3(14, 0.2, 16), Vector3(0, y + H + 0.1, 5), m_wall)
 	# motor s převodovkou a žlutým kladkovým kolem (podle fotky)
 	motor_nodes.append(sb(Vector3(1.8, 0.35, 0.7), Vector3(-0.5, y + 0.17, -0.48), m_grey))
 	motor_nodes.append(sb(Vector3(0.6, 0.55, 0.55), Vector3(-1.1, y + 0.62, -0.48), m_grey))
@@ -447,7 +574,7 @@ func _cabin() -> void:
 	part(cabin, Vector3(0.015, 1.3, 0.2), Vector3(0.675, 1.32, 0.3), m_btn, false)
 	cab_lamp = part(cabin, Vector3(0.02, 0.06, 0.06), Vector3(0.665, 1.9, 0.3), m_lamp_off, false)[0]
 	for f in N:
-		var b := button(cabin, Vector3(0.66, 0.92 + f * 0.075, 0.27), str(f), ["go", f], -PI / 2, "Jet do patra " + str(f), m_btn_black, 0.05)
+		var b := button(cabin, Vector3(0.66, 0.92 + f * 0.075, 0.27), fl(f), ["go", f], -PI / 2, "Jet do patra " + fl(f), m_btn_black, 0.05)
 		cab_btns.append(b)
 	button(cabin, Vector3(0.66, 0.78, 0.27), "STOP", ["stop"], -PI / 2, "STOP", mat(Color(0.7, 0.1, 0.1)), 0.05)
 	part(cabin, Vector3(0.18, 0.12, 0.01), Vector3(0.67, 2.1, 0.3), mat(Color(0.95, 0.95, 0.92)), false)
@@ -473,6 +600,11 @@ func _cabin() -> void:
 	cabin.add_child(curtain)
 	for i in 8:
 		part(curtain, Vector3(1.3, 0.008, 0.008), Vector3(0, 0.15 + i * 0.25, 0.66), mat(Color(1, 0, 0), true), false)
+	for sx in [-1, 1]:
+		var pr := part(cabin, Vector3(0.68, 2.2, 0.03), Vector3(sx * 0.34, 1.2, 0.62), m_kone, true)
+		pr[0].visible = false
+		pr[1].disabled = true
+		cab_kone.append(pr)
 	motor = AudioStreamPlayer3D.new()
 	motor.stream = sfx["motor"]
 	motor.unit_size = 6
@@ -662,6 +794,7 @@ func _sounds() -> void:
 	sfx["motor"] = _gen_motor()
 	sfx["fire"] = _gen_crackle()
 	sfx["spray"] = _gen_noise(1.5, 0.6, 0.5, 0.5)
+	sfx["ding"] = _gen_ding()
 	for k in sfx.keys():
 		for ext in ["ogg", "wav", "mp3"]:
 			var p := "res://sounds/%s.%s" % [k, ext]
@@ -737,6 +870,15 @@ func _gen_crackle() -> AudioStreamWAV:
 			s[c + i] += randf_range(-1, 1) * (1.0 - i / 200.0) * 0.6
 	return _to_wav(s, true)
 
+func _gen_ding() -> AudioStreamWAV:
+	var n := int(1.0 * SR)
+	var s := PackedFloat32Array()
+	s.resize(n)
+	for i in n:
+		var t := float(i) / SR
+		s[i] = (sin(TAU * 880 * t) * (1.0 if t < 0.35 else 0.0) + sin(TAU * 698 * t) * (1.0 if t >= 0.35 else 0.0)) * exp(-fmod(t, 0.35) * 5) * 0.3
+	return _to_wav(s)
+
 func _gen_buzz() -> AudioStreamWAV:
 	var n := int(0.5 * SR)
 	var s := PackedFloat32Array()
@@ -792,38 +934,108 @@ func _particles(amount: int, life: float, c0: Color, c1: Color, sz: float, vel: 
 	p.color_ramp = g
 	return p
 
-func start_fire() -> void:
-	if fire:
+var m_scorch: StandardMaterial3D
+var m_char: StandardMaterial3D
+
+func _index_burnables() -> void:
+	m_scorch = mat(Color(0.25, 0.18, 0.12))
+	m_char = mat(Color(0.05, 0.045, 0.04))
+	m_char.roughness = 1.0
+	var all: Array = []
+	_collect_meshes(self, all)
+	for mi in all:
+		if cabin.is_ancestor_of(mi) or player.is_ancestor_of(mi):
+			continue
+		var f := int(floor(mi.global_position.y / H + 0.01))
+		if not burn_by_floor.has(f):
+			burn_by_floor[f] = []
+		burn_by_floor[f].append(mi)
+
+func _fire_floors() -> String:
+	var a := []
+	for fr in fires:
+		var t := fl(fr.floor)
+		if not t in a:
+			a.append(t)
+	return ", ".join(a)
+
+func start_fire(pos = null, floor_i := -1) -> void:
+	if fires.size() >= 6:
 		return
-	fire_floor = randi() % N
-	fire = Node3D.new()
-	fire.position = Vector3(1.6, fire_floor * H, 1.5)
-	add_child(fire)
-	fire.add_child(_particles(40, 0.9, Color(1, 0.8, 0.2), Color(0.8, 0.1, 0, 0), 0.5, 1.2, true))
+	if floor_i < 0:
+		floor_i = randi_range(GROUND, N - 1)
+	if pos == null:
+		pos = Vector3(randf_range(-6, 6), 0, randf_range(9.5, 12)) if randf() < 0.7 else Vector3(randf_range(1.5, 6), 0, randf_range(2, 7))
+	var node := Node3D.new()
+	node.position = Vector3(pos.x, floor_i * H, pos.z)
+	add_child(node)
+	var flame := _particles(40, 0.9, Color(1, 0.8, 0.2), Color(0.8, 0.1, 0, 0), 0.5, 1.2, true)
+	flame.name = "F"
+	node.add_child(flame)
 	var smoke := _particles(25, 3.0, Color(0.2, 0.2, 0.2, 0.7), Color(0.4, 0.4, 0.4, 0), 0.9, 0.6, false)
 	smoke.position.y = 0.6
-	fire.add_child(smoke)
+	node.add_child(smoke)
 	var l := OmniLight3D.new()
 	l.light_color = Color(1, 0.5, 0.1)
 	l.light_energy = 2
 	l.omni_range = 5
 	l.position.y = 0.6
 	l.name = "L"
-	fire.add_child(l)
+	node.add_child(l)
 	var a := Area3D.new()
 	a.position.y = 0.5
-	fire.add_child(a)
-	shape(a, Vector3(1.0, 1.2, 1.0), Vector3.ZERO)
-	a.set_meta("act", ["fire"])
+	node.add_child(a)
+	shape(a, Vector3(1.2, 1.2, 1.2), Vector3.ZERO)
+	a.set_meta("act", ["fire", node])
 	a.set_meta("hint", "Oheň – uhasit")
 	var snd := AudioStreamPlayer3D.new()
 	snd.stream = sfx["fire"]
 	snd.unit_size = 4
 	snd.autoplay = true
-	fire.add_child(snd)
+	node.add_child(snd)
+	fires.append({"node": node, "floor": floor_i, "t": 0.0})
 	if moving:
 		_emergency_stop()
-	say("HOŘÍ! V %d. patře u šachty vypukl požár. Výtah se vypnul. Vezmi hasicí přístroj!" % fire_floor, 7)
+	say("HOŘÍ! Požár v patře %s. Výtah se vypnul. Vezmi hasicí přístroj!" % fl(floor_i), 7)
+
+## oheň roste, okolí černá a hořlavé věci se rozpadají
+func _burn_step(fr: Dictionary) -> void:
+	fr.t += 1.0
+	var radius: float = min(1.0 + fr.t * 0.08, 7.0)
+	var node: Node3D = fr.node
+	var flame: CPUParticles3D = node.get_node("F")
+	flame.emission_sphere_radius = min(0.35 + fr.t * 0.02, 1.6)
+	flame.amount = int(min(40 + fr.t, 120))
+	if int(fr.t) % 2 != 0:
+		return
+	var c := node.global_position
+	for ff in [fr.floor, fr.floor + 1]:
+		var r: float = radius if ff == fr.floor else radius * 0.5
+		var lst: Array = burn_by_floor.get(ff, [])
+		for mi in lst:
+			if not is_instance_valid(mi) or not mi.is_visible_in_tree():
+				continue
+			var d: float = mi.global_position.distance_to(c)
+			if d > r:
+				continue
+			var st: int = mi.get_meta("burnt", 0)
+			if st == 0:
+				mi.set_meta("burnt", 1)
+				mi.material_override = m_scorch
+			elif st == 1 and d < r - 1.0:
+				mi.set_meta("burnt", 2)
+				mi.material_override = m_char
+			elif st == 2 and randf() < 0.12:
+				var body: Node = mi.get_parent()
+				if body is StaticBody3D and body.has_meta("burnable"):
+					_debris([body])
+					body.queue_free()
+	# šíření
+	if int(fr.t) % 30 == 0 and randf() < 0.6:
+		if randf() < 0.5 and fr.floor + 1 < N:
+			start_fire(Vector3(c.x + randf_range(-1, 1), 0, c.z), fr.floor + 1)   # kouř a plameny stoupají nahoru
+		else:
+			start_fire(Vector3(clampf(c.x + randf_range(-3, 3), -6.5, 6.5), 0, clampf(c.z + randf_range(-2, 2), 1.2, 12.2)), fr.floor)
 
 func _emergency_stop() -> void:
 	moving = false
@@ -839,16 +1051,14 @@ func _part_key(act: Array) -> String:
 		"door": return "door:%d" % act[1]
 		"gate": return "gate"
 		"go", "stop": return "panel"
-		"call": return "ind"
+		"call": return "ind:%d" % act[1]
 		"repair": return "control"
 		"motor": return "motor"
 		"light": return "light"
 	return ""
 
 func _part_name(k: String, st: int) -> String:
-	if k.begins_with("door:"):
-		return ["staré dveře s drátěným sklem", "", "moderní nerezové dveře"][st]
-	return PART_NAMES[k][0 if st == OLD else 1]
+	return "%s – %s" % [MODELS.get(st, "?"), KIND_LABEL[_kind(k)]]
 
 func _on_act(act: Array) -> void:
 	if has_wrench:
@@ -858,6 +1068,9 @@ func _on_act(act: Array) -> void:
 			return
 	if act[0] in ["motor", "light"]:
 		say("Na tohle potřebuješ montážní klíč (visí v přízemí vedle sekery).")
+		return
+	if act[0] == "call" and parts["ind:%d" % act[1]] == GONE:
+		say("Přivolávač tu chybí – každé patro se musí osadit ručně (krabice ve sklepě -2).")
 		return
 	if act[0] in ["go", "stop"] and parts["panel"] == GONE:
 		say("Panel je demontovaný, z díry trčí dráty.")
@@ -871,7 +1084,10 @@ func _on_act(act: Array) -> void:
 			if moving:
 				say("Výtah už jede – svítí OBSAZENO.")
 			elif at_floor(act[1]):
-				say("Výtah tu stojí. Otevři dveře.")
+				if parts["door:%d" % act[1]] == KONE:
+					_auto_open(act[1])
+				else:
+					say("Výtah tu stojí. Otevři dveře.")
 			else:
 				start(act[1])
 		"go":
@@ -895,6 +1111,12 @@ func _on_act(act: Array) -> void:
 				play("buzz")
 				say("Dveře nejdou otevřít – kabina tu není, zámek drží.")
 				return
+			if parts["door:%d" % f] == KONE:
+				if door_open[f]:
+					_auto_close()
+				else:
+					_auto_open(f)
+				return
 			door_open[f] = not door_open[f]
 			var tw := create_tween()
 			tw.tween_property(doors[f], "rotation:y", -1.75 if door_open[f] else 0.0, 0.7).set_trans(Tween.TRANS_SINE)
@@ -910,6 +1132,9 @@ func _on_act(act: Array) -> void:
 			if parts["gate"] == NEW:
 				say("Mříž tu už není – kabinu hlídá moderní světelná závora.")
 				return
+			if parts["gate"] == KONE:
+				_kone_cab(not cab_kone_open)
+				return
 			if parts["gate"] == GONE:
 				say("Mříž je demontovaná.")
 				return
@@ -923,6 +1148,11 @@ func _on_act(act: Array) -> void:
 			tw.tween_property(gate_mesh, "scale:x", 0.08 if gate_open else 1.0, 0.5)
 			tw.tween_property(gate_mesh, "position:x", 0.62 if gate_open else 0.0, 0.5)
 			say("Mříž se s rachotem shrne do strany." if gate_open else "Řinč-řinč… zatáhneš mříž, kontakt cvakne.")
+		"fdoor":
+			var fd: Array = flat_doors[act[1]]
+			fd[1] = not fd[1]
+			create_tween().tween_property(fd[0], "rotation:y", -1.5 if fd[1] else 0.0, 0.5)
+			play("door")
 		"drop":
 			_drop()
 		"take":
@@ -945,7 +1175,7 @@ func _on_act(act: Array) -> void:
 			has_axe = not has_axe
 			say("Sundáš ze zdi požární sekeru. Teď můžeš do výtahu sekat (zpátky ji vrátíš tady)." if has_axe else "Vrátíš sekeru na místo.")
 		"rebuild":
-			if fire:
+			if fires.size() > 0:
 				say("Nejdřív uhas požár!")
 				return
 			style = (style + 1) % STYLES.size()
@@ -968,18 +1198,28 @@ func _on_act(act: Array) -> void:
 				say("Jeden hasičák už neseš.")
 			else:
 				has_ext = true
-				say("Sundáš ze zdi hasicí přístroj. Těžký a studený.")
+				ext_charge = 3
+				say("Sundáš ze zdi hasicí přístroj (vystačí na 3 ohně).")
 		"fire":
 			if not has_ext:
 				say("Holýma rukama to neuhasíš! Hasicí přístroj visí u každých dveří výtahu.")
 				return
 			play("spray")
-			fire.queue_free()
-			fire = null
-			has_ext = false
-			say("Pšššš! Oheň je uhašený. Výtah je ale ohořelý – oprav ho v rozvaděči ve strojovně.", 6)
+			var node: Node3D = act[1]
+			for fr in fires:
+				if fr.node == node:
+					fires.erase(fr)
+					break
+			node.queue_free()
+			ext_charge -= 1
+			if ext_charge <= 0:
+				has_ext = false
+			if fires.size() > 0:
+				say("Pšššš! Jeden oheň je uhašený, ale hoří ještě v patře %s!" % _fire_floors(), 5)
+			else:
+				say("Pšššš! Všechno je uhašené. Zůstala jen černá spáleniště. Výtah oprav v rozvaděči.", 6)
 		"repair":
-			if fire:
+			if fires.size() > 0:
 				say("Nejdřív uhas požár!")
 			elif repairing:
 				pass
@@ -1025,7 +1265,11 @@ var debris: Array = []
 
 func _part_nodes(k: String) -> Array:
 	if k.begins_with("door:"):
-		return [doors[int(k.split(":")[1])].get_child(0)]
+		var f := int(k.split(":")[1])
+		return [doors[f].get_child(0), kone_doors[f][0]]
+	if k.begins_with("ind:"):
+		var f2 := int(k.split(":")[1])
+		return [busy_lamps[f2], call_btns[f2]]
 	match k:
 		"gate": return [gate_mesh]
 		"panel":
@@ -1036,7 +1280,7 @@ func _part_nodes(k: String) -> Array:
 		"light": return [light_panel]
 		"motor": return motor_nodes + [wheel]
 		"control": return [control_box]
-		"ind": return busy_lamps
+		"ind": return []
 	return []
 
 func _collect_meshes(n: Node, out: Array) -> void:
@@ -1107,10 +1351,10 @@ var carry = null                 # {"kind": "door"/"gate"/…, "mod": OLD/NEW}
 var carry_mesh: MeshInstance3D
 
 func _kind(k: String) -> String:
-	return "door" if k.begins_with("door:") else k
+	return k.split(":")[0]
 
 func _kind_name(kind: String, mod: int) -> String:
-	return _part_name("door:0" if kind == "door" else kind, mod)
+	return "%s – %s" % [MODELS.get(mod, "?"), KIND_LABEL[kind]]
 
 const KIND_SIZE := {
 	"door": Vector3(0.45, 0.9, 0.04), "gate": Vector3(0.5, 0.7, 0.05), "panel": Vector3(0.12, 0.5, 0.03),
@@ -1119,8 +1363,7 @@ const KIND_SIZE := {
 }
 
 func _kind_mat(mod: int) -> Material:
-	_modern_mats()
-	return m_steel if mod == NEW else m_frame
+	return mat(MODEL_COLOR[mod])
 
 func _set_carry(c) -> void:
 	carry = c
@@ -1130,9 +1373,15 @@ func _set_carry(c) -> void:
 	if c:
 		carry_mesh = MeshInstance3D.new()
 		var bm := BoxMesh.new()
-		bm.size = KIND_SIZE[c.kind]
+		bm.size = Vector3(0.4, 0.3, 0.3)
 		carry_mesh.mesh = bm
-		carry_mesh.material_override = _kind_mat(c.mod)
+		carry_mesh.material_override = m_box
+		var stripe := MeshInstance3D.new()
+		var sm := BoxMesh.new()
+		sm.size = Vector3(0.41, 0.06, 0.31)
+		stripe.mesh = sm
+		stripe.material_override = _kind_mat(c.mod)
+		carry_mesh.add_child(stripe)
 		carry_mesh.position = Vector3(0.35, -0.35, -0.75)
 		player.cam.add_child(carry_mesh)
 
@@ -1142,7 +1391,7 @@ func _drop() -> void:
 	var xf: Transform3D = player.cam.global_transform
 	xf.origin += -xf.basis.z * 0.8
 	var bm := BoxMesh.new()
-	bm.size = KIND_SIZE[carry.kind]
+	bm.size = Vector3(0.5, 0.4, 0.4)
 	var rb := RigidBody3D.new()
 	rb.collision_layer = 4          # odložené díly jdou zase zvednout
 	rb.collision_mask = 1 | 2 | 4
@@ -1150,8 +1399,9 @@ func _drop() -> void:
 	rb.global_transform = xf
 	var mi := MeshInstance3D.new()
 	mi.mesh = bm
-	mi.material_override = _kind_mat(carry.mod)
+	mi.material_override = m_box
 	rb.add_child(mi)
+	part(rb, Vector3(0.51, 0.08, 0.41), Vector3.ZERO, _kind_mat(carry.mod), false)
 	shape(rb, bm.size, Vector3.ZERO)
 	var name_: String = _kind_name(carry.kind, carry.mod)
 	rb.set_meta("act", ["pickup", carry.kind, carry.mod, rb])
@@ -1159,24 +1409,27 @@ func _drop() -> void:
 	say("Odkládáš: %s." % name_)
 	_set_carry(null)
 
+var m_box: StandardMaterial3D
+
 func _store() -> void:
-	# sklad dílů v přízemí u zadní stěny: nahoře moderní, dole staré
-	add_child(lbl("SKLAD DÍLŮ  ·  nahoře 21. století  ·  dole původní 1974", Vector3(3.8, 2.4, 8.88), 0.004, Color(0.2, 0.2, 0.2)))
-	for row in [[NEW, 1.45], [OLD, 0.55]]:
-		sb(Vector3(5.8, 0.05, 0.5), Vector3(3.8, row[1] - 0.25, 8.65), m_wood)
+	# krabice s díly ve sklepě (-2): sloupce = modely, řádky = druh dílu
+	m_box = mat(Color(0.72, 0.58, 0.38))
 	var kinds := ["door", "gate", "panel", "light", "motor", "control", "ind"]
-	for i in kinds.size():
-		for row in [[NEW, 1.45], [OLD, 0.55]]:
+	var models := [OLD, NEW, KONE]
+	add_child(lbl("KRABICE S DÍLY: Transporta · Helgos · KONE", Vector3(-2.3, 2.4, 1.0), 0.004, Color(0.2, 0.2, 0.2)))
+	for c in models.size():
+		for r in kinds.size():
 			var a := Area3D.new()
-			a.position = Vector3(1.2 + i * 0.85, row[1] - 0.22 + KIND_SIZE[kinds[i]].y / 2, 8.62)
+			a.position = Vector3(-3.6 + c * 1.2, 0.2, 1.7 + r * 0.85)
 			add_child(a)
-			var sz: Vector3 = KIND_SIZE[kinds[i]]
-			part(a, sz, Vector3.ZERO, _kind_mat(row[0]), false)
-			shape(a, Vector3(max(sz.x, 0.3), max(sz.y, 0.3), 0.4), Vector3.ZERO)
-			var nm := _kind_name(kinds[i], row[0])
-			a.add_child(lbl(nm, Vector3(0, -sz.y / 2 - 0.08, 0.26), 0.0014, Color(0.1, 0.1, 0.1)))
-			a.set_meta("act", ["take", kinds[i], row[0]])
-			a.set_meta("hint", "Vzít: " + nm)
+			part(a, Vector3(0.5, 0.4, 0.4), Vector3.ZERO, m_box, true)
+			part(a, Vector3(0.51, 0.08, 0.41), Vector3.ZERO, _kind_mat(models[c]), false)
+			var nm := _kind_name(kinds[r], models[c])
+			var l := lbl(nm.replace(" – ", "\n"), Vector3(0, 0.21, 0), 0.0012, Color(0.1, 0.1, 0.1))
+			l.rotation.x = -PI / 2
+			a.add_child(l)
+			a.set_meta("act", ["take", kinds[r], models[c]])
+			a.set_meta("hint", "Vzít krabici: " + nm)
 
 func _input(e: InputEvent) -> void:
 	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_R:
@@ -1251,64 +1504,121 @@ func _wrench_part(k: String) -> void:
 func _apply_part(k: String) -> void:
 	_modern_mats()
 	var st: int = parts[k]
-	if k.begins_with("door:"):
+	var here := st != GONE
+	if k.begins_with("door:") or k.begins_with("ind:"):
 		var f := int(k.split(":")[1])
+		if k.begins_with("ind:"):
+			indicators[f].visible = here
+			indicators[f].modulate = {OLD: Color(1, 0.1, 0.1), NEW: Color(0.3, 0.9, 1.0), KONE: Color(1, 1, 1), GONE: Color.WHITE}[st]
+			busy_lamps[f].visible = here
+			call_btns[f].get_parent().visible = here
+			call_btns[f].material_override = {OLD: m_btn_black, NEW: m_steel, KONE: m_kone, GONE: m_btn_black}[st]
+			return
 		var d: Node3D = doors[f].get_child(0)
-		d.visible = st != GONE
-		_solid(d, st != GONE)
+		var swing := st == OLD or st == NEW
+		d.visible = swing
+		_solid(d, swing)
 		_skin(d, m_steel if st == NEW else null)
 		for gm in door_glass[f]:
 			gm.material_override = m_clear if st == NEW else m_glass
 			gm.visible = true
-		if st == GONE and door_open[f]:
-			door_open[f] = false
-			doors[f].rotation.y = 0
+		var kn: Array = kone_doors[f]
+		kn[0].visible = st == KONE
+		_solid(kn[0], st == KONE)
+		door_open[f] = false
+		doors[f].rotation.y = 0
+		kn[1][0].position.x = -0.205
+		kn[1][1].position.x = 0.205
 		return
 	match k:
 		"gate":
 			gate_mesh.visible = st == OLD
 			gate_shape.disabled = st != OLD or gate_open
 			curtain.visible = st == NEW
+			for pr in cab_kone:
+				pr[0].visible = st == KONE
+				pr[1].disabled = st != KONE
+			cab_kone_open = false
+			_cab_kone_pos(0.0)
 		"panel":
 			for b in cab_btns:
-				b.get_parent().visible = st != GONE
-			cab_lamp.visible = st != GONE
+				b.get_parent().visible = here
+			cab_lamp.visible = here
 		"light":
-			light_panel.visible = st != GONE
-			light_panel.material_override = mat(Color(0.95, 0.97, 1), true) if st == NEW else light_panel.get_meta("orig", light_panel.material_override)
 			if not light_panel.has_meta("orig"):
 				light_panel.set_meta("orig", light_panel.material_override)
-			bulb.light_color = Color(0.95, 0.97, 1) if st == NEW else Color(1, 0.8, 0.5)
+			light_panel.visible = here
+			light_panel.material_override = light_panel.get_meta("orig") if st == OLD else mat(Color(0.95, 0.97, 1), true)
+			light_panel.scale = Vector3(3, 1, 1) if st == KONE else Vector3.ONE
+			bulb.light_color = Color(1, 0.8, 0.5) if st == OLD else Color(0.95, 0.97, 1)
 		"motor":
 			for n in motor_nodes:
-				n.visible = st != GONE
+				n.visible = here
 				if n is StaticBody3D:
-					_solid(n, st != GONE)
-					_skin(n, m_blue if st == NEW else null)
-			wheel.visible = st != GONE
-			_skin(wheel, m_steel if st == NEW else null)
-			SPEED = 1.8 if st == NEW else 1.0
-			motor.pitch_scale = 1.5 if st == NEW else 1.0
-			motor.volume_db = -10.0 if st == NEW else 0.0
+					_solid(n, here)
+					_skin(n, {OLD: null, NEW: m_blue, KONE: m_kone, GONE: null}[st])
+			wheel.visible = here
+			_skin(wheel, null if st == OLD else m_steel)
+			SPEED = {OLD: 1.0, NEW: 1.6, KONE: 2.2, GONE: 1.0}[st]
+			motor.pitch_scale = {OLD: 1.0, NEW: 1.4, KONE: 1.8, GONE: 1.0}[st]
+			motor.volume_db = 0.0 if st == OLD else -12.0
 		"control":
-			control_box.visible = st != GONE
-			_skin(control_box, mat(Color(0.92, 0.92, 0.9)) if st == NEW else null)
-		"ind":
-			for i in indicators:
-				i.visible = st != GONE
-				i.modulate = Color(0.3, 0.9, 1.0) if st == NEW else Color(1, 0.1, 0.1)
-			for l in busy_lamps:
-				l.visible = st != GONE
+			control_box.visible = here
+			_skin(control_box, {OLD: null, NEW: mat(Color(0.92, 0.92, 0.9)), KONE: m_kone, GONE: null}[st])
+
+# ---------------------------------------------------------------- automatické dveře KONE
+func _cab_kone_pos(o: float) -> void:
+	for i in 2:
+		var sx := -1 if i == 0 else 1
+		var x := sx * (0.34 + o * 0.62)
+		cab_kone[i][0].position.x = x
+		cab_kone[i][1].position.x = x
+
+func _kone_floor(f: int, open: bool) -> void:
+	if door_open[f] == open:
+		return
+	door_open[f] = open
+	var lv: Array = kone_doors[f][1]
+	var tw := create_tween().set_parallel()
+	tw.tween_property(lv[0], "position:x", -0.6 if open else -0.205, 0.9)
+	tw.tween_property(lv[1], "position:x", 0.6 if open else 0.205, 0.9)
+	play("relay")
+
+func _kone_cab(open: bool) -> void:
+	if cab_kone_open == open:
+		return
+	cab_kone_open = open
+	create_tween().tween_method(_cab_kone_pos, 0.0 if open else 1.0, 1.0 if open else 0.0, 0.9)
+
+func _auto_open(f: int) -> void:
+	if parts["door:%d" % f] == KONE:
+		_kone_floor(f, true)
+	if parts["gate"] == KONE:
+		_kone_cab(true)
+	if parts["door:%d" % f] == KONE or parts["gate"] == KONE:
+		play("ding")
+
+func _auto_close() -> bool:
+	var any := false
+	for f in N:
+		if door_open[f] and parts["door:%d" % f] == KONE:
+			_kone_floor(f, false)
+			any = true
+	if cab_kone_open:
+		_kone_cab(false)
+		any = true
+	return any
 
 func start(f: int) -> void:
 	if health <= 0:
 		play("buzz")
 		say("VÝTAH MIMO PROVOZ – je zničený. Oprav ho v rozvaděči ve strojovně (nahoře po schodech).", 6)
 		return
-	if fire:
+	if fires.size() > 0:
 		play("buzz")
-		say("Při požáru výtah nejede! Uhas oheň v %d. patře." % fire_floor)
+		say("Při požáru výtah nejede! Hoří v patře %s." % _fire_floors())
 		return
+	var closing := _auto_close()
 	if true in door_open:
 		play("buzz")
 		say("Nic. Šachetní dveře jsou otevřené – bezpečnostní kontakt nesepnul.")
@@ -1316,10 +1626,13 @@ func start(f: int) -> void:
 	var missing := []
 	for k in parts:
 		if parts[k] == GONE:
-			missing.append(_part_name(k, parts_prev.get(k, OLD)))
+			var t: String = KIND_LABEL[_kind(k)]
+			if ":" in k:
+				t += " (patro %s)" % fl(int(k.split(":")[1]))
+			missing.append(t)
 	if missing.size() > 0:
 		play("buzz")
-		say("Výtah nepojede, chybí: " + ", ".join(missing), 6)
+		say("Výtah nepojede, chybí: " + ", ".join(missing.slice(0, 5)) + (" …" if missing.size() > 5 else ""), 6)
 		return
 	if gate_open and parts["gate"] == OLD:
 		play("buzz")
@@ -1335,6 +1648,10 @@ func start(f: int) -> void:
 		p *= 0.5
 	if randf() < p and absf(cabin.position.y - f * H) > H:
 		break_at = lerpf(cabin.position.y, f * H, randf_range(0.3, 0.7))
+	if closing:
+		moving = false
+		await get_tree().create_timer(1.0).timeout
+		moving = true
 	play("start")
 	get_tree().create_timer(1.0).timeout.connect(_motor_on)
 
@@ -1348,7 +1665,7 @@ func _breakdown() -> void:
 	health = max(health - 8, 0)
 	say("Rána, cvaknutí… a ticho. PORUCHA! Kabina uvízla mezi patry, žárovka bliká.", 6)
 	await get_tree().create_timer(randf_range(5.0, 9.0)).timeout
-	if fire or health <= 0:
+	if fires.size() > 0 or health <= 0:
 		stuck = false
 		return
 	stuck = false
@@ -1358,10 +1675,10 @@ func _breakdown() -> void:
 	say("Něco ve strojovně naskočilo a kabina se škubnutím rozjede dál.")
 
 func _tick() -> void:
-	if fire:
-		health = max(health - 2.0, 0)
-		if health <= 0:
-			say("Výtah je požárem zničený!")
+	if fires.size() > 0:
+		for fr in fires.duplicate():
+			_burn_step(fr)
+		health = max(health - fires.size() * 0.5, 0)
 	elif randf() < 1.0 / 300.0:   # zhruba jednou za 5 minut
 		start_fire()
 
@@ -1378,7 +1695,8 @@ func _physics_process(delta: float) -> void:
 			moving = false
 			motor.stop()
 			play("brake")
-			say("Zabrzdění – %d. patro. Kabina se ještě zhoupne na lanech." % target)
+			say("Zabrzdění – patro %s. Kabina se ještě zhoupne na lanech." % fl(target))
+			_auto_open(target)
 	# lana a závaží
 	var cy := cabin.position.y
 	var top := N * H + 0.8
@@ -1388,14 +1706,15 @@ func _physics_process(delta: float) -> void:
 	var cwt := counterweight.position.y + 0.6
 	rope_cw.position = Vector3(0, (cwt + top) / 2, -0.93)
 	rope_cw.scale.y = top - cwt
-	var fl := str(clampi(roundi(cy / H), 0, N - 1))
+	var fls := fl(clampi(roundi(cy / H), 0, N - 1))
 	for i in indicators:
-		i.text = fl
+		i.text = fls
 	for l in busy_lamps:
 		l.material_override = m_lamp_on if (moving or stuck) else m_lamp_off
 	cab_lamp.material_override = m_lamp_on if (moving or stuck) else m_lamp_off
 	for f in N:
-		cab_btns[f].material_override = (m_led if parts["panel"] == NEW else m_btn_lit) if ((moving or stuck) and f == target) else (m_steel if parts["panel"] == NEW else m_btn_black)
+		var pm: int = parts["panel"]
+		cab_btns[f].material_override = (m_btn_lit if pm == OLD else m_led) if ((moving or stuck) and f == target) else {OLD: m_btn_black, NEW: m_steel, KONE: m_kone, GONE: m_btn_black}[pm]
 	var inside: bool = absf(player.position.x) < 0.7 and absf(player.position.z) < 0.7 and absf(player.position.y - cy) < 1.0
 	player.shake = moving and inside
 	if inside != was_inside and not moving:
@@ -1417,30 +1736,29 @@ func _process(delta: float) -> void:
 		bulb.light_energy = 0.0
 	elif parts["light"] == NEW:
 		bulb.light_energy = 1.3
-	elif stuck or health < 40 or fire:
+	elif stuck or health < 40 or fires.size() > 0:
 		bulb.light_energy = 0.8 if randf() > 0.15 else 0.05
 	else:
 		bulb.light_energy = 0.8
-	if fire:
-		var fl: OmniLight3D = fire.get_node("L")
-		fl.light_energy = randf_range(1.5, 2.6)
+	for fr in fires:
+		var fll: OmniLight3D = fr.node.get_node("L")
+		fll.light_energy = randf_range(1.5, 2.6)
 	var st := "Stav výtahu: %d %%" % int(health)
 	if health <= 0:
 		st += "  ✖ MIMO PROVOZ"
-	if fire:
-		st += "\n🔥 POŽÁR v %d. patře" % fire_floor
+	if fires.size() > 0:
+		st += "\n🔥 POŽÁR – patro %s (%d ohňů)" % [_fire_floors(), fires.size()]
 	if has_ext:
-		st += "\nNeseš hasicí přístroj"
+		st += "\nNeseš hasicí přístroj (%d×)" % ext_charge
 	if has_axe:
 		st += "\nNeseš sekeru 🪓"
 	if has_wrench:
 		st += "\nNeseš montážní klíč 🔧"
 	if carry:
 		st += "\nV rukou: " + _kind_name(carry.kind, carry.mod)
-	var modern := 0
+	var cnt := {OLD: 0, NEW: 0, KONE: 0, GONE: 0}
 	for k in parts:
-		if parts[k] == NEW:
-			modern += 1
-	if modern > 0:
-		st += "\nModernizováno: %d / %d dílů" % [modern, parts.size()]
+		cnt[parts[k]] += 1
+	if cnt[OLD] < parts.size():
+		st += "\nDíly: Transporta %d · Helgos %d · KONE %d · chybí %d" % [cnt[OLD], cnt[NEW], cnt[KONE], cnt[GONE]]
 	status.text = st
