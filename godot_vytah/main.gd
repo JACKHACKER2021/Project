@@ -102,6 +102,7 @@ func _ready() -> void:
 	_machine_room()
 	_axe()
 	_wrench()
+	_store()
 	for k in PART_NAMES:
 		parts[k] = OLD
 	for f in N:
@@ -113,6 +114,7 @@ func _ready() -> void:
 	add_child(player)
 	player.position = Vector3(0, 0.05, 4.5)
 	player.interacted.connect(_on_act)
+	player.ray.collision_mask = 1 | 4
 	if OS.has_feature("mobile"):
 		_touch_ui()
 	var t := Timer.new()
@@ -860,7 +862,7 @@ func _on_act(act: Array) -> void:
 	if act[0] in ["go", "stop"] and parts["panel"] == GONE:
 		say("Panel je demontovaný, z díry trčí dráty.")
 		return
-	if has_axe and act[0] in ["door", "gate", "go", "call", "stop", "repair"]:
+	if has_axe and act[0] in ["door", "gate", "go", "call", "stop", "repair", "motor", "light"]:
 		_hit(act)
 		return
 	match act[0]:
@@ -886,6 +888,9 @@ func _on_act(act: Array) -> void:
 				say("STOP! Prudké zabrzdění mezi patry, kabina se otřese. (opotřebení +)", 5)
 		"door":
 			var f: int = act[1]
+			if parts["door:%d" % f] == GONE:
+				say("Dveře chybí – zeje tu díra do šachty!")
+				return
 			if not at_floor(f):
 				play("buzz")
 				say("Dveře nejdou otevřít – kabina tu není, zámek drží.")
@@ -918,6 +923,21 @@ func _on_act(act: Array) -> void:
 			tw.tween_property(gate_mesh, "scale:x", 0.08 if gate_open else 1.0, 0.5)
 			tw.tween_property(gate_mesh, "position:x", 0.62 if gate_open else 0.0, 0.5)
 			say("Mříž se s rachotem shrne do strany." if gate_open else "Řinč-řinč… zatáhneš mříž, kontakt cvakne.")
+		"drop":
+			_drop()
+		"take":
+			if carry:
+				say("Ruce máš plné – nejdřív díl odlož.")
+			else:
+				_set_carry({"kind": act[1], "mod": act[2]})
+				say("Bereš ze skladu: %s." % _kind_name(act[1], act[2]))
+		"pickup":
+			if carry:
+				say("Ruce máš plné.")
+			else:
+				_set_carry({"kind": act[1], "mod": act[2]})
+				act[3].queue_free()
+				say("Zvedáš: %s." % _kind_name(act[1], act[2]))
 		"wrench":
 			has_wrench = not has_wrench
 			say("Bereš montážní klíč. Teď můžeš výtah rozebírat po dílech a montovat moderní náhrady." if has_wrench else "Vracíš nářadí.", 5)
@@ -978,26 +998,185 @@ func _on_act(act: Array) -> void:
 func _hit(act: Array) -> void:
 	play("door")
 	health = max(health - 10, 0)
-	match act[0]:
-		"door":
-			var pair: Array = door_glass[act[1]]
-			if pair[0].visible or pair[1].visible:
-				for gm in pair:
-					gm.visible = false
-				say("PRÁSK! Drátěné sklo se roztříští, drátky visí ven.")
-			else:
-				say("Bum! Sekera se zasekne do hnědého rámu.")
-		"go", "call", "stop":
-			say("Křach! Tlačítko je rozbité, z panelu jiskří.")
-		"repair":
-			health = max(health - 20, 0)
-			say("ZÁBLESK! Rozsekl jsi rozvaděč. To výtahu moc nepomohlo.")
-		_:
-			say("Řinč! Mříž je pokroucená.")
+	var k := _part_key(act)
+	if act[0] == "door":
+		var pair: Array = door_glass[act[1]]
+		if parts[k] != GONE and (pair[0].visible or pair[1].visible):
+			for gm in pair:
+				_shards(gm)
+				gm.visible = false
+			say("PRÁSK! Drátěné sklo se roztříští a střepy letí na zem.")
+		elif _destroy(k):
+			say("Dveře se utrhnou z pantů a s rachotem padají na zem!")
+		else:
+			say("Tady už nic není.")
+	elif k != "" and _destroy(k):
+		var nm := _part_name(k, parts_prev.get(k, OLD))
+		say("KŘACH! %s se rozpadá a kusy padají na zem." % (nm.substr(0, 1).to_upper() + nm.substr(1)), 5)
+	else:
+		say("Sekáš do prázdna – tady už nic není.")
 	if moving and randf() < 0.4:
 		_breakdown()
 	if health <= 0:
-		say("Výtah je úplně zničený. Oprav ho v rozvaděči nebo udělej rekonstrukci.", 5)
+		say("Výtah je úplně zničený. Oprav ho v rozvaděči nebo přines nové díly ze skladu.", 5)
+
+# ---------------------------------------------------------------- fyzikální úlomky (ragdoll)
+var debris: Array = []
+
+func _part_nodes(k: String) -> Array:
+	if k.begins_with("door:"):
+		return [doors[int(k.split(":")[1])].get_child(0)]
+	match k:
+		"gate": return [gate_mesh]
+		"panel":
+			var a: Array = [cab_lamp]
+			for b in cab_btns:
+				a.append(b.get_parent())
+			return a
+		"light": return [light_panel]
+		"motor": return motor_nodes + [wheel]
+		"control": return [control_box]
+		"ind": return busy_lamps
+	return []
+
+func _collect_meshes(n: Node, out: Array) -> void:
+	if n is MeshInstance3D and n.is_visible_in_tree():
+		out.append(n)
+	for c in n.get_children():
+		_collect_meshes(c, out)
+
+func _spawn_body(mesh: Mesh, m: Material, xf: Transform3D, size: Vector3) -> RigidBody3D:
+	var rb := RigidBody3D.new()
+	rb.collision_layer = 2          # hráč úlomky neblokují, ale padají na podlahu
+	rb.collision_mask = 1 | 2
+	add_child(rb)
+	rb.global_transform = xf
+	var mi := MeshInstance3D.new()
+	mi.mesh = mesh
+	mi.material_override = m
+	rb.add_child(mi)
+	var cs := CollisionShape3D.new()
+	var bs := BoxShape3D.new()
+	bs.size = Vector3(max(size.x, 0.03), max(size.y, 0.03), max(size.z, 0.03))
+	cs.shape = bs
+	rb.add_child(cs)
+	rb.mass = clampf(size.x * size.y * size.z * 400.0, 0.2, 60.0)
+	var away: Vector3 = (xf.origin - player.global_position)
+	away.y = 0
+	rb.apply_central_impulse((away.normalized() * 1.5 + Vector3(randf_range(-1, 1), randf_range(0, 1.5), randf_range(-1, 1))) * rb.mass)
+	rb.apply_torque_impulse(Vector3(randf_range(-1, 1), randf_range(-1, 1), randf_range(-1, 1)) * rb.mass * 0.3)
+	debris.append(rb)
+	while debris.size() > 160:
+		var old = debris.pop_front()
+		if is_instance_valid(old):
+			old.queue_free()
+	return rb
+
+func _debris(nodes: Array) -> void:
+	var meshes: Array = []
+	for n in nodes:
+		_collect_meshes(n, meshes)
+	for mi in meshes:
+		var sz: Vector3 = mi.get_aabb().size * mi.global_transform.basis.get_scale()
+		_spawn_body(mi.mesh, mi.material_override, mi.global_transform.orthonormalized(), sz)
+
+func _shards(mi: MeshInstance3D) -> void:
+	if not mi.is_visible_in_tree():
+		return
+	var sz: Vector3 = mi.get_aabb().size
+	for i in 10:
+		var bm := BoxMesh.new()
+		var piece := Vector3(sz.x * randf_range(0.15, 0.35), sz.y * randf_range(0.12, 0.3), 0.01)
+		bm.size = piece
+		var xf := mi.global_transform
+		xf.origin += xf.basis * Vector3(randf_range(-0.4, 0.4) * sz.x, randf_range(-0.4, 0.4) * sz.y, 0)
+		_spawn_body(bm, mi.material_override, xf, piece)
+
+func _destroy(k: String) -> bool:
+	if parts[k] == GONE:
+		return false
+	_modern_mats()
+	_debris(_part_nodes(k))
+	parts_prev[k] = parts[k]
+	parts[k] = GONE
+	_apply_part(k)
+	return true
+
+# ---------------------------------------------------------------- nošení dílů a sklad
+var carry = null                 # {"kind": "door"/"gate"/…, "mod": OLD/NEW}
+var carry_mesh: MeshInstance3D
+
+func _kind(k: String) -> String:
+	return "door" if k.begins_with("door:") else k
+
+func _kind_name(kind: String, mod: int) -> String:
+	return _part_name("door:0" if kind == "door" else kind, mod)
+
+const KIND_SIZE := {
+	"door": Vector3(0.45, 0.9, 0.04), "gate": Vector3(0.5, 0.7, 0.05), "panel": Vector3(0.12, 0.5, 0.03),
+	"light": Vector3(0.25, 0.05, 0.25), "motor": Vector3(0.5, 0.4, 0.4), "control": Vector3(0.3, 0.45, 0.2),
+	"ind": Vector3(0.2, 0.15, 0.05),
+}
+
+func _kind_mat(mod: int) -> Material:
+	_modern_mats()
+	return m_steel if mod == NEW else m_frame
+
+func _set_carry(c) -> void:
+	carry = c
+	if carry_mesh:
+		carry_mesh.queue_free()
+		carry_mesh = null
+	if c:
+		carry_mesh = MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = KIND_SIZE[c.kind]
+		carry_mesh.mesh = bm
+		carry_mesh.material_override = _kind_mat(c.mod)
+		carry_mesh.position = Vector3(0.35, -0.35, -0.75)
+		player.cam.add_child(carry_mesh)
+
+func _drop() -> void:
+	if carry == null:
+		return
+	var xf: Transform3D = player.cam.global_transform
+	xf.origin += -xf.basis.z * 0.8
+	var bm := BoxMesh.new()
+	bm.size = KIND_SIZE[carry.kind]
+	var rb := RigidBody3D.new()
+	rb.collision_layer = 4          # odložené díly jdou zase zvednout
+	rb.collision_mask = 1 | 2 | 4
+	add_child(rb)
+	rb.global_transform = xf
+	var mi := MeshInstance3D.new()
+	mi.mesh = bm
+	mi.material_override = _kind_mat(carry.mod)
+	rb.add_child(mi)
+	shape(rb, bm.size, Vector3.ZERO)
+	var name_: String = _kind_name(carry.kind, carry.mod)
+	rb.set_meta("act", ["pickup", carry.kind, carry.mod, rb])
+	rb.set_meta("hint", "Zvednout: " + name_)
+	say("Odkládáš: %s." % name_)
+	_set_carry(null)
+
+func _store() -> void:
+	# sklad dílů v přízemí u zadní stěny: nahoře moderní, dole staré
+	add_child(lbl("SKLAD DÍLŮ  ·  nahoře 21. století  ·  dole původní 1974", Vector3(3.8, 2.4, 8.88), 0.004, Color(0.2, 0.2, 0.2)))
+	for row in [[NEW, 1.45], [OLD, 0.55]]:
+		sb(Vector3(5.8, 0.05, 0.5), Vector3(3.8, row[1] - 0.25, 8.65), m_wood)
+	var kinds := ["door", "gate", "panel", "light", "motor", "control", "ind"]
+	for i in kinds.size():
+		for row in [[NEW, 1.45], [OLD, 0.55]]:
+			var a := Area3D.new()
+			a.position = Vector3(1.2 + i * 0.85, row[1] - 0.22 + KIND_SIZE[kinds[i]].y / 2, 8.62)
+			add_child(a)
+			var sz: Vector3 = KIND_SIZE[kinds[i]]
+			part(a, sz, Vector3.ZERO, _kind_mat(row[0]), false)
+			shape(a, Vector3(max(sz.x, 0.3), max(sz.y, 0.3), 0.4), Vector3.ZERO)
+			var nm := _kind_name(kinds[i], row[0])
+			a.add_child(lbl(nm, Vector3(0, -sz.y / 2 - 0.08, 0.26), 0.0014, Color(0.1, 0.1, 0.1)))
+			a.set_meta("act", ["take", kinds[i], row[0]])
+			a.set_meta("hint", "Vzít: " + nm)
 
 func _input(e: InputEvent) -> void:
 	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_R:
@@ -1045,20 +1224,32 @@ func _wrench_part(k: String) -> void:
 		return
 	_modern_mats()
 	var st: int = parts[k]
-	var nst: int
+	var kind := _kind(k)
 	if st != GONE:
+		if carry:
+			say("Ruce máš plné – nejdřív díl odlož (POUŽÍT do prázdna).")
+			return
 		parts_prev[k] = st
-		nst = GONE
+		parts[k] = GONE
+		_apply_part(k)
+		_set_carry({"kind": kind, "mod": st})
 		play("gate")
-		say("Povoluješ šrouby… demontováno: %s. Teď můžeš namontovat náhradu." % _part_name(k, st), 5)
+		say("Povoluješ šrouby… odmontováno: %s. Neseš ho v rukou. Odlož ho a přines náhradu ze skladu v přízemí." % _part_name(k, st), 6)
 	else:
-		nst = NEW if parts_prev.get(k, OLD) == OLD else OLD
+		if carry == null:
+			say("Tady chybí díl. Přines ho – nové i staré díly jsou ve skladu v přízemí.", 5)
+			return
+		if carry.kind != kind:
+			say("Tohle sem nepasuje – neseš %s." % _kind_name(carry.kind, carry.mod))
+			return
+		parts[k] = carry.mod
+		_apply_part(k)
 		play("relay")
-		say("Namontováno: %s." % _part_name(k, nst) + (" Vítej v 21. století!" if nst == NEW else " Zpátky v roce 1974."), 5)
-	parts[k] = nst
-	_apply_part(k)
+		say("Namontováno: %s." % _part_name(k, carry.mod) + (" Vítej v 21. století!" if carry.mod == NEW else " Zpátky v roce 1974."), 5)
+		_set_carry(null)
 
 func _apply_part(k: String) -> void:
+	_modern_mats()
 	var st: int = parts[k]
 	if k.begins_with("door:"):
 		var f := int(k.split(":")[1])
@@ -1244,6 +1435,8 @@ func _process(delta: float) -> void:
 		st += "\nNeseš sekeru 🪓"
 	if has_wrench:
 		st += "\nNeseš montážní klíč 🔧"
+	if carry:
+		st += "\nV rukou: " + _kind_name(carry.kind, carry.mod)
 	var modern := 0
 	for k in parts:
 		if parts[k] == NEW:

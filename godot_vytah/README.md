@@ -9,8 +9,9 @@ Dvanáctipatrový panelák se starým československým výtahem. Otevři složk
 - Schodiště vede přes všechna patra až do strojovny (motor, kladkové kolo, závaží, rozvaděč).
 - Poruchy: kabina občas uvízne mezi patry; čím horší stav výtahu, tím častěji.
 - Požár: občas vypukne u šachty; hasicí přístroj visí u každých dveří. Oheň výtah ničí.
-- Sekera (přízemí): rozbíjení skla, tlačítek, mříže…
-- Montážní klíč (přízemí): rozebírání po dílech a montáž moderních náhrad z 21. století
+- Sekera (přízemí): rozbíjení – sklo se roztříští a díly odpadávají jako fyzikální úlomky.
+- Montážní klíč (přízemí): odmontovaný díl neseš v rukou, POUŽÍT do prázdna ho odloží (jde zase zvednout);
+  náhrady (staré i moderní) jsou ve SKLADU DÍLŮ u zadní stěny v přízemí. Rozebírání po dílech a montáž moderních náhrad z 21. století
   (dveře v každém patře, mříž → světelná závora, panel → LED, žárovka → LED, motor → bezpřevodový,
   rozvaděč → mikroprocesor, ukazatele → LCD). Bez některého dílu výtah nepojede.
 - Rozvaděč ve strojovně opraví výtah, pult REKONSTRUKCE mění barvu.

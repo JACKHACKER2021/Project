@@ -93,6 +93,8 @@ func _use() -> void:
 	var c := looked_at()
 	if c:
 		interacted.emit(c.get_meta("act"))
+	else:
+		interacted.emit(["drop"])   # POUŽÍT do prázdna = odložit nesený díl
 
 func _physics_process(delta: float) -> void:
 	if not is_on_floor():
