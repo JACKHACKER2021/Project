@@ -68,9 +68,10 @@ func _ready() -> void:
 			break
 		inst.queue_free()
 	if sekera_model:
-		sekera_model.position = Vector3(0.34, -0.42, -0.5)
-		sekera_model.rotation_degrees = Vector3(-14, 20, 8)
-		sekera_model.scale = Vector3.ONE * 0.9
+		# sekera v ruce: malá a vpravo dole, ať nezakrývá výhled
+		sekera_model.position = Vector3(0.30, -0.46, -0.52)
+		sekera_model.rotation_degrees = Vector3(-24, 152, 16)
+		sekera_model.scale = Vector3.ONE * 0.42
 		kamera.add_child(sekera_model)
 
 # ---------------------------------------------------------------- vstup
@@ -214,8 +215,8 @@ func seknout() -> void:
 	hluk = 1.0
 	if sekera_model:
 		var tw := create_tween()
-		tw.tween_property(sekera_model, "rotation_degrees:x", -58.0, 0.08)
-		tw.tween_property(sekera_model, "rotation_degrees:x", -14.0, 0.3)
+		tw.tween_property(sekera_model, "rotation_degrees:x", -72.0, 0.08)
+		tw.tween_property(sekera_model, "rotation_degrees:x", -24.0, 0.3)
 	zvuk.hraj_3d(zvuk.nahodny(zvuk.SEKERA), self, -3.0, 40.0)
 	var h := _raycast_pred_sebou(2.2)
 	if not h.is_empty():

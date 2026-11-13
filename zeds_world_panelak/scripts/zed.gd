@@ -8,7 +8,7 @@ enum Stav { HLIDKA, PRICHAZI, KOUKA_DO_OKEN, ZLOST, HAZI, ODCHAZI }
 const RYCHLOST := 11.0           # m/s — na 300 m bytost je to pomalá chůze
 const KROK_PERIODA := 1.45       # sedí na animaci Walk i na zvuk kroku
 const DOSAH_HLUKU := 900.0
-const VZDALENOST_U_DOMU := 210.0
+const VZDALENOST_U_DOMU := 175.0   # blíž k domu už nejde, jinak by v něm stál
 
 var model: Node3D
 var zvuk: Node
@@ -63,7 +63,9 @@ func _process(delta: float) -> void:
 			if global_position.distance_to(cil) < 20.0:
 				if randf() < 0.5:
 					_prepni(Stav.PRICHAZI)
-					cil = Vector3(randf_range(-90, 90), 0, randf_range(-90, 90))
+					# k domu se jen přiblíží, dovnitř nelez — je 300 m vysoký
+					var uh := randf() * TAU
+					cil = Vector3(cos(uh), 0, sin(uh)) * VZDALENOST_U_DOMU
 				else:
 					_novy_cil()
 		Stav.PRICHAZI:
@@ -104,7 +106,16 @@ func _prepni(s: Stav) -> void:
 			_hod_lodi()
 
 func _u_domu() -> bool:
-	return Vector2(global_position.x, global_position.z).length() < VZDALENOST_U_DOMU
+	return Vector2(global_position.x, global_position.z).length() < VZDALENOST_U_DOMU + 25.0
+
+func _odraz_od_domu() -> void:
+	## Do domu se nesmí dostat ani omylem.
+	var v := Vector2(global_position.x, global_position.z)
+	if v.length() < VZDALENOST_U_DOMU - 5.0:
+		v = v.normalized() * (VZDALENOST_U_DOMU - 5.0) if v.length() > 0.1 \
+			else Vector2(VZDALENOST_U_DOMU, 0)
+		global_position.x = v.x
+		global_position.z = v.y
 
 func _jdi_k(kam: Vector3, delta: float) -> void:
 	var smer := (kam - global_position)
@@ -113,6 +124,7 @@ func _jdi_k(kam: Vector3, delta: float) -> void:
 		return
 	smer = smer.normalized()
 	global_position += smer * RYCHLOST * delta
+	_odraz_od_domu()
 	var cil_uhel := atan2(smer.x, smer.z)
 	rotation.y = lerp_angle(rotation.y, cil_uhel, delta * 0.8)
 	_kroky(delta)

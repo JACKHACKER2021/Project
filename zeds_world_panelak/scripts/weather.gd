@@ -86,6 +86,15 @@ func _process(_d: float) -> void:
 	# uvnitř se mlha i obloha musí vypnout, jinak je celý byt růžový
 	if prostredi:
 		prostredi.fog_enabled = venku
-		prostredi.ambient_light_energy = 0.42 if venku else 0.06
+		if venku:
+			prostredi.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
+			prostredi.ambient_light_sky_contribution = 1.0
+			prostredi.ambient_light_energy = 0.42
+		else:
+			# uvnitř se obloha nesmí počítat vůbec, jinak je celý byt růžový
+			prostredi.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+			prostredi.ambient_light_sky_contribution = 0.0
+			prostredi.ambient_light_color = Color(0.09, 0.08, 0.08)
+			prostredi.ambient_light_energy = 1.0
 	if slunce:
 		slunce.light_energy = 0.55 if venku else 0.06

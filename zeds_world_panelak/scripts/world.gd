@@ -34,7 +34,14 @@ func _ready() -> void:
 	_postav_lampy()
 	_postav_svetla_domu()
 	_postav_dvere()
-	_intro()
+	if "demolice" in OS.get_cmdline_user_args():
+		var a2 := preload("res://scripts/autopilot2.gd").new()
+		add_child(a2)
+		a2.dum_stav = dum_stav
+	if "autopilot" in OS.get_cmdline_user_args():
+		_autopilot()
+	else:
+		_intro()
 
 # ---------------------------------------------------------------- dům
 func _postav_dum() -> void:
@@ -49,6 +56,10 @@ func _postav_dum() -> void:
 	var kolize := preload("res://scripts/colliders.gd").new()
 	add_child(kolize)
 	kolize.dum = dum
+	# vykreslovat jen pásy domu kolem hráče, jinak to telefon neutáhne
+	var lod := preload("res://scripts/chunk_lod.gd").new()
+	add_child(lod)
+	lod.dum = dum
 
 func _postav_pocasi() -> void:
 	pocasi = preload("res://scripts/weather.gd").new()
@@ -131,6 +142,20 @@ func _postav_dvere() -> void:
 	add_child(d)
 	d.zvuk = zvuk
 	d.hrac = hrac
+
+func _autopilot() -> void:
+	## Automatický průchod pro nahrání testovacího videa.
+	svetla_jdou = false
+	hrac.baterka_povolena = true
+	hrac.muze_hybat = false
+	var a := preload("res://scripts/autopilot.gd").new()
+	add_child(a)
+	a.svet = self
+	a.vytah = vytah
+	a.dum_stav = dum_stav
+	await get_tree().create_timer(8.0).timeout
+	_zhasni_svetla()
+	hrac.prepni_baterku()
 
 func _hlaska(text: String) -> void:
 	if hud:

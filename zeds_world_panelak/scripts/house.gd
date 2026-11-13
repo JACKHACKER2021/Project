@@ -172,14 +172,14 @@ func _panel(kde: Vector3, vel: Vector3) -> void:
 
 func _prach(kde: Vector3, sila: float) -> void:
 	## Mrak prachu po zřícení. Zvedne se a rozplyne.
-	for i in int(5 + 7 * sila):
+	for i in int(10 + 14 * sila):
 		var mi := MeshInstance3D.new()
 		var bm := BoxMesh.new()
-		var v := randf_range(6.0, 16.0) * sila
+		var v := randf_range(3.0, 8.0) * sila
 		bm.size = Vector3(v, v * 0.7, v)
 		mi.mesh = bm
 		var m := StandardMaterial3D.new()
-		m.albedo_color = Color(0.74, 0.70, 0.64, 0.5)
+		m.albedo_color = Color(0.74, 0.70, 0.64, 0.33)
 		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 		mi.material_override = m
