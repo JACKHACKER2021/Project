@@ -5,7 +5,8 @@ extends Node3D
 
 const PRAH_ODPOCTU := 55.0
 const ZAKLADNI_CAS := 120.0
-const MAX_PADAJICICH := 20          # kolik RigidBody3D smí běžet najednou
+const MAX_PADAJICICH := 34          # kolik RigidBody3D smí běžet najednou
+const KUSU_Z_DILU := 3              # na kolik kusů se rozletí jeden díl
 const PASU := 7                     # výškové pásy kus_00 .. kus_06
 const SEGMENTU := 3
 
@@ -112,42 +113,93 @@ func _zbor(klic: String) -> void:
 	var kde := stred_kusu(kusy[klic]["pas"], kusy[klic]["seg"])
 	for n in kusy[klic]["uzly"]:
 		_rozpadni(n)
+	_prach(kde, 1.0)
+	_prach(Vector3(kde.x, 2.0, 0.0), 1.4)        # prach se vyvalí i dole u paty
+	_otres(kde, 1.0)
 	_naklonuj("trosky_%d" % (1 + randi() % 5), Vector3(kde.x, 0.5, randf_range(-8, 8)))
+	_naklonuj("trosky_%d" % (1 + randi() % 5), Vector3(kde.x * 0.4, 0.5, randf_range(-14, 14)))
 	_ohen_na(klic, 1.0)
 	_naklonuj("kour_%d" % (2 + randi() % 3), kde + Vector3(0, 14, 0))
 
 func _rozpadni(n: MeshInstance3D) -> void:
-	## Z viditelného dílu uděláme padající těleso. Když už jich lítá moc,
-	## díl jen zmizí — mobil by to jinak nedal.
+	## Díl se neschová — roztrhne se na několik panelů, které padají dolů.
 	n.visible = false
-	if padajici.size() >= MAX_PADAJICICH:
-		return
 	var aabb := n.get_aabb()
-	if aabb.get_volume() < 0.5 or aabb.get_volume() > 40000.0:
+	if aabb.get_volume() < 0.5:
 		return
+	var stred := n.global_position + aabb.get_center()
+	for i in KUSU_Z_DILU:
+		if padajici.size() >= MAX_PADAJICICH:
+			return
+		_panel(stred, aabb.size)
+
+func _panel(kde: Vector3, vel: Vector3) -> void:
+	## Jeden kus betonového panelu. Vlastní geometrie, ať to nejsou
+	## celé patra lítající vzduchem.
 	var rb := RigidBody3D.new()
+	var s := Vector3(
+		clampf(vel.x * randf_range(0.12, 0.3), 1.0, 9.0),
+		clampf(vel.y * randf_range(0.08, 0.2), 0.6, 5.0),
+		clampf(vel.z * randf_range(0.15, 0.4), 0.8, 7.0))
 	var mi := MeshInstance3D.new()
-	mi.mesh = n.mesh
-	mi.position = -aabb.get_center()
+	var bm := BoxMesh.new()
+	bm.size = s
+	mi.mesh = bm
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color(0.62, 0.60, 0.56).lerp(Color(0.3, 0.28, 0.26), randf())
+	m.roughness = 0.95
+	mi.material_override = m
 	rb.add_child(mi)
 	var cs := CollisionShape3D.new()
 	var bs := BoxShape3D.new()
-	bs.size = aabb.size.clampf(0.4, 60.0)
+	bs.size = s
 	cs.shape = bs
 	rb.add_child(cs)
-	rb.mass = clampf(aabb.get_volume() * 0.4, 20.0, 4000.0)
+	rb.mass = clampf(s.x * s.y * s.z * 2.4, 40.0, 3000.0)
 	add_child(rb)
-	rb.global_position = n.global_position + aabb.get_center()
-	rb.angular_velocity = Vector3(randf_range(-0.6, 0.6), randf_range(-0.6, 0.6),
-		randf_range(-0.6, 0.6))
-	rb.linear_velocity = Vector3(randf_range(-4, 4), -2.0, randf_range(-4, 4))
+	rb.global_position = kde + Vector3(randf_range(-12, 12), randf_range(-16, 16),
+		randf_range(-8, 8))
+	rb.angular_velocity = Vector3(randf_range(-1.4, 1.4), randf_range(-1.4, 1.4),
+		randf_range(-1.4, 1.4))
+	rb.linear_velocity = Vector3(randf_range(-9, 9), randf_range(-4, 1),
+		randf_range(-9, 9))
 	padajici.append(rb)
-	# po dopadu kus za chvíli zmizí, ať se jich nehromadí tisíc
-	get_tree().create_timer(randf_range(9.0, 16.0)).timeout.connect(
+	get_tree().create_timer(randf_range(10.0, 18.0)).timeout.connect(
 		func():
 			padajici.erase(rb)
 			if is_instance_valid(rb):
 				rb.queue_free())
+
+func _prach(kde: Vector3, sila: float) -> void:
+	## Mrak prachu po zřícení. Zvedne se a rozplyne.
+	for i in int(5 + 7 * sila):
+		var mi := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		var v := randf_range(6.0, 16.0) * sila
+		bm.size = Vector3(v, v * 0.7, v)
+		mi.mesh = bm
+		var m := StandardMaterial3D.new()
+		m.albedo_color = Color(0.74, 0.70, 0.64, 0.5)
+		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		mi.material_override = m
+		add_child(mi)
+		mi.global_position = kde + Vector3(randf_range(-14, 14), randf_range(-6, 6),
+			randf_range(-10, 10))
+		var tw := create_tween()
+		tw.tween_property(mi, "global_position",
+			mi.global_position + Vector3(randf_range(-18, 18), randf_range(8, 26),
+			randf_range(-18, 18)), randf_range(3.5, 7.0))
+		tw.parallel().tween_property(mi, "scale", Vector3.ONE * randf_range(2.0, 3.5),
+			5.0)
+		tw.parallel().tween_property(m, "albedo_color:a", 0.0, randf_range(4.0, 7.0))
+		tw.tween_callback(mi.queue_free)
+
+func _otres(kde: Vector3, sila: float) -> void:
+	if hrac == null:
+		return
+	var d := hrac.global_position.distance_to(kde)
+	hrac.shake = maxf(hrac.shake, clampf(sila * (1.0 - d / 320.0), 0.0, 1.0))
 
 func _ohen_na(klic: String, sila: float) -> void:
 	var kde := stred_kusu(kusy[klic]["pas"], kusy[klic]["seg"])
@@ -207,6 +259,10 @@ func _ohen_krok() -> void:
 			kusy[k]["hori"] = nove[k]
 			_ohen_na(k, 0.4)
 			zvuk.hraj_3d("predmet_ozije_02", self, -14.0, 400.0, 60.0)
+	# hořící kusy dostanou další plameny, jak oheň sílí
+	for k in kusy:
+		if kusy[k]["stoji"] and kusy[k]["hori"] > 0.3 and randf() < 0.08:
+			_ohen_na(k, kusy[k]["hori"])
 
 func _opora_krok() -> void:
 	## Co nemá pod sebou oporu, dřív nebo později spadne.
@@ -235,7 +291,10 @@ func _sesyp() -> void:
 			if k != "" and kusy[k]["stoji"]:
 				_zbor(k)
 				_prepocti()
-			await get_tree().create_timer(0.22).timeout
+				zvuk.hraj_3d("zed_hod_lodi_02", self, -2.0, 900.0, 150.0)
+			await get_tree().create_timer(0.18).timeout
+		_prach(Vector3(0, pas * 50.0, 0), 1.8)
+		_otres(Vector3(0, pas * 50.0, 0), 1.0)
 	for i in ZWConfig.CELLARS:
 		var ks := "sklep_%d" % (i + 1)
 		if kusy.has(ks) and kusy[ks]["stoji"]:

@@ -24,8 +24,10 @@ func _postav_patro(f: int) -> Node3D:
 	var y := ZWConfig.floor_y(f)
 	# okna po obou dlouhých stranách, rozteč 5.1 m jako v modelu
 	for sz in [-1.0, 1.0]:
-		for k in 14:
-			var x: float = -ZWConfig.HX + 3.6 + k * 5.1
+		for k in 16:
+			var x: float = (-32.0 + (k / 2) * 8.6) + (-2.1 if k % 2 == 0 else 2.1)
+			if sz > 0.0 and x > ZWConfig.JADRO_X0 and x < ZWConfig.JADRO_X1:
+				continue
 			var z: float = sz * (ZWConfig.HZ - 0.25)
 			var b: Node3D = preload("res://scripts/blinds.gd").new()
 			b.dum_stav = dum_stav

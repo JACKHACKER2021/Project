@@ -33,6 +33,7 @@ func _ready() -> void:
 	_postav_zaluzie()
 	_postav_lampy()
 	_postav_svetla_domu()
+	_postav_dvere()
 	_intro()
 
 # ---------------------------------------------------------------- dům
@@ -123,6 +124,13 @@ func _postav_svetla_domu() -> void:
 	var sv := preload("res://scripts/house_lights.gd").new()
 	add_child(sv)
 	sv.hrac = hrac
+
+func _postav_dvere() -> void:
+	## Dveře bytů se dají otevřít; část jich je zamčená a jdou na sekeru.
+	var d := preload("res://scripts/dvere_manager.gd").new()
+	add_child(d)
+	d.zvuk = zvuk
+	d.hrac = hrac
 
 func _hlaska(text: String) -> void:
 	if hud:

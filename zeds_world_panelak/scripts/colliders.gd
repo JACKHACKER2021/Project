@@ -59,15 +59,21 @@ func _postav_patro(f: int) -> Node3D:
 		_sklep(n, f, y)
 		return n
 
-	# stěny chodby s otvory ve dveřích bytů
+	# stěny chodby s otvory ve dveřích bytů; na severu navíc vstup do jádra
 	for sz in [-1.0, 1.0]:
 		var z: float = sz * ZWConfig.COR_HZ
 		var hrany: Array[float] = [-ZWConfig.HX]
 		for i in ZWConfig.APT_COUNT:
 			var x := ZWConfig.apt_x(i)
+			if sz > 0.0 and x > ZWConfig.JADRO_X0 and x < ZWConfig.JADRO_X1:
+				continue
 			hrany.append(x - 0.6)
 			hrany.append(x + 0.6)
+		if sz > 0.0:
+			hrany.append(ZWConfig.JADRO_X0)
+			hrany.append(ZWConfig.JADRO_X1)
 		hrany.append(ZWConfig.HX)
+		hrany.sort()
 		var i2 := 0
 		while i2 < hrany.size() - 1:
 			var a: float = hrany[i2]
@@ -75,13 +81,22 @@ func _postav_patro(f: int) -> Node3D:
 			if b - a > 0.05:
 				_box(n, Vector3((a + b) * 0.5, y + 1.5, z), Vector3(b - a, 3.0, 0.14))
 			i2 += 2
-	# příčky mezi byty
+	# příčky mezi byty (v jádru žádné)
 	for sz in [-1.0, 1.0]:
 		for i in ZWConfig.APT_COUNT:
-			_box(n, Vector3(ZWConfig.apt_x(i) + 4.3, y + 1.5, sz * (ZWConfig.HZ * 0.55)),
+			var px := ZWConfig.apt_x(i) + 4.3
+			if sz > 0.0 and px > ZWConfig.JADRO_X0 - 4.3 and px < ZWConfig.JADRO_X1:
+				continue
+			_box(n, Vector3(px, y + 1.5, sz * (ZWConfig.HZ * 0.55)),
 				Vector3(0.14, 3.0, ZWConfig.HZ * 0.9))
-	# šachta výtahu — stěny kolem, aby se do ní nedalo spadnout,
-	# dveřní otvor řeší elevator.gd
+	# stěny jádra
+	for xj in [ZWConfig.JADRO_X0, ZWConfig.JADRO_X1]:
+		_box(n, Vector3(xj, y + 1.5, (ZWConfig.COR_HZ + ZWConfig.HZ) * 0.5),
+			Vector3(0.18, 3.0, ZWConfig.HZ - ZWConfig.COR_HZ))
+	_box(n, Vector3(ZWConfig.SH_X1 + 1.0, y + 1.5,
+		(ZWConfig.SH_Z1 + ZWConfig.HZ) * 0.5),
+		Vector3(0.18, 3.0, ZWConfig.HZ - ZWConfig.SH_Z1))
+	# šachta výtahu — zadní a boční stěny; čelo řeší dveře výtahu
 	var sx0 := ZWConfig.SH_X0 - 0.3
 	var sx1 := ZWConfig.SH_X1 + 0.3
 	_box(n, Vector3((sx0 + sx1) * 0.5, y + 1.5, ZWConfig.SH_Z1 + 0.2),

@@ -27,6 +27,7 @@ var _look := Vector2.ZERO        # z dotykového ovládání
 var _pohyb := Vector2.ZERO       # z virtuální páčky
 var _sek_cooldown := 0.0
 var cil_interakce: Node = null
+var cil_popis := ""
 
 signal zmena_stavu
 
@@ -147,7 +148,23 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 	_kroky(delta, smer.length() > 0.1, rychlost)
+	_zamer()
 	zmena_stavu.emit()
+
+func _zamer() -> void:
+	## Co je právě pod rukou. HUD to vypisuje, ať hráč neťuká naslepo.
+	cil_interakce = null
+	cil_popis = ""
+	var h := _raycast_pred_sebou(DOSAH_RUKY)
+	if h.is_empty():
+		return
+	var c = h.collider
+	while c != null:
+		if c.has_method("pouzij"):
+			cil_interakce = c
+			cil_popis = c.popis() if c.has_method("popis") else "Použít"
+			return
+		c = c.get_parent()
 
 func _kroky(delta: float, jde: bool, rychlost: float) -> void:
 	if not jde or not is_on_floor():

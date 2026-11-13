@@ -46,3 +46,6 @@ func zasah_sekerou(kolik: float) -> void:
 
 func pouzij(_kdo: Node) -> void:
 	pass
+
+func popis() -> String:
+	return "Tohle ožilo. Sekeru."

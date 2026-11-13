@@ -16,6 +16,9 @@ var popis_dum: Label
 var popis_cas: Label
 var titulky: Label
 var nadpis: Label
+var napoveda: Label
+var smery: Label
+var patro_popis: Label
 
 var _packa_id := -1
 var _packa_stred := Vector2.ZERO
@@ -126,6 +129,33 @@ func _postav() -> void:
 	nadpis.add_theme_font_size_override("font_size", 40)
 	root.add_child(nadpis)
 
+	napoveda = Label.new()
+	napoveda.set_anchors_preset(Control.PRESET_CENTER_BOTTOM, true)
+	napoveda.position = Vector2(-300, -176)
+	napoveda.custom_minimum_size = Vector2(600, 34)
+	napoveda.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	napoveda.add_theme_font_size_override("font_size", 26)
+	napoveda.add_theme_color_override("font_outline_color", Color.BLACK)
+	napoveda.add_theme_constant_override("outline_size", 6)
+	root.add_child(napoveda)
+
+	smery = Label.new()
+	smery.set_anchors_preset(Control.PRESET_CENTER_TOP, true)
+	smery.position = Vector2(-320, 16)
+	smery.custom_minimum_size = Vector2(640, 32)
+	smery.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	smery.add_theme_font_size_override("font_size", 24)
+	smery.add_theme_color_override("font_outline_color", Color.BLACK)
+	smery.add_theme_constant_override("outline_size", 5)
+	root.add_child(smery)
+
+	patro_popis = Label.new()
+	patro_popis.position = Vector2(24, 76)
+	patro_popis.add_theme_font_size_override("font_size", 26)
+	patro_popis.add_theme_color_override("font_outline_color", Color.BLACK)
+	patro_popis.add_theme_constant_override("outline_size", 5)
+	root.add_child(patro_popis)
+
 	titulky = Label.new()
 	titulky.set_anchors_preset(Control.PRESET_CENTER_BOTTOM, true)
 	titulky.position = Vector2(-420, -110)
@@ -176,10 +206,37 @@ func _input(e: InputEvent) -> void:
 			hrac.nastav_look(e.relative)
 
 # ---------------------------------------------------------------- výpis
+func _sipka(cil: Vector3) -> String:
+	## Šipka ukazující, kam se otočit. Bez minimapy, jen podle pohledu.
+	var smer: Vector3 = cil - hrac.global_position
+	var vpred: Vector3 = -hrac.hlava.global_transform.basis.z
+	var uhel := atan2(smer.x, smer.z) - atan2(vpred.x, vpred.z)
+	uhel = wrapf(uhel, -PI, PI)
+	if absf(uhel) < 0.5:
+		return "^"
+	elif absf(uhel) > 2.6:
+		return "v"
+	return "<" if uhel > 0.0 else ">"
+
 func _obnov() -> void:
 	if hrac:
 		pruh_zdravi.value = hrac.zdravi
 		pruh_stamina.value = hrac.stamina
+		# co je pod rukou
+		napoveda.text = ("[ RUKA ]  " + hrac.cil_popis) if hrac.cil_popis != "" else ""
+		tl_ruka.disabled = hrac.cil_popis == ""
+		tl_ruka.modulate = Color(1, 1, 1, 1.0 if hrac.cil_popis != "" else 0.45)
+		# kde je výtah a kde schodiště
+		var y := hrac.global_position.y
+		var v := Vector3((ZWConfig.SH_X0 + ZWConfig.SH_X1) * 0.5, y,
+			ZWConfig.SH_Z0 - 1.0)
+		var sch := Vector3((ZWConfig.ST_X0 + ZWConfig.ST_X1) * 0.5, y,
+			ZWConfig.ST_Z0 - 1.0)
+		smery.text = "VÝTAH %s %d m     SCHODIŠTĚ %s %d m" % [
+			_sipka(v), int(hrac.global_position.distance_to(v)),
+			_sipka(sch), int(hrac.global_position.distance_to(sch))]
+		var f := ZWConfig.y_to_floor(y)
+		patro_popis.text = ("%d. podlaží" % f) if f >= 0 else ("sklep %d" % -f)
 	if dum_stav:
 		popis_dum.text = "Dům: %d %%" % int(round(dum_stav.stav_procent))
 		if dum_stav.odpocet > 0.0:

@@ -21,6 +21,10 @@ const ST_X1 := 15.0
 const ST_Z0 := 2.6
 const ST_Z1 := 11.4
 
+# jádro domu: výtah a schodiště mají vlastní prostor, byty tam nejsou
+const JADRO_X0 := -3.4
+const JADRO_X1 := 16.0
+
 # sklep
 const CELLAR_H := 14.0
 const CELLARS := 3
