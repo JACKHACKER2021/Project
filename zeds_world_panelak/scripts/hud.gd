@@ -27,6 +27,7 @@ const PACKA_R := 110.0
 
 func _ready() -> void:
 	layer = 10
+	add_to_group("hud")
 	_postav()
 	if dum_stav:
 		dum_stav.zmena.connect(_obnov)
@@ -166,7 +167,7 @@ func _input(e: InputEvent) -> void:
 				_look_id = -1
 	elif e is InputEventScreenDrag:
 		if e.index == _packa_id and hrac:
-			var d := (e.position - _packa_stred) / PACKA_R
+			var d: Vector2 = (e.position - _packa_stred) / PACKA_R
 			d = d.limit_length(1.0)
 			hrac.nastav_pohyb(Vector2(d.x, -d.y))
 			packa_palec.position = packa_zaklad.position \

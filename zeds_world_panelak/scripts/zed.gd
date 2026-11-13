@@ -23,6 +23,7 @@ var _krok_cas := 0.0
 var _cas_ve_stavu := 0.0
 var _okno_y := 60.0
 var podezreni := 0.0             # 0..1, jak moc tuší, že tam někdo je
+var _varoval := false
 
 func _ready() -> void:
 	add_to_group("zedove")
@@ -72,7 +73,7 @@ func _process(delta: float) -> void:
 		Stav.KOUKA_DO_OKEN:
 			_kouka(delta)
 		Stav.ZLOST:
-			if _cas_ve_stavu > 2.2:
+			if _cas_ve_stavu > 4.0:
 				_prepni(Stav.HAZI)
 		Stav.HAZI:
 			if _cas_ve_stavu > 7.5:
@@ -123,7 +124,7 @@ func _kroky(delta: float) -> void:
 	_krok_cas = KROK_PERIODA
 	# zblízka plné kroky, z dálky tlumené
 	var d := global_position.distance_to(hrac.global_position) if hrac else 500.0
-	var jmeno := zvuk.nahodny(zvuk.KROKY_ZED) if d < 300.0 \
+	var jmeno: String = zvuk.nahodny(zvuk.KROKY_ZED) if d < 300.0 \
 		else zvuk.nahodny(["zed_step_far_01", "zed_step_far_02"])
 	zvuk.hraj_3d(jmeno, self, 2.0, DOSAH_HLUKU, 150.0)
 	if hrac and d < 260.0:
@@ -141,15 +142,25 @@ func _kouka(delta: float) -> void:
 	var vidi := false
 	if absf(_okno_y - h.y) < 6.0:
 		var u_okna: bool = absf(h.z) > ZWConfig.COR_HZ + 1.0 and absf(h.z) < ZWConfig.HZ
-		var zataz := dum_stav.zaluzie_zatazene(ZWConfig.y_to_floor(h.y))
+		var zataz: bool = dum_stav.zaluzie_zatazene(ZWConfig.y_to_floor(h.y))
 		vidi = u_okna and not zataz and hrac.baterka_sviti or (u_okna and not zataz and hrac.hluk > 0.5)
 	if vidi:
 		podezreni = minf(1.0, podezreni + delta * 1.4)
 	else:
 		podezreni = maxf(0.0, podezreni - delta * 0.35)
+		if podezreni < 0.2:
+			_varoval = false
 
+	if podezreni >= 0.6 and not _varoval:
+		# půl vteřiny předem je slyšet, že si tě všiml — dá se stihnout schovat
+		_varoval = true
+		zvuk.hraj_3d("zed_hlas_nasel_jsem_te_dal", self, -1.0, DOSAH_HLUKU, 160.0)
 	if podezreni >= 1.0:
-		zvuk.hraj_3d("zed_hlas_vidim_te", self, 1.0, DOSAH_HLUKU, 180.0)
+		zvuk.hraj_3d(zvuk.nahodny(["zed_hlas_nasel_jsem_te",
+			"zed_hlas_nasel_jsem_te_02"]), self, 2.0, DOSAH_HLUKU, 190.0)
+		var h2 := get_tree().get_first_node_in_group("hud")
+		if h2:
+			h2.titulek("NAŠEL JSEM TĚ", "Schovej se. Hned.", 4.0)
 		_prepni(Stav.ZLOST)
 	elif _cas_ve_stavu > 26.0:
 		_prepni(Stav.ODCHAZI)
@@ -158,7 +169,7 @@ func _kouka(delta: float) -> void:
 # ---------------------------------------------------------------- telekineze
 func _hod_lodi() -> void:
 	## Nemá ruce. Loď zvedne telekinezí: nadnese se, roztočí a vystřelí.
-	var lod := dum_stav.vyrob_lod()
+	var lod: Node3D = dum_stav.vyrob_lod()
 	if lod == null:
 		return
 	var start := global_position + Vector3(0, 220.0, 0) \
@@ -174,7 +185,7 @@ func _hod_lodi() -> void:
 	await tw.finished
 
 	# fáze 2: vystřelí na dům
-	var zasah := dum_stav.nahodny_cil_zasahu()
+	var zasah: Vector3 = dum_stav.nahodny_cil_zasahu()
 	var tw2 := create_tween()
 	tw2.tween_property(lod, "global_position", zasah, 1.9).set_trans(Tween.TRANS_QUAD) \
 		.set_ease(Tween.EASE_IN)

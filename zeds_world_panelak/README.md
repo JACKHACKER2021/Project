@@ -53,10 +53,30 @@ pravá strana tah pro rozhled, tlačítka ✋ 🪓 🔦 vpravo dole.
 `zed_blizi_se_30s.ogg` je třicetisekundové přiblížení — nejdřív jen dunění, pak
 motor, nakonec kroky. `intro_probuzeni.ogg` je zvuková osa úvodní scény.
 
+## Sestavení APK
+
+```
+godot --headless --import
+godot --headless --export-debug "Android" export/ZedsWorldPanelak.apk
+```
+
+Potřebuje Godot 4.3, export templates 4.3.stable, JDK 21 a Android SDK
+(build-tools 34.0.0, platforms;android-34, platform-tools). Cesta k SDK a
+debug keystore se nastaví v `~/.config/godot/editor_settings-4.3.tres`.
+
+**Pozor:** Android s Mobile rendererem vyžaduje
+`textures/vram_compression/import_etc2_astc=true` v `project.godot`, jinak
+export spadne na "configuration errors" bez bližšího vysvětlení.
+
+Hotové APK: `export/ZedsWorldPanelak.apk` — 34 MB, `cz.zed.panelak`,
+targetSdk 34, minSdk 21, arm64-v8a, podepsané debug klíčem.
+Instalace: `adb install -r export/ZedsWorldPanelak.apk`, nebo soubor přenést
+do telefonu a povolit instalaci z neznámých zdrojů.
+
 ## Co ještě chybí
 
-- Skripty **nejsou spuštěné v Godotu** — v téhle session žádný Godot není, takže
-  je ověřený jen jazyk a struktura, ne běh. Počítej s laděním při prvním F5.
+- Hra **proběhla jen headless** (500 snímků bez chyby skriptů). Na skutečném
+  telefonu odzkoušená není — výkon ani ovládání neumím odsud ověřit.
 - Dveře bytů zatím nejdou otevírat (otvory v kolizích jsou, interakce ne).
-- Padající kusy jsou zatím jen schované, ne fyzikální `RigidBody3D`.
-- Ikony pro Android (192×192 a adaptivní) nejsou vygenerované.
+- Ikony pro Android (192×192 a adaptivní) nejsou vygenerované, APK má výchozí.
+- Zédův hlas je syntéza, ne namluvený.

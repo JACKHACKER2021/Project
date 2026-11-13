@@ -25,9 +25,9 @@ func _postav_patro(f: int) -> Node3D:
 	# okna po obou dlouhých stranách, rozteč 5.1 m jako v modelu
 	for sz in [-1.0, 1.0]:
 		for k in 14:
-			var x := -ZWConfig.HX + 3.6 + k * 5.1
-			var z := sz * (ZWConfig.HZ - 0.25)
-			var b := preload("res://scripts/blinds.gd").new()
+			var x: float = -ZWConfig.HX + 3.6 + k * 5.1
+			var z: float = sz * (ZWConfig.HZ - 0.25)
+			var b: Node3D = preload("res://scripts/blinds.gd").new()
 			b.dum_stav = dum_stav
 			b.zvuk = zvuk
 			b.patro = f

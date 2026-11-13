@@ -150,8 +150,55 @@ func _physics_process(delta: float) -> void:
 		stav.emit("%d. patro. Mříž zaskřípala." % patro)
 
 func pouzij(_kdo: Node) -> void:
-	## Tlačítko s rukou namířené na výtah.
 	if v_kabine():
 		zvol_patro(ZWConfig.y_to_floor(hrac.global_position.y) + 1)
 	else:
 		privolat(ZWConfig.y_to_floor(hrac.global_position.y))
+
+# ---------------------------------------------------------------- tlačítka
+var _tlacitka := {}
+
+func _process(_d: float) -> void:
+	## Přivolávací tlačítko se staví jen u podlaží, kde hráč zrovna je.
+	if hrac == null:
+		return
+	var f := ZWConfig.y_to_floor(hrac.global_position.y)
+	for p in [f - 1, f, f + 1]:
+		if not _tlacitka.has(p) and p >= -ZWConfig.CELLARS and p < ZWConfig.FLOORS:
+			_tlacitka[p] = _postav_tlacitko(p)
+	for p in _tlacitka.keys():
+		if absi(p - f) > 2:
+			_tlacitka[p].queue_free()
+			_tlacitka.erase(p)
+	# panel v kabině postavíme jednou
+	if kabina and not kabina.has_meta("panel"):
+		kabina.set_meta("panel", true)
+		var sb := StaticBody3D.new()
+		var cs := CollisionShape3D.new()
+		var bs := BoxShape3D.new()
+		bs.size = Vector3(0.3, 1.3, 0.3)
+		cs.shape = bs
+		sb.add_child(cs)
+		sb.position = Vector3(ZWConfig.SH_X1 - 0.45, 1.3,
+			(ZWConfig.SH_Z0 + ZWConfig.SH_Z1) * 0.5 - 1.6)
+		sb.set_script(preload("res://scripts/elevator_button.gd"))
+		sb.vytah = self
+		sb.uvnitr = true
+		kabina.add_child(sb)
+
+func _postav_tlacitko(p: int) -> Node3D:
+	var n := Node3D.new()
+	add_child(n)
+	var sb := StaticBody3D.new()
+	var cs := CollisionShape3D.new()
+	var bs := BoxShape3D.new()
+	bs.size = Vector3(0.35, 0.5, 0.25)
+	cs.shape = bs
+	sb.add_child(cs)
+	sb.position = Vector3(2.9, ZWConfig.floor_y(p) + 1.25, ZWConfig.SH_Z0 - 0.25)
+	sb.set_script(preload("res://scripts/elevator_button.gd"))
+	sb.vytah = self
+	sb.patro = p
+	sb.uvnitr = false
+	n.add_child(sb)
+	return n

@@ -156,7 +156,7 @@ func _kroky(delta: float, jde: bool, rychlost: float) -> void:
 	if _krok_cas > 0.0:
 		return
 	_krok_cas = 0.62 if not kulha else 0.95
-	var sada := zvuk.KROKY_HRAC
+	var sada: Array = zvuk.KROKY_HRAC
 	if kulha:
 		sada = zvuk.KROKY_KULHA
 	elif global_position.y < 0.0:

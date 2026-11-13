@@ -53,13 +53,15 @@ func _postav_patro(f: int) -> Node3D:
 		_box(n, Vector3(sx * (ZWConfig.HX - 0.15), y + 1.5, 0),
 			Vector3(ZWConfig.WALL, 3.0, ZWConfig.HZ * 2))
 
+	_schodiste(n, y)
+
 	if f < 0:
 		_sklep(n, f, y)
 		return n
 
 	# stěny chodby s otvory ve dveřích bytů
 	for sz in [-1.0, 1.0]:
-		var z := sz * ZWConfig.COR_HZ
+		var z: float = sz * ZWConfig.COR_HZ
 		var hrany: Array[float] = [-ZWConfig.HX]
 		for i in ZWConfig.APT_COUNT:
 			var x := ZWConfig.apt_x(i)
@@ -88,6 +90,34 @@ func _postav_patro(f: int) -> Node3D:
 		_box(n, Vector3(xx, y + 1.5, (ZWConfig.SH_Z0 + ZWConfig.SH_Z1) * 0.5),
 			Vector3(0.2, 3.0, ZWConfig.SH_Z1 - ZWConfig.SH_Z0))
 	return n
+
+func _schodiste(n: Node3D, y: float) -> void:
+	## Schodiště je v modelu živé a rozsypané, ale chodit se po něm musí dát.
+	## Kolize proto kopírují ramena, ne jednotlivé rozhozené stupně.
+	var stup := 0.175
+	var pod := 0.29
+	var pocet := int(ZWConfig.FLOOR_H / stup)        # ~17 stupňů na podlaží
+	var x := ZWConfig.ST_X0 + 0.6
+	var z := ZWConfig.ST_Z0 + 1.3
+	var smer := 1.0
+	var i := 0
+	while i < pocet:
+		for k in 16:
+			if i >= pocet:
+				break
+			_box(n, Vector3(x + smer * k * pod, y + i * stup + stup * 0.5, z),
+				Vector3(pod, stup, 2.6))
+			i += 1
+		var yl := y + i * stup
+		var xl := x + smer * 16.0 * pod
+		_box(n, Vector3(xl + smer * 0.8, yl - 0.08, z), Vector3(1.8, 0.16, 5.6))
+		x = xl + smer * 1.6
+		z = ZWConfig.ST_Z0 + 1.3 if smer < 0.0 else ZWConfig.ST_Z1 - 2.0
+		smer *= -1.0
+		i += 2
+	# zábradlí, ať se nedá spadnout do zrcadla schodiště
+	_box(n, Vector3((ZWConfig.ST_X0 + ZWConfig.ST_X1) * 0.5, y + 1.6, ZWConfig.ST_Z1 + 0.1),
+		Vector3(ZWConfig.ST_X1 - ZWConfig.ST_X0, 3.2, 0.2))
 
 func _sklep(n: Node3D, f: int, y: float) -> void:
 	## Sklep je bludiště — kolize se generují ze stejného semínka jako model,

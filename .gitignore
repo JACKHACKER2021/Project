@@ -6,3 +6,4 @@ godot2_screens.png
 # Godot
 zeds_world_panelak/.godot/
 zeds_world_panelak/export/
+zeds_world_panelak/export/*.idsig
