@@ -2,3 +2,7 @@
 *.apk
 godot_screens.png
 godot2_screens.png
+
+# Godot
+zeds_world_panelak/.godot/
+zeds_world_panelak/export/

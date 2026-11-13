@@ -1,0 +1,46 @@
+; Zed's World: Panelák — Godot 4.3, Android
+config_version=5
+
+[application]
+config/name="Zed's World: Panelák"
+config/description="5. 1. 2072 — den, kdy přišla Zédova apokalypsa."
+run/main_scene="res://scenes/main.tscn"
+config/features=PackedStringArray("4.3", "Mobile")
+config/icon="res://icon.svg"
+boot_splash/show_image=false
+
+[display]
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="viewport"
+window/stretch/aspect="expand"
+window/handheld/orientation=1
+window/vsync/vsync_mode=1
+
+[input_devices]
+pointing/emulate_mouse_from_touch=true
+pointing/emulate_touch_from_mouse=true
+
+[physics]
+common/physics_ticks_per_second=50
+3d/default_gravity=9.8
+
+[rendering]
+renderer/rendering_method="mobile"
+renderer/rendering_method.mobile="mobile"
+textures/default_filters/anisotropic_filtering_level=0
+anti_aliasing/quality/msaa_3d=0
+occlusion_culling/use_occlusion_culling=true
+lights_and_shadows/directional_shadow/size=2048
+lights_and_shadows/positional_shadow/atlas_size=1024
+limits/global_shader_variables/buffer_size=256
+
+[input]
+move_forward={"deadzone":0.2,"events":[{"resource_local_to_scene":false,"type":"InputEventKey","keycode":87,"physical_keycode":0,"pressed":true}]}
+move_back={"deadzone":0.2,"events":[{"resource_local_to_scene":false,"type":"InputEventKey","keycode":83,"physical_keycode":0,"pressed":true}]}
+move_left={"deadzone":0.2,"events":[{"resource_local_to_scene":false,"type":"InputEventKey","keycode":65,"physical_keycode":0,"pressed":true}]}
+move_right={"deadzone":0.2,"events":[{"resource_local_to_scene":false,"type":"InputEventKey","keycode":68,"physical_keycode":0,"pressed":true}]}
+run={"deadzone":0.2,"events":[{"resource_local_to_scene":false,"type":"InputEventKey","keycode":4194325,"physical_keycode":0,"pressed":true}]}
+interact={"deadzone":0.2,"events":[{"resource_local_to_scene":false,"type":"InputEventKey","keycode":69,"physical_keycode":0,"pressed":true}]}
+axe={"deadzone":0.2,"events":[{"resource_local_to_scene":false,"type":"InputEventKey","keycode":70,"physical_keycode":0,"pressed":true}]}
+flashlight={"deadzone":0.2,"events":[{"resource_local_to_scene":false,"type":"InputEventKey","keycode":76,"physical_keycode":0,"pressed":true}]}
