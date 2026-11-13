@@ -2,6 +2,8 @@ class_name ZWConfig
 extends RefCounted
 ## Sdílené rozměry domu. Musí sedět s generátorem modelu (build.py).
 
+const VERZE := "v0.3.0 build 2026-11-13 16:00"
+
 const HX := 36.0          # půlka délky domu
 const HZ := 12.0          # půlka hloubky domu
 const WALL := 0.30

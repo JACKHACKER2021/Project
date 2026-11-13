@@ -19,6 +19,7 @@ var nadpis: Label
 var napoveda: Label
 var smery: Label
 var patro_popis: Label
+var verze: Label
 
 var _packa_id := -1
 var _packa_stred := Vector2.ZERO
@@ -155,6 +156,14 @@ func _postav() -> void:
 	patro_popis.add_theme_color_override("font_outline_color", Color.BLACK)
 	patro_popis.add_theme_constant_override("outline_size", 5)
 	root.add_child(patro_popis)
+
+	verze = Label.new()
+	verze.set_anchors_preset(Control.PRESET_BOTTOM_LEFT, true)
+	verze.position = Vector2(20, -34)
+	verze.add_theme_font_size_override("font_size", 18)
+	verze.modulate = Color(1, 1, 1, 0.55)
+	verze.text = ZWConfig.VERZE
+	root.add_child(verze)
 
 	titulky = Label.new()
 	titulky.set_anchors_preset(Control.PRESET_CENTER_BOTTOM, true)

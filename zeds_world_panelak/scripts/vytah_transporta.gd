@@ -183,7 +183,25 @@ func _postav_patro(f: int) -> Node3D:
 	var d := StaticBody3D.new()
 	pivot.add_child(d)
 	var p2 := DVERE_SIR / 2.0
-	_dil(d, Vector3(DVERE_SIR - 0.02, 2.08, 0.03), Vector3(p2, 1.04, 0), mSit, true)
+	# kridlo: hnedy ram a dve tabule drateneho skla
+	var mDrevo := _mat(Color(0.52, 0.28, 0.14))
+	var mSklo := StandardMaterial3D.new()
+	mSklo.albedo_color = Color(0.88, 0.86, 0.72, 0.45)
+	mSklo.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mSklo.roughness = 0.35
+	_dil(d, Vector3(DVERE_SIR - 0.02, 2.08, 0.035), Vector3(p2, 1.04, 0), mDrevo, true)
+	for dy in [0.70, 1.52]:
+		_dil(d, Vector3(DVERE_SIR - 0.26, 0.60, 0.05), Vector3(p2, dy, 0), mSklo, false)
+		# drátky ve skle
+		for q in 5:
+			_dil(d, Vector3(0.012, 0.58, 0.012),
+				Vector3(p2 - 0.24 + q * 0.12, dy, 0.012), mRam, false)
+		for q in 5:
+			_dil(d, Vector3(DVERE_SIR - 0.28, 0.012, 0.012),
+				Vector3(p2, dy - 0.24 + q * 0.12, 0.012), mRam, false)
+	# klika
+	_dil(d, Vector3(0.14, 0.04, 0.04), Vector3(DVERE_SIR - 0.16, 1.02, -0.06),
+		_mat(Color(0.68, 0.64, 0.54)), false)
 	_dil(d, Vector3(DVERE_SIR, 0.06, 0.05), Vector3(p2, 0.03, 0), mRam, false)
 	_dil(d, Vector3(DVERE_SIR, 0.06, 0.05), Vector3(p2, 2.05, 0), mRam, false)
 	_dil(d, Vector3(DVERE_SIR, 0.05, 0.05), Vector3(p2, 1.0, 0), mRam, false)
