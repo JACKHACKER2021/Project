@@ -3,7 +3,8 @@ extends Node3D
 ## Zneškodní se sekerou.
 
 const MODEL := "res://assets/models/props_zed.glb"
-const DRUHY := ["zidle_oziva", "lednice_oziva", "televize_oziva", "dvere_oziva"]
+## ALIVER oživuje techniku, ne nábytek — kánon Edice 2.5, odd. 1.
+const DRUHY := ["lednice_oziva", "televize_oziva", "pracka_oziva", "radio_oziva"]
 
 var zvuk: Node
 var hrac: CharacterBody3D

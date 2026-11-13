@@ -1,9 +1,12 @@
 # Zed's World: Panelák
 
-Godot 4.3, Android. **5. 1. 2072 — den, kdy přišla Zédova apokalypsa.**
+Godot 4.3, Android. **5. 1. 2072, Mladá Boleslav — čtvrtý den Zédovy apokalypsy.**
+Kánon Zeds World, protokol S-2084, Edice 2.5. Podrobnosti v [KANON.md](KANON.md).
 
-Probudíš se ve svém bytě ve dvanáctém podlaží. Venku je růžová obloha a prší.
-Něco je divně slyšet. Pak slyšíš, jak sousedi utíkají. Pak zhasne proud.
+Probudíš se ve svém bytě ve dvanáctém podlaží. Venku jsou růžové mraky a prší.
+Z rádia mluví náhradní směna MladoboleslavRadia — Pan Rozhlasník je čtvrtý den
+po smrti. Prezident Monderez nasadil armádu a technika se obrátila proti
+posádkám. Pak slyšíš, jak sousedi utíkají. Pak Monderez vypne síť.
 
 Zédové jsou tři sta metrů vysoké beznohé a bezruké entity. Chodí tak, že se
 překlápějí z hrany na hranu, a je je slyšet na kilometr — zní to jako sekačka
@@ -30,8 +33,9 @@ pravá strana tah pro rozhled, tlačítka ✋ 🪓 🔦 vpravo dole.
 | `scripts/elevator.gd` | výtah převzatý z `godot_vytah` — a je zlobivý |
 | `scripts/house.gd` | stav domu v %, bourání po kusech, oheň, odpočet do zřícení |
 | `scripts/blinds*.gd` | žaluzie — stahují se po lamelách, Zéd podle nich pozná, že tam někdo je |
-| `scripts/props.gd`, `prop_alive.gd` | oživlé předměty (židle, lednice, televize, dveře) |
-| `scripts/weather.gd` | růžová obloha, mlha, déšť |
+| `scripts/props.gd`, `prop_alive.gd` | technika oživlá slovem ALIVER (lednice, televize, pračka, rádio) |
+| `scripts/weather.gd` | růžové mraky, mlha, déšť |
+| `scripts/lamps.gd` | pouliční lampy — pravidlo kužele světla, a lampy, co ti zhasínají nad hlavou |
 | `scripts/hud.gd` | dotykové ovládání, stav domu, odpočet |
 
 ## Modely

@@ -31,6 +31,7 @@ func _ready() -> void:
 	_spawn_zedy(3)
 	_postav_predmety()
 	_postav_zaluzie()
+	_postav_lampy()
 	_intro()
 
 # ---------------------------------------------------------------- dům
@@ -108,28 +109,37 @@ func _postav_zaluzie() -> void:
 	z.zvuk = zvuk
 	z.hrac = hrac
 
+func _postav_lampy() -> void:
+	## Pravidlo pouliční lampy (kánon, fáze 14–15): venku chrání jedině
+	## kužel světla. V domě proud padá, ale venkovní síť zatím drží.
+	var l := preload("res://scripts/lamps.gd").new()
+	add_child(l)
+	l.hrac = hrac
+
 # ---------------------------------------------------------------- intro
-## Hlášení z rádia na frekvenci ALIVER — kánon Edice 2.5, protokol S-2084.
+## MladoboleslavRadio, 5. 1. 2072 — čtyři dny po Zédově příletu.
+## Pan Rozhlasník je mrtvý od prvního ledna, vysílá někdo jiný.
+## Kánon: Edice 2.5 + chronologie apokalypsy, fáze 1–4.
 const RADIO := [
-	"Protokol S-2084 je aktivní, kosmická frekvence ALIVER stabilní.",
-	"Nádraží Karlín hlásí klid na podzemních i nadzemních kolejích. Ocel spí.",
-	"Motor Smrtokostrovlaku v Karlíně pod Vltavou tiše přede.",
-	"Bagetokalypsový poplach zatím spí. Opakuji, poplach spí.",
-	"Normalpolis, sektor sedm — hlášení o pohybu Stroje. Zůstaňte doma.",
+	"MladoboleslavRadio vysílá. Pátý leden, sedm hodin ráno.",
+	"Pan Rozhlasník je čtvrtý den po smrti. Mluví k vám náhradní směna.",
+	"Prezident Monderez nasadil těžkou techniku. Technika se obrátila proti posádkám.",
+	"Nevycházejte. Opakuji, nevycházejte. Kov venku není kov.",
+	"Kdo slyšel to slovo, ať nevzpomíná, jak znělo.",
 ]
 
 func _intro() -> void:
 	hrac.muze_hybat = false
-	hud.titulek("5. 1. 2072", "Normalpolis. Probudil ses doma. Venku je něco divně slyšet.")
+	hud.titulek("5. 1. 2072", "Mladá Boleslav. Probudil ses doma. Venku je něco divně slyšet.")
 	zvuk.hraj_2d("intro_probuzeni")
 	await get_tree().create_timer(3.0).timeout
 	for veta in RADIO:
-		hud.titulek("", "RÁDIO ALIVER: " + veta, 2.6)
+		hud.titulek("", "RÁDIO: " + veta, 2.6)
 		await get_tree().create_timer(2.6).timeout
 	hrac.muze_hybat = true
 	hud.titulek("", "Okno zarachotilo. Sousedi už utíkají.")
 	await get_tree().create_timer(6.0).timeout
-	hud.titulek("", "RÁDIO ALIVER: …Zéd je u čtvrtého bloku. Zatáhněte žalu—", 3.0)
+	hud.titulek("", "RÁDIO: …je u čtvrtého bloku. Zatáhněte žalu—", 3.0)
 	await get_tree().create_timer(3.0).timeout
 	_zhasni_svetla()
 	intro_bezi = false
@@ -142,7 +152,7 @@ func _zhasni_svetla() -> void:
 	for l in get_tree().get_nodes_in_group("svetla_domu"):
 		l.queue_free()
 	hrac.baterka_povolena = true
-	hud.titulek("", "Světla vypadla. Máš jen baterku.")
+	hud.titulek("", "Proud je pryč. Monderez vypnul síť. Máš jen baterku.")
 	zvuk.hraj_2d("predmet_znicen_01", -8.0)
 
 func _process(delta: float) -> void:
