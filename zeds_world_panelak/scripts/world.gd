@@ -61,11 +61,12 @@ func _postav_hrace() -> void:
 	hrac.zvuk = zvuk
 
 func _postav_vytah() -> void:
-	vytah = preload("res://scripts/elevator.gd").new()
+	vytah = preload("res://scripts/vytah_transporta.gd").new()
 	add_child(vytah)
 	vytah.dum = dum
 	vytah.hrac = hrac
 	vytah.zvuk = zvuk
+	vytah.stav.connect(_hlaska)
 
 func _postav_stav_domu() -> void:
 	dum_stav = preload("res://scripts/house.gd").new()
@@ -122,6 +123,10 @@ func _postav_svetla_domu() -> void:
 	var sv := preload("res://scripts/house_lights.gd").new()
 	add_child(sv)
 	sv.hrac = hrac
+
+func _hlaska(text: String) -> void:
+	if hud:
+		hud.titulek("", text, 4.0)
 
 # ---------------------------------------------------------------- intro
 ## MladoboleslavRadio, 5. 1. 2072 — čtyři dny po Zédově příletu.
