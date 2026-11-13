@@ -2,6 +2,7 @@ extends Node3D
 ## Venku je růžová obloha a prší.
 
 var slunce: DirectionalLight3D
+var prostredi: Environment
 var dest: GPUParticles3D
 var hrac: Node3D
 
@@ -19,11 +20,12 @@ func _ready() -> void:
 	env.background_mode = Environment.BG_SKY
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-	env.ambient_light_energy = 0.55
+	env.ambient_light_energy = 0.42
 	env.fog_enabled = true
 	env.fog_light_color = Color(0.85, 0.58, 0.66)
 	env.fog_density = 0.0035
 	env.fog_sky_affect = 0.5
+	env.fog_aerial_perspective = 0.0
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	env.adjustment_enabled = true
 	env.adjustment_saturation = 1.08
@@ -31,6 +33,7 @@ func _ready() -> void:
 	var we := WorldEnvironment.new()
 	we.environment = env
 	add_child(we)
+	prostredi = env
 
 	slunce = DirectionalLight3D.new()
 	slunce.light_color = Color(1.0, 0.78, 0.84)
@@ -73,9 +76,16 @@ func _postav_dest() -> void:
 	add_child(dest)
 
 func _process(_d: float) -> void:
-	if hrac:
-		# déšť se veze s hráčem, ale uvnitř domu ho nekreslíme
-		dest.global_position = hrac.global_position + Vector3(0, 14, 0)
-		var venku: bool = absf(hrac.global_position.x) > ZWConfig.HX \
-			or absf(hrac.global_position.z) > ZWConfig.HZ
-		dest.emitting = venku
+	if hrac == null:
+		return
+	var venku: bool = absf(hrac.global_position.x) > ZWConfig.HX \
+		or absf(hrac.global_position.z) > ZWConfig.HZ
+	# déšť se veze s hráčem, ale uvnitř domu ho nekreslíme
+	dest.global_position = hrac.global_position + Vector3(0, 14, 0)
+	dest.emitting = venku
+	# uvnitř se mlha i obloha musí vypnout, jinak je celý byt růžový
+	if prostredi:
+		prostredi.fog_enabled = venku
+		prostredi.ambient_light_energy = 0.42 if venku else 0.06
+	if slunce:
+		slunce.light_energy = 0.55 if venku else 0.06

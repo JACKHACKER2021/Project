@@ -64,8 +64,8 @@ func _postav() -> void:
 
 	# --- tlačítko s rukou
 	tl_ruka = Button.new()
-	tl_ruka.text = "✋"
-	tl_ruka.add_theme_font_size_override("font_size", 46)
+	tl_ruka.text = "RUKA"
+	tl_ruka.add_theme_font_size_override("font_size", 30)
 	tl_ruka.custom_minimum_size = Vector2(150, 150)
 	tl_ruka.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT, true)
 	tl_ruka.position = Vector2(-190, -200)
@@ -74,8 +74,8 @@ func _postav() -> void:
 
 	# --- sekera
 	tl_sekera = Button.new()
-	tl_sekera.text = "🪓"
-	tl_sekera.add_theme_font_size_override("font_size", 38)
+	tl_sekera.text = "SEKERA"
+	tl_sekera.add_theme_font_size_override("font_size", 22)
 	tl_sekera.custom_minimum_size = Vector2(110, 110)
 	tl_sekera.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT, true)
 	tl_sekera.position = Vector2(-340, -170)
@@ -84,8 +84,8 @@ func _postav() -> void:
 
 	# --- baterka
 	tl_baterka = Button.new()
-	tl_baterka.text = "🔦"
-	tl_baterka.add_theme_font_size_override("font_size", 30)
+	tl_baterka.text = "SVĚTLO"
+	tl_baterka.add_theme_font_size_override("font_size", 20)
 	tl_baterka.custom_minimum_size = Vector2(96, 96)
 	tl_baterka.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT, true)
 	tl_baterka.position = Vector2(-190, -330)

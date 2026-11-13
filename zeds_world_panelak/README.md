@@ -53,6 +53,14 @@ pravá strana tah pro rozhled, tlačítka ✋ 🪓 🔦 vpravo dole.
 `zed_blizi_se_30s.ogg` je třicetisekundové přiblížení — nejdřív jen dunění, pak
 motor, nakonec kroky. `intro_probuzeni.ogg` je zvuková osa úvodní scény.
 
+## Intro
+
+`intro_silvestr_2071.mp4` (47 s) — Silvestr 31. 12. 2071 v bytě, pivo,
+ohňostroj za oknem, půlnoc, usnutí. Pak **pět dní spánku**: za oknem se
+střídá den a noc, obloha růžoví, televize chcípne, rádio dohraje. Probuzení
+5. 1. 2072 na dunění, rachotící okno a sousedy, co utíkají po chodbě.
+Obraz i zvuk jsou generované, hudba žádná není — jen to, co je v bytě slyšet.
+
 ## Sestavení APK
 
 ```

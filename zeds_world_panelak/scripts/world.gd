@@ -32,6 +32,7 @@ func _ready() -> void:
 	_postav_predmety()
 	_postav_zaluzie()
 	_postav_lampy()
+	_postav_svetla_domu()
 	_intro()
 
 # ---------------------------------------------------------------- dům
@@ -116,6 +117,12 @@ func _postav_lampy() -> void:
 	add_child(l)
 	l.hrac = hrac
 
+func _postav_svetla_domu() -> void:
+	## Zářivky na chodbě. Svítí jen do výpadku proudu.
+	var sv := preload("res://scripts/house_lights.gd").new()
+	add_child(sv)
+	sv.hrac = hrac
+
 # ---------------------------------------------------------------- intro
 ## MladoboleslavRadio, 5. 1. 2072 — čtyři dny po Zédově příletu.
 ## Pan Rozhlasník je mrtvý od prvního ledna, vysílá někdo jiný.
@@ -150,7 +157,7 @@ func _zhasni_svetla() -> void:
 	for n in dum.find_children("*zlut_svetlo*", "MeshInstance3D", true, false):
 		n.visible = false
 	for l in get_tree().get_nodes_in_group("svetla_domu"):
-		l.queue_free()
+		l.visible = false
 	hrac.baterka_povolena = true
 	hud.titulek("", "Proud je pryč. Monderez vypnul síť. Máš jen baterku.")
 	zvuk.hraj_2d("predmet_znicen_01", -8.0)
