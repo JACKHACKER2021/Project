@@ -109,15 +109,28 @@ func _postav_zaluzie() -> void:
 	z.hrac = hrac
 
 # ---------------------------------------------------------------- intro
+## Hlášení z rádia na frekvenci ALIVER — kánon Edice 2.5, protokol S-2084.
+const RADIO := [
+	"Protokol S-2084 je aktivní, kosmická frekvence ALIVER stabilní.",
+	"Nádraží Karlín hlásí klid na podzemních i nadzemních kolejích. Ocel spí.",
+	"Motor Smrtokostrovlaku v Karlíně pod Vltavou tiše přede.",
+	"Bagetokalypsový poplach zatím spí. Opakuji, poplach spí.",
+	"Normalpolis, sektor sedm — hlášení o pohybu Stroje. Zůstaňte doma.",
+]
+
 func _intro() -> void:
 	hrac.muze_hybat = false
-	hud.titulek("5. 1. 2072", "Probudil ses doma. Venku je něco divně slyšet.")
+	hud.titulek("5. 1. 2072", "Normalpolis. Probudil ses doma. Venku je něco divně slyšet.")
 	zvuk.hraj_2d("intro_probuzeni")
-	var t := get_tree().create_timer(9.0)
-	await t.timeout
+	await get_tree().create_timer(3.0).timeout
+	for veta in RADIO:
+		hud.titulek("", "RÁDIO ALIVER: " + veta, 2.6)
+		await get_tree().create_timer(2.6).timeout
 	hrac.muze_hybat = true
 	hud.titulek("", "Okno zarachotilo. Sousedi už utíkají.")
-	await get_tree().create_timer(10.0).timeout
+	await get_tree().create_timer(6.0).timeout
+	hud.titulek("", "RÁDIO ALIVER: …Zéd je u čtvrtého bloku. Zatáhněte žalu—", 3.0)
+	await get_tree().create_timer(3.0).timeout
 	_zhasni_svetla()
 	intro_bezi = false
 
