@@ -177,6 +177,12 @@ název, ID, typ, stav, napájení, propojení potrubí a kabelů včetně směr�
 * **Nemocniční lůžko** a **operační stůl** jsou dva bloky dlouhé. Klepnutím na lůžko si nastavíš bod oživení. **Otočná kancelářská židle** se po klepnutí otočí o 90°.
 * **Plakáty, oznámení, papíry, hromada dokumentů a fotografie** si přečteš klepnutím. **Nástěnné hodiny** ukážou herní čas.
 
+## Novinky 2.3 – zvuky tvorů
+* **Ozářený Zed:** chraplavé sténání (3 varianty), bolestivé zavrčení při zásahu, útočný řev, dlouhé umírající zasténání a šouravé kroky.
+* **Radiakova zombie:** hlubší hlas s praskáním Geigerova počítače a elektrickým bzučením mechanického obleku.
+* **Radiakův sliz:** mlaskavé čvachtání při pohybu a skoku, zásah a smrt.
+* Výška hlasu se pokaždé náhodně mění (±15 %), takže každý tvor zní trochu jinak.
+
 ## Opravy 2.2
 * **Trubky a kabely:** bez přírub na spojích a se štíhlejším spojem na kolenech. Napojení se každé 3 s přepočítá kolem hráče. Analyzátor ukazuje „Uložený tvar bloku“, takže je vidět, jestli blok sedí se sousedy.
 * **Radiace klesá rychleji:** mimo zdroj o 1,5 dávky každé 2 s, pod střechou o 2,5.

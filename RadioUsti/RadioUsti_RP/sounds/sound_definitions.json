@@ -191,6 +191,188 @@
         }
       ],
       "max_distance": 64
+    },
+    "radiousti.zed.ambient": {
+      "category": "hostile",
+      "max_distance": 24,
+      "sounds": [
+        {
+          "name": "sounds/radiousti/zed_ambient_1",
+          "volume": 1.0
+        },
+        {
+          "name": "sounds/radiousti/zed_ambient_2",
+          "volume": 1.0
+        },
+        {
+          "name": "sounds/radiousti/zed_ambient_3",
+          "volume": 1.0
+        }
+      ]
+    },
+    "radiousti.radiak_zombie.ambient": {
+      "category": "hostile",
+      "max_distance": 24,
+      "sounds": [
+        {
+          "name": "sounds/radiousti/radiak_zombie_ambient_1",
+          "volume": 1.0
+        },
+        {
+          "name": "sounds/radiousti/radiak_zombie_ambient_2",
+          "volume": 1.0
+        },
+        {
+          "name": "sounds/radiousti/radiak_zombie_ambient_3",
+          "volume": 1.0
+        }
+      ]
+    },
+    "radiousti.zed.hurt": {
+      "category": "hostile",
+      "max_distance": 24,
+      "sounds": [
+        {
+          "name": "sounds/radiousti/zed_hurt_1",
+          "volume": 1.0
+        },
+        {
+          "name": "sounds/radiousti/zed_hurt_2",
+          "volume": 1.0
+        }
+      ]
+    },
+    "radiousti.radiak_zombie.hurt": {
+      "category": "hostile",
+      "max_distance": 24,
+      "sounds": [
+        {
+          "name": "sounds/radiousti/radiak_zombie_hurt_1",
+          "volume": 1.0
+        },
+        {
+          "name": "sounds/radiousti/radiak_zombie_hurt_2",
+          "volume": 1.0
+        }
+      ]
+    },
+    "radiousti.zed.death": {
+      "category": "hostile",
+      "max_distance": 24,
+      "sounds": [
+        {
+          "name": "sounds/radiousti/zed_death_1",
+          "volume": 1.0
+        }
+      ]
+    },
+    "radiousti.radiak_zombie.death": {
+      "category": "hostile",
+      "max_distance": 24,
+      "sounds": [
+        {
+          "name": "sounds/radiousti/radiak_zombie_death_1",
+          "volume": 1.0
+        }
+      ]
+    },
+    "radiousti.zed.step": {
+      "category": "hostile",
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/radiousti/zed_step_1",
+          "volume": 1.0
+        },
+        {
+          "name": "sounds/radiousti/zed_step_2",
+          "volume": 1.0
+        }
+      ]
+    },
+    "radiousti.radiak_zombie.step": {
+      "category": "hostile",
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/radiousti/radiak_zombie_step_1",
+          "volume": 1.0
+        },
+        {
+          "name": "sounds/radiousti/radiak_zombie_step_2",
+          "volume": 1.0
+        }
+      ]
+    },
+    "radiousti.zed.attack": {
+      "category": "hostile",
+      "max_distance": 24,
+      "sounds": [
+        {
+          "name": "sounds/radiousti/zed_attack_1",
+          "volume": 1.0
+        },
+        {
+          "name": "sounds/radiousti/zed_attack_2",
+          "volume": 1.0
+        }
+      ]
+    },
+    "radiousti.radiak_zombie.attack": {
+      "category": "hostile",
+      "max_distance": 24,
+      "sounds": [
+        {
+          "name": "sounds/radiousti/radiak_zombie_attack_1",
+          "volume": 1.0
+        },
+        {
+          "name": "sounds/radiousti/radiak_zombie_attack_2",
+          "volume": 1.0
+        }
+      ]
+    },
+    "radiousti.radiak_slime.squish": {
+      "category": "hostile",
+      "max_distance": 24,
+      "sounds": [
+        {
+          "name": "sounds/radiousti/slime_squish_1",
+          "volume": 1.0
+        },
+        {
+          "name": "sounds/radiousti/slime_squish_2",
+          "volume": 1.0
+        },
+        {
+          "name": "sounds/radiousti/slime_squish_3",
+          "volume": 1.0
+        }
+      ]
+    },
+    "radiousti.radiak_slime.hurt": {
+      "category": "hostile",
+      "max_distance": 24,
+      "sounds": [
+        {
+          "name": "sounds/radiousti/slime_hurt_1",
+          "volume": 1.0
+        },
+        {
+          "name": "sounds/radiousti/slime_hurt_2",
+          "volume": 1.0
+        }
+      ]
+    },
+    "radiousti.radiak_slime.death": {
+      "category": "hostile",
+      "max_distance": 24,
+      "sounds": [
+        {
+          "name": "sounds/radiousti/slime_death_1",
+          "volume": 1.0
+        }
+      ]
     }
   }
 }

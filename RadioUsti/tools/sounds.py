@@ -4,6 +4,7 @@ import shutil
 import subprocess
 import tempfile
 import wave
+import zlib
 
 import numpy as np
 
@@ -93,6 +94,112 @@ def make():
 CATS = {"siren": ("block", 1.0), "nuke_blast": ("weather", 1.0), "generator_hum": ("block", 0.6), "record_radiousti": ("record", 1.0), "geiger": ("player", 0.7)}
 
 
+# ---------------------------------------------------------------- creature voices (v2.3)
+def formant(x, peaks, bw=120):
+    """Shape a source with vowel formants (frequency-domain gaussian peaks)."""
+    X = np.fft.rfft(x)
+    f = np.fft.rfftfreq(len(x), 1 / SR)
+    g = np.zeros_like(f)
+    for fc, amp in peaks:
+        g += amp * np.exp(-0.5 * ((f - fc) / bw) ** 2)
+    return np.fft.irfft(X * g, len(x))
+
+
+def groan_source(d, f0, f1, seed, rough=0.35):
+    """Glottal-like sawtooth with pitch glide, jitter and breathy noise."""
+    rng = np.random.default_rng(seed)
+    n = int(d * SR)
+    t = np.arange(n) / SR
+    f = np.linspace(f0, f1, n) * (1 + 0.04 * np.sin(2 * np.pi * 5.5 * t)) * (1 + rough * 0.06 * rng.standard_normal(n).cumsum() / np.sqrt(n))
+    ph = 2 * np.pi * np.cumsum(f) / SR
+    saw = 2 * ((ph / (2 * np.pi)) % 1) - 1
+    return saw + rng.uniform(-1, 1, n) * rough
+
+
+def norm(x, peak=0.9):
+    m = np.max(np.abs(x)) or 1
+    return x / m * peak
+
+
+VOWELS = {"uh": [(520, 1.0), (920, 0.7), (2400, 0.25)], "oh": [(450, 1.0), (800, 0.8), (2600, 0.2)],
+          "ah": [(700, 1.0), (1150, 0.7), (2500, 0.25)], "eh": [(500, 0.9), (1700, 0.6), (2500, 0.3)]}
+
+
+def creature_sounds():
+    """id -> list of (file name, samples)."""
+    out = {}
+
+    def zed(kind, i, low=1.0):
+        seed = zlib.crc32(f"{kind}{i}{low}".encode()) % 10000
+        if kind == "ambient":
+            d = 1.2 + 0.3 * i
+            x = formant(groan_source(d, 105 * low - i * 6, 82 * low, seed), VOWELS[["uh", "oh", "ah"][i % 3]])
+            return norm(x * _env(len(x), 0.25, 0.45)) * 0.8
+        if kind == "hurt":
+            x = formant(groan_source(0.35, 150 * low + i * 10, 110 * low, seed, 0.6), VOWELS[["ah", "eh"][i % 2]], 160)
+            return norm(x * _env(len(x), 0.01, 0.15))
+        if kind == "death":
+            x = formant(groan_source(2.0, 120 * low, 55 * low, seed, 0.45), VOWELS["oh"])
+            x = x * np.linspace(1, 0.2, len(x))
+            return norm(x * _env(len(x), 0.05, 0.8))
+        if kind == "step":
+            n = int(0.16 * SR)
+            x = lowpass(noise(0.16, seed), 14) * np.exp(-np.arange(n) / SR * 30)
+            return norm(x) * 0.6
+        if kind == "attack":
+            x = formant(groan_source(0.28, 170 * low, 130 * low, seed, 0.8), VOWELS["ah"], 200)
+            return norm(x * _env(len(x), 0.005, 0.1))
+        raise ValueError(kind)
+
+    def radiak_fx(x, seed):
+        """Geiger crackle + electric suit buzz on top of a voice."""
+        rng = np.random.default_rng(seed)
+        n = len(x)
+        t = np.arange(n) / SR
+        buzz = np.sign(np.sin(2 * np.pi * 120 * t)) * 0.12
+        crack = np.zeros(n)
+        for p in rng.integers(0, max(1, n - 60), max(3, n // 1800)):
+            crack[p:p + 40] += rng.uniform(-1, 1, 40) * np.linspace(1, 0, 40)
+        return norm(x + buzz * np.abs(x).max() * 0.6 + crack * 0.5)
+
+    for kind, n in (("ambient", 3), ("hurt", 2), ("death", 1), ("step", 2), ("attack", 2)):
+        out[f"zed.{kind}"] = [(f"zed_{kind}_{i + 1}", zed(kind, i)) for i in range(n)]
+        out[f"radiak_zombie.{kind}"] = [(f"radiak_zombie_{kind}_{i + 1}", radiak_fx(zed(kind, i, 0.75), i + 50) if kind != "step" else zed(kind, i))
+                                        for i in range(n)]
+    # Radiak's reactor slime: wet squelches
+    def squelch(d, f0, seed):
+        n = int(d * SR)
+        t = np.arange(n) / SR
+        x = np.sin(2 * np.pi * (f0 + 60 * np.sin(2 * np.pi * 9 * t)) * t) * 0.6 + lowpass(noise(d, seed), 5) * 0.5
+        return norm(x * _env(n, 0.01, d * 0.6))
+    out["radiak_slime.squish"] = [(f"slime_squish_{i + 1}", squelch(0.25 + 0.05 * i, 140 + 30 * i, 900 + i)) for i in range(3)]
+    out["radiak_slime.hurt"] = [(f"slime_hurt_{i + 1}", squelch(0.2, 260 + 40 * i, 910 + i)) for i in range(2)]
+    out["radiak_slime.death"] = [("slime_death_1", squelch(0.6, 110, 920))]
+    return out
+
+
+ENTITY_SOUNDS = {
+    "radiousti:irradiated_zed": {"ambient": "zed.ambient", "hurt": "zed.hurt", "death": "zed.death", "step": "zed.step", "attack": "zed.attack"},
+    "radiousti:radiak_zombie": {"ambient": "radiak_zombie.ambient", "hurt": "radiak_zombie.hurt", "death": "radiak_zombie.death",
+                                "step": "radiak_zombie.step", "attack": "radiak_zombie.attack"},
+    "radiousti:radiak_slime": {"ambient": "radiak_slime.squish", "hurt": "radiak_slime.hurt", "death": "radiak_slime.death",
+                               "step": "radiak_slime.squish", "jump": "radiak_slime.squish"},
+}
+
+
+def _write(out, name, data, have_ffmpeg):
+    data = np.clip(data, -1, 1)
+    pcm = (data * 32767 * 0.9).astype(np.int16)
+    with tempfile.TemporaryDirectory() as td:
+        wav = os.path.join(td, name + ".wav")
+        with wave.open(wav, "wb") as w:
+            w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR); w.writeframes(pcm.tobytes())
+        if have_ffmpeg:
+            subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", wav, "-c:a", "libvorbis", "-q:a", "4", os.path.join(out, name + ".ogg")], check=True)
+        else:
+            shutil.copy(wav, os.path.join(out, name + ".wav"))
+
+
 def emit(sound_dir, wjson):
     out = os.path.join(sound_dir, "radiousti")
     os.makedirs(out, exist_ok=True)
@@ -121,4 +228,20 @@ def emit(sound_dir, wjson):
             entry["max_distance"] = 24
         defs[f"radiousti.{name}"] = entry
         SOUNDS[f"radiousti.{name}"] = (name, cat, vol)
+    # creature voices with several variants each
+    for sid, variants in creature_sounds().items():
+        for fname, data in variants:
+            _write(out, fname, data, have_ffmpeg)
+        cat = "hostile"
+        defs[f"radiousti.{sid}"] = {"category": cat, "max_distance": 16 if sid.endswith("step") else 24,
+                                    "sounds": [{"name": f"sounds/radiousti/{f}", "volume": 1.0} for f, _ in variants]}
+        SOUNDS[f"radiousti.{sid}"] = (variants[0][0], cat, 1.0)
     wjson(os.path.join(sound_dir, "sound_definitions.json"), {"format_version": "1.20.20", "sound_definitions": defs})
+    # map entity events -> sounds (RP/sounds.json)
+    ents = {}
+    for ident, ev in ENTITY_SOUNDS.items():
+        events = {}
+        for e, sid in ev.items():
+            events[e] = {"sound": f"radiousti.{sid}", "volume": 0.35 if e == "step" else 1.0} if e == "step" else f"radiousti.{sid}"
+        ents[ident] = {"volume": 1.0, "pitch": [0.85, 1.15], "events": events}
+    wjson(os.path.join(os.path.dirname(sound_dir), "sounds.json"), {"entity_sounds": {"entities": ents}})

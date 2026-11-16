@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.3.0 – zvuky tvorů (2026-11-16)
+**Přidáno**
+- Vlastní zvuky (synteticky generované, vždy několik variant):
+  - Ozářený Zed: sténání, zásah, útok, smrt, kroky.
+  - Radiakova zombie: hlubší sténání s praskáním Geigerova počítače a elektrickým bzučením obleku.
+  - Radiakův sliz: čvachtání, zásah, smrt.
+- `RadioUsti_RP/sounds.json` přiřazuje zvuky k událostem tvorů (výška hlasu se náhodně mění o ±15 %).
+
+**Opraveno**
+- Vlastní tvorové byli dosud úplně potichu.
+
+**Změněno**
+- Verze balíčků 2.2.0 → 2.3.0.
+
 ## 2.2.0 – opravy trubek, radiace a slizu (2026-11-06)
 **Opraveno**
 - Trubky a kabely: navazující úseky už nemají příruby na každém spoji a spoj na kolenech je tenčí, takže souvislá trasa vypadá jako jedna trubka. Napojení se navíc každé 3 s přepočítá v okruhu 8 bloků kolem hráče. Analyzátor ukazuje uložený tvar bloku a hlásí nesoulad se skutečnými sousedy.

@@ -1,0 +1,57 @@
+{
+  "entity_sounds": {
+    "entities": {
+      "radiousti:irradiated_zed": {
+        "volume": 1.0,
+        "pitch": [
+          0.85,
+          1.15
+        ],
+        "events": {
+          "ambient": "radiousti.zed.ambient",
+          "hurt": "radiousti.zed.hurt",
+          "death": "radiousti.zed.death",
+          "step": {
+            "sound": "radiousti.zed.step",
+            "volume": 0.35
+          },
+          "attack": "radiousti.zed.attack"
+        }
+      },
+      "radiousti:radiak_zombie": {
+        "volume": 1.0,
+        "pitch": [
+          0.85,
+          1.15
+        ],
+        "events": {
+          "ambient": "radiousti.radiak_zombie.ambient",
+          "hurt": "radiousti.radiak_zombie.hurt",
+          "death": "radiousti.radiak_zombie.death",
+          "step": {
+            "sound": "radiousti.radiak_zombie.step",
+            "volume": 0.35
+          },
+          "attack": "radiousti.radiak_zombie.attack"
+        }
+      },
+      "radiousti:radiak_slime": {
+        "volume": 1.0,
+        "pitch": [
+          0.85,
+          1.15
+        ],
+        "events": {
+          "ambient": "radiousti.radiak_slime.squish",
+          "hurt": "radiousti.radiak_slime.hurt",
+          "death": "radiousti.radiak_slime.death",
+          "step": {
+            "sound": "radiousti.radiak_slime.squish",
+            "volume": 0.35
+          },
+          "jump": "radiousti.radiak_slime.squish"
+        }
+      }
+    }
+  }
+}
