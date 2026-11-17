@@ -1,0 +1,6 @@
+# generovaný dataset – vzniká z build_dataset.py, nepatří do gitu
+data/dataset.jsonl
+# natrénované adaptéry a modely
+out/
+*.gguf
+*.safetensors
