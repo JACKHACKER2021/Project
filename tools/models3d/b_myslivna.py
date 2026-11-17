@@ -57,12 +57,12 @@ for x in (-1.5, 1.5):
             b.box((.22, .05, .09), (x + s * .5, 1.25 + k * .25, D / 2 + .17), "moss")
 b.window(.6, .7, (W / 2 + .05, 1.5, -.8), color="dark", frame="wood", facing="x")
 # ---- plank door with a bar
-b.box((1.1, 2.0, .14), (0, 1.3, D / 2 + .06), "wood2")
+b.box((1.1, 2.0, .12), (-.82, 1.3, D / 2 - .46), "wood2", rot=[("y", 60)])  # open door
 for k in range(4):
-    b.box((.25, 2.0, .16), (-.4 + k * .27, 1.3, D / 2 + .08), "wood" if k % 2 else "wood2")
-b.box((1.3, .13, .1), (0, 1.0, D / 2 + .16), "grey4")          # iron bar
-b.box((.18, .3, .12), (-.6, 1.0, D / 2 + .18), "grey4")
-b.ball(.07, (.4, 1.3, D / 2 + .16), "grey4")
+    b.box((.25, 2.0, .14), (-.82 + (k - 1.5) * .14, 1.3, D / 2 - .46 + (k - 1.5) * .24),
+          "wood" if k % 2 else "wood2", rot=[("y", 60)])
+b.box((1.3, .12, .1), (-.9, 1.0, D / 2 - .52), "grey4", rot=[("y", 60)])
+b.ball(.07, (-1.2, 1.3, D / 2 - .7), "grey4")
 # ---- small porch
 PZ = D / 2 + .85
 b.box((2.6, .2, 1.5), (0, .3, PZ), "wood", base=True)
@@ -80,4 +80,38 @@ for r in range(3):
 for r in range(3):
     for i in range(4):
         b.cyl(.1, .9, (2.2, .12 + r * .21, PZ - .45 + i * .24), "wood2", sections=6, axis="x")
+# ---------------- interior: one cosy room ------------------------------------
+IY = .4
+b.box((W - .5, .18, D - .5), (0, IY - .09, 0), "wood2")            # plank floor
+for i in range(8):
+    b.box((W - .5, .04, .4), (0, IY + .01, -D / 2 + .45 + i * .42),
+          "wood" if i % 2 else "wood2")
+# stone fireplace under the chimney
+b.box((1.5, 1.4, .7), (-1.6, IY, -D / 2 + .55), "grey3", base=True)
+b.box((1.0, .9, .3), (-1.6, IY + .1, -D / 2 + .5), "dark", base=True)
+for i in range(3):
+    b.cyl(.09, .8, (-1.75 + i * .14, IY + .18, -D / 2 + .55), "wood2",
+          sections=6, axis="x", base=False)
+b.ball(.16, (-1.6, IY + .22, -D / 2 + .55), "rust", sub=0)
+b.box((1.7, .14, .8), (-1.6, IY + 1.45, -D / 2 + .55), "wood")      # mantelpiece
+b.cyl(.09, .2, (-2.1, IY + 1.6, -D / 2 + .55), "candle", sections=8, base=True)
+# bunk bed in the corner
+b.box((.9, .45, 1.9), (1.4, IY, -.8), "wood2", base=True)
+b.box((1.0, .16, 2.0), (1.4, IY + .52, -.8), "moss")
+b.box((.6, .14, .4), (1.4, IY + .66, -1.55), "cream")
+b.box((.1, 1.2, 2.0), (1.85, IY + .6, -.8), "wood")
+# table, two stools, lantern
+b.table((-.2, IY, .8), w=1.3, d=.8, h=.72, top="wood", leg="wood2")
+for (dx, dz, a) in ((-.9, .8, 90), (.6, .8, 270)):
+    b.cyl(.2, .45, (dx, IY, dz), "wood2", sections=8, base=True)
+b.cyl(.14, .22, (-.2, IY + .78, .8), "grey4", sections=8, base=True)
+b.ball(.1, (-.2, IY + .95, .8), "candle", sub=0)
+b.box((.06, .3, .06), (-.2, IY + 1.12, .8), "grey4")
+# gun rack and shelf on the wall
+b.box((.12, .9, .08), (W / 2 - .4, IY + 1.5, .9), "wood2", rot=[("z", 72)])
+b.box((.1, 1.1, .1), (W / 2 - .45, IY + 1.5, .6), "darkwood", rot=[("z", 70)])
+b.box((.3, .07, 1.6), (-W / 2 + .4, IY + 1.3, .6), "wood")
+for i in range(3):
+    b.box((.22, .26, .22), (-W / 2 + .4, IY + 1.47, .1 + i * .5),
+          ["rust", "moss", "wood2"][i])
 finish(b, "out/myslivna.glb", "Myslivna")

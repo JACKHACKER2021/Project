@@ -20,8 +20,13 @@ CZ = -D / 2 + T + 1.5          # cell block depth centre
 for i, cx in enumerate((-2.1, 0, 2.1)):
     for s in (-1, 1):          # cell dividers
         b.box((.18, H - .5, 2.6), (cx + s * 1.05, .35, CZ), "grey4", base=True)
-    for j in range(5):         # vertical bars at the cell front
-        b.box((.08, 2.1, .08), (cx - .8 + j * .4, .35, CZ + 1.3), "dark", base=True)
+    if cx < 1.5:              # barred fronts; the right-hand cell stands open
+        for j in range(5):
+            b.box((.08, 2.1, .08), (cx - .8 + j * .4, .35, CZ + 1.3), "dark", base=True)
+    else:
+        for j in range(5):    # grille swung aside
+            b.box((.08, 2.1, .08), (cx + 1.05 + j * .12, .35, CZ + 1.72 - j * .38),
+                  "dark", base=True)
     b.box((1.9, .1, .1), (cx, 2.5, CZ + 1.3), "dark")
     b.box((.6, .25, 1.4), (cx - .5, .35, CZ - .4), "grey4", base=True)   # bunk
     b.box((.6, .07, 1.4), (cx - .5, .62, CZ - .4), "plaster2")
@@ -42,13 +47,13 @@ for s, f in ((1, .05), (-1, -.05)):
         for j in range(3):
             b.box((.1, .55, .06), (s * W / 2 + f * 1.6, 2.5, z - .22 + j * .22), "dark")
 # ---- heavy metal door
-b.box((1.5, 2.3, .22), (0, .2 + 1.15, D / 2 - .02), "grey4")
+b.box((1.5, 2.3, .18), (-1.05, .2 + 1.15, D / 2 - .62), "grey4",   # door swung open
+      rot=[("y", 58)])
 for yy in (.7, 1.6, 2.5):
-    b.box((1.5, .12, .28), (0, yy, D / 2 + .02), "dark")
-for s in (-1, 1):
-    for yy in (.6, 1.7):
-        b.ball(.07, (s * .55, yy, D / 2 + .12), "dark")
-b.cyl(.09, .3, (.5, 1.2, D / 2 + .14), "grey3", sections=8, axis="z")
+    b.box((1.5, .12, .24), (-1.1, yy, D / 2 - .66), "dark", rot=[("y", 58)])
+for yy in (.6, 1.7):
+    b.ball(.07, (-1.5, yy, D / 2 - .9), "dark")
+b.cyl(.09, .3, (-.55, 1.2, D / 2 - .3), "grey3", sections=8, axis="x")
 b.box((.5, .3, .1), (0, 2.75, D / 2 + .05), "grey4")    # small sign plate
 # ---- fence with barbed wire around the plot
 FX, FZ = 5.2, 4.2

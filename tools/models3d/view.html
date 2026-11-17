@@ -3,15 +3,15 @@
 import * as THREE from './vendor/three.module.js';
 import {GLTFLoader} from './vendor/GLTFLoader.js';
 const q=new URLSearchParams(location.search), file=q.get('f');
-const r=new THREE.WebGLRenderer({antialias:true}); r.setSize(520,520); document.body.appendChild(r.domElement);
+const r=new THREE.WebGLRenderer({antialias:true}); r.localClippingEnabled=true; r.setSize(520,520); document.body.appendChild(r.domElement);
 const sc=new THREE.Scene(); sc.background=new THREE.Color('#dfeaf2');
 sc.add(new THREE.HemisphereLight('#ffffff','#9fb4c4',1.5));
 const d=new THREE.DirectionalLight('#fff7e8',1.6); d.position.set(4,8,6); sc.add(d);
 const d2=new THREE.DirectionalLight('#cfe0ff',.5); d2.position.set(-5,3,-4); sc.add(d2);
 const cam=new THREE.PerspectiveCamera(35,1,.1,500);
-new GLTFLoader().load(file,g=>{
+new GLTFLoader().load(file+'?t='+Date.now(),g=>{
   sc.add(g.scene);
-  g.scene.traverse(o=>{if(o.isMesh){const c=o.material.color;o.geometry.computeVertexNormals();o.material=new THREE.MeshLambertMaterial({color:c,side:THREE.DoubleSide});}});
+  g.scene.traverse(o=>{if(o.isMesh){const c=o.material.color;o.geometry.computeVertexNormals();o.material=new THREE.MeshLambertMaterial({color:c,side:THREE.DoubleSide});if(q.get('cut'))o.material.clippingPlanes=[new THREE.Plane(new THREE.Vector3(0,-1,0),+q.get('cut'))];}});
   const bb=new THREE.Box3().setFromObject(g.scene), s=bb.getSize(new THREE.Vector3()), c=bb.getCenter(new THREE.Vector3());
   const R=Math.max(s.x,s.y,s.z)*1.75;
   const a=THREE.MathUtils.degToRad(+(q.get('a')||35));

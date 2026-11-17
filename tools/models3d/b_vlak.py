@@ -7,13 +7,36 @@ GAP = .55
 def car(zc, front=False, back=False):
     y0 = .55                                           # top of bogies
     # ---- body with rounded ends (chamfer boxes)
-    b.box((CW, CH, CL - 1.2), (0, y0, zc), "green", base=True)
-    b.box((CW - .5, CH - .5, CL + .1), (0, y0 + .25, zc), "yellow", base=True)
+    T = .14
+    FY = y0 + .35                                   # saloon floor
+    wins = [(zc - 2.4 + i * 1.2 - zc, 1.0, 1.05, 1.0) for i in range(5)]
+    doors = [(dz, .95, .25, 1.9) for dz in (-1.8, 1.8)]
+    b.shell(CW, CL - 1.2, CH, y0, T, "green", holes={
+        "left": wins + doors, "right": wins + doors})
+    b.box((CW - T * 2, .35, CL - 1.2 - T * 2), (0, y0 + .175, zc), "dark")
+    b.box((CW - T * 2, .06, CL - 1.2 - T * 2), (0, FY + .03, zc), "grey3")
+    b.box((CW - .5, .1, CL - 1.2 - T * 2), (0, y0 + CH - .05, zc), "cream")  # ceiling
     for s in (-1, 1):                                  # rounded cab/end faces
         ez = zc + s * (CL / 2 - .6)
         b.box((CW - .25, CH - .25, .5), (0, y0 + .12, ez + s * .25), "green", base=True)
         b.box((CW - .8, CH - .8, .5), (0, y0 + .4, ez + s * .5), "green", base=True)
         b.cyl(.42, CW - .3, (0, y0 + CH - .42, ez + s * .3), "yellow", sections=8, axis="x")
+    # ---- seats and interior fittings
+    for i in range(4):
+        sz = zc - 1.9 + i * 1.25
+        for sx in (-1, 1):
+            x = sx * (CW / 2 - T - .42)
+            b.box((.78, .42, .5), (x, FY, sz), "grey4", base=True)
+            b.box((.82, .12, .55), (x, FY + .46, sz), "blue")
+            b.box((.82, .55, .12), (x, FY + .73, sz - .28), "blue")
+            b.box((.82, .55, .12), (x, FY + .73, sz + .62), "blue")
+            b.box((.82, .12, .55), (x, FY + .46, sz + .9), "blue")
+            b.box((.78, .42, .5), (x, FY, sz + .9), "grey4", base=True)
+        b.box((.5, .08, .5), (0, FY + .62, sz + .45), "cream")        # aisle table
+        b.box((.08, .62, .08), (0, FY + .3, sz + .45), "grey3")
+    for i in range(6):                                                 # grab poles
+        b.box((.06, CH - .6, .06), (0, FY + (CH - .6) / 2, zc - 2.5 + i * 1.0), "grey3")
+    b.box((CW - T * 2 - .2, .1, CL - 2.2), (0, y0 + CH - .22, zc), "cream")  # lights
     # ---- yellow-green livery band
     b.box((CW + .06, .4, CL - .3), (0, y0 + 1.0, zc), "yellow")
     b.box((CW + .06, .14, CL - .3), (0, y0 + .75, zc), "green2")
@@ -23,12 +46,12 @@ def car(zc, front=False, back=False):
     for s, f in ((1, "x"), (-1, "-x")):
         for i in range(5):
             z = zc - 2.4 + i * 1.2
-            b.window(1.0, 1.0, (s * CW / 2, y0 + 1.55, z), color="glassdark",
+            b.window(1.0, 1.0, (s * (CW / 2 - .02), y0 + 1.55, z), color="glass",
                      frame="cream", facing=f if s > 0 else "-x")
         # doors
-        for z in (zc - 1.8, zc + 1.8):
-            b.box((.1, 1.9, .95), (s * (CW / 2 - .02), y0 + .95, z), "green2")
-            b.box((.12, .8, .8), (s * (CW / 2 + .02), y0 + 1.6, z), "glassdark")
+        for z in (zc - 1.8, zc + 1.8):      # sliding doors pushed open
+            b.box((.08, 1.9, .9), (s * (CW / 2 - .04), y0 + 1.15, z + .95), "green2")
+            b.box((.1, .8, .75), (s * (CW / 2 - .02), y0 + 1.8, z + .95), "glass")
     # ---- roof
     b.box((CW - .1, .2, CL - .3), (0, y0 + CH, zc), "grey3", base=True)
     b.cyl(.35, CL - .5, (0, y0 + CH - .05, zc), "grey", sections=8, axis="z")

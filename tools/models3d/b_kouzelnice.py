@@ -3,8 +3,16 @@ b = Builder()
 W, D, H = 4.4, 3.8, 2.4
 b.box((W + .4, .3, D + .4), (0, 0, 0), "mud2", base=True)
 # two crooked storeys of mud brick, the upper one jutting out and tilted
-b.box((W, H, D), (0, .3, 0), "mud", base=True)
-b.box((W + .5, H - .3, D + .4), (.12, .3 + H, 0), "mud", base=True, rot=[("z", -2.5)])
+T = .26
+b.shell(W, D, H, .3, T, "mud", holes={
+    "front": [(0, 1.0, 0, 2.0), (-1.2, .8, .7, 1.0), (1.2, .8, .6, 1.0)],
+    "left":  [(-.9, .7, .75, .9)],
+    "right": [(-.9, .7, .75, .9)]})
+b.shell(W + .5, D + .4, H - .3, .3 + H, T, "mud", holes={
+    "front": [(-1.0, .75, .75, .9), (1.3, .75, .85, .9)],
+    "left":  [(0, .7, .8, .9)]})
+b.box((W - T * 2, .3, D - T * 2), (0, .45, 0), "mud2")            # ground floor
+b.box((W + .5 - T * 2, .2, D + .4 - T * 2), (0, .3 + H - .1, 0), "wood2")  # 1st slab
 b.box((W + .1, .18, D + .1), (0, .3 + H + .09, 0), "wood2")
 Y2 = .3 + H; TOP = Y2 + H - .3
 for y in (.9, 1.7, Y2 + .8, Y2 + 1.6):                      # brick courses
@@ -56,10 +64,9 @@ for (x, c) in ((-1.45, "mint"), (-1.0, "lol"), (1.0, "teal"), (1.45, "purple")):
     b.cyl(.07, .22, (x, 1.06, D / 2 + .2), c, sections=8, base=True)
     b.box((.04, .06, .04), (x, 1.3, D / 2 + .2), "cream")
 # ---- crooked door
-b.box((1.0, 2.0, .18), (0, 1.0, D / 2 + .06), "darkwood", rot=[("z", 2)])
-for y in (.5, 1.5):
-    b.box((1.02, .1, .22), (0, y, D / 2 + .09), "wood2", rot=[("z", 2)])
-b.ball(.08, (.36, 1.0, D / 2 + .18), "gold2")
+b.box((1.0, 2.0, .12), (-.78, 1.3, D / 2 - .42), "darkwood",       # door, ajar
+      rot=[("y", 58), ("z", 2)])
+b.ball(.08, (-1.2, 1.3, D / 2 - .72), "gold2")
 b.box((1.5, .16, .5), (0, 2.1, D / 2 + .2), "purple2")
 b.box((1.4, .25, .6), (0, .12, D / 2 + .25), "stone2")     # doorstep
 # ---- overgrown little garden out front
@@ -77,4 +84,46 @@ for i in range(9):                                          # leaning garden fen
     x = -2.9 + i * .72
     b.box((.08, .6, .08), (x, .3, 3.5), "wood2", rot=[("z", random.uniform(-12, 12))])
 b.box((5.8, .07, .07), (0, .48, 3.5), "wood2")
+# ---------------- interior: workshop, cauldron, attic ------------------------
+IY = .6
+b.box((W - T * 2, .05, D - T * 2), (0, IY + .02, 0), "wood2")
+# bubbling cauldron over a fire
+b.cyl(.55, .5, (-1.1, IY + .25, -.7), "grey4", sections=10, base=True)
+b.cyl(.58, .12, (-1.1, IY + .75, -.7), "dark", sections=10)
+b.cyl(.5, .1, (-1.1, IY + .72, -.7), "mint", sections=10)
+for i in range(3):
+    b.ball(.12 + i * .03, (-1.1 + i * .12, IY + .9 + i * .22, -.7),
+           "lilac" if i % 2 else "mint", sub=0)
+for sx in (-1, 1):
+    b.box((.08, .55, .08), (-1.1 + sx * .5, IY + .27, -.7 + sx * .3), "grey4")
+b.ball(.16, (-1.1, IY + .1, -.7), "candle", sub=0)
+# work table with potion bottles and a book
+b.table((1.2, IY, -.6), w=1.6, d=.8, h=.8, top="wood", leg="darkwood")
+for i, c in enumerate(("mint", "lol", "teal", "purple")):
+    b.cyl(.08, .26, (.7 + i * .3, IY + .89, -.6), c, sections=8, base=True)
+    b.box((.05, .07, .05), (.7 + i * .3, IY + 1.18, -.6), "cream")
+b.box((.5, .08, .36), (1.5, IY + .9, -.95), "purple2")
+b.box((.46, .04, .32), (1.5, IY + .95, -.95), "cream")
+# shelves of herbs on the side walls
+for k in range(3):
+    y = IY + .9 + k * .55
+    b.box((.36, .07, 1.8), (-W / 2 + T + .2, y, .5), "wood")
+    for i in range(4):
+        b.cyl(.09, .22, (-W / 2 + T + .2, y + .04, -.2 + i * .45),
+              ["green2", "purple", "yellow", "teal"][(i + k) % 4], sections=8, base=True)
+# ladder up to the attic
+for i in range(8):
+    b.box((.7, .06, .06), (1.5, IY + .2 + i * .28, 1.2), "wood")
+for sx in (-1, 1):
+    b.box((.07, 2.3, .07), (1.5 + sx * .32, IY + 1.2, 1.2), "wood2", rot=[("x", 6)])
+b.box((1.0, .22, 1.0), (1.5, .3 + H - .1, 1.2), "mud")           # hatch opening frame
+# attic: bed, trunk, broom
+AY = .3 + H
+b.box((1.1, .4, 2.0), (-1.3, AY, -.4), "wood2", base=True)
+b.box((1.2, .16, 2.1), (-1.3, AY + .48, -.4), "purple")
+b.box((.6, .14, .4), (-1.3, AY + .62, -1.2), "lilac")
+b.box((.9, .5, .6), (1.3, AY, -1.1), "darkwood", base=True)
+b.box((.95, .14, .65), (1.3, AY + .55, -1.1), "gold2")
+b.box((.07, 1.5, .07), (1.9, AY + .75, .4), "wood2", rot=[("z", 14)])
+b.cyl(.2, .5, (2.08, AY + .25, .4), "moss", sections=8, base=True)
 finish(b, "out/kouzelnicin_dum.glb", "KouzelnicinDum")

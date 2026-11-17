@@ -8,6 +8,9 @@ samostatný, bez terénu.
   (žádné textury → malé soubory, snadné přebarvení v enginu).
 - **Osy:** Y nahoru, model vycentrovaný na XZ, spodek na `y = 0`.
 - **Vchod směřuje na +Z** (dopředu).
+- **Budovy jsou duté a průchozí** – stěny mají skutečné otvory pro dveře a okna,
+  dveře stojí otevřené, uvnitř je podlaha, příčky, schody a zařízení.
+  Kolize v enginu stačí generovat z meshe (trimesh collision / convex decomposition).
 - **Měřítko:** 1 jednotka = 1 metr.
 - **Polygony:** všechny modely výrazně pod limitem 15 000 trojúhelníků
   (max ~5 600 u vlaku).
@@ -45,4 +48,20 @@ node shot.js                # náhledy do prev/ (vyžaduje playwright + chromium
 | lapisovy_portal | obsidiánový rám, modrá zářící výplň, páka |
 | plazova_lehatka | tři pruhovaná lehátka, dva slunečníky, stolek |
 
-Náhledy: `prev/` (dva pohledy na model), přehled v `prev/_sheet.png`.
+Náhledy: `prev/` (dva pohledy na model), přehled v `prev/_sheet.png`,
+řezy interiérů v `prev/_cuts.png` (renderer umí ořez: `view.html?f=...&cut=<výška>`).
+
+## Interiéry
+| budova | co je uvnitř |
+|---|---|
+| radnice | vstupní hala se sloupy a kobercem, přepážka úřednice, lavice, schodiště do patra, zasedací stůl |
+| nemocnice | recepce, čekací lavice, chodba s příčkou a dveřmi, dva pokoje s lůžky a kapačkami, schody do patra, sesterna |
+| vezeni | chodba, tři cely s pryčnami, mříže (pravá cela otevřená), díra v zadní stěně |
+| soud | soudcovský stůl na stupínku, zapisovatel, místo svědka, lavice pro veřejnost, zábradlí, ulička s kobercem |
+| obchod_sladkosti | pult s pokladnou, regály plné sklenic, bedny, sud s lízátky, poklop do sklepa |
+| kouzelnicin_dum | kotel nad ohněm, pracovní stůl s lektvary, police s bylinkami, žebřík do podkroví, postel a truhla |
+| dum_kovarikovi | stůl se židlemi, kamna, kredenc s nádobím, lavice, koberec (+ zničená verze s troskami) |
+| restaurace | stoly se židlemi a vázičkami, barový pult s lahvemi a stoličkami, výdejní okno do kuchyně, lustr |
+| myslivna | krb s dřívím, palanda, stůl se stoličkami a lucernou, stojan na pušku, police |
+| strazni_vez | kabina se stolem, vysílačkou a stoličkou |
+| vlak_regionova | podlaha, sedačky proti sobě se stolky, tyče, osvětlení, otevřené dveře |

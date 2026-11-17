@@ -153,6 +153,102 @@ class Builder:
             for yy in (h * 0.75, h * 0.35):
                 self.box((0.05, 0.08, L), (mid[0], yy, mid[2]), color, rot=[("y", ang)])
 
+
+    # ---- hollow shell with real openings (so the player can walk in) ----
+    def wall(self, axis, pos, length, h, y0, t, color, holes=()):
+        """One wall. axis 'x' = wall runs along X (faces +-Z), 'z' = runs along Z.
+        pos = (fixed coordinate, centre along the wall axis).
+        holes = list of (centre_along_axis, width, bottom_y, height)."""
+        fixed, c0 = pos
+        lo = c0 - length / 2.0
+        hs = sorted(holes, key=lambda o: o[0])
+        edges = []
+        cur = lo
+        for (hc, hw, hy, hh) in hs:
+            a, bb = hc - hw / 2.0, hc + hw / 2.0
+            a = max(a, lo); bb = min(bb, lo + length)
+            if a > cur:
+                edges.append((cur, a, None))
+            edges.append((a, bb, (hy, hh)))
+            cur = bb
+        if cur < lo + length:
+            edges.append((cur, lo + length, None))
+        for (a, bb, hole) in edges:
+            w = bb - a
+            if w <= 1e-4:
+                continue
+            mid = (a + bb) / 2.0
+            def put(yy, hh2):
+                if hh2 <= 1e-4:
+                    return
+                if axis == "x":
+                    self.box((w, hh2, t), (mid, y0 + yy, fixed), color, base=False
+                             ) if False else self.box((w, hh2, t), (mid, y0 + yy + hh2 / 2, fixed), color)
+                else:
+                    self.box((t, hh2, w), (fixed, y0 + yy + hh2 / 2, mid), color)
+            if hole is None:
+                put(0, h)
+            else:
+                hy, hh = hole
+                put(0, hy)
+                put(hy + hh, h - hy - hh)
+
+    def shell(self, w, d, h, y0, t, color, holes=None, floor=None, ceiling=None,
+              ceil_t=.18):
+        """Four walls + optional floor and ceiling. holes = {side: [(c,w,y,h)...]}
+        sides: 'front' (+Z), 'back' (-Z), 'left' (-X), 'right' (+X)."""
+        holes = holes or {}
+        self.wall("x", (d / 2 - t / 2, 0), w, h, y0, t, color, holes.get("front", ()))
+        self.wall("x", (-d / 2 + t / 2, 0), w, h, y0, t, color, holes.get("back", ()))
+        self.wall("z", (-w / 2 + t / 2, 0), d - t * 2, h, y0, t, color, holes.get("left", ()))
+        self.wall("z", (w / 2 - t / 2, 0), d - t * 2, h, y0, t, color, holes.get("right", ()))
+        if floor:
+            self.box((w - t * 2, .12, d - t * 2), (0, y0 + .06, 0), floor)
+        if ceiling:
+            self.box((w, ceil_t, d), (0, y0 + h + ceil_t / 2, 0), ceiling)
+
+    # ---- small interior props ----
+    def door_open(self, pos, w=1.0, h=2.0, color="wood2", ang=70, side=1, facing="z"):
+        """Door leaf swung open on a hinge, leaving the opening passable."""
+        x, y, z = pos
+        hx = x - side * w / 2
+        a = np.radians(ang * side)
+        cx = hx + np.cos(a) * (side * w / 2) * 0 + side * (w / 2) * np.cos(a)
+        cz = z - (w / 2) * np.sin(abs(a))
+        self.box((w, h, .1), (hx + side * (w / 2) * np.cos(a), y + h / 2,
+                              z - (w / 2) * np.sin(abs(a))), color,
+                 rot=[("y", -ang * side)])
+
+    def table(self, pos, w=1.2, d=.8, h=.75, top="wood", leg="wood2"):
+        x, y, z = pos
+        self.box((w, .09, d), (x, y + h, z), top)
+        for sx in (-1, 1):
+            for sz in (-1, 1):
+                self.box((.08, h, .08), (x + sx * (w / 2 - .1), y + h / 2,
+                                         z + sz * (d / 2 - .1)), leg)
+
+    def chair(self, pos, ang=0, seat="wood", back="wood2", s=.42):
+        x, y, z = pos
+        self.box((s, .07, s), (x, y + .45, z), seat, rot=[("y", ang)])
+        self.box((s, .55, .07), (x, y + .72, z - s / 2), back, rot=[("y", ang)])
+        for sx in (-1, 1):
+            for sz in (-1, 1):
+                self.box((.06, .45, .06), (x + sx * (s / 2 - .05), y + .22,
+                                           z + sz * (s / 2 - .05)), back, rot=[("y", ang)])
+
+    def stairs_inside(self, pos, w=1.1, n=11, rise=.24, run=.3, color="wood2",
+                      rail=True, dirz=1):
+        """Straight flight going up toward -Z (dirz=-1) or +Z (1)."""
+        x, y, z = pos
+        for i in range(n):
+            self.box((w, rise, run), (x, y + rise * (i + .5), z + dirz * run * i), color)
+            self.box((w, .06, run), (x, y + rise * (i + 1), z + dirz * run * i), "wood")
+        if rail:
+            for sx in (-1, 1):
+                for i in range(0, n, 3):
+                    self.box((.06, .85, .06), (x + sx * (w / 2 - .05),
+                                               y + rise * (i + 1) + .42, z + dirz * run * i), color)
+
     # ---- export ----
     def export(self, path, name=""):
         # one mesh (and one flat PBR material) per colour, so engines show the paint

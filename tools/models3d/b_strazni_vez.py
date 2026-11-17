@@ -39,9 +39,22 @@ for s in (-1, 1):
 # gap in the railing at the front where the stairs arrive
 b.box((.9, .95, .3), (0, PY + .6, 1.72), "dark")
 # ---- cabin + searchlight
-b.box((1.7, 1.5, 1.7), (0, PY + .26, -.1), "dark", base=True)
-b.window(.9, .7, (0, PY + 1.25, .78), color="candle", frame="grey4")
-b.window(.6, .6, (.86, PY + 1.25, -.1), color="candle", frame="grey4", facing="x")
+b.shell(1.7, 1.7, 1.5, PY + .26, .14, "dark", holes={
+    "front": [(0, .85, 0, 1.4)],
+    "back":  [(0, .9, .55, .7)],
+    "left":  [(0, .6, .6, .6)],
+    "right": [(0, .6, .6, .6)]})
+b.box((1.7 - .28, .08, 1.7 - .28), (0, PY + .3, -.1), "grey4")       # cabin floor
+# cabin interior: desk, stool, radio
+b.box((.9, .7, .35), (0, PY + .34, -.65), "grey3", base=True)
+b.box((1.0, .07, .45), (0, PY + 1.07, -.65), "grey4")
+b.box((.3, .22, .22), (-.3, PY + 1.18, -.65), "rust")
+b.ball(.05, (-.3, PY + 1.32, -.6), "red2", sub=0)
+b.box((.26, .06, .2), (.25, PY + 1.12, -.65), "cream")
+b.cyl(.16, .45, (.5, PY + .34, .3), "grey4", sections=8, base=True)
+b.box((.4, .1, .4), (.5, PY + .82, .3), "dark")
+b.window(.9, .7, (0, PY + 1.45, .78), color="candle", frame="grey4")
+b.window(.6, .6, (.86, PY + 1.4, -.1), color="candle", frame="grey4", facing="x")
 b.pyramid(2.1, 2.1, .6, (0, PY + 1.76, -.1), "grey4")
 b.cyl(.1, .5, (0, PY + 2.36, -.1), "grey4", sections=8, base=True)
 # searchlight head aimed forward (+Z)

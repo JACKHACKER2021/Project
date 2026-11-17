@@ -6,11 +6,21 @@ def build(ruined=False):
     W, D, H = 4.2, 3.6, 2.3
     wall = "plaster2" if not ruined else "grey"
     b.box((W + .3, .25, D + .3), (0, 0, 0), "stone2", base=True)
+    T = .22
+    IY = .42
     if not ruined:
-        b.box((W, H, D), (0, .25, 0), wall, base=True)
+        b.shell(W, D, H, .25, T, wall, holes={
+            "front": [(0, 1.0, 0, 2.0)] + [(x, .85, .625, .95) for x in (-1.3, 1.3)],
+            "back":  [(-.9, .9, 0, 1.8)],
+            "left":  [(-.7, .8, .7, .9)],
+            "right": [(-.7, .8, .7, .9)]})
+        b.box((W - T * 2, .2, D - T * 2), (0, .33, 0), "stone2")
+        b.box((W - T * 2, .05, D - T * 2), (0, IY + .02, 0), "wood")
     else:
         # broken walls: front wall partially collapsed, jagged tops
         b.box((W, H, .22), (0, .25, -D / 2 + .11), wall, base=True)        # back
+        b.box((W - T * 2, .2, D - T * 2), (0, .33, 0), "stone2")
+        b.box((W - T * 2, .05, D - T * 2), (0, IY + .02, 0), "grey")
         b.box((.22, H * .8, D), (-W / 2 + .11, .25, 0), wall, base=True)   # left, lower
         b.box((.22, H, D * .7), (W / 2 - .11, .25, -D * .12), wall, base=True)
         b.box((W * .35, H * .55, .22), (-W * .3, .25, D / 2 - .11), wall, base=True)
@@ -79,15 +89,16 @@ def build(ruined=False):
     b.steps(1.4, 2, .22, .3, PZ + .85, color="wood" if not ruined else "grey3")
     # ---- front door
     if not ruined:
-        b.box((1.0, 2.0, .16), (0, 1.47, D / 2 + .05), "blue2")
-        b.box((.5, .5, .1), (0, 2.15, D / 2 + .1), "glass")
-        b.ball(.07, (.34, 1.4, D / 2 + .14), "gold")
+        b.box((1.0, 2.0, .1), (-.78, 1.25, D / 2 - .42), "blue2",   # door, open
+              rot=[("y", 58)])
+        b.box((.5, .5, .12), (-.95, 1.9, D / 2 - .55), "glass", rot=[("y", 58)])
+        b.ball(.07, (-1.2, 1.25, D / 2 - .7), "gold")
     else:
         b.box((1.0, 2.0, .1), (0, 1.47, D / 2 - .05), "black")
         b.box((.9, 1.2, .14), (-.15, .9, D / 2 + .1), "wood2", rot=[("z", 58)])
         b.box((.5, .8, .12), (1.4, .4, PZ + .3), "blue2", rot=[("z", 76), ("y", 20)])
     # ---- back door
-    b.box((.9, 1.8, .16), (-.9, .25 + .9, -D / 2 - .05), "wood2")
+    b.box((.9, 1.8, .12), (-1.62, 1.15, -D / 2 + .38), "wood2", rot=[("y", -58)])
     if not ruined:
         b.ball(.06, (-.55, 1.0, -D / 2 - .14), "gold2")
         b.box((1.1, .14, .3), (-.9, 2.1, -D / 2 - .12), "roof2")
@@ -130,6 +141,39 @@ def build(ruined=False):
             z = FZ - i * ((FZ - (-D / 2 - .6)) / 4.5)
             h = .7 if not ruined else random.choice([.7, .4, .6])
             b.box((.07, h, .1), (s * FX, h / 2, z), "white" if not ruined else "grey")
+    # ---------------- interior ----------------
+    if not ruined:
+        b.table((-.9, IY, -.6), w=1.4, d=.9, h=.74)
+        for (dx, dz, a) in ((-.9, .1, 180), (-.9, -1.3, 0), (-.1, -.6, 270)):
+            b.chair((dx, IY, dz), ang=a)
+        b.box((.9, .9, .6), (1.4, IY, -1.0), "grey3", base=True)        # stove
+        b.box((1.0, .1, .7), (1.4, IY + .92, -1.0), "grey4")
+        b.cyl(.18, .25, (1.2, IY + 1.05, -1.0), "red2", sections=8, base=True)
+        b.box((.3, 1.2, .3), (1.8, IY + 1.5, -1.3), "grey3")            # flue
+        b.box((1.2, 1.6, .5), (1.5, IY, .9), "wood2", base=True)        # dresser
+        b.box((1.3, .1, .6), (1.5, IY + 1.64, .9), "wood")
+        for k in range(2):
+            b.box((1.1, .07, .4), (1.5, IY + .6 + k * .5, .9), "wood")
+            for i in range(3):
+                b.cyl(.09, .18, (1.1 + i * .4, IY + .64 + k * .5, .9),
+                      ["blue", "yellow", "pink"][i], sections=8, base=True)
+        b.box((1.6, .5, .9), (-1.4, IY, 1.0), "blue2", base=True)       # bench + rug
+        b.box((1.7, .1, 1.0), (-1.4, IY + .52, 1.0), "wood")
+        b.box((1.8, .03, 1.2), (0, IY + .05, .6), "red")
+        b.box((.5, .04, .34), (-.9, IY + .78, -.6), "white")            # bread on table
+        b.ball(.1, (-.5, IY + .82, -.4), "gold2")
+    else:
+        b.box((1.2, .12, .8), (-.8, IY + .1, -.5), "wood2", rot=[("z", 22), ("y", 14)])
+        for sx in (-1, 1):
+            b.box((.07, .7, .07), (-.8 + sx * .5, IY + .3, -.5), "wood2",
+                  rot=[("z", sx * 34)])
+        b.chair((.4, IY, .2), ang=38, seat="wood", back="wood2")
+        b.box((.9, .9, .6), (1.4, IY, -1.0), "grey3", base=True)
+        b.box((1.0, .1, .7), (1.5, IY + .95, -1.05), "grey4", rot=[("z", 9)])
+        b.box((1.2, .9, .5), (1.5, IY, .9), "wood2", base=True, rot=[("z", -7)])
+        for i in range(5):
+            b.box((.3, .06, .22), (-.2 + i * .5, IY + .04, .3 + (i % 3) * .5), "wood",
+                  rot=[("y", i * 24)])
     name = "dum_kovarikovi_zniceny" if ruined else "dum_kovarikovi"
     finish(b, f"out/{name}.glb", name)
 
