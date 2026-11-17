@@ -250,7 +250,7 @@ class Builder:
                                                y + rise * (i + 1) + .42, z + dirz * run * i), color)
 
     # ---- export ----
-    def export(self, path, name=""):
+    def export(self, path, name="", center=True):
         # one mesh (and one flat PBR material) per colour, so engines show the paint
         groups = {}
         for mesh, col in self.parts:
@@ -263,7 +263,8 @@ class Builder:
             merged[col] = m
         whole = trimesh.util.concatenate(list(merged.values()))
         lo, hi = whole.bounds                 # centre on XZ, bottom on the ground
-        off = np.array([-(lo[0] + hi[0]) / 2, -lo[1], -(lo[2] + hi[2]) / 2])
+        off = (np.array([-(lo[0] + hi[0]) / 2, -lo[1], -(lo[2] + hi[2]) / 2])
+               if center else np.array([0.0, -min(lo[1], 0.0), 0.0]))
         nodes, tris, verts = {}, 0, 0
         for col, m in merged.items():
             m.apply_translation(off)
@@ -278,7 +279,7 @@ class Builder:
         trimesh.Scene(nodes).export(path, include_normals=True)
         return tris, verts
 
-def finish(b, path, name=""):
-    tris, verts = b.export(path, name)
+def finish(b, path, name="", center=True):
+    tris, verts = b.export(path, name, center)
     print(f"{path.split('/')[-1]:34s} {tris:6d} tris  {verts:6d} verts")
     return tris

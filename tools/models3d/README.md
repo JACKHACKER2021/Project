@@ -44,12 +44,40 @@ node shot.js                # náhledy do prev/ (vyžaduje playwright + chromium
 | kasna | kulatá kašna se sochou, tekoucí voda, lavičky, modré mozaiky |
 | pomnik_u_koleji | dva kameny (modrý Leox, červený Nelea), svíčky, květiny, kousek kolejí |
 | vlak_regionova | tři žlutozelené vagony, kulatá čela, rudé reflektory |
-| zavodni_draha | startovní brána z lízátek, startovní čára, tribuna, vlajky |
+| draha_* | modulární závodní dráha – viz sekce Dráha |
 | lapisovy_portal | obsidiánový rám, modrá zářící výplň, páka |
 | plazova_lehatka | tři pruhovaná lehátka, dva slunečníky, stolek |
 
 Náhledy: `prev/` (dva pohledy na model), přehled v `prev/_sheet.png`,
 řezy interiérů v `prev/_cuts.png` (renderer umí ořez: `view.html?f=...&cut=<výška>`).
+
+## Závodní dráha (modulární stavebnice)
+Díly se skládají za sebe. **Vjezd každého dílu je v počátku (0,0,0), dráha
+pokračuje směrem −Z**, šířka vozovky 7 m. Díly se neposouvají při exportu
+(`center=False`), takže stačí navázat výjezd předchozího dílu.
+
+| díl | délka / efekt | výjezd (dx, dz, otočení) |
+|---|---|---|
+| draha_start | 9,0 m, startovní brána, čára, tribuna | 0, −9,0, 0° |
+| draha_rovna | 7,2 m + svodidla | 0, −7,2, 0° |
+| draha_rovna_kratka | 3,6 m (dolaďování délek) | 0, −3,6, 0° |
+| draha_rovna_vlajky | 7,2 m + vlajky | 0, −7,2, 0° |
+| draha_zatacka_vlevo | zatáčka 90°, poloměr 7 m | −7,0, −7,0, +90° |
+| draha_zatacka_vpravo | zatáčka 90°, poloměr 7 m | +7,0, −7,0, −90° |
+| draha_stoupani | 7,2 m, stoupá o 1,6 m | 0, −7,2, 0° |
+| draha_klesani | 7,2 m, klesá o 1,6 m | 0, −7,2, 0° |
+| draha_skok | 14,4 m – rampa, mezera, želé dopad, sjezd | 0, −14,4, 0° |
+| draha_sikana | 9,0 m, tři lízátkové kužely | 0, −9,0, 0° |
+| draha_tunel | 7,2 m, cukrová klenba | 0, −7,2, 0° |
+| draha_cil | cílová brána + šachovnice, **nepřidává délku** | 0, 0, 0° |
+| draha_bariery | samostatná sada svodidel (7,2 m) | – |
+
+`draha_okruh_ukazka.glb` je hotový uzavřený okruh složený z těchto dílů
+(16 272 trojúhelníků – je to ukázka sestavy, ne jeden herní asset; jednotlivé
+díly mají 300–3 300). Sestavu vyrobí `python3 compose.py`, pořadí dílů je
+v seznamu `SEQ`.
+
+Přehled dílů: `prev/_draha_dily.png`.
 
 ## Interiéry
 | budova | co je uvnitř |
