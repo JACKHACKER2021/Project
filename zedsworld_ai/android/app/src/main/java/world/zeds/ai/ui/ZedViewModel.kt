@@ -21,6 +21,7 @@ import java.io.File
 
 data class UiState(
     val modelReady: Boolean = false,
+    val bundled: Boolean = false,
     val loading: Boolean = false,
     val status: String = "",
     val downloadPercent: Int = -1,
@@ -48,20 +49,29 @@ class ZedViewModel(app: Application) : AndroidViewModel(app) {
     private val nCtx = 4096
 
     init {
-        _state.update { it.copy(status = if (repo.isReady()) "model připraven k načtení" else "model chybí") }
+        _state.update { it.copy(
+            bundled = repo.isBundled(),
+            status = when {
+                repo.isReady()   -> "model připraven k načtení"
+                repo.isBundled() -> "model je v aplikaci, stačí rozbalit"
+                else             -> "model chybí"
+            },
+        ) }
     }
 
     // ───────────────────────────────── model
     fun prepareModel() = viewModelScope.launch {
         if (!repo.isReady()) {
-            _state.update { it.copy(loading = true, status = "stahuji model (~2,5 GB)") }
+            val fromApk = repo.isBundled()
+            _state.update { it.copy(loading = true,
+                status = if (fromApk) "rozbaluji model z aplikace" else "stahuji model (~2,5 GB)") }
             try {
-                repo.download().collect { p ->
-                    _state.update { it.copy(downloadPercent = p.percent) }
-                }
+                val source = if (fromApk) repo.installFromAssets() else repo.download()
+                source.collect { p -> _state.update { it.copy(downloadPercent = p.percent) } }
             } catch (e: Exception) {
                 _state.update { it.copy(loading = false, downloadPercent = -1,
-                    error = "stahování selhalo: ${e.message}") }
+                    error = (if (fromApk) "rozbalení selhalo: " else "stahování selhalo: ") +
+                            "${e.message}") }
                 return@launch
             }
         }

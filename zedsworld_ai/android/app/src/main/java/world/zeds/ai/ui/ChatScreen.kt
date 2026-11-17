@@ -145,12 +145,17 @@ private fun SetupPane(s: UiState, onStart: () -> Unit) = Column(
             Spacer(Modifier.height(10.dp))
             Text("${s.downloadPercent} % · ${s.status}")
             Spacer(Modifier.height(4.dp))
-            Text("Stahování lze přerušit a pokračovat později.",
-                style = MaterialTheme.typography.labelSmall)
+            Text(
+                if (s.bundled) "Jednorázové rozbalení. Potom aplikace nepotřebuje internet."
+                else "Stahování lze přerušit a pokračovat později.",
+                style = MaterialTheme.typography.labelSmall,
+            )
         }
         s.loading -> { CircularProgressIndicator(); Spacer(Modifier.height(10.dp)); Text(s.status) }
         else -> {
-            Button(onClick = onStart) { Text("Připravit model") }
+            Button(onClick = onStart) {
+                Text(if (s.bundled) "Rozbalit model" else "Stáhnout model")
+            }
             Spacer(Modifier.height(10.dp))
             Text(s.status, style = MaterialTheme.typography.labelMedium)
         }

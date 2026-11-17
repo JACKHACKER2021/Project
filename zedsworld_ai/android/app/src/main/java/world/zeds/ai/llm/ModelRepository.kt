@@ -23,6 +23,46 @@ class ModelRepository(private val ctx: Context) {
 
     fun isReady(): Boolean = modelFile.exists() && modelFile.length() > MIN_BYTES
 
+    /** Je model přibalený v APK (assets/zed-4b-q4_k_m.gguf)? */
+    fun isBundled(): Boolean = runCatching {
+        ctx.assets.list("")?.contains(FILENAME) == true
+    }.getOrDefault(false)
+
+    /**
+     * Rozbalí model z APK do interního úložiště.
+     *
+     * llama.cpp potřebuje běžný soubor na disku – asset v APK se mmapovat
+     * nedá, protože leží uvnitř archivu na offsetu a llama_model_load_from_file
+     * umí jen cestu. Proto ta jednorázová kopie.
+     */
+    fun installFromAssets(): Flow<Progress> = flow {
+        val target = modelFile
+        target.parentFile?.mkdirs()
+        val part = File(target.parentFile, "$FILENAME.part")
+        part.delete()
+
+        val total = ctx.assets.openFd(FILENAME).use { it.length }
+        emit(Progress(0, total))
+
+        ctx.assets.open(FILENAME, android.content.res.AssetManager.ACCESS_STREAMING).use { input ->
+            java.io.FileOutputStream(part).use { out ->
+                val buf = ByteArray(1 shl 20)
+                var written = 0L
+                var lastEmit = 0L
+                while (true) {
+                    val n = input.read(buf)
+                    if (n < 0) break
+                    out.write(buf, 0, n)
+                    written += n
+                    val now = System.currentTimeMillis()
+                    if (now - lastEmit > 150) { emit(Progress(written, total)); lastEmit = now }
+                }
+            }
+        }
+        if (!part.renameTo(target)) throw IllegalStateException("nelze dokončit soubor modelu")
+        emit(Progress(target.length(), target.length(), done = true))
+    }.flowOn(Dispatchers.IO)
+
     fun download(url: String = DEFAULT_URL): Flow<Progress> = flow {
         val target = modelFile
         target.parentFile?.mkdirs()

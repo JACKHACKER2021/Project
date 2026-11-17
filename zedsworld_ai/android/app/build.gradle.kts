@@ -56,6 +56,11 @@ android {
 
     externalNativeBuild { cmake { path = file("src/main/cpp/CMakeLists.txt") } }
 
+    androidResources {
+        // GGUF je už komprimovaný; balit ho znovu nic neušetří a build pak trvá věčnost
+        noCompress += listOf("gguf")
+    }
+
     buildFeatures { compose = true }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
