@@ -1,0 +1,105 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"/home/user/Project/zedsworld_ai/android/app/.cxx/Release/4r1i4j12/arm64-v8a/_deps/llama_cpp-src/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 199,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 214,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 218,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 234,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"bin/libllama.so"
+			],
+			"targetId" : "llama::@5f746804226f86188607",
+			"targetIndex" : 5,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "include",
+			"paths" : 
+			[
+				"/home/user/Project/zedsworld_ai/android/app/.cxx/Release/4r1i4j12/arm64-v8a/_deps/llama_cpp-src/include/llama.h",
+				"/home/user/Project/zedsworld_ai/android/app/.cxx/Release/4r1i4j12/arm64-v8a/_deps/llama_cpp-src/include/llama-cpp.h"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/llama",
+			"paths" : 
+			[
+				"/home/user/Project/zedsworld_ai/android/app/.cxx/Release/4r1i4j12/arm64-v8a/_deps/llama_cpp-build/llama-config.cmake",
+				"/home/user/Project/zedsworld_ai/android/app/.cxx/Release/4r1i4j12/arm64-v8a/_deps/llama_cpp-build/llama-version.cmake"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "bin",
+			"paths" : 
+			[
+				"/home/user/Project/zedsworld_ai/android/app/.cxx/Release/4r1i4j12/arm64-v8a/_deps/llama_cpp-src/convert_hf_to_gguf.py"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 4,
+			"component" : "Unspecified",
+			"destination" : "lib/pkgconfig",
+			"paths" : 
+			[
+				"/home/user/Project/zedsworld_ai/android/app/.cxx/Release/4r1i4j12/arm64-v8a/_deps/llama_cpp-build/llama.pc"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "_deps/llama_cpp-build",
+		"source" : "/home/user/Project/zedsworld_ai/android/app/.cxx/Release/4r1i4j12/arm64-v8a/_deps/llama_cpp-src"
+	}
+}

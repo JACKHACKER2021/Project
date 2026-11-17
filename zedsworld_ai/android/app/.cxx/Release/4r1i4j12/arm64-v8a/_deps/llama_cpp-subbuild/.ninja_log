@@ -1,0 +1,21 @@
+# ninja log v5
+0	18	1794902099280970824	llama_cpp-populate-prefix/src/llama_cpp-populate-stamp/llama_cpp-populate-mkdir	661fc86458128a43
+0	18	1794902099280970824	/home/user/Project/zedsworld_ai/android/app/.cxx/Release/4r1i4j12/arm64-v8a/_deps/llama_cpp-subbuild/llama_cpp-populate-prefix/src/llama_cpp-populate-stamp/llama_cpp-populate-mkdir	661fc86458128a43
+18	32521	1794902131787564842	llama_cpp-populate-prefix/src/llama_cpp-populate-stamp/llama_cpp-populate-download	e59c348b0a44ee2b
+18	32521	1794902131787564842	/home/user/Project/zedsworld_ai/android/app/.cxx/Release/4r1i4j12/arm64-v8a/_deps/llama_cpp-subbuild/llama_cpp-populate-prefix/src/llama_cpp-populate-stamp/llama_cpp-populate-download	e59c348b0a44ee2b
+32521	32539	0	llama_cpp-populate-prefix/src/llama_cpp-populate-stamp/llama_cpp-populate-update	cee285a50b5f6240
+32521	32539	0	/home/user/Project/zedsworld_ai/android/app/.cxx/Release/4r1i4j12/arm64-v8a/_deps/llama_cpp-subbuild/llama_cpp-populate-prefix/src/llama_cpp-populate-stamp/llama_cpp-populate-update	cee285a50b5f6240
+32539	32545	1794902131808972757	llama_cpp-populate-prefix/src/llama_cpp-populate-stamp/llama_cpp-populate-patch	e24dd3a1ed89d639
+32539	32545	1794902131808972757	/home/user/Project/zedsworld_ai/android/app/.cxx/Release/4r1i4j12/arm64-v8a/_deps/llama_cpp-subbuild/llama_cpp-populate-prefix/src/llama_cpp-populate-stamp/llama_cpp-populate-patch	e24dd3a1ed89d639
+32545	32550	1794902131816972758	llama_cpp-populate-prefix/src/llama_cpp-populate-stamp/llama_cpp-populate-configure	7fd6a2377b27f715
+32545	32550	1794902131816972758	/home/user/Project/zedsworld_ai/android/app/.cxx/Release/4r1i4j12/arm64-v8a/_deps/llama_cpp-subbuild/llama_cpp-populate-prefix/src/llama_cpp-populate-stamp/llama_cpp-populate-configure	7fd6a2377b27f715
+32550	32556	1794902131820972758	llama_cpp-populate-prefix/src/llama_cpp-populate-stamp/llama_cpp-populate-build	5452c104ba403957
+32550	32556	1794902131820972758	/home/user/Project/zedsworld_ai/android/app/.cxx/Release/4r1i4j12/arm64-v8a/_deps/llama_cpp-subbuild/llama_cpp-populate-prefix/src/llama_cpp-populate-stamp/llama_cpp-populate-build	5452c104ba403957
+32556	32561	1794902131824972758	llama_cpp-populate-prefix/src/llama_cpp-populate-stamp/llama_cpp-populate-install	42db6669068c2031
+32556	32561	1794902131824972758	/home/user/Project/zedsworld_ai/android/app/.cxx/Release/4r1i4j12/arm64-v8a/_deps/llama_cpp-subbuild/llama_cpp-populate-prefix/src/llama_cpp-populate-stamp/llama_cpp-populate-install	42db6669068c2031
+32561	32566	1794902131828972758	llama_cpp-populate-prefix/src/llama_cpp-populate-stamp/llama_cpp-populate-test	64a5aa7e75114a2a
+32561	32566	1794902131828972758	/home/user/Project/zedsworld_ai/android/app/.cxx/Release/4r1i4j12/arm64-v8a/_deps/llama_cpp-subbuild/llama_cpp-populate-prefix/src/llama_cpp-populate-stamp/llama_cpp-populate-test	64a5aa7e75114a2a
+32566	32572	1794902131836972759	CMakeFiles/llama_cpp-populate-complete	d1b128b9774a1b98
+32566	32572	1794902131836972759	llama_cpp-populate-prefix/src/llama_cpp-populate-stamp/llama_cpp-populate-done	d1b128b9774a1b98
+32566	32572	1794902131836972759	/home/user/Project/zedsworld_ai/android/app/.cxx/Release/4r1i4j12/arm64-v8a/_deps/llama_cpp-subbuild/CMakeFiles/llama_cpp-populate-complete	d1b128b9774a1b98
+32566	32572	1794902131836972759	/home/user/Project/zedsworld_ai/android/app/.cxx/Release/4r1i4j12/arm64-v8a/_deps/llama_cpp-subbuild/llama_cpp-populate-prefix/src/llama_cpp-populate-stamp/llama_cpp-populate-done	d1b128b9774a1b98

@@ -1,0 +1,5 @@
+.gradle/
+build/
+local.properties
+# podpisový klíč nepatří do gitu – ulož si ho mimo repozitář
+*.jks

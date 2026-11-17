@@ -4,3 +4,4 @@ data/dataset.jsonl
 out/
 *.gguf
 *.safetensors
+dist/
