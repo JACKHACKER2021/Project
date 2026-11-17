@@ -79,6 +79,21 @@ v seznamu `SEQ`.
 
 Přehled dílů: `prev/_draha_dily.png`.
 
+## Monstrum (zmutovaný šéf zombáků)
+`out/monstrum_sef_zombaku.glb` vzniká z nahraného riggovaného modelu skriptem
+`mutate_zombie.py`. **Kostra, skin a animace chůze (`Take 001`) zůstávají funkční**,
+protože se mění jen:
+* geometrie v bind póze (svalové nafouknutí kolem os kostí + hrbolatá kůže),
+* měřítko kostí (animace nemá scale kanály, takže se nepřepíše),
+* nové části (rohy, trny na páteři, nárameníky, drápy, tesáky, nádory, svítící oči)
+  jsou samostatné meshe připojené ke kostem, takže se hýbou s tělem,
+* textura se překreslí do nemocně zelenošedé s žilkami a skvrnami.
+Výška 4,6 m, ~4 000 trojúhelníků, koruna z původního modelu zůstala.
+`out/_original_zombak.glb` je nezměněný originál (potřebuje ho morph).
+
+Pětisekundové video mutace: `morph.html` + `video.js` vyrenderují snímky,
+`ffmpeg` z nich složí mp4.
+
 ## Interiéry
 | budova | co je uvnitř |
 |---|---|

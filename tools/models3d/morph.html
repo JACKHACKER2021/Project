@@ -1,0 +1,64 @@
+<!doctype html><html><head><meta charset="utf-8"><style>body{margin:0;background:#0d1016}</style></head>
+<body><script type="module">
+import * as THREE from './vendor/three.module.js';
+import {GLTFLoader} from './vendor/GLTFLoader.js';
+const r=new THREE.WebGLRenderer({antialias:true}); r.setSize(720,720);
+document.body.appendChild(r.domElement);
+const sc=new THREE.Scene(); sc.background=new THREE.Color('#0d1016');
+sc.fog=new THREE.Fog('#0d1016',8,26);
+sc.add(new THREE.HemisphereLight('#7fa0b8','#1a1410',1.1));
+const key=new THREE.DirectionalLight('#fff0d8',1.9); key.position.set(4,7,6); sc.add(key);
+const rim=new THREE.DirectionalLight('#6cff8a',1.1); rim.position.set(-5,3,-6); sc.add(rim);
+const cam=new THREE.PerspectiveCamera(32,1,.1,200);
+const L=new GLTFLoader();
+const load=u=>new Promise((res,rej)=>L.load(u,res,undefined,rej));
+const skinned=o=>{const a=[];o.traverse(x=>{if(x.isSkinnedMesh||x.isMesh)a.push(x);});return a;};
+const [A,B]=await Promise.all([load('out/_original_zombak.glb'),load('out/monstrum_sef_zombaku.glb')]);
+const root=B.scene; sc.add(root);
+// pair up the body meshes by vertex count to morph positions
+const ma=skinned(A.scene).filter(m=>m.isSkinnedMesh);
+const mb=skinned(root).filter(m=>m.isSkinnedMesh);
+const pairs=[];
+for(const b of mb){
+  const a=ma.find(x=>x.geometry.attributes.position.count===b.geometry.attributes.position.count);
+  if(a){pairs.push({b,from:a.geometry.attributes.position.array.slice(),
+                    to:b.geometry.attributes.position.array.slice()});}
+}
+// new mutant parts (horns, spikes, claws...) grow in
+const extras=[]; root.traverse(o=>{if(o.name&&o.name.startsWith('mutace_'))extras.push(o);});
+// base transform of the root, so we can grow from human size to giant
+const S=root.scale.x, P=root.position.clone();
+const mixer=new THREE.AnimationMixer(root);
+if(B.animations.length){const act=mixer.clipAction(B.animations[0]);act.play();}
+const bbox=new THREE.Box3().setFromObject(root);
+const H=bbox.max.y-bbox.min.y;
+const gsize=H*4;
+const grid=new THREE.GridHelper(gsize,24,0x2a3a30,0x1b241f);
+grid.position.y=0.01; sc.add(grid);
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(gsize,gsize),
+  new THREE.MeshLambertMaterial({color:0x14181a}));
+floor.rotation.x=-Math.PI/2; sc.add(floor);
+
+window.setT=(t,time)=>{
+  const e=t*t*(3-2*t);                     // smoothstep
+  for(const p of pairs){
+    const arr=p.b.geometry.attributes.position.array;
+    for(let i=0;i<arr.length;i++) arr[i]=p.from[i]+(p.to[i]-p.from[i])*e;
+    p.b.geometry.attributes.position.needsUpdate=true;
+    p.b.geometry.computeVertexNormals();
+  }
+  const grow=Math.max(.001,Math.min(1,(e-.25)/.5));
+  for(const o of extras) o.scale.setScalar(grow);
+  const s=S*(0.42+0.58*e);                 // human-ish -> giant
+  root.scale.setScalar(s); root.position.set(P.x*(s/S),P.y*(s/S),P.z*(s/S));
+  mixer.setTime(time);
+  const ang=THREE.MathUtils.degToRad(14+t*46);
+  const R=H*1.95;
+  cam.position.set(Math.sin(ang)*R, H*.62, Math.cos(ang)*R);
+  cam.lookAt(0,H*.46,0);
+  rim.intensity=1.1+2.6*Math.pow(Math.max(0,Math.sin(t*Math.PI*3)),6);  // creepy flashes
+  r.render(sc,cam);
+};
+window.setT(0,0);
+document.title='ok';
+</script></body></html>

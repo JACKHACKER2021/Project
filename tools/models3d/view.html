@@ -11,7 +11,7 @@ const d2=new THREE.DirectionalLight('#cfe0ff',.5); d2.position.set(-5,3,-4); sc.
 const cam=new THREE.PerspectiveCamera(35,1,.1,500);
 new GLTFLoader().load(file+'?t='+Date.now(),g=>{
   sc.add(g.scene);
-  g.scene.traverse(o=>{if(o.isMesh){const c=o.material.color;o.geometry.computeVertexNormals();o.material=new THREE.MeshLambertMaterial({color:c,side:THREE.DoubleSide});if(q.get('cut'))o.material.clippingPlanes=[new THREE.Plane(new THREE.Vector3(0,-1,0),+q.get('cut'))];}});
+  g.scene.traverse(o=>{if(o.isMesh){const c=o.material.color;o.geometry.computeVertexNormals();if(!q.get('raw'))o.material=new THREE.MeshLambertMaterial({color:c,side:THREE.DoubleSide});if(q.get('cut'))o.material.clippingPlanes=[new THREE.Plane(new THREE.Vector3(0,-1,0),+q.get('cut'))];}});
   const bb=new THREE.Box3().setFromObject(g.scene), s=bb.getSize(new THREE.Vector3()), c=bb.getCenter(new THREE.Vector3());
   const R=Math.max(s.x,s.y,s.z)*1.75;
   const a=THREE.MathUtils.degToRad(+(q.get('a')||35));
