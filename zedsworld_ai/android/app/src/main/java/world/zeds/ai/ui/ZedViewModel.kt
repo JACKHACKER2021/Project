@@ -63,7 +63,7 @@ class ZedViewModel(app: Application) : AndroidViewModel(app) {
     private val _state = MutableStateFlow(UiState())
     val state = _state.asStateFlow()
 
-    private val nCtx = 4096
+    private var nCtx = 4096
 
     init {
         _state.update { it.copy(
@@ -97,6 +97,7 @@ class ZedViewModel(app: Application) : AndroidViewModel(app) {
         _state.update { it.copy(status = "načítám model do paměti", downloadPercent = -1) }
         val ok = withContext(Dispatchers.Default) {
             LlamaBridge.load(repo.modelFile.absolutePath, nCtx = nCtx)
+                .also { if (it) nCtx = LlamaBridge.contextSize().coerceAtLeast(512) }
         }
         _state.update {
             it.copy(loading = false, modelReady = ok,

@@ -15,6 +15,7 @@ object LlamaBridge {
     private external fun nativeLoad(path: String, nCtx: Int, nThreads: Int): Long
     private external fun nativeFree(handle: Long)
     private external fun nativeResetContext(handle: Long)
+    private external fun nativeContextSize(handle: Long): Int
     private external fun nativeCountTokens(handle: Long, text: String): Int
     private external fun nativeGenerate(
         handle: Long, prompt: String, maxTokens: Int,
@@ -38,6 +39,9 @@ object LlamaBridge {
     }
 
     fun resetContext() { if (handle != 0L) nativeResetContext(handle) }
+
+    /** Kolik kontextu se opravdu povedlo alokovat. */
+    fun contextSize(): Int = if (handle == 0L) 0 else nativeContextSize(handle)
 
     fun countTokens(text: String): Int = if (handle == 0L) 0 else nativeCountTokens(handle, text)
 

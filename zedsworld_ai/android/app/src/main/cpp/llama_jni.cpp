@@ -214,6 +214,13 @@ Java_world_zeds_ai_llm_LlamaBridge_nativeGenerate(
     llama_sampler_free(smpl);
 }
 
+/** Skutečná velikost kontextu – může být menší, než se žádalo. */
+JNIEXPORT jint JNICALL
+Java_world_zeds_ai_llm_LlamaBridge_nativeContextSize(JNIEnv *, jobject, jlong handle) {
+    auto *z = reinterpret_cast<ZedCtx *>(handle);
+    return (z && z->ctx) ? (jint) llama_n_ctx(z->ctx) : 0;
+}
+
 JNIEXPORT jint JNICALL
 Java_world_zeds_ai_llm_LlamaBridge_nativeCountTokens(
         JNIEnv *env, jobject, jlong handle, jstring jText) {

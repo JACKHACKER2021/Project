@@ -1,9 +1,12 @@
 package world.zeds.ai.llm
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.isActive
 
@@ -62,10 +65,16 @@ class ChatEngine(private val bridge: LlamaBridge = LlamaBridge) {
         val prompt = buildPrompt(system, fitted)
 
         bridge.generate(prompt, maxTokens = maxTokens, temp = temp) { piece ->
-            if (stopRequested || !isActive) return@generate false
-            trySend(piece).isSuccess
+            // Pozor: výsledek trySend se tu nesmí brát jako pokyn k zastavení.
+            // Plná fronta znamená jen to, že obrazovka nestíhá překreslovat –
+            // dřív se kvůli tomu generování utínalo uprostřed věty.
+            trySend(piece)
+            !stopRequested && isActive
         }
         close()
         awaitClose { stopRequested = true }
-    }.flowOn(Dispatchers.Default)
+    }
+        // Neomezená fronta: tokeny chodí rychleji, než je stihne vykreslit UI.
+        .buffer(Channel.UNLIMITED, BufferOverflow.SUSPEND)
+        .flowOn(Dispatchers.Default)
 }
