@@ -76,7 +76,16 @@ class ModelRepository(private val ctx: Context) {
             conn.disconnect(); part.delete(); from = 0; conn = open(url, 0)
         }
         if (conn.responseCode !in 200..299) {
-            throw IllegalStateException("stahování selhalo: HTTP ${conn.responseCode}")
+            val code = conn.responseCode
+            conn.disconnect()
+            throw IllegalStateException(
+                when (code) {
+                    401, 403 -> "server model nevydal (HTTP $code) – adresa modelu " +
+                                "vyžaduje přihlášení, je potřeba nová verze aplikace"
+                    404      -> "model na dané adrese už není (HTTP 404)"
+                    else     -> "server odpověděl HTTP $code"
+                }
+            )
         }
 
         val total = from + conn.contentLengthLong.coerceAtLeast(0)
@@ -120,8 +129,11 @@ class ModelRepository(private val ctx: Context) {
          * Sem patří URL natrénovaného modelu z Colabu (fáze 2–3).
          * Do té doby ukazuje na základní Qwen3 4B, takže aplikace jde
          * vyzkoušet ještě před prvním fine-tunem.
+         *
+         * Qwen svoje GGUF repo uzamkl – bez tokenu vrací HTTP 401 –
+         * takže se stahuje ze zrcadla od unslothu, které je veřejné.
          */
         const val DEFAULT_URL =
-            "https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507-GGUF/resolve/main/Qwen3-4B-Instruct-2507-Q4_K_M.gguf"
+            "https://huggingface.co/unsloth/Qwen3-4B-Instruct-2507-GGUF/resolve/main/Qwen3-4B-Instruct-2507-Q4_K_M.gguf"
     }
 }

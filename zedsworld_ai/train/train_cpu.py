@@ -25,6 +25,8 @@ def main():
     ap.add_argument("--rank",    type=int, default=16)
     ap.add_argument("--threads", type=int, default=os.cpu_count() or 4)
     ap.add_argument("--max-steps", type=int, default=-1, help="jen pro zkoušku")
+    ap.add_argument("--dtype", default="bf16", choices=["bf16", "fp32"],
+                    help="bf16 využije AMX na Xeonu; fp32 je pomalejší záloha")
     args = ap.parse_args()
 
     import torch
@@ -35,7 +37,8 @@ def main():
     from peft import LoraConfig, get_peft_model
     from trl import SFTTrainer, SFTConfig
 
-    print(f"→ {args.threads} vláken, CPU, float32")
+    DT = torch.bfloat16 if args.dtype == "bf16" else torch.float32
+    print(f"→ {args.threads} vláken, CPU, {args.dtype}")
 
     tok = AutoTokenizer.from_pretrained(args.model)
 
@@ -57,7 +60,7 @@ def main():
           f"(~{n_tok * args.epochs / 1000:.0f}k tokenů tréninku)")
 
     model = AutoModelForCausalLM.from_pretrained(
-        args.model, torch_dtype=torch.float32, attn_implementation="eager",
+        args.model, torch_dtype=DT, attn_implementation="sdpa",
     )
     model.config.use_cache = False
     # Gradient checkpointing tady nedává smysl: 0.6B se do 15 GB vejde snadno
