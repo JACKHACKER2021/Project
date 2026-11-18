@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import world.zeds.ai.llm.Msg
 import world.zeds.ai.rp.Character
+import world.zeds.ai.memory.Note
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,15 +31,23 @@ fun ChatScreen(vm: ZedViewModel) {
     var showProjects by remember { mutableStateOf(false) }
     var showCharacters by remember { mutableStateOf(false) }
     var editing by remember { mutableStateOf<Character?>(null) }
+    var showMemory by remember { mutableStateOf(false) }
+    var editingNote by remember { mutableStateOf<Note?>(null) }
+    var pdfToMemory by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
 
     val pickPdf = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
     ) { uri ->
         uri?.let {
-            vm.importPdf(it, it.lastPathSegment?.substringAfterLast('/') ?: "dokument.pdf",
-                pdfQuestion)
+            vm.importPdf(
+                it,
+                it.lastPathSegment?.substringAfterLast('/') ?: "dokument.pdf",
+                pdfQuestion,
+                toMemory = pdfToMemory,
+            )
             pdfQuestion = ""
+            pdfToMemory = false
         }
     }
 
@@ -69,6 +78,9 @@ fun ChatScreen(vm: ZedViewModel) {
                     IconToggleButton(checked = s.roleplay, onCheckedChange = { vm.toggleRoleplay() }) {
                         Icon(Icons.Filled.TheaterComedy,
                             contentDescription = if (s.roleplay) "RP zapnuto" else "RP vypnuto")
+                    }
+                    IconButton(onClick = { showMemory = true }) {
+                        Icon(Icons.Filled.Psychology, contentDescription = "Paměť")
                     }
                     IconButton(onClick = { showCharacters = true }) {
                         Icon(
@@ -117,6 +129,28 @@ fun ChatScreen(vm: ZedViewModel) {
                 }
             }
         }
+    }
+
+    if (showMemory) MemorySheet(
+        notes = s.notes,
+        onEdit = { editingNote = it; showMemory = false },
+        onDelete = { vm.deleteNote(it) },
+        onForgetSource = { vm.forgetSource(it) },
+        onNew = { editingNote = Note(); showMemory = false },
+        onImportPdf = {
+            pdfToMemory = true
+            showMemory = false
+            pickPdf.launch(arrayOf("application/pdf"))
+        },
+        onDismiss = { showMemory = false },
+    )
+
+    editingNote?.let { note ->
+        NoteEditor(
+            initial = note,
+            onSave = { vm.saveNote(it); editingNote = null },
+            onDismiss = { editingNote = null },
+        )
     }
 
     if (showCharacters) CharacterSheet(

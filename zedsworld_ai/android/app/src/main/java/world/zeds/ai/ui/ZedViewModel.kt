@@ -15,6 +15,9 @@ import world.zeds.ai.llm.*
 import world.zeds.ai.rp.Character
 import world.zeds.ai.rp.CharacterStore
 import world.zeds.ai.rp.CharacterWriter
+import world.zeds.ai.memory.Chunker
+import world.zeds.ai.memory.MemoryStore
+import world.zeds.ai.memory.Note
 import world.zeds.ai.tools.GodotProject
 import world.zeds.ai.tools.PdfReader
 import world.zeds.ai.workspace.Artifacts
@@ -35,6 +38,8 @@ data class UiState(
     val characters: List<Character> = emptyList(),
     val activeCharacter: Character? = null,
     val draftingCharacter: Boolean = false,
+    val notes: List<Note> = emptyList(),
+    val memoryUsed: Int = 0,
     val project: String? = null,
     val savedFiles: List<String> = emptyList(),
     val previewHtml: String? = null,
@@ -47,6 +52,7 @@ class ZedViewModel(app: Application) : AndroidViewModel(app) {
     private val engine = ChatEngine()
     private val workspace = Workspace(app)
     private val characters = CharacterStore(app)
+    private val memory = MemoryStore(app)
     private var currentProject: Project? = null
     private var genJob: Job? = null
 
@@ -59,6 +65,7 @@ class ZedViewModel(app: Application) : AndroidViewModel(app) {
         _state.update { it.copy(
             bundled = repo.isBundled(),
             characters = characters.all(),
+            notes = memory.all(),
             status = when {
                 repo.isReady()   -> "model připraven k načtení"
                 repo.isBundled() -> "model je v aplikaci, stačí rozbalit"
@@ -102,13 +109,16 @@ class ZedViewModel(app: Application) : AndroidViewModel(app) {
         val history = _state.value.messages + Msg(Msg.USER, text)
         _state.update { it.copy(messages = history, streaming = true, partial = "") }
 
+        val recalled = memory.recall(text)
         val system = SystemPrompts.build(
             workshop = currentProject != null,
             roleplay = _state.value.roleplay,
             character = _state.value.activeCharacter
                 ?.takeIf { _state.value.roleplay && !it.isBlank }
                 ?.asPrompt(),
+            memory = memory.recallPrompt(text),
         )
+        _state.update { it.copy(memoryUsed = recalled.size) }
 
         genJob = viewModelScope.launch {
             val sb = StringBuilder()
@@ -144,6 +154,7 @@ class ZedViewModel(app: Application) : AndroidViewModel(app) {
         _state.update { st ->
             st.copy(
                 characters = characters.all(),
+            notes = memory.all(),
                 activeCharacter = if (st.activeCharacter?.id == c.id) c else st.activeCharacter,
             )
         }
@@ -154,6 +165,7 @@ class ZedViewModel(app: Application) : AndroidViewModel(app) {
         _state.update { st ->
             st.copy(
                 characters = characters.all(),
+            notes = memory.all(),
                 activeCharacter = st.activeCharacter?.takeIf { it.id != c.id },
             )
         }
@@ -191,6 +203,25 @@ class ZedViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun dismissError() = _state.update { it.copy(error = null) }
+
+    // ───────────────────────────────── paměť
+    fun saveNote(n: Note) {
+        memory.save(n)
+        _state.update { it.copy(notes = memory.all()) }
+    }
+
+    fun deleteNote(n: Note) {
+        memory.delete(n)
+        _state.update { it.copy(notes = memory.all()) }
+    }
+
+    /** Smaže všechno, co přišlo z jednoho PDF. */
+    fun forgetSource(source: String) {
+        memory.deleteSource(source)
+        _state.update { it.copy(notes = memory.all()) }
+    }
+
+    fun memorySources(): List<String> = memory.sources()
 
     // ───────────────────────────────── dílna
     fun openProject(name: String) {
@@ -237,13 +268,36 @@ class ZedViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     // ───────────────────────────────── PDF
-    fun importPdf(uri: Uri, fileName: String, question: String) = viewModelScope.launch {
-        _state.update { it.copy(status = "čtu PDF") }
+    /**
+     * @param toMemory true uloží PDF natrvalo do paměti; false ho jen
+     *                 jednou přiloží k dotazu.
+     */
+    fun importPdf(
+        uri: Uri,
+        fileName: String,
+        question: String,
+        toMemory: Boolean = false,
+    ) = viewModelScope.launch {
+        _state.update { it.copy(status = if (toMemory) "učím se z PDF" else "čtu PDF") }
         try {
             val r = PdfReader.extract(getApplication(), uri)
             if (r.needsOcr) {
                 _state.update { it.copy(error =
                     "PDF nemá textovou vrstvu (asi sken). OCR se doplní ve fázi 5.") }
+                return@launch
+            }
+            if (toMemory) {
+                memory.deleteSource(fileName)          // druhý import nic nezdvojí
+                val chunks = Chunker.chunk(r.text, fileName)
+                if (chunks.isEmpty()) {
+                    _state.update { it.copy(error = "v PDF nebyl žádný použitelný text") }
+                    return@launch
+                }
+                memory.add(chunks)
+                _state.update { it.copy(
+                    notes = memory.all(),
+                    status = "do paměti přibylo ${chunks.size} poznámek z $fileName",
+                ) }
                 return@launch
             }
             send(PdfReader.asPrompt(fileName, r, question))

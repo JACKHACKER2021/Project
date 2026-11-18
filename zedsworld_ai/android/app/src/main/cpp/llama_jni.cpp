@@ -2,7 +2,7 @@
 //
 // Pozor: llama.cpp mění API často. Tento soubor je psaný proti tagu b4585
 // (viz CMakeLists.txt). Při aktualizaci zkontroluj hlavně llama_sampler_*,
-// llama_vocab_* a llama_kv_cache_clear.
+// llama_vocab_*, llama_memory_* a llama_sampler_init_penalties.
 
 #include <jni.h>
 #include <android/log.h>
@@ -37,8 +37,8 @@ Java_world_zeds_ai_llm_LlamaBridge_nativeLoad(
 
     llama_model_params mp = llama_model_default_params();
     mp.n_gpu_layers = 0;        // telefony: CPU. Adreno/Mali přes Vulkan je zatím nestabilní.
-    mp.use_mmap     = true;     // klíčové – model se nenačítá celý do RAM
-    mp.use_mlock    = false;
+    // Klíčové – model se mapuje z disku, nenačítá se celý do RAM.
+    mp.load_mode    = LLAMA_LOAD_MODE_MMAP;
 
     llama_model *model = llama_model_load_from_file(path, mp);
     env->ReleaseStringUTFChars(jPath, path);
@@ -50,7 +50,7 @@ Java_world_zeds_ai_llm_LlamaBridge_nativeLoad(
     cp.n_batch     = 512;
     cp.n_threads   = nThreads;
     cp.n_threads_batch = nThreads;
-    cp.flash_attn  = false;
+    cp.flash_attn_type = LLAMA_FLASH_ATTN_TYPE_DISABLED;
 
     llama_context *ctx = llama_init_from_model(model, cp);
     if (!ctx) { llama_model_free(model); LOGE("nepodarilo se vytvorit kontext"); return 0; }
@@ -72,7 +72,7 @@ Java_world_zeds_ai_llm_LlamaBridge_nativeFree(JNIEnv *, jobject, jlong handle) {
 JNIEXPORT void JNICALL
 Java_world_zeds_ai_llm_LlamaBridge_nativeResetContext(JNIEnv *, jobject, jlong handle) {
     auto *z = reinterpret_cast<ZedCtx *>(handle);
-    if (z && z->ctx) llama_kv_cache_clear(z->ctx);
+    if (z && z->ctx) llama_memory_clear(llama_get_memory(z->ctx), true);
 }
 
 // Generuje odpověď a každý token předá zpět do Kotlinu.
@@ -103,7 +103,7 @@ Java_world_zeds_ai_llm_LlamaBridge_nativeGenerate(
         return;
     }
 
-    llama_kv_cache_clear(z->ctx);
+    llama_memory_clear(llama_get_memory(z->ctx), true);
 
     // ── zpracování promptu po dávkách
     for (size_t i = 0; i < tokens.size(); i += 512) {
@@ -115,7 +115,8 @@ Java_world_zeds_ai_llm_LlamaBridge_nativeGenerate(
     // ── sampler
     auto sp = llama_sampler_chain_default_params();
     llama_sampler *smpl = llama_sampler_chain_init(sp);
-    llama_sampler_chain_add(smpl, llama_sampler_init_penalties(64, repeatPenalty, 0.0f, 0.0f));
+    llama_sampler_chain_add(smpl, llama_sampler_init_penalties(
+        llama_vocab_n_tokens(vocab), 64, repeatPenalty, 0.0f, 0.0f));
     llama_sampler_chain_add(smpl, llama_sampler_init_top_k(topK));
     llama_sampler_chain_add(smpl, llama_sampler_init_top_p(topP, 1));
     llama_sampler_chain_add(smpl, llama_sampler_init_temp(temp));

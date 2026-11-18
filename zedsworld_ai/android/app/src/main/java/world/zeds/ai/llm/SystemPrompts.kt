@@ -32,11 +32,16 @@ Aplikace blok uloží do projektu a HTML/SVG hned zobrazí. Nikdy nepiš soubor 
 Vedeš roleplay. Hraješ za svět, za vedlejší postavy a za následky; hráč hraje svou postavu. Scénu posouváš dopředu a vždycky končíš tak, aby měl hráč co udělat. Nerozhoduješ za hráčovu postavu a nepopisuješ, co si myslí nebo cítí. Držíš se kánonu Zeds World a jeho tónu. Když hráč chce scénu stočit jinam, přeskočit nebo ukončit, vyjdeš mu vstříc.
 """.trim()
 
-    fun build(workshop: Boolean, roleplay: Boolean, character: String? = null): String =
-        buildString {
-            append(ZED)
-            if (roleplay) { append("\n\n"); append(RP) }
-            if (!character.isNullOrBlank()) { append("\n\n"); append(character) }
-            if (workshop) { append("\n\n"); append(WORKSHOP) }
-        }
+    fun build(
+        workshop: Boolean,
+        roleplay: Boolean,
+        character: String? = null,
+        memory: String? = null,
+    ): String = buildString {
+        append(ZED)
+        if (!memory.isNullOrBlank()) { append("\n\n"); append(memory) }
+        if (roleplay) { append("\n\n"); append(RP) }
+        if (!character.isNullOrBlank()) { append("\n\n"); append(character) }
+        if (workshop) { append("\n\n"); append(WORKSHOP) }
+    }
 }
