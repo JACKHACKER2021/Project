@@ -20,6 +20,7 @@ import world.zeds.ai.memory.MemoryStore
 import world.zeds.ai.memory.Note
 import world.zeds.ai.tools.GodotProject
 import world.zeds.ai.tools.PdfReader
+import world.zeds.ai.tools.Toolchain
 import world.zeds.ai.workspace.Artifacts
 import world.zeds.ai.workspace.Project
 import world.zeds.ai.workspace.Workspace
@@ -127,6 +128,7 @@ class ZedViewModel(app: Application) : AndroidViewModel(app) {
                 ?.takeIf { _state.value.roleplay && !it.isBlank }
                 ?.asPrompt(),
             memory = memory.recallPrompt(text),
+            environment = Toolchain.forPrompt(getApplication()),
         )
         _state.update { it.copy(
             memoryUsed = recalled.size,

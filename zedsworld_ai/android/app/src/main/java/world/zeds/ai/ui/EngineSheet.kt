@@ -9,6 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import world.zeds.ai.tools.EngineTool
+import world.zeds.ai.tools.Toolchain
+import androidx.compose.ui.platform.LocalContext
 
 /** Dílna: co umí Zed vyrobit. Stejný seznam zná i model. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -29,6 +31,36 @@ fun EngineSheet(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
         )
+
+        // Co je v telefonu doopravdy – stejný seznam dostane i model.
+        val tools = Toolchain.detect(LocalContext.current)
+        Column(Modifier.padding(bottom = 4.dp)) {
+            Text("Prostředí", style = MaterialTheme.typography.labelMedium)
+            tools.forEach { t ->
+                Row(Modifier.padding(top = 2.dp)) {
+                    Icon(
+                        if (t.installed) Icons.Filled.CheckCircle else Icons.Filled.Cancel,
+                        null,
+                        Modifier.size(16.dp),
+                        tint = if (t.installed) MaterialTheme.colorScheme.primary
+                               else MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        t.label + " · " + if (t.installed) t.gives else "chybí – " + t.howToGet,
+                        style = MaterialTheme.typography.labelSmall,
+                    )
+                }
+            }
+            Text(
+                "Android SDK, NDK ani Gradle v telefonu být nemohou – .so a APK " +
+                    "přes Gradle se dělají na Linuxu.",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 6.dp, bottom = 4.dp),
+            )
+            HorizontalDivider(Modifier.padding(vertical = 8.dp))
+        }
 
         EngineTool.entries.forEach { tool ->
             ListItem(

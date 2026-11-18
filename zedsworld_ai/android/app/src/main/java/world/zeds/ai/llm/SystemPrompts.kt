@@ -39,11 +39,15 @@ Vedeš roleplay. Hraješ za svět, za vedlejší postavy a za následky; hráč 
         roleplay: Boolean,
         character: String? = null,
         memory: String? = null,
+        environment: String? = null,
     ): String = buildString {
         append(ZED)
         if (!memory.isNullOrBlank()) { append("\n\n"); append(memory) }
         if (roleplay) { append("\n\n"); append(RP) }
         if (!character.isNullOrBlank()) { append("\n\n"); append(character) }
-        if (workshop) { append("\n\n"); append(WORKSHOP) }
+        if (workshop) {
+            append("\n\n"); append(WORKSHOP)
+            if (!environment.isNullOrBlank()) { append("\n\n"); append(environment) }
+        }
     }
 }

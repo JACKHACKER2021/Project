@@ -8,6 +8,19 @@
     <!-- 4B model v Q4 potřebuje víc než 4 GB RAM -->
     <uses-feature android:name="android.hardware.ram.low" android:required="false" />
 
+    <!-- Android 11+ jinak nainstalované aplikace neukáže; detekce by hlásila,
+         že Godot ani Termux nejsou, i když jsou. -->
+    <queries>
+        <package android:name="org.godotengine.editor.v4" />
+        <package android:name="org.godotengine.editor.v4.debug" />
+        <package android:name="org.godotengine.editor.v3" />
+        <package android:name="com.termux" />
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+    </queries>
+
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
