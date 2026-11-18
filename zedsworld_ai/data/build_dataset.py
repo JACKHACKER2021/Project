@@ -22,8 +22,8 @@ from lore_zedsworld import SYSTEM, EXAMPLES as LORE
 
 # Vyvážení: lore je ručně psané a vzácné, GDScript je hojný.
 # Bez vyvážení by model skončil jako kodér bez znalosti světa.
-LORE_REPEAT   = 6     # kolikrát zopakovat každý lore příklad
-GDSCRIPT_CAP  = 300   # strop na počet GDScript příkladů
+LORE_REPEAT   = 8     # kolikrát zopakovat každý lore příklad
+GDSCRIPT_CAP  = 60    # strop na GDScript – u 0.6B kód přebíjí češtinu
 
 rows = []
 def add(instruction, output, tag):
