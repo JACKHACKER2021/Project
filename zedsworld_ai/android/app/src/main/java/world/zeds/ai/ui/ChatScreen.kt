@@ -18,6 +18,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import world.zeds.ai.llm.Msg
@@ -121,7 +122,7 @@ fun ChatScreen(vm: ZedViewModel) {
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
                     if (s.messages.isEmpty() && s.partial.isEmpty()) {
-                        item { EmptyHint(s.roleplay, s.project != null) }
+                        item { EmptyHint(s.roleplay, s.project != null, onPick = { input = it }) }
                     }
                     items(s.messages) { Bubble(it.role, it.content) }
                     if (s.partial.isNotEmpty()) item {
@@ -245,19 +246,55 @@ private fun SetupPane(s: UiState, onStart: () -> Unit) = Column(
 }
 
 @Composable
-private fun EmptyHint(rp: Boolean, workshop: Boolean) = Card(Modifier.fillMaxWidth()) {
-    Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(if (rp) "Režim roleplay" else "Zed", style = MaterialTheme.typography.titleSmall)
-        Text(
-            when {
-                rp -> "Napiš, kým jsi a kde jsi. Zed povede scénu a bude hrát za svět."
-                workshop -> "Dílna je otevřená. Řekni, co postavit — HTML, three.js, GDScript, SVG. " +
-                        "Soubory se uloží do projektu a HTML se hned zobrazí."
-                else -> "Zeptej se na lore, nech si napsat příběh, vytvoř postavu, " +
-                        "nebo otevři dílnu a nech ho psát kód. PDF přilož sponkou."
-            },
-            style = MaterialTheme.typography.bodySmall,
+private fun EmptyHint(rp: Boolean, workshop: Boolean, onPick: (String) -> Unit) = Column(
+    Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+    horizontalAlignment = Alignment.CenterHorizontally,
+) {
+    Spacer(Modifier.height(80.dp))
+    Text("✴", style = MaterialTheme.typography.displayMedium,
+        color = MaterialTheme.colorScheme.primary)
+    Spacer(Modifier.height(12.dp))
+    Text(
+        when {
+            rp -> "Kdo dneska jsi?"
+            workshop -> "Co postavíme?"
+            else -> "Co tě zajímá?"
+        },
+        style = MaterialTheme.typography.headlineMedium,
+    )
+
+    Spacer(Modifier.height(56.dp))
+
+    val tips = when {
+        rp -> listOf(
+            Icons.Filled.TheaterComedy to "Začni scénu v Normalpolisu",
+            Icons.Filled.Person to "Hraju svou postavu, veď svět",
+            Icons.Filled.Bolt to "Hoď mě do průšvihu",
         )
+        workshop -> listOf(
+            Icons.Filled.Code to "Napiš GDScript pro pohyb hráče",
+            Icons.Filled.Language to "Udělej stránku o Zeds World",
+            Icons.Filled.ViewInAr to "Scéna ve three.js",
+        )
+        else -> listOf(
+            Icons.Filled.AutoStories to "Napiš povídku ze Sektoru EX",
+            Icons.Filled.Psychology to "Co víš o Zeds World?",
+            Icons.Filled.PictureAsPdf to "Nauč se lore z mého PDF",
+        )
+    }
+    tips.forEach { (icon, text) ->
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .clickable { onPick(text) }
+                .padding(vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(icon, null, Modifier.size(22.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            Spacer(Modifier.width(18.dp))
+            Text(text, style = MaterialTheme.typography.bodyLarge)
+        }
     }
 }
 
@@ -354,31 +391,48 @@ private fun SavedFiles(files: List<String>, onOpen: (String) -> Unit) =
 private fun InputBar(
     value: String, onValue: (String) -> Unit, streaming: Boolean,
     onSend: () -> Unit, onStop: () -> Unit, onPdf: () -> Unit,
-) = Surface(tonalElevation = 3.dp) {
+) = Surface(
+    shape = RoundedCornerShape(30.dp),
+    color = MaterialTheme.colorScheme.surfaceVariant,
+    modifier = Modifier
+        .fillMaxWidth()
+        // Aplikace kreslí pod systémové lišty, takže si vstup musí
+        // uhnout navigaci i vyjeté klávesnici sám.
+        .navigationBarsPadding()
+        .imePadding()
+        .padding(horizontal = 12.dp, vertical = 10.dp),
+) {
     Row(
-        Modifier
-            .fillMaxWidth()
-            // Aplikace kreslí pod systémové lišty, takže si vstup
-            // musí uhnout navigaci i vyjeté klávesnici sám.
-            .navigationBarsPadding()
-            .imePadding()
-            .padding(8.dp),
-        verticalAlignment = Alignment.Bottom,
+        Modifier.padding(start = 6.dp, end = 6.dp, top = 5.dp, bottom = 5.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(onClick = onPdf, enabled = !streaming) {
-            Icon(Icons.Filled.AttachFile, contentDescription = "Přiložit PDF")
+            Icon(Icons.Filled.Add, "Přiložit PDF")
         }
-        OutlinedTextField(
-            value = value, onValueChange = onValue,
-            modifier = Modifier.weight(1f),
-            placeholder = { Text("Napiš Zedovi…") },
+        TextField(
+            value = value,
+            onValueChange = onValue,
+            placeholder = { Text("Zeptej se Zeda") },
             maxLines = 5,
+            modifier = Modifier.weight(1f),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+            ),
         )
-        Spacer(Modifier.width(6.dp))
-        FilledIconButton(onClick = if (streaming) onStop else onSend,
-            enabled = streaming || value.isNotBlank()) {
-            Icon(if (streaming) Icons.Filled.Stop else Icons.Filled.Send,
-                contentDescription = if (streaming) "Zastavit" else "Poslat")
+        FilledIconButton(
+            onClick = if (streaming) onStop else onSend,
+            enabled = streaming || value.isNotBlank(),
+            modifier = Modifier.size(44.dp),
+        ) {
+            Icon(
+                if (streaming) Icons.Filled.Stop else Icons.Filled.ArrowUpward,
+                contentDescription = if (streaming) "Zastavit" else "Poslat",
+                modifier = Modifier.size(20.dp),
+            )
         }
     }
 }
