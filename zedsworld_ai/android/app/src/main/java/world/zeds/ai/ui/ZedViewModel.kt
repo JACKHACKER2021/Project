@@ -12,6 +12,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import world.zeds.ai.llm.*
+import world.zeds.ai.rp.Character
+import world.zeds.ai.rp.CharacterStore
+import world.zeds.ai.rp.CharacterWriter
 import world.zeds.ai.tools.GodotProject
 import world.zeds.ai.tools.PdfReader
 import world.zeds.ai.workspace.Artifacts
@@ -29,6 +32,9 @@ data class UiState(
     val streaming: Boolean = false,
     val partial: String = "",
     val roleplay: Boolean = false,
+    val characters: List<Character> = emptyList(),
+    val activeCharacter: Character? = null,
+    val draftingCharacter: Boolean = false,
     val project: String? = null,
     val savedFiles: List<String> = emptyList(),
     val previewHtml: String? = null,
@@ -40,6 +46,7 @@ class ZedViewModel(app: Application) : AndroidViewModel(app) {
     private val repo = ModelRepository(app)
     private val engine = ChatEngine()
     private val workspace = Workspace(app)
+    private val characters = CharacterStore(app)
     private var currentProject: Project? = null
     private var genJob: Job? = null
 
@@ -51,6 +58,7 @@ class ZedViewModel(app: Application) : AndroidViewModel(app) {
     init {
         _state.update { it.copy(
             bundled = repo.isBundled(),
+            characters = characters.all(),
             status = when {
                 repo.isReady()   -> "model připraven k načtení"
                 repo.isBundled() -> "model je v aplikaci, stačí rozbalit"
@@ -97,6 +105,9 @@ class ZedViewModel(app: Application) : AndroidViewModel(app) {
         val system = SystemPrompts.build(
             workshop = currentProject != null,
             roleplay = _state.value.roleplay,
+            character = _state.value.activeCharacter
+                ?.takeIf { _state.value.roleplay && !it.isBlank }
+                ?.asPrompt(),
         )
 
         genJob = viewModelScope.launch {
@@ -126,6 +137,58 @@ class ZedViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun toggleRoleplay() = _state.update { it.copy(roleplay = !it.roleplay) }
+
+    // ───────────────────────────────── RP postavy
+    fun saveCharacter(c: Character) {
+        characters.save(c)
+        _state.update { st ->
+            st.copy(
+                characters = characters.all(),
+                activeCharacter = if (st.activeCharacter?.id == c.id) c else st.activeCharacter,
+            )
+        }
+    }
+
+    fun deleteCharacter(c: Character) {
+        characters.delete(c)
+        _state.update { st ->
+            st.copy(
+                characters = characters.all(),
+                activeCharacter = st.activeCharacter?.takeIf { it.id != c.id },
+            )
+        }
+    }
+
+    /** Vybraná postava se vkládá do promptu; stejný výběr ji odepne. */
+    fun selectCharacter(c: Character?) = _state.update {
+        val next = if (c != null && c.id == it.activeCharacter?.id) null else c
+        it.copy(activeCharacter = next, roleplay = it.roleplay || next != null)
+    }
+
+    /**
+     * Nechá Zeda vyplnit kartu postavy z pár slov. Běží mimo chat,
+     * aby návrh postavy nezaplevelil rozehranou scénu.
+     */
+    fun draftCharacter(brief: String, onReady: (Character) -> Unit) {
+        if (!_state.value.modelReady || _state.value.draftingCharacter) return
+        _state.update { it.copy(draftingCharacter = true) }
+        viewModelScope.launch {
+            val sb = StringBuilder()
+            try {
+                engine.stream(
+                    SystemPrompts.ZED,
+                    listOf(Msg(Msg.USER, CharacterWriter.prompt(brief))),
+                    maxTokens = 400, nCtx = nCtx,
+                ).collect { sb.append(it) }
+                onReady(CharacterWriter.parse(sb.toString()))
+            } catch (e: Exception) {
+                _state.update { it.copy(error = "postavu se nepovedlo vymyslet: ${e.message}") }
+            } finally {
+                LlamaBridge.resetContext()
+                _state.update { it.copy(draftingCharacter = false) }
+            }
+        }
+    }
 
     fun dismissError() = _state.update { it.copy(error = null) }
 

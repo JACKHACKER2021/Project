@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import world.zeds.ai.llm.Msg
+import world.zeds.ai.rp.Character
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,6 +28,8 @@ fun ChatScreen(vm: ZedViewModel) {
     var input by remember { mutableStateOf("") }
     var pdfQuestion by remember { mutableStateOf("") }
     var showProjects by remember { mutableStateOf(false) }
+    var showCharacters by remember { mutableStateOf(false) }
+    var editing by remember { mutableStateOf<Character?>(null) }
     val listState = rememberLazyListState()
 
     val pickPdf = rememberLauncherForActivityResult(
@@ -56,7 +59,9 @@ fun ChatScreen(vm: ZedViewModel) {
                 title = {
                     Column {
                         Text("Zed", style = MaterialTheme.typography.titleMedium)
-                        Text(s.project?.let { "dílna · $it" } ?: s.status,
+                        Text(s.project?.let { "dílna · $it" }
+                            ?: s.activeCharacter?.let { "hraješ · ${it.name}" }
+                            ?: s.status,
                             style = MaterialTheme.typography.labelSmall)
                     }
                 },
@@ -64,6 +69,13 @@ fun ChatScreen(vm: ZedViewModel) {
                     IconToggleButton(checked = s.roleplay, onCheckedChange = { vm.toggleRoleplay() }) {
                         Icon(Icons.Filled.TheaterComedy,
                             contentDescription = if (s.roleplay) "RP zapnuto" else "RP vypnuto")
+                    }
+                    IconButton(onClick = { showCharacters = true }) {
+                        Icon(
+                            if (s.activeCharacter != null) Icons.Filled.Person
+                            else Icons.Filled.PersonOutline,
+                            contentDescription = "Postavy",
+                        )
                     }
                     IconButton(onClick = { showProjects = true }) {
                         Icon(Icons.Filled.FolderOpen, contentDescription = "Dílna")
@@ -105,6 +117,29 @@ fun ChatScreen(vm: ZedViewModel) {
                 }
             }
         }
+    }
+
+    if (showCharacters) CharacterSheet(
+        characters = s.characters,
+        active = s.activeCharacter,
+        onSelect = { vm.selectCharacter(it) },
+        onEdit = { editing = it; showCharacters = false },
+        onDelete = { vm.deleteCharacter(it) },
+        onNew = { editing = Character(); showCharacters = false },
+        onDismiss = { showCharacters = false },
+    )
+
+    editing?.let { draft ->
+        CharacterEditor(
+            initial = draft,
+            drafting = s.draftingCharacter,
+            canDraft = s.modelReady,
+            onDraft = { brief ->
+                vm.draftCharacter(brief) { made -> editing = made.copy(id = draft.id) }
+            },
+            onSave = { vm.saveCharacter(it); vm.selectCharacter(it); editing = null },
+            onDismiss = { editing = null },
+        )
     }
 
     if (showProjects) ProjectSheet(
