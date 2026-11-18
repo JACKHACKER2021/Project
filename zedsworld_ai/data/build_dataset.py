@@ -9,7 +9,8 @@ Zdroje:
 Výstup: data/dataset.jsonl  –  {"messages":[{"role","content"},...]}
 Spuštění:  python3 zedsworld_ai/data/build_dataset.py
 """
-import json, re, random, hashlib, sys
+import json
+import os, re, random, hashlib, sys
 from pathlib import Path
 from collections import Counter
 
@@ -22,8 +23,11 @@ from lore_zedsworld import SYSTEM, EXAMPLES as LORE
 
 # Vyvážení: lore je ručně psané a vzácné, GDScript je hojný.
 # Bez vyvážení by model skončil jako kodér bez znalosti světa.
-LORE_REPEAT   = 8     # kolikrát zopakovat každý lore příklad
-GDSCRIPT_CAP  = 60    # strop na GDScript – u 0.6B kód přebíjí češtinu
+# Výchozí hodnoty jsou pro malý model, kde kód přebíjí češtinu.
+# Pro 4B dej --gdscript-cap 300 --lore-repeat 6: větší model kód unese
+# a GDScript ve vlastním stylu je pak k něčemu.
+LORE_REPEAT   = int(os.environ.get("LORE_REPEAT", 8))
+GDSCRIPT_CAP  = int(os.environ.get("GDSCRIPT_CAP", 60))
 
 rows = []
 def add(instruction, output, tag):

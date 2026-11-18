@@ -1,5 +1,5 @@
 # generovaný dataset – vzniká z build_dataset.py, nepatří do gitu
-data/dataset.jsonl
+# dataset.jsonl se commituje – Colab si ho stahuje přímo z GitHubu
 # natrénované adaptéry a modely
 out/
 *.gguf
