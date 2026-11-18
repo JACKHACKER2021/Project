@@ -5,6 +5,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -122,7 +124,18 @@ fun ChatScreen(vm: ZedViewModel) {
                         item { EmptyHint(s.roleplay, s.project != null) }
                     }
                     items(s.messages) { Bubble(it.role, it.content) }
-                    if (s.partial.isNotEmpty()) item { Bubble(Msg.ASSISTANT, s.partial) }
+                    if (s.partial.isNotEmpty()) item {
+                        Column {
+                            Bubble(Msg.ASSISTANT, s.partial)
+                            WritingStats(s.tokens, s.startedAt)
+                        }
+                    }
+                    // Než dorazí první token, musí model přežvýkat celý prompt;
+                    // na telefonu to je klidně půl minuty a bez tohohle to
+                    // vypadá zaseknutě.
+                    if (s.streaming && s.partial.isEmpty()) item {
+                        ThinkingBubble(s.phase, s.startedAt)
+                    }
                     if (s.savedFiles.isNotEmpty()) item {
                         SavedFiles(s.savedFiles, onOpen = vm::showPreview)
                     }
@@ -248,6 +261,55 @@ private fun EmptyHint(rp: Boolean, workshop: Boolean) = Card(Modifier.fillMaxWid
     }
 }
 
+/**
+ * Rychlost psaní a dokdy nejpozději skončí. Přesný čas konce se říct
+ * nedá – kdy přestane, rozhoduje sám model – takže se ukazuje horní
+ * mez spočítaná ze zbývajícího limitu tokenů.
+ */
+@Composable
+private fun WritingStats(tokens: Int, startedAt: Long) {
+    var now by remember(startedAt) { mutableLongStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(startedAt) {
+        while (true) { kotlinx.coroutines.delay(500); now = System.currentTimeMillis() }
+    }
+    val secs = ((now - startedAt) / 1000.0).coerceAtLeast(0.1)
+    if (tokens < 3) return
+    val rate = tokens / secs
+    val worst = ((1024 - tokens).coerceAtLeast(0) / rate).toInt()
+    Text(
+        "%.1f tok/s · %ds · nejdéle ještě ~%ds".format(rate, secs.toInt(), worst),
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(start = 6.dp, top = 2.dp),
+    )
+}
+
+/** Co Zed dělá, dokud nezačne psát – plus kolik to už trvá. */
+@Composable
+private fun ThinkingBubble(phase: String, startedAt: Long) {
+    var seconds by remember(startedAt) { mutableIntStateOf(0) }
+    LaunchedEffect(startedAt) {
+        while (true) {
+            kotlinx.coroutines.delay(1000)
+            seconds = ((System.currentTimeMillis() - startedAt) / 1000).toInt()
+        }
+    }
+    Row(
+        Modifier
+            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(14.dp))
+            .padding(horizontal = 14.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        CircularProgressIndicator(Modifier.size(14.dp), strokeWidth = 2.dp)
+        Spacer(Modifier.width(10.dp))
+        Text(
+            phase.ifBlank { "přemýšlím" } + if (seconds > 2) "  ·  ${seconds}s" else "",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
 @Composable
 private fun Bubble(role: String, content: String) {
     val mine = role == Msg.USER
@@ -294,7 +356,13 @@ private fun InputBar(
     onSend: () -> Unit, onStop: () -> Unit, onPdf: () -> Unit,
 ) = Surface(tonalElevation = 3.dp) {
     Row(
-        Modifier.fillMaxWidth().padding(8.dp),
+        Modifier
+            .fillMaxWidth()
+            // Aplikace kreslí pod systémové lišty, takže si vstup
+            // musí uhnout navigaci i vyjeté klávesnici sám.
+            .navigationBarsPadding()
+            .imePadding()
+            .padding(8.dp),
         verticalAlignment = Alignment.Bottom,
     ) {
         IconButton(onClick = onPdf, enabled = !streaming) {

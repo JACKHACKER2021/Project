@@ -33,6 +33,10 @@ data class UiState(
     val downloadPercent: Int = -1,
     val messages: List<Msg> = emptyList(),
     val streaming: Boolean = false,
+    /** Co Zed zrovna dělá – ukazuje se, dokud nezačne psát. */
+    val phase: String = "",
+    val startedAt: Long = 0L,
+    val tokens: Int = 0,
     val partial: String = "",
     val roleplay: Boolean = false,
     val characters: List<Character> = emptyList(),
@@ -109,6 +113,11 @@ class ZedViewModel(app: Application) : AndroidViewModel(app) {
         val history = _state.value.messages + Msg(Msg.USER, text)
         _state.update { it.copy(messages = history, streaming = true, partial = "") }
 
+        _state.update { it.copy(
+            phase = "čtu paměť",
+            startedAt = System.currentTimeMillis(),
+            tokens = 0,
+        ) }
         val recalled = memory.recall(text)
         val system = SystemPrompts.build(
             workshop = currentProject != null,
@@ -118,14 +127,25 @@ class ZedViewModel(app: Application) : AndroidViewModel(app) {
                 ?.asPrompt(),
             memory = memory.recallPrompt(text),
         )
-        _state.update { it.copy(memoryUsed = recalled.size) }
+        _state.update { it.copy(
+            memoryUsed = recalled.size,
+            phase = when {
+                recalled.isNotEmpty() -> "našel ${recalled.size} poznámek, přemýšlím"
+                currentProject != null -> "přemýšlím nad kódem"
+                it.roleplay -> "vedu scénu"
+                else -> "přemýšlím"
+            },
+        ) }
 
         genJob = viewModelScope.launch {
             val sb = StringBuilder()
             try {
                 engine.stream(system, history, maxTokens = 1024, nCtx = nCtx).collect { piece ->
                     sb.append(piece)
-                    _state.update { it.copy(partial = sb.toString()) }
+                    // První token znamená, že prompt je zpracovaný a Zed píše.
+                    _state.update {
+                        it.copy(partial = sb.toString(), phase = "", tokens = it.tokens + 1)
+                    }
                 }
             } catch (e: Exception) {
                 _state.update { it.copy(error = "generování selhalo: ${e.message}") }
@@ -133,7 +153,7 @@ class ZedViewModel(app: Application) : AndroidViewModel(app) {
             val reply = sb.toString().trim()
             _state.update {
                 it.copy(messages = it.messages + Msg(Msg.ASSISTANT, reply),
-                        streaming = false, partial = "")
+                        streaming = false, partial = "", phase = "")
             }
             saveArtifacts(reply)
         }
@@ -278,7 +298,7 @@ class ZedViewModel(app: Application) : AndroidViewModel(app) {
         question: String,
         toMemory: Boolean = false,
     ) = viewModelScope.launch {
-        _state.update { it.copy(status = if (toMemory) "učím se z PDF" else "čtu PDF") }
+        _state.update { it.copy(phase = if (toMemory) "učím se z PDF" else "čtu PDF") }
         try {
             val r = PdfReader.extract(getApplication(), uri)
             if (r.needsOcr) {
@@ -304,7 +324,7 @@ class ZedViewModel(app: Application) : AndroidViewModel(app) {
         } catch (e: Exception) {
             _state.update { it.copy(error = "PDF nešlo přečíst: ${e.message}") }
         } finally {
-            _state.update { it.copy(status = if (it.modelReady) "Zed připraven" else it.status) }
+            _state.update { it.copy(phase = "") }
         }
     }
 }
