@@ -20,10 +20,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import world.zeds.ai.llm.Msg
 import world.zeds.ai.rp.Character
 import world.zeds.ai.memory.Note
+import world.zeds.ai.tools.EngineTool
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,6 +39,8 @@ fun ChatScreen(vm: ZedViewModel) {
     var showMemory by remember { mutableStateOf(false) }
     var editingNote by remember { mutableStateOf<Note?>(null) }
     var pdfToMemory by remember { mutableStateOf(false) }
+    var showEngine by remember { mutableStateOf(false) }
+    val ctx = LocalContext.current
     val listState = rememberLazyListState()
 
     val pickPdf = rememberLauncherForActivityResult(
@@ -81,6 +85,9 @@ fun ChatScreen(vm: ZedViewModel) {
                     IconToggleButton(checked = s.roleplay, onCheckedChange = { vm.toggleRoleplay() }) {
                         Icon(Icons.Filled.TheaterComedy,
                             contentDescription = if (s.roleplay) "RP zapnuto" else "RP vypnuto")
+                    }
+                    IconButton(onClick = { showEngine = true }) {
+                        Icon(Icons.Filled.Build, contentDescription = "Dílna")
                     }
                     IconButton(onClick = { showMemory = true }) {
                         Icon(Icons.Filled.Psychology, contentDescription = "Paměť")
@@ -144,6 +151,35 @@ fun ChatScreen(vm: ZedViewModel) {
             }
         }
     }
+
+    if (showEngine) EngineSheet(
+        project = s.project,
+        onPick = { tool ->
+            // Bez projektu by se vygenerované soubory neměly kam uložit.
+            if (s.project == null) vm.openProject(tool.title)
+            input = tool.starter
+            showEngine = false
+        },
+        onExportGodot = {
+            vm.exportGodotZip()?.let { zip ->
+                val uri = androidx.core.content.FileProvider.getUriForFile(
+                    ctx, "${ctx.packageName}.files", zip,
+                )
+                ctx.startActivity(
+                    android.content.Intent.createChooser(
+                        android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                            type = "application/zip"
+                            putExtra(android.content.Intent.EXTRA_STREAM, uri)
+                            addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        },
+                        "Otevřít projekt v…",
+                    )
+                )
+            }
+            showEngine = false
+        },
+        onDismiss = { showEngine = false },
+    )
 
     if (showMemory) MemorySheet(
         notes = s.notes,

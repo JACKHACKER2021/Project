@@ -25,6 +25,8 @@ extends Node3D
 
 Podporované typy: html, javascript, gdscript, python, svg, markdown, json.
 Aplikace blok uloží do projektu a HTML/SVG hned zobrazí. Nikdy nepiš soubor po částech a nepiš "zbytek zůstává stejný".
+
+${world.zeds.ai.tools.EngineTool.forPrompt()}
 """.trim()
 
     /** Režim roleplay: model vede scénu a hraje za svět. */
