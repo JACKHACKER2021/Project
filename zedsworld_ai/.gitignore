@@ -5,3 +5,4 @@ out/
 *.gguf
 *.safetensors
 dist/
+out/
