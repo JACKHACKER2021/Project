@@ -25,6 +25,8 @@ def main():
     ap.add_argument("--rank",    type=int, default=16)
     ap.add_argument("--threads", type=int, default=os.cpu_count() or 4)
     ap.add_argument("--max-steps", type=int, default=-1, help="jen pro zkoušku")
+    ap.add_argument("--resume", action="store_true",
+                    help="navázat na poslední checkpoint v --out")
     ap.add_argument("--dtype", default="bf16", choices=["bf16", "fp32"],
                     help="bf16 využije AMX na Xeonu; fp32 je pomalejší záloha")
     args = ap.parse_args()
@@ -103,7 +105,9 @@ def main():
     )
 
     t0 = time.time()
-    trainer.train()
+    # Kontejner se umí restartovat uprostřed běhu; s checkpointem
+    # se pokračuje místo počítání od nuly.
+    trainer.train(resume_from_checkpoint=args.resume or None)
     print(f"→ trénink hotov za {(time.time() - t0) / 60:.1f} min")
 
     trainer.model.save_pretrained(args.out)
