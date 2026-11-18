@@ -91,7 +91,7 @@ def main():
             lr_scheduler_type="cosine",
             logging_steps=5,
             save_strategy="steps",
-            save_steps=10,
+            save_steps=3,
             save_total_limit=1,
             optim="adamw_torch",
             weight_decay=0.01,
